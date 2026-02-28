@@ -482,21 +482,11 @@ function renderTasks(taskState){
 }
 
 async function poll(){
-  try{
-    const r = await fetch('./state.json?ts=' + Date.now(), { cache:'no-store' });
-    if(r.ok){
-      const data = await r.json();
-      const ts = data.taskState || { tasks: [] };
-      renderTasks(ts);
-      return;
-    }
-  }catch{}
-
   try {
-    const r2 = await fetch('./tasks.json?ts=' + Date.now(), { cache:'no-store' });
-    if(!r2.ok) return;
-    const data2 = await r2.json();
-    renderTasks(data2);
+    const r = await fetch('./tasks.json?ts=' + Date.now(), { cache:'no-store' });
+    if(!r.ok) return;
+    const data = await r.json();
+    renderTasks(data);
   } catch {}
 }
 
