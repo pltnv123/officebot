@@ -11,8 +11,8 @@ const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x101726, 0.02);
 
 const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 200);
-camera.position.set(10, 8, 14);
-camera.lookAt(0, 2.2, 0);
+camera.position.set(8.6, 7.2, 15.5);
+camera.lookAt(-1.8, 2.2, -1.2);
 
 // lights
 const hemi = new THREE.HemisphereLight(0xbdd5ff, 0x3f2d23, 0.55);
@@ -72,8 +72,11 @@ const winTop = new THREE.Mesh(new THREE.BoxGeometry(7,0.2,0.2), frameMat); winTo
 const winBottom = winTop.clone(); winBottom.position.y = -1.7;
 const winLeft = new THREE.Mesh(new THREE.BoxGeometry(0.2,3.4,0.2), frameMat); winLeft.position.x = -3.5;
 const winRight = winLeft.clone(); winRight.position.x = 3.5;
-const winGlass = new THREE.Mesh(new THREE.PlaneGeometry(6.6,3.1), new THREE.MeshBasicMaterial({ color: 0x89a6d6, transparent:true, opacity:0.35 }));
+const winGlass = new THREE.Mesh(new THREE.PlaneGeometry(6.6,3.1), new THREE.MeshBasicMaterial({ color: 0x7ea1d8, transparent:true, opacity:0.62 }));
 win.add(winTop, winBottom, winLeft, winRight, winGlass);
+const winMidV = new THREE.Mesh(new THREE.BoxGeometry(0.09, 3.1, 0.12), frameMat);
+const winMidH = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.09, 0.12), frameMat);
+win.add(winMidV, winMidH);
 win.position.set(-6.4, 4.5, -8.84);
 scene.add(win);
 
@@ -101,7 +104,7 @@ const chairSeat = new THREE.Mesh(new THREE.BoxGeometry(0.95,0.16,0.9), new THREE
 const chairBack = new THREE.Mesh(new THREE.BoxGeometry(0.95,0.85,0.14), new THREE.MeshStandardMaterial({ color: 0x878d99, roughness: 0.8 })); chairBack.position.set(0,1.24,0.38);
 const chairPole = new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.06,0.48,12), new THREE.MeshStandardMaterial({ color: 0x4f5563, metalness: 0.3, roughness: 0.5 })); chairPole.position.y = 0.58;
 chair.add(chairSeat, chairBack, chairPole);
-chair.position.set(-4.9,0,-0.2); chair.rotation.y = 0.18;
+chair.position.set(-4.25,0,0.55); chair.rotation.y = 0.42;
 scene.add(chair);
 
 // lounge
@@ -127,7 +130,7 @@ const body = new THREE.Mesh(new THREE.SphereGeometry(0.45,18,14), new THREE.Mesh
 const head = new THREE.Mesh(new THREE.SphereGeometry(0.36,18,14), new THREE.MeshStandardMaterial({ color: 0x85dd71, roughness: 0.72 })); head.position.y = 1.38;
 const hoodie = new THREE.Mesh(new THREE.CapsuleGeometry(0.33,0.52,4,8), new THREE.MeshStandardMaterial({ color: 0xff8c38, roughness: 0.76 })); hoodie.position.y = 0.43;
 frog.add(body, head, hoodie);
-frog.position.set(-4.9,0,-0.2); frog.scale.set(1.35,1.35,1.35);
+frog.position.set(-4.25,0,0.55); frog.scale.set(1.35,1.35,1.35);
 scene.add(frog);
 
 // particles
