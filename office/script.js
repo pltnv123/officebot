@@ -40,6 +40,10 @@ const boardGlow = new THREE.PointLight(0x82b8ff, 0.65, 9);
 boardGlow.position.set(5.4, 4.2, -7.3);
 scene.add(boardGlow);
 
+const ambientWarm = new THREE.PointLight(0xffb77f, 0.2, 18);
+ambientWarm.position.set(1.5, 3.8, 0.5);
+scene.add(ambientWarm);
+
 // room
 const floorTex = new THREE.CanvasTexture(document.createElement('canvas'));
 {
@@ -70,6 +74,22 @@ function makeContactShadow(x, z, sx, sz, opacity = 0.2) {
   scene.add(sh);
   return sh;
 }
+
+const sunPatch = new THREE.Mesh(
+  new THREE.PlaneGeometry(5.4, 3.2),
+  new THREE.MeshBasicMaterial({ color: 0xffd6a2, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending, depthWrite: false })
+);
+sunPatch.rotation.x = -Math.PI / 2;
+sunPatch.position.set(-3.6, 0.013, -2.6);
+scene.add(sunPatch);
+
+const moonPatch = new THREE.Mesh(
+  new THREE.PlaneGeometry(4.8, 2.8),
+  new THREE.MeshBasicMaterial({ color: 0x96b8ff, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending, depthWrite: false })
+);
+moonPatch.rotation.x = -Math.PI / 2;
+moonPatch.position.set(-3.2, 0.014, -2.4);
+scene.add(moonPatch);
 
 const wallMat = new THREE.MeshStandardMaterial({ color: 0x5a6075, roughness: 0.92 });
 const backWall = new THREE.Mesh(new THREE.BoxGeometry(26, 9, 0.24), wallMat);
@@ -170,6 +190,29 @@ const plantPot = new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.26,0.32,12), n
 plantPot.position.set(7.4,0.16,1.8); plantPot.castShadow = true; scene.add(plantPot);
 const plantLeaf = new THREE.Mesh(new THREE.SphereGeometry(0.34, 14, 12), new THREE.MeshStandardMaterial({ color: 0x4cab73, roughness: 0.78 }));
 plantLeaf.position.set(7.4,0.58,1.8); plantLeaf.castShadow = true; scene.add(plantLeaf);
+
+// assistant desks
+function createAssistantDesk(px, pz, tone = 0x8a5d40) {
+  const top = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.2, 0.9), new THREE.MeshStandardMaterial({ color: tone, roughness: 0.8 }));
+  top.position.set(px, 1.0, pz);
+  top.castShadow = true;
+  scene.add(top);
+
+  const mon = new THREE.Mesh(new THREE.BoxGeometry(0.64, 0.42, 0.05), new THREE.MeshStandardMaterial({ color: 0x242c3c, roughness: 0.45 }));
+  mon.position.set(px, 1.4, pz - 0.22);
+  mon.castShadow = true;
+  scene.add(mon);
+
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.54, 0.31), new THREE.MeshBasicMaterial({ color: 0x92dbff }));
+  scr.position.z = 0.03;
+  mon.add(scr);
+
+  makeContactShadow(px, pz, 1.9, 1.15, 0.18);
+  return { mon, scr };
+}
+
+const assistantDeskA = createAssistantDesk(3.9, 1.9, 0x7f563e);
+const assistantDeskB = createAssistantDesk(7.0, 3.35, 0x74503d);
 
 // board
 const boardCanvas = document.createElement('canvas'); boardCanvas.width = 1024; boardCanvas.height = 512;
@@ -403,6 +446,8 @@ function animate(t){
 
     key.position.set(-10 + p * 20, 6 + Math.sin(p * Math.PI) * 9, 6);
     key.color.setRGB(1.0, 0.82 + day * 0.14, 0.65 + day * 0.2);
+    sunPatch.material.opacity = 0.14 + day * 0.18;
+    moonPatch.material.opacity = 0.0;
   } else {
     sunDisk.visible = false;
     moonDisk.visible = true;
@@ -413,6 +458,8 @@ function animate(t){
 
     key.position.set(6 - n * 12, 7 + Math.sin(n * Math.PI) * 4, 6);
     key.color.setRGB(0.64, 0.75, 1.0);
+    sunPatch.material.opacity = 0.0;
+    moonPatch.material.opacity = 0.12 + (1 - day) * 0.2;
   }
 
   shDesk.material.opacity = 0.13 + (1 - day) * 0.12;
@@ -425,6 +472,8 @@ function animate(t){
   });
 
   screen.material.color.setRGB(0.55 + Math.random()*0.07, 0.88 + Math.random()*0.07, 1);
+  assistantDeskA.scr.material.color.setRGB(0.5 + Math.random()*0.09, 0.82 + Math.random()*0.1, 1.0);
+  assistantDeskB.scr.material.color.setRGB(0.52 + Math.random()*0.08, 0.84 + Math.random()*0.1, 1.0);
   frog.position.y = Math.sin(s*4.5)*0.02;
   frog.rotation.z = Math.sin(s*5.8)*0.01;
 
