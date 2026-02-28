@@ -270,6 +270,7 @@ const activeEl = document.getElementById('active');
 const doneEl = document.getElementById('done');
 const tasksActiveEl = document.getElementById('tasks-active');
 const tasksDoneEl = document.getElementById('tasks-done');
+const nowDoingEl = document.getElementById('now-doing');
 
 function subProgressValue(status) {
   if (status === 'done') return 100;
@@ -277,53 +278,63 @@ function subProgressValue(status) {
   return 0;
 }
 
-function taskPercent(task) {
-  const subs = task.subtasks || [];
-  if (!subs.length) return task.status === 'done' ? 100 : (task.status === 'doing' ? 50 : 0);
-  const score = subs.reduce((acc, s) => acc + subProgressValue(s.status), 0);
+function makeChildSteps(title, status) {
+  const base = title || 'Шаг';
+  if (status === 'done') {
+    return [
+      { title: `Анализ: ${base}`, status: 'done' },
+      { title: `Реализация: ${base}`, status: 'done' },
+      { title: `Проверка: ${base}`, status: 'done' }
+    ];
+  }
+  if (status === 'doing') {
+    return [
+      { title: `Анализ: ${base}`, status: 'done' },
+      { title: `Реализация: ${base}`, status: 'doing' },
+      { title: `Проверка: ${base}`, status: 'todo' }
+    ];
+  }
+  return [
+    { title: `Анализ: ${base}`, status: 'todo' },
+    { title: `Реализация: ${base}`, status: 'todo' },
+    { title: `Проверка: ${base}`, status: 'todo' }
+  ];
+}
+
+function expandSubtree(node, depth = 0, maxDepth = 2) {
+  const src = node.subtasks || [];
+  let subtasks = src.map(s => ({ ...s }));
+
+  if (subtasks.length < 6 && depth === 0) {
+    const padded = [];
+    const from = subtasks.length ? subtasks : [{ title: 'Подготовка сцены', status: node.status || 'todo' }];
+    from.forEach(s => padded.push(...makeChildSteps(s.title, s.status)));
+    while (padded.length < 9) padded.push({ title: 'Технический контроль качества', status: node.status === 'done' ? 'done' : 'todo' });
+    subtasks = padded;
+  }
+
+  if (depth < maxDepth) {
+    subtasks = subtasks.map(s => {
+      const cloned = { ...s };
+      if (!cloned.subtasks || !cloned.subtasks.length) cloned.subtasks = makeChildSteps(cloned.title, cloned.status);
+      if (depth + 1 < maxDepth) cloned.subtasks = cloned.subtasks.map(ss => ({ ...ss }));
+      return cloned;
+    });
+  }
+
+  return { ...node, subtasks };
+}
+
+function nodePercent(node) {
+  const subs = node.subtasks || [];
+  if (!subs.length) return subProgressValue(node.status);
+  const score = subs.reduce((acc, s) => acc + nodePercent(s), 0);
   return Math.round(score / subs.length);
 }
 
-function expandSubtasks(task) {
-  const src = task.subtasks || [];
-  if (src.length >= 7) return src;
-
-  const expanded = [];
-  src.forEach((s, idx) => {
-    const base = s.title || `Шаг ${idx + 1}`;
-    if (s.status === 'done') {
-      expanded.push({ title: `Подготовка: ${base}`, status: 'done' });
-      expanded.push({ title: `Выполнить: ${base}`, status: 'done' });
-      expanded.push({ title: `Проверка: ${base}`, status: 'done' });
-    } else if (s.status === 'doing') {
-      expanded.push({ title: `Подготовка: ${base}`, status: 'done' });
-      expanded.push({ title: `Выполнить: ${base}`, status: 'doing' });
-      expanded.push({ title: `Проверка: ${base}`, status: 'todo' });
-    } else {
-      expanded.push({ title: `Подготовка: ${base}`, status: 'todo' });
-      expanded.push({ title: `Выполнить: ${base}`, status: 'todo' });
-      expanded.push({ title: `Проверка: ${base}`, status: 'todo' });
-    }
-  });
-
-  const generic = [
-    'Собрать референсы',
-    'Сделать черновой блок-аут',
-    'Проставить свет и тени',
-    'Полировка деталей',
-    'Финальная проверка'
-  ];
-  let i = 0;
-  while (expanded.length < 9) {
-    expanded.push({ title: generic[i % generic.length], status: task.status === 'done' ? 'done' : 'todo' });
-    i++;
-  }
-  return expanded;
-}
-
 function enrichTask(task) {
-  const subtasks = expandSubtasks(task);
-  return { ...task, subtasks, percent: taskPercent({ ...task, subtasks }) };
+  const tree = expandSubtree(task, 0, 2);
+  return { ...tree, percent: nodePercent(tree) };
 }
 
 function drawBoard(active, done){
@@ -358,6 +369,44 @@ function normalizeTaskState(taskState){
   return { active, done };
 }
 
+function renderSubtaskNode(node, level = 0, idx = 1) {
+  const sub = document.createElement('div');
+  sub.className = `sub l${Math.min(level,2)}`;
+  const sp = nodePercent(node);
+  const icon = node.status === 'done' ? '✅' : node.status === 'doing' ? '🟡' : '⚪';
+  sub.innerHTML = `${icon} ${idx}. ${node.title}
+    <div class="sub-progress"><div class="sub-progress-fill" style="width:${sp}%"></div></div>`;
+
+  (node.subtasks || []).forEach((child, childIdx) => {
+    sub.appendChild(renderSubtaskNode(child, level + 1, childIdx + 1));
+  });
+  return sub;
+}
+
+function renderNowDoing(activeTasks) {
+  const doing = [];
+  activeTasks.forEach(t => {
+    (function walk(nodes, prefix) {
+      (nodes || []).forEach(n => {
+        if (n.status === 'doing') doing.push(`${prefix}${n.title}`);
+        if (n.subtasks?.length) walk(n.subtasks, `${prefix}↳ `);
+      });
+    })(t.subtasks || [], `${t.id || 'TASK'}: `);
+  });
+
+  nowDoingEl.innerHTML = '';
+  if (!doing.length) {
+    nowDoingEl.textContent = 'Сейчас нет шага в doing — ожидаю обновление статусов';
+    return;
+  }
+  doing.slice(0, 14).forEach(line => {
+    const item = document.createElement('div');
+    item.className = 'now-item';
+    item.textContent = `🟡 ${line}`;
+    nowDoingEl.appendChild(item);
+  });
+}
+
 function renderTasks(taskState){
   const normalized = normalizeTaskState(taskState);
   const active = normalized.active;
@@ -373,14 +422,7 @@ function renderTasks(taskState){
       <div class="task-progress"><div class="task-progress-fill" style="width:${t.percent}%"></div></div>
       <div class="task-progress-label">${t.percent}%</div>`;
 
-    (t.subtasks||[]).forEach((s,i)=>{
-      const sub = document.createElement('div');
-      sub.className='sub';
-      const sp = subProgressValue(s.status);
-      sub.innerHTML = `${s.status==='done'?'✅':s.status==='doing'?'🟡':'⚪'} ${i+1}. ${s.title}
-        <div class="sub-progress"><div class="sub-progress-fill" style="width:${sp}%"></div></div>`;
-      div.appendChild(sub);
-    });
+    (t.subtasks||[]).forEach((s,i)=> div.appendChild(renderSubtaskNode(s, 0, i + 1)));
     tasksActiveEl.appendChild(div);
   });
 
@@ -390,15 +432,11 @@ function renderTasks(taskState){
     div.innerHTML=`<div><b>✅ ${t.id||''}</b> — ${t.title||'task'}</div>
       <div class="task-progress"><div class="task-progress-fill" style="width:100%"></div></div>
       <div class="task-progress-label">100%</div>`;
-    (t.subtasks||[]).slice(0,6).forEach((s,i)=>{
-      const sub = document.createElement('div');
-      sub.className='sub';
-      const sp = subProgressValue(s.status);
-      sub.innerHTML = `✅ ${i+1}. ${s.title}<div class="sub-progress"><div class="sub-progress-fill" style="width:${sp}%"></div></div>`;
-      div.appendChild(sub);
-    });
+    (t.subtasks||[]).slice(0,4).forEach((s,i)=> div.appendChild(renderSubtaskNode({ ...s, status: 'done' }, 0, i + 1)));
     tasksDoneEl.appendChild(div);
   });
+
+  renderNowDoing(active);
   drawBoard(active, done);
 }
 
