@@ -1,0 +1,24 @@
+{
+  "tasks": [
+    {
+      "id": "S001",
+      "title": "Комната и свет",
+      "status": "done",
+      "subtasks": [
+        { "title": "Построить стены и окно", "status": "done", "estimate": 20, "actual": 18 },
+        { "title": "Настроить ambient + окно", "status": "done", "estimate": 20, "actual": 22 },
+        { "title": "Поставить лампы", "status": "done", "estimate": 20, "actual": 19 }
+      ]
+    },
+    {
+      "id": "S002",
+      "title": "Столы и ассистенты",
+      "status": "doing",
+      "subtasks": [
+        { "title": "Главный стол", "status": "done", "estimate": 30, "actual": 24 },
+        { "title": "Стол сотрудника", "status": "doing", "estimate": 25, "actual": 11 },
+        { "title": "Chill зона", "status": "doing", "estimate": 20, "actual": 9 }
+      ]
+    }
+  ]
+}

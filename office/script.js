@@ -3,6 +3,8 @@ import * as THREE from 'three';
 const canvas = document.getElementById('scene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.02;
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -10,9 +12,9 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x101726, 0.02);
 
-const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 200);
-camera.position.set(8.6, 7.2, 15.5);
-camera.lookAt(-1.8, 2.2, -1.2);
+const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 200);
+camera.position.set(9.8, 8.4, 14.8);
+camera.lookAt(-1.3, 2.1, -1.6);
 
 // lights
 const hemi = new THREE.HemisphereLight(0xbdd5ff, 0x3f2d23, 0.55);
@@ -43,6 +45,19 @@ scene.add(boardGlow);
 const ambientWarm = new THREE.PointLight(0xffb77f, 0.2, 18);
 ambientWarm.position.set(1.5, 3.8, 0.5);
 scene.add(ambientWarm);
+
+const atmosphere = {
+  cozy: {
+    keyKelvin: 2850, keyIntensity: 1.1,
+    fillIntensity: 0.28, lampIntensity: 0.56, boardIntensity: 0.62,
+    fogDensity: 0.017, exposure: 1.04, vignette: 0.2
+  },
+  thriller: {
+    keyKelvin: 5200, keyIntensity: 0.75,
+    fillIntensity: 0.06, lampIntensity: 0.22, boardIntensity: 0.94,
+    fogDensity: 0.03, exposure: 0.93, vignette: 0.45
+  }
+};
 
 // room
 const floorTex = new THREE.CanvasTexture(document.createElement('canvas'));
@@ -190,6 +205,28 @@ const plantPot = new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.26,0.32,12), n
 plantPot.position.set(7.4,0.16,1.8); plantPot.castShadow = true; scene.add(plantPot);
 const plantLeaf = new THREE.Mesh(new THREE.SphereGeometry(0.34, 14, 12), new THREE.MeshStandardMaterial({ color: 0x4cab73, roughness: 0.78 }));
 plantLeaf.position.set(7.4,0.58,1.8); plantLeaf.castShadow = true; scene.add(plantLeaf);
+
+// controlled imperfection: papers / cup / cable
+const paperMat = new THREE.MeshStandardMaterial({ color: 0xd8d6c9, roughness: 0.95 });
+for (const p of [
+  { x: -3.8, z: -1.4, r: 0.18 },
+  { x: -4.1, z: -1.15, r: -0.22 },
+  { x: 6.1, z: 2.2, r: 0.1 }
+]) {
+  const paper = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.28), paperMat);
+  paper.rotation.x = -Math.PI / 2;
+  paper.rotation.z = p.r;
+  paper.position.set(p.x, 1.68, p.z);
+  scene.add(paper);
+}
+const mug = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.22, 14), new THREE.MeshStandardMaterial({ color: 0xbac8da, roughness: 0.62 }));
+mug.position.set(-5.9, 1.77, -1.45);
+mug.castShadow = true;
+scene.add(mug);
+const cable = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.015, 8, 32, Math.PI * 1.6), new THREE.MeshStandardMaterial({ color: 0x1f2430, roughness: 0.9 }));
+cable.rotation.x = Math.PI / 2;
+cable.position.set(-4.9, 1.69, -1.95);
+scene.add(cable);
 
 // assistant desks
 function createAssistantDesk(px, pz, tone = 0x8a5d40) {
@@ -468,13 +505,16 @@ function animate(t){
   const h = new Date().getHours() + new Date().getMinutes()/60;
   const isDayTime = h >= 6 && h < 18;
   const day = isDayTime ? Math.sin(((h-6)/12)*Math.PI) : 0;
+  const mode = isDayTime ? atmosphere.cozy : atmosphere.thriller;
 
-  scene.background = new THREE.Color().setRGB(0.05 + day*0.15, 0.07 + day*0.2, 0.12 + day*0.28);
-  hemi.intensity = 0.3 + day*0.35;
-  key.intensity = 0.35 + day*1.0;
-  fill.intensity = 0.3 + (1-day)*0.55;
-  lampLight.intensity = 0.18 + (1-day)*0.38;
-  boardGlow.intensity = 0.46 + (1-day)*0.24;
+  scene.background = new THREE.Color().setRGB(0.05 + day*0.13, 0.07 + day*0.17, 0.12 + day*0.24);
+  scene.fog.density = mode.fogDensity;
+  renderer.toneMappingExposure = mode.exposure;
+  hemi.intensity = isDayTime ? 0.58 : 0.2;
+  key.intensity = mode.keyIntensity;
+  fill.intensity = mode.fillIntensity;
+  lampLight.intensity = mode.lampIntensity;
+  boardGlow.intensity = mode.boardIntensity;
 
   // sky, sun/moon and proper time-based key light direction
   skyPane.material.color.setRGB(0.16 + day*0.48, 0.2 + day*0.45, 0.3 + day*0.38);
