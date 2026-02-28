@@ -491,15 +491,18 @@ function drawBoard(active, done){
 }
 
 function normalizeTaskState(taskState){
+  const isDoneTask = (t) => (t.status === 'done') || ((t.percent ?? nodePercent(t)) >= 100);
+
   if (taskState?.active || taskState?.done) {
-    return {
-      active: (taskState.active || []).map(enrichTask),
-      done: (taskState.done || []).map(enrichTask)
-    };
+    const all = [...(taskState.active || []), ...(taskState.done || [])].map(enrichTask);
+    const done = all.filter(isDoneTask);
+    const active = all.filter(t => !isDoneTask(t));
+    return { active, done };
   }
-  const tasks = taskState?.tasks || [];
-  const done = tasks.filter(t => t.status === 'done').map(enrichTask);
-  const active = tasks.filter(t => t.status !== 'done').map(enrichTask);
+
+  const all = (taskState?.tasks || []).map(enrichTask);
+  const done = all.filter(isDoneTask);
+  const active = all.filter(t => !isDoneTask(t));
   return { active, done };
 }
 
