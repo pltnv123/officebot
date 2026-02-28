@@ -566,20 +566,18 @@ function drawBoard(active, done){
 }
 
 function normalizeTaskState(taskState){
-  const markDone = (t) => ({
-    ...t,
-    status: 'done',
-    percent: 100,
-    subtasks: (t.subtasks || []).map(s => ({ ...s, status: 'done' }))
-  });
+  const fromBuckets = taskState?.active || taskState?.done;
 
-  if (taskState?.active || taskState?.done) {
-    const all = [...(taskState.active || []), ...(taskState.done || [])].map(enrichTask).map(markDone);
-    return { active: [], done: all };
+  if (fromBuckets) {
+    const active = (taskState.active || []).map(enrichTask);
+    const done = (taskState.done || []).map(enrichTask).map(t => ({ ...t, status: 'done', percent: 100 }));
+    return { active, done };
   }
 
-  const all = (taskState?.tasks || []).map(enrichTask).map(markDone);
-  return { active: [], done: all };
+  const all = (taskState?.tasks || []).map(enrichTask);
+  const active = all.filter(t => t.status !== 'done');
+  const done = all.filter(t => t.status === 'done').map(t => ({ ...t, percent: 100 }));
+  return { active, done };
 }
 
 function renderSubtaskNode(node, level = 0, idx = 1) {
