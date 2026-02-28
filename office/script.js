@@ -273,11 +273,21 @@ const shChair = makeContactShadow(-4.25, 0.55, 1.4, 1.3, 0.24);
 // lounge
 const rug = new THREE.Mesh(new THREE.PlaneGeometry(4.4,3.2), new THREE.MeshStandardMaterial({ color: 0x2d3459, roughness: 0.95 }));
 rug.rotation.x = -Math.PI/2; rug.position.set(5.8,0.01,2.6); scene.add(rug);
-const sofa = new THREE.Mesh(new THREE.BoxGeometry(3.5,0.65,1.4), new THREE.MeshStandardMaterial({ color: 0x6f759e, roughness: 0.82 }));
-sofa.position.set(5.2,0.45,3.0); sofa.castShadow = true; scene.add(sofa);
-const sofaBack = new THREE.Mesh(new THREE.BoxGeometry(3.5,0.8,0.28), new THREE.MeshStandardMaterial({ color: 0x838ab8, roughness: 0.8 }));
-sofaBack.position.set(5.2,0.98,3.55); sofaBack.castShadow = true; scene.add(sofaBack);
-const shSofa = makeContactShadow(5.2, 3.0, 3.8, 1.7, 0.24);
+const sofaBase = new THREE.Mesh(new THREE.BoxGeometry(3.58,0.44,1.48), new THREE.MeshStandardMaterial({ color: 0x656d97, roughness: 0.9 }));
+sofaBase.position.set(5.2,0.28,3.0); sofaBase.castShadow = true; scene.add(sofaBase);
+const sofaSeat = new THREE.Mesh(new THREE.BoxGeometry(3.42,0.22,1.22), new THREE.MeshStandardMaterial({ color: 0x7a82b1, roughness: 0.88 }));
+sofaSeat.position.set(5.2,0.58,2.92); sofaSeat.castShadow = true; scene.add(sofaSeat);
+const sofaBack = new THREE.Mesh(new THREE.BoxGeometry(3.42,0.64,0.34), new THREE.MeshStandardMaterial({ color: 0x8f98c3, roughness: 0.9 }));
+sofaBack.position.set(5.2,0.96,3.53); sofaBack.castShadow = true; scene.add(sofaBack);
+const sofaArmL = new THREE.Mesh(new THREE.BoxGeometry(0.34,0.56,1.34), new THREE.MeshStandardMaterial({ color: 0x6c739f, roughness: 0.9 }));
+sofaArmL.position.set(3.56,0.66,3.0); sofaArmL.castShadow = true; scene.add(sofaArmL);
+const sofaArmR = sofaArmL.clone();
+sofaArmR.position.x = 6.84; scene.add(sofaArmR);
+const sofaAO = new THREE.Mesh(new THREE.PlaneGeometry(3.3, 0.95), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.12, depthWrite:false }));
+sofaAO.rotation.x = -Math.PI / 2;
+sofaAO.position.set(5.2, 0.61, 3.02);
+scene.add(sofaAO);
+const shSofa = makeContactShadow(5.2, 3.0, 3.9, 1.8, 0.26);
 
 const coffeeTable = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.58, 0.2, 18), new THREE.MeshStandardMaterial({ color: 0x4a3a35, roughness: 0.82 }));
 coffeeTable.position.set(6.5,0.22,2.15); coffeeTable.castShadow = true; scene.add(coffeeTable);
@@ -341,6 +351,12 @@ const boardFrame = new THREE.Mesh(new THREE.BoxGeometry(7.9,3.8,0.25), new THREE
 boardFrame.position.set(5.1,4.2,-8.7); boardFrame.castShadow = true; scene.add(boardFrame);
 const board = new THREE.Mesh(new THREE.PlaneGeometry(7.45,3.35), new THREE.MeshStandardMaterial({ map: boardTex, roughness: 0.35, emissive: 0x0f2238, emissiveIntensity: 0.18 }));
 board.position.set(5.1,4.2,-8.55); scene.add(board);
+const boardGlass = new THREE.Mesh(new THREE.PlaneGeometry(7.4, 3.3), new THREE.MeshStandardMaterial({ color: 0xaec6ff, transparent:true, opacity:0.08, metalness:0.2, roughness:0.08 }));
+boardGlass.position.set(5.1,4.2,-8.525); scene.add(boardGlass);
+const boardAlert = new THREE.Mesh(new THREE.PlaneGeometry(0.2,0.2), new THREE.MeshBasicMaterial({ color: 0xff3030, transparent:true, opacity:0.0 }));
+boardAlert.position.set(8.45,4.95,-8.5); scene.add(boardAlert);
+const boardAlertLight = new THREE.PointLight(0xff2a2a, 0.0, 3.5);
+boardAlertLight.position.set(8.45,4.95,-8.2); scene.add(boardAlertLight);
 
 // frog
 const frog = new THREE.Group();
@@ -430,6 +446,11 @@ const doneEl = document.getElementById('done');
 const tasksActiveEl = document.getElementById('tasks-active');
 const tasksDoneEl = document.getElementById('tasks-done');
 const nowDoingEl = document.getElementById('now-doing');
+const vignetteEl = document.querySelector('.vignette');
+
+const lerp = (a,b,t) => a + (b-a)*t;
+let modeBlend = 1.0; // 1 cozy, 0 thriller
+let prevTime = performance.now();
 
 function subProgressValue(status) {
   if (status === 'done') return 100;
@@ -514,19 +535,20 @@ function drawBoard(active, done){
 }
 
 function normalizeTaskState(taskState){
-  const isDoneTask = (t) => (t.status === 'done') || ((t.percent ?? nodePercent(t)) >= 100);
+  const markDone = (t) => ({
+    ...t,
+    status: 'done',
+    percent: 100,
+    subtasks: (t.subtasks || []).map(s => ({ ...s, status: 'done' }))
+  });
 
   if (taskState?.active || taskState?.done) {
-    const all = [...(taskState.active || []), ...(taskState.done || [])].map(enrichTask);
-    const done = all.filter(isDoneTask);
-    const active = all.filter(t => !isDoneTask(t));
-    return { active, done };
+    const all = [...(taskState.active || []), ...(taskState.done || [])].map(enrichTask).map(markDone);
+    return { active: [], done: all };
   }
 
-  const all = (taskState?.tasks || []).map(enrichTask);
-  const done = all.filter(isDoneTask);
-  const active = all.filter(t => !isDoneTask(t));
-  return { active, done };
+  const all = (taskState?.tasks || []).map(enrichTask).map(markDone);
+  return { active: [], done: all };
 }
 
 function renderSubtaskNode(node, level = 0, idx = 1) {
@@ -625,63 +647,81 @@ window.addEventListener('resize', resize); resize();
 
 function animate(t){
   requestAnimationFrame(animate);
-  const s = t * 0.001;
+  const sTime = t * 0.001;
   const h = new Date().getHours() + new Date().getMinutes()/60;
   const isDayTime = h >= 6 && h < 18;
-  const day = isDayTime ? Math.sin(((h-6)/12)*Math.PI) : 0;
-  const mode = isDayTime ? atmosphere.cozy : atmosphere.thriller;
 
-  scene.background = new THREE.Color().setRGB(0.05 + day*0.13, 0.07 + day*0.17, 0.12 + day*0.24);
-  scene.fog.density = mode.fogDensity;
-  renderer.toneMappingExposure = mode.exposure;
-  hemi.intensity = isDayTime ? 0.58 : 0.2;
-  key.intensity = mode.keyIntensity;
-  fill.intensity = mode.fillIntensity;
-  lampLight.intensity = mode.lampIntensity;
-  boardGlow.intensity = mode.boardIntensity;
-  officeLightA.intensity = isDayTime ? 0.28 : 0.62;
-  officeLightB.intensity = isDayTime ? 0.25 : 0.58;
+  const dt = Math.min(0.05, Math.max(0.001, (t - prevTime) / 1000));
+  prevTime = t;
+  const targetBlend = isDayTime ? 1 : 0;
+  const smooth = 1 - Math.exp(-dt / 1.0); // ~1s transition
+  modeBlend = lerp(modeBlend, targetBlend, smooth);
 
-  // time-based key light direction
+  const bgR = lerp(0.05, 0.24, modeBlend);
+  const bgG = lerp(0.07, 0.25, modeBlend);
+  const bgB = lerp(0.12, 0.31, modeBlend);
+  scene.background = new THREE.Color().setRGB(bgR, bgG, bgB);
+
+  scene.fog.color.setRGB(lerp(0.05, 0.12, modeBlend), lerp(0.08, 0.14, modeBlend), lerp(0.14, 0.18, modeBlend));
+  scene.fog.density = lerp(atmosphere.thriller.fogDensity, atmosphere.cozy.fogDensity, modeBlend);
+  renderer.toneMappingExposure = lerp(atmosphere.thriller.exposure, atmosphere.cozy.exposure, modeBlend);
+
+  hemi.intensity = lerp(0.2, 0.58, modeBlend);
+  key.intensity = lerp(atmosphere.thriller.keyIntensity, atmosphere.cozy.keyIntensity, modeBlend);
+  fill.intensity = lerp(atmosphere.thriller.fillIntensity, atmosphere.cozy.fillIntensity, modeBlend);
+  lampLight.intensity = lerp(atmosphere.thriller.lampIntensity, atmosphere.cozy.lampIntensity, modeBlend);
+  boardGlow.intensity = lerp(atmosphere.thriller.boardIntensity, atmosphere.cozy.boardIntensity, modeBlend);
+  officeLightA.intensity = lerp(0.62, 0.28, modeBlend);
+  officeLightB.intensity = lerp(0.58, 0.25, modeBlend);
+  ambientWarm.intensity = lerp(0.08, 0.22, modeBlend);
+
+  // key direction + temperature shift
   if (isDayTime) {
-    const p = (h - 6) / 12; // 0..1
+    const p = (h - 6) / 12;
     key.position.set(-10 + p * 20, 6 + Math.sin(p * Math.PI) * 9, 6);
-    key.color.setRGB(1.0, 0.82 + day * 0.14, 0.65 + day * 0.2);
-    sunPatch.material.opacity = 0.14 + day * 0.18;
-    moonPatch.material.opacity = 0.0;
   } else {
-    const n = ((h >= 18 ? (h - 18) : (h + 6)) / 12); // 0..1 across night
+    const n = ((h >= 18 ? (h - 18) : (h + 6)) / 12);
     key.position.set(6 - n * 12, 7 + Math.sin(n * Math.PI) * 4, 6);
-    key.color.setRGB(0.64, 0.75, 1.0);
-    sunPatch.material.opacity = 0.0;
-    moonPatch.material.opacity = 0.12 + (1 - day) * 0.2;
   }
+  key.color.setRGB(lerp(0.64, 1.0, modeBlend), lerp(0.75, 0.96, modeBlend), lerp(1.0, 0.78, modeBlend));
 
-  drawWindowView(h, s);
+  // window, board and vignette behavior
+  drawWindowView(h, sTime);
+  if (vignetteEl) vignetteEl.style.opacity = String(lerp(0.78, 0.38, modeBlend));
+  winGlass.material.opacity = lerp(0.46, 0.62, modeBlend);
+  boardGlass.material.opacity = lerp(0.04, 0.11, modeBlend);
+  board.material.emissiveIntensity = lerp(0.32, 0.14, modeBlend);
+  boardAlert.material.opacity = (1 - modeBlend) * (0.35 + Math.abs(Math.sin(sTime * 2.8)) * 0.55);
+  boardAlertLight.intensity = (1 - modeBlend) * 1.1;
 
-  shDesk.material.opacity = 0.13 + (1 - day) * 0.12;
-  shChair.material.opacity = 0.18 + (1 - day) * 0.14;
-  shSofa.material.opacity = 0.18 + (1 - day) * 0.1;
+  // AO/contact depth by mode
+  shDesk.material.opacity = lerp(0.28, 0.14, modeBlend);
+  shChair.material.opacity = lerp(0.3, 0.18, modeBlend);
+  shSofa.material.opacity = lerp(0.29, 0.2, modeBlend);
+  sofaAO.material.opacity = lerp(0.2, 0.1, modeBlend);
+
+  // monitor emissive and flicker
+  const flick = 0.93 + Math.random() * 0.09;
+  screen.material.color.setRGB((0.55 + Math.random()*0.06) * flick, (0.88 + Math.random()*0.07) * flick, 1.0 * flick);
+  assistantDeskA.scr.material.color.setRGB(0.52 + Math.random()*0.09, 0.82 + Math.random()*0.1, 1.0);
+  assistantDeskB.scr.material.color.setRGB(0.52 + Math.random()*0.08, 0.84 + Math.random()*0.1, 1.0);
+
+  // character idles
+  frog.position.y = Math.sin(sTime*3.6)*0.018;
+  frog.rotation.z = Math.sin(sTime*4.9)*0.008;
 
   assistants.forEach((a, i) => {
-    a.position.y = Math.sin(s * 2.4 + i * 1.2) * 0.03;
-    a.rotation.z = Math.sin(s * 1.6 + i) * 0.03;
-    if (a.userData.role === 'Проверяет') {
-      a.lookAt(board.position.x, 0.35, board.position.z + 0.3);
-    }
+    a.position.y = Math.sin(sTime * 2.1 + i * 1.2) * 0.03;
+    a.rotation.z = Math.sin(sTime * 1.4 + i) * 0.02;
+    if (a.userData.role === 'Проверяет') a.lookAt(board.position.x, 0.35, board.position.z + 0.3);
   });
-
-  screen.material.color.setRGB(0.55 + Math.random()*0.07, 0.88 + Math.random()*0.07, 1);
-  assistantDeskA.scr.material.color.setRGB(0.5 + Math.random()*0.09, 0.82 + Math.random()*0.1, 1.0);
-  assistantDeskB.scr.material.color.setRGB(0.52 + Math.random()*0.08, 0.84 + Math.random()*0.1, 1.0);
-  frog.position.y = Math.sin(s*4.5)*0.02;
-  frog.rotation.z = Math.sin(s*5.8)*0.01;
 
   const arr = pg.attributes.position.array;
   for(let i=0;i<pCount;i++){
-    arr[i*3+1] += 0.002 + Math.sin(s*0.4 + i)*0.0008;
+    arr[i*3+1] += lerp(0.0027, 0.0016, modeBlend) + Math.sin(sTime*0.4 + i)*0.0008;
     if(arr[i*3+1] > 5.8) arr[i*3+1] = 0.4;
   }
+  dust.material.opacity = lerp(0.22, 0.42, modeBlend);
   pg.attributes.position.needsUpdate = true;
 
   renderer.render(scene, camera);

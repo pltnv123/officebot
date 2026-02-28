@@ -2,22 +2,25 @@
   "tasks": [
     {
       "id": "S001",
-      "title": "Комната и свет",
+      "title": "Cozy / Thriller dual-mode art direction",
       "status": "done",
       "subtasks": [
-        { "title": "Построить стены и окно", "status": "done", "estimate": 20, "actual": 18 },
-        { "title": "Настроить ambient + окно", "status": "done", "estimate": 20, "actual": 22 },
-        { "title": "Поставить лампы", "status": "done", "estimate": 20, "actual": 19 }
+        { "title": "Световые пресеты Cozy + Thriller", "status": "done" },
+        { "title": "Смена дня/ночи за окном по времени", "status": "done" },
+        { "title": "Материалы и диван переработаны", "status": "done" },
+        { "title": "Diegetic UI доски + тревожный индикатор", "status": "done" },
+        { "title": "VFX/контраст/виньетка и плавный переход", "status": "done" }
       ]
     },
     {
       "id": "S002",
-      "title": "Столы и ассистенты",
-      "status": "doing",
+      "title": "Комната premium polish",
+      "status": "done",
       "subtasks": [
-        { "title": "Главный стол", "status": "done", "estimate": 30, "actual": 24 },
-        { "title": "Стол сотрудника", "status": "doing", "estimate": 25, "actual": 11 },
-        { "title": "Chill зона", "status": "doing", "estimate": 20, "actual": 9 }
+        { "title": "Камера и композиция зафиксированы", "status": "done" },
+        { "title": "Дверь слева добавлена", "status": "done" },
+        { "title": "Офисное освещение добавлено", "status": "done" },
+        { "title": "Активные задачи очищены, выполненные в ""Последние""", "status": "done" }
       ]
     }
   ]
