@@ -80,9 +80,16 @@ win.add(winMidV, winMidH);
 win.position.set(-6.4, 4.5, -8.84);
 scene.add(win);
 
-const moon = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 12), new THREE.MeshBasicMaterial({ color: 0xe8f2ff }));
-moon.position.set(-3.9, 5.8, -8.95);
-scene.add(moon);
+const skyPane = new THREE.Mesh(
+  new THREE.PlaneGeometry(6.45, 2.95),
+  new THREE.MeshBasicMaterial({ color: 0x6f8fca, transparent: true, opacity: 0.82 })
+);
+skyPane.position.set(0, 0, -0.02);
+win.add(skyPane);
+
+const sunDisk = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 12), new THREE.MeshBasicMaterial({ color: 0xffe3a0 }));
+const moonDisk = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 12), new THREE.MeshBasicMaterial({ color: 0xe8f2ff }));
+win.add(sunDisk, moonDisk);
 
 // desk area
 const desk = new THREE.Mesh(new THREE.BoxGeometry(6.2,0.35,2.4), new THREE.MeshStandardMaterial({ color: 0x9b6a49, roughness: 0.82 }));
@@ -165,9 +172,20 @@ function drawBoard(active, done){
   boardTex.needsUpdate = true;
 }
 
+function normalizeTaskState(taskState){
+  if (taskState?.active || taskState?.done) {
+    return { active: taskState.active || [], done: taskState.done || [] };
+  }
+  const tasks = taskState?.tasks || [];
+  const done = tasks.filter(t => t.status === 'done');
+  const active = tasks.filter(t => t.status !== 'done');
+  return { active, done };
+}
+
 function renderTasks(taskState){
-  const active = taskState.active || [];
-  const done = taskState.done || [];
+  const normalized = normalizeTaskState(taskState);
+  const active = normalized.active;
+  const done = normalized.done;
   activeEl.textContent = String(active.length);
   doneEl.textContent = String(done.length);
   tasksActiveEl.innerHTML = '';
@@ -187,7 +205,7 @@ async function poll(){
     const r = await fetch('./state.json?ts=' + Date.now(), { cache:'no-store' });
     if(!r.ok) return;
     const data = await r.json();
-    const ts = data.taskState || { active: [], done: [] };
+    const ts = data.taskState || { tasks: [] };
     renderTasks(ts);
   }catch{}
 }
@@ -204,7 +222,8 @@ function animate(t){
   requestAnimationFrame(animate);
   const s = t * 0.001;
   const h = new Date().getHours() + new Date().getMinutes()/60;
-  const day = (h >= 6 && h < 18) ? Math.sin(((h-6)/12)*Math.PI) : 0;
+  const isDayTime = h >= 6 && h < 18;
+  const day = isDayTime ? Math.sin(((h-6)/12)*Math.PI) : 0;
 
   scene.background = new THREE.Color().setRGB(0.05 + day*0.15, 0.07 + day*0.2, 0.12 + day*0.28);
   hemi.intensity = 0.3 + day*0.35;
@@ -212,8 +231,26 @@ function animate(t){
   fill.intensity = 0.3 + (1-day)*0.55;
   lampLight.intensity = 0.18 + (1-day)*0.38;
   boardGlow.intensity = 0.46 + (1-day)*0.24;
-  moon.visible = day < 0.15;
-  moon.position.x = -3.9 + Math.sin(s*0.08)*0.8;
+
+  // sky, sun/moon and proper time-based key light direction
+  skyPane.material.color.setRGB(0.16 + day*0.48, 0.2 + day*0.45, 0.3 + day*0.38);
+  if (isDayTime) {
+    const p = (h - 6) / 12; // 0..1
+    sunDisk.visible = true;
+    moonDisk.visible = false;
+    sunDisk.position.set(-2.6 + p * 5.2, 0.5 + Math.sin(p * Math.PI) * 0.95, -0.01);
+
+    key.position.set(-10 + p * 20, 6 + Math.sin(p * Math.PI) * 9, 6);
+    key.color.setRGB(1.0, 0.82 + day * 0.14, 0.65 + day * 0.2);
+  } else {
+    sunDisk.visible = false;
+    moonDisk.visible = true;
+    const n = ((h >= 18 ? (h - 18) : (h + 6)) / 12); // 0..1 across night
+    moonDisk.position.set(2.6 - n * 5.2, 0.45 + Math.sin(n * Math.PI) * 0.75, -0.01);
+
+    key.position.set(6 - n * 12, 7 + Math.sin(n * Math.PI) * 4, 6);
+    key.color.setRGB(0.64, 0.75, 1.0);
+  }
 
   screen.material.color.setRGB(0.55 + Math.random()*0.07, 0.88 + Math.random()*0.07, 1);
   frog.position.y = Math.sin(s*4.5)*0.02;
