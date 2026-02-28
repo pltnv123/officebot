@@ -614,22 +614,15 @@ function animate(t){
   lampLight.intensity = mode.lampIntensity;
   boardGlow.intensity = mode.boardIntensity;
 
-  // sky, sun/moon and proper time-based key light direction
-  skyPane.material.color.setRGB(0.16 + day*0.48, 0.2 + day*0.45, 0.3 + day*0.38);
+  // time-based key light direction
   if (isDayTime) {
     const p = (h - 6) / 12; // 0..1
-    sunDisk.visible = true;
-    moonDisk.visible = false;
-    sunDisk.position.set(-2.6 + p * 5.2, 0.5 + Math.sin(p * Math.PI) * 0.95, -0.01);
     key.position.set(-10 + p * 20, 6 + Math.sin(p * Math.PI) * 9, 6);
     key.color.setRGB(1.0, 0.82 + day * 0.14, 0.65 + day * 0.2);
     sunPatch.material.opacity = 0.14 + day * 0.18;
     moonPatch.material.opacity = 0.0;
   } else {
-    sunDisk.visible = false;
-    moonDisk.visible = true;
     const n = ((h >= 18 ? (h - 18) : (h + 6)) / 12); // 0..1 across night
-    moonDisk.position.set(2.6 - n * 5.2, 0.45 + Math.sin(n * Math.PI) * 0.75, -0.01);
     key.position.set(6 - n * 12, 7 + Math.sin(n * Math.PI) * 4, 6);
     key.color.setRGB(0.64, 0.75, 1.0);
     sunPatch.material.opacity = 0.0;
