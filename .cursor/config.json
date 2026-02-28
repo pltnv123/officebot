@@ -1,0 +1,20 @@
+{
+  "documentation": {
+    "paths": {
+      "root": "docs",
+      "plans": "docs/plans",
+      "reports": "docs/reports",
+      "issues": "docs/issues"
+    },
+    "enabled": {
+      "plans": true,
+      "reports": true,
+      "issues": false
+    }
+  },
+  "workflows": {
+    "maxDebugAttempts": 3,
+    "autoFixCriticalWithConfirmation": true,
+    "healthScore": true
+  }
+}
