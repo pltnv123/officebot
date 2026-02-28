@@ -282,18 +282,58 @@ function createMiniAssistant(color = 0x79cf68, hoodieColor = 0x6ea8ff) {
   return a;
 }
 
-const assistants = [];
-const assistantA = createMiniAssistant(0x6ed06a, 0x7fb3ff);
-assistantA.position.set(4.5, 0, 2.4);
-assistantA.rotation.y = -1.2;
-scene.add(assistantA);
-assistants.push(assistantA);
+function makeRoleLabel(text, color = '#9fd0ff') {
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 64;
+  const g = c.getContext('2d');
+  g.fillStyle = 'rgba(10,15,30,0.72)';
+  g.fillRect(0, 8, 256, 48);
+  g.strokeStyle = color;
+  g.lineWidth = 3;
+  g.strokeRect(2, 10, 252, 44);
+  g.font = 'bold 22px Inter, sans-serif';
+  g.fillStyle = '#e9f2ff';
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillText(text, 128, 33);
+  const tex = new THREE.CanvasTexture(c);
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+  const spr = new THREE.Sprite(mat);
+  spr.scale.set(1.35, 0.34, 1);
+  return spr;
+}
 
-const assistantB = createMiniAssistant(0x79cc71, 0xffb26f);
-assistantB.position.set(6.7, 0, 2.8);
-assistantB.rotation.y = -2.3;
-scene.add(assistantB);
-assistants.push(assistantB);
+const assistants = [];
+
+const planner = createMiniAssistant(0x6ed06a, 0x7fb3ff);
+planner.position.set(4.1, 0, 1.95);
+planner.rotation.y = -1.35;
+planner.userData.role = 'Планирует';
+planner.userData.badge = makeRoleLabel('ПЛАНИРУЕТ', '#7fb3ff');
+planner.userData.badge.position.set(0, 1.2, 0);
+planner.add(planner.userData.badge);
+scene.add(planner);
+assistants.push(planner);
+
+const builder = createMiniAssistant(0x79cc71, 0xffb26f);
+builder.position.set(6.9, 0, 3.35);
+builder.rotation.y = -2.25;
+builder.userData.role = 'Делает';
+builder.userData.badge = makeRoleLabel('ДЕЛАЕТ', '#ffb26f');
+builder.userData.badge.position.set(0, 1.2, 0);
+builder.add(builder.userData.badge);
+scene.add(builder);
+assistants.push(builder);
+
+const checker = createMiniAssistant(0x84d884, 0xff8f8f);
+checker.position.set(4.95, 0, -7.2);
+checker.rotation.y = 0.0;
+checker.userData.role = 'Проверяет';
+checker.userData.badge = makeRoleLabel('ПРОВЕРЯЕТ', '#ff8f8f');
+checker.userData.badge.position.set(0, 1.2, 0);
+checker.add(checker.userData.badge);
+scene.add(checker);
+assistants.push(checker);
 
 // particles
 const pCount = 160;
@@ -550,6 +590,9 @@ function animate(t){
   assistants.forEach((a, i) => {
     a.position.y = Math.sin(s * 2.4 + i * 1.2) * 0.03;
     a.rotation.z = Math.sin(s * 1.6 + i) * 0.03;
+    if (a.userData.role === 'Проверяет') {
+      a.lookAt(board.position.x, 0.35, board.position.z + 0.3);
+    }
   });
 
   screen.material.color.setRGB(0.55 + Math.random()*0.07, 0.88 + Math.random()*0.07, 1);
