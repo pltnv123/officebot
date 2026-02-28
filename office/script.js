@@ -12,9 +12,9 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x101726, 0.02);
 
-const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 200);
-camera.position.set(9.8, 8.4, 14.8);
-camera.lookAt(-1.3, 2.1, -1.6);
+const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 260);
+camera.position.set(13.6, 10.6, 20.8);
+camera.lookAt(-1.2, 2.0, -1.5);
 
 // lights
 const hemi = new THREE.HemisphereLight(0xbdd5ff, 0x3f2d23, 0.55);
@@ -120,6 +120,29 @@ const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(26, 18), new THREE.MeshSt
 ceiling.rotation.x = Math.PI / 2;
 ceiling.position.set(0, 9, 0);
 scene.add(ceiling);
+
+// left wall door
+const doorFrameMat = new THREE.MeshStandardMaterial({ color: 0x454c60, roughness: 0.82 });
+const doorMat = new THREE.MeshStandardMaterial({ color: 0x5d4a3b, roughness: 0.78 });
+const doorGroup = new THREE.Group();
+const door = new THREE.Mesh(new THREE.BoxGeometry(1.45, 3.05, 0.1), doorMat);
+door.position.set(0, 1.52, 0);
+const doorFrame = new THREE.Mesh(new THREE.BoxGeometry(1.65, 3.25, 0.12), doorFrameMat);
+doorFrame.position.set(0, 1.62, -0.015);
+const knob = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 10), new THREE.MeshStandardMaterial({ color: 0xc7b58a, metalness: 0.5, roughness: 0.35 }));
+knob.position.set(0.5, 1.52, 0.06);
+doorGroup.add(doorFrame, door, knob);
+doorGroup.position.set(-12.86, 0, 4.0);
+doorGroup.rotation.y = Math.PI / 2;
+scene.add(doorGroup);
+
+// office ceiling lights
+const officeLightA = new THREE.PointLight(0xffe8bd, 0.55, 20);
+officeLightA.position.set(-4.2, 7.6, -1.2);
+scene.add(officeLightA);
+const officeLightB = new THREE.PointLight(0xffe8bd, 0.52, 20);
+officeLightB.position.set(5.2, 7.4, 2.1);
+scene.add(officeLightB);
 
 // window
 const frameMat = new THREE.MeshStandardMaterial({ color: 0x463a46, roughness: 0.8 });
@@ -616,6 +639,8 @@ function animate(t){
   fill.intensity = mode.fillIntensity;
   lampLight.intensity = mode.lampIntensity;
   boardGlow.intensity = mode.boardIntensity;
+  officeLightA.intensity = isDayTime ? 0.28 : 0.62;
+  officeLightB.intensity = isDayTime ? 0.25 : 0.58;
 
   // time-based key light direction
   if (isDayTime) {
