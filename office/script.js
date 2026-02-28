@@ -1,18 +1,19 @@
 import * as THREE from 'three';
 
 const canvas = document.getElementById('scene');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.02;
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setPixelRatio(1);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x101726, 0.02);
 
-const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 260);
+const ORTHO_SIZE = 10.5;
+const camera = new THREE.OrthographicCamera(-ORTHO_SIZE, ORTHO_SIZE, ORTHO_SIZE, -ORTHO_SIZE, 0.1, 260);
 camera.position.set(13.6, 10.6, 20.8);
 camera.lookAt(-1.2, 2.0, -1.5);
 
@@ -640,7 +641,11 @@ async function poll(){
 function resize(){
   const w = canvas.clientWidth, h = canvas.clientHeight;
   renderer.setSize(w, h, false);
-  camera.aspect = w / h;
+  const aspect = w / Math.max(1, h);
+  camera.left = -ORTHO_SIZE * aspect;
+  camera.right = ORTHO_SIZE * aspect;
+  camera.top = ORTHO_SIZE;
+  camera.bottom = -ORTHO_SIZE;
   camera.updateProjectionMatrix();
 }
 window.addEventListener('resize', resize); resize();
@@ -654,7 +659,7 @@ function animate(t){
   const dt = Math.min(0.05, Math.max(0.001, (t - prevTime) / 1000));
   prevTime = t;
   const targetBlend = isDayTime ? 1 : 0;
-  const smooth = 1 - Math.exp(-dt / 1.0); // ~1s transition
+  const smooth = 1 - Math.exp(-dt / 0.9); // ~0.9s transition
   modeBlend = lerp(modeBlend, targetBlend, smooth);
 
   const bgR = lerp(0.05, 0.24, modeBlend);
@@ -721,7 +726,12 @@ function animate(t){
     arr[i*3+1] += lerp(0.0027, 0.0016, modeBlend) + Math.sin(sTime*0.4 + i)*0.0008;
     if(arr[i*3+1] > 5.8) arr[i*3+1] = 0.4;
   }
-  dust.material.opacity = lerp(0.22, 0.42, modeBlend);
+  dust.material.opacity = lerp(0.26, 0.38, modeBlend);
+  // thriller subtle digital-noise feel
+  if (modeBlend < 0.4) {
+    const n = 0.92 + Math.random() * 0.22;
+    scene.background.multiplyScalar(Math.min(1.15, n));
+  }
   pg.attributes.position.needsUpdate = true;
 
   renderer.render(scene, camera);
