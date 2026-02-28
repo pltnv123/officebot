@@ -1,6 +1,46 @@
 {
   "tasks": [
     {
+      "id": "ARCH-001",
+      "title": "LookProfile architecture (single-scene dual preset)",
+      "status": "doing",
+      "subtasks": [
+        { "title": "Define LookProfile schema (palette/LUT/light/post/vfx/audio)", "status": "done" },
+        { "title": "Wire cozy/thriller profiles to runtime switches", "status": "doing" },
+        { "title": "Ensure no duplicated scene geometry", "status": "todo" }
+      ]
+    },
+    {
+      "id": "SCENE-001",
+      "title": "Layout constraints (right wall removed, left wall enriched)",
+      "status": "doing",
+      "subtasks": [
+        { "title": "Remove right wall in live scene", "status": "done" },
+        { "title": "Left wall: door + window + board", "status": "doing" },
+        { "title": "Window beam readability on floor", "status": "todo" }
+      ]
+    },
+    {
+      "id": "PIXEL-001",
+      "title": "Pixel-perfect contract",
+      "status": "todo",
+      "subtasks": [
+        { "title": "Lock R_ref and integer upscale X", "status": "todo" },
+        { "title": "Nearest filtering checks", "status": "todo" },
+        { "title": "Pixel stability pan test", "status": "todo" }
+      ]
+    },
+    {
+      "id": "QA-001",
+      "title": "QA scene pack and acceptance checklist",
+      "status": "todo",
+      "subtasks": [
+        { "title": "Pixel Stability test scene", "status": "todo" },
+        { "title": "Material/Lighting/UI/LOD tests", "status": "todo" },
+        { "title": "Freeze metadata for baseline captures", "status": "todo" }
+      ]
+    },
+    {
       "id": "S001",
       "title": "Cozy / Thriller dual-mode art direction",
       "status": "done",
@@ -10,28 +50,6 @@
         { "title": "Материалы и диван переработаны", "status": "done" },
         { "title": "Diegetic UI доски + тревожный индикатор", "status": "done" },
         { "title": "VFX/контраст/виньетка и плавный переход", "status": "done" }
-      ]
-    },
-    {
-      "id": "S002",
-      "title": "Комната premium polish",
-      "status": "done",
-      "subtasks": [
-        { "title": "Камера и композиция зафиксированы", "status": "done" },
-        { "title": "Дверь слева добавлена", "status": "done" },
-        { "title": "Офисное освещение добавлено", "status": "done" },
-        { "title": "Выполненные задачи перенесены в Последние", "status": "done" }
-      ]
-    },
-    {
-      "id": "S003",
-      "title": "Комната и свет — правки по сцене",
-      "status": "doing",
-      "subtasks": [
-        { "title": "Убрать/снизить правую стену", "status": "doing" },
-        { "title": "Добавить живой свет из окна", "status": "todo" },
-        { "title": "Левая стена: дверь", "status": "todo" },
-        { "title": "Левая стена: доска и окно", "status": "todo" }
       ]
     }
   ]
