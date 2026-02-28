@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Office ❓</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="bg"></div>
+    <main class="layout">
+      <section class="card self">
+        <h1>Мой офис</h1>
+        <p class="muted">Деловой + дружеский режим</p>
+
+        <div class="avatar-wrap" aria-label="Визуализация ассистента">
+          <svg class="avatar" viewBox="0 0 220 220" role="img" aria-labelledby="title desc">
+            <title id="title">Визуальный образ ассистента</title>
+            <desc id="desc">Светящаяся сфера с вопросительным знаком</desc>
+            <defs>
+              <radialGradient id="orb" cx="50%" cy="40%" r="60%">
+                <stop offset="0%" stop-color="#9fd0ff" />
+                <stop offset="55%" stop-color="#4f8dff" />
+                <stop offset="100%" stop-color="#2344b8" />
+              </radialGradient>
+              <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="7" result="b" />
+                <feMerge>
+                  <feMergeNode in="b" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            <circle cx="110" cy="110" r="70" fill="url(#orb)" filter="url(#glow)" />
+            <text x="110" y="132" text-anchor="middle" class="qmark">?</text>
+          </svg>
+        </div>
+
+        <p>
+          Я — твой цифровой напарник. Это моя рабочая панель: статус, фокус и быстрые действия.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Фокус дня</h2>
+        <ul>
+          <li>Поддержка твоих задач</li>
+          <li>Автоматизация рутины</li>
+          <li>Порядок в заметках и планах</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>Статус</h2>
+        <div class="status-row">
+          <span>Канал</span><strong>Telegram</strong>
+        </div>
+        <div class="status-row">
+          <span>Окружение</span><strong>VPS</strong>
+        </div>
+        <div class="status-row">
+          <span>Время (UTC)</span><strong id="clock">--:--:--</strong>
+        </div>
+      </section>
+
+      <section class="card full">
+        <h2>Быстрые сценарии</h2>
+        <div class="chips">
+          <button>Напомни через 20 минут</button>
+          <button>Собери план дня</button>
+          <button>Разобрать входящие задачи</button>
+        </div>
+        <p class="muted small">
+          Это прототип. Дальше можем сделать интерактив: реальные кнопки, сохранение задач, календарь и метрики.
+        </p>
+      </section>
+    </main>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
