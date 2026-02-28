@@ -369,15 +369,17 @@ function normalizeTaskState(taskState){
 
 function renderSubtaskNode(node, level = 0, idx = 1) {
   const sub = document.createElement('div');
-  sub.className = `sub l${Math.min(level,2)}`;
+  sub.className = `sub l${Math.min(level,3)}`;
   const sp = nodePercent(node);
   const icon = node.status === 'done' ? '✅' : node.status === 'doing' ? '🟡' : '⚪';
-  sub.innerHTML = `${icon} ${idx}. ${node.title}
+  sub.innerHTML = `<div class="sub-head"><span>${icon} ${idx}. ${node.title}</span><span class="sub-meta">${sp}%</span></div>
     <div class="sub-progress"><div class="sub-progress-fill" style="width:${sp}%"></div></div>`;
 
-  (node.subtasks || []).forEach((child, childIdx) => {
-    sub.appendChild(renderSubtaskNode(child, level + 1, childIdx + 1));
-  });
+  if (level < 3) {
+    (node.subtasks || []).slice(0, 8).forEach((child, childIdx) => {
+      sub.appendChild(renderSubtaskNode(child, level + 1, childIdx + 1));
+    });
+  }
   return sub;
 }
 
@@ -397,7 +399,11 @@ function renderNowDoing(activeTasks) {
     nowDoingEl.textContent = 'Сейчас нет шага в doing — ожидаю обновление статусов';
     return;
   }
-  doing.slice(0, 14).forEach(line => {
+  const head = document.createElement('div');
+  head.className = 'now-item';
+  head.textContent = `Всего активных шагов: ${doing.length}`;
+  nowDoingEl.appendChild(head);
+  doing.slice(0, 20).forEach(line => {
     const item = document.createElement('div');
     item.className = 'now-item';
     item.textContent = `🟡 ${line}`;

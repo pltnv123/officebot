@@ -11,9 +11,12 @@ html,body{margin:0;height:100%;background:#090f1d;color:#f0f3ff;font-family:'Int
 .tasks-done{background:#101326}
 .task{padding:6px 0;border-bottom:1px dashed #314263}
 .task:last-child{border-bottom:0}
-.sub{font-size:.9em;color:#95a2d1;padding-left:10px;margin-top:4px}
+.sub{font-size:.9em;color:#95a2d1;padding-left:10px;margin-top:4px;border-left:1px dashed #33496f}
 .sub.l1{padding-left:18px;color:#aab7df}
 .sub.l2{padding-left:26px;color:#b8c3e6}
+.sub.l3{padding-left:34px;color:#c5ceeb}
+.sub-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sub-meta{font-size:.78em;color:#9fb1df}
 .sub-progress{margin-top:4px;height:4px;border-radius:3px;background:#1d2740;overflow:hidden}
 .sub-progress-fill{height:100%;background:linear-gradient(90deg,#7aa3ff,#63d0a1);transition:width .3s}
 @media (max-width:980px){#app{grid-template-columns:1fr;grid-template-rows:1fr auto}}
