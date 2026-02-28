@@ -280,36 +280,32 @@ function subProgressValue(status) {
 
 function makeChildSteps(title, status) {
   const base = title || 'Шаг';
-  if (status === 'done') {
-    return [
-      { title: `Анализ: ${base}`, status: 'done' },
-      { title: `Реализация: ${base}`, status: 'done' },
-      { title: `Проверка: ${base}`, status: 'done' }
-    ];
-  }
-  if (status === 'doing') {
-    return [
-      { title: `Анализ: ${base}`, status: 'done' },
-      { title: `Реализация: ${base}`, status: 'doing' },
-      { title: `Проверка: ${base}`, status: 'todo' }
-    ];
-  }
-  return [
-    { title: `Анализ: ${base}`, status: 'todo' },
-    { title: `Реализация: ${base}`, status: 'todo' },
-    { title: `Проверка: ${base}`, status: 'todo' }
+  const mapStatus = (idx) => {
+    if (status === 'done') return 'done';
+    if (status === 'doing') return idx <= 1 ? 'done' : (idx === 2 ? 'doing' : 'todo');
+    return 'todo';
+  };
+
+  const labels = [
+    `Сбор контекста: ${base}`,
+    `Проектирование: ${base}`,
+    `Реализация: ${base}`,
+    `Тест и валидация: ${base}`,
+    `Финальная полировка: ${base}`
   ];
+
+  return labels.map((t, i) => ({ title: t, status: mapStatus(i) }));
 }
 
-function expandSubtree(node, depth = 0, maxDepth = 2) {
+function expandSubtree(node, depth = 0, maxDepth = 3) {
   const src = node.subtasks || [];
   let subtasks = src.map(s => ({ ...s }));
 
-  if (subtasks.length < 6 && depth === 0) {
+  if (subtasks.length < 8 && depth === 0) {
     const padded = [];
     const from = subtasks.length ? subtasks : [{ title: 'Подготовка сцены', status: node.status || 'todo' }];
     from.forEach(s => padded.push(...makeChildSteps(s.title, s.status)));
-    while (padded.length < 9) padded.push({ title: 'Технический контроль качества', status: node.status === 'done' ? 'done' : 'todo' });
+    while (padded.length < 14) padded.push({ title: 'Технический контроль качества', status: node.status === 'done' ? 'done' : 'todo' });
     subtasks = padded;
   }
 
@@ -317,7 +313,9 @@ function expandSubtree(node, depth = 0, maxDepth = 2) {
     subtasks = subtasks.map(s => {
       const cloned = { ...s };
       if (!cloned.subtasks || !cloned.subtasks.length) cloned.subtasks = makeChildSteps(cloned.title, cloned.status);
-      if (depth + 1 < maxDepth) cloned.subtasks = cloned.subtasks.map(ss => ({ ...ss }));
+      if (depth + 1 < maxDepth) {
+        cloned.subtasks = cloned.subtasks.map(ss => expandSubtree({ ...ss }, depth + 1, maxDepth));
+      }
       return cloned;
     });
   }
@@ -333,7 +331,7 @@ function nodePercent(node) {
 }
 
 function enrichTask(task) {
-  const tree = expandSubtree(task, 0, 2);
+  const tree = expandSubtree(task, 0, 3);
   return { ...tree, percent: nodePercent(tree) };
 }
 
