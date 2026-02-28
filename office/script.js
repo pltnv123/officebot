@@ -453,6 +453,36 @@ const lerp = (a,b,t) => a + (b-a)*t;
 let modeBlend = 1.0; // 1 cozy, 0 thriller
 let prevTime = performance.now();
 
+// lightweight ambience audio (starts after first user interaction)
+let audioCtx = null;
+let cozyGain = null;
+let thrillerGain = null;
+let cozyOsc = null;
+let thrillerOsc = null;
+let clickTimer = 0;
+function ensureAudio() {
+  if (audioCtx) return;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  audioCtx = new AC();
+
+  cozyGain = audioCtx.createGain(); cozyGain.gain.value = 0;
+  thrillerGain = audioCtx.createGain(); thrillerGain.gain.value = 0;
+
+  cozyOsc = audioCtx.createOscillator();
+  cozyOsc.type = 'triangle';
+  cozyOsc.frequency.value = 115;
+  cozyOsc.connect(cozyGain).connect(audioCtx.destination);
+  cozyOsc.start();
+
+  thrillerOsc = audioCtx.createOscillator();
+  thrillerOsc.type = 'sawtooth';
+  thrillerOsc.frequency.value = 72;
+  thrillerOsc.connect(thrillerGain).connect(audioCtx.destination);
+  thrillerOsc.start();
+}
+window.addEventListener('pointerdown', ensureAudio, { once: true });
+
 function subProgressValue(status) {
   if (status === 'done') return 100;
   if (status === 'doing') return 55;
@@ -710,6 +740,23 @@ function animate(t){
   screen.material.color.setRGB((0.55 + Math.random()*0.06) * flick, (0.88 + Math.random()*0.07) * flick, 1.0 * flick);
   assistantDeskA.scr.material.color.setRGB(0.52 + Math.random()*0.09, 0.82 + Math.random()*0.1, 1.0);
   assistantDeskB.scr.material.color.setRGB(0.52 + Math.random()*0.08, 0.84 + Math.random()*0.1, 1.0);
+
+  // sound layer blend
+  if (audioCtx) {
+    cozyGain.gain.value = lerp(cozyGain.gain.value, 0.018 * modeBlend, 0.08);
+    thrillerGain.gain.value = lerp(thrillerGain.gain.value, 0.012 * (1 - modeBlend), 0.08);
+    if (sTime > clickTimer) {
+      const g = audioCtx.createGain();
+      const o = audioCtx.createOscillator();
+      o.type = modeBlend > 0.5 ? 'triangle' : 'square';
+      o.frequency.value = modeBlend > 0.5 ? 980 : 540;
+      g.gain.value = modeBlend > 0.5 ? 0.002 : 0.003;
+      o.connect(g).connect(audioCtx.destination);
+      o.start();
+      o.stop(audioCtx.currentTime + 0.015);
+      clickTimer = sTime + (modeBlend > 0.5 ? 5.5 : 3.2) + Math.random() * 2.2;
+    }
+  }
 
   // character idles
   frog.position.y = Math.sin(sTime*3.6)*0.018;
