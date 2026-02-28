@@ -96,7 +96,8 @@ const sunPatch = new THREE.Mesh(
   new THREE.MeshBasicMaterial({ color: 0xffd6a2, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending, depthWrite: false })
 );
 sunPatch.rotation.x = -Math.PI / 2;
-sunPatch.position.set(-3.6, 0.013, -2.6);
+sunPatch.position.set(-8.6, 0.013, -3.6);
+sunPatch.rotation.z = -0.38;
 scene.add(sunPatch);
 
 const moonPatch = new THREE.Mesh(
@@ -104,7 +105,8 @@ const moonPatch = new THREE.Mesh(
   new THREE.MeshBasicMaterial({ color: 0x96b8ff, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending, depthWrite: false })
 );
 moonPatch.rotation.x = -Math.PI / 2;
-moonPatch.position.set(-3.2, 0.014, -2.4);
+moonPatch.position.set(-8.2, 0.014, -3.4);
+moonPatch.rotation.z = -0.32;
 scene.add(moonPatch);
 
 const wallMat = new THREE.MeshStandardMaterial({ color: 0x5a6075, roughness: 0.92 });
@@ -155,7 +157,9 @@ win.add(winTop, winBottom, winLeft, winRight, winGlass);
 const winMidV = new THREE.Mesh(new THREE.BoxGeometry(0.09, 3.1, 0.12), frameMat);
 const winMidH = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.09, 0.12), frameMat);
 win.add(winMidV, winMidH);
-win.position.set(-6.4, 4.5, -8.84);
+// окно перенесено на левую стену
+win.position.set(-12.86, 4.5, -3.6);
+win.rotation.y = Math.PI / 2;
 scene.add(win);
 
 const windowViewCanvas = document.createElement('canvas');
@@ -347,15 +351,25 @@ const boardCanvas = document.createElement('canvas'); boardCanvas.width = 1024; 
 const bctx = boardCanvas.getContext('2d');
 const boardTex = new THREE.CanvasTexture(boardCanvas);
 const boardFrame = new THREE.Mesh(new THREE.BoxGeometry(7.9,3.8,0.25), new THREE.MeshStandardMaterial({ color: 0x3d2a1d, roughness: 0.75 }));
-boardFrame.position.set(5.1,4.2,-8.7); boardFrame.castShadow = true; scene.add(boardFrame);
+boardFrame.position.set(-12.82,4.2,0.6);
+boardFrame.rotation.y = Math.PI / 2;
+boardFrame.castShadow = true;
+scene.add(boardFrame);
 const board = new THREE.Mesh(new THREE.PlaneGeometry(7.45,3.35), new THREE.MeshStandardMaterial({ map: boardTex, roughness: 0.35, emissive: 0x0f2238, emissiveIntensity: 0.18 }));
-board.position.set(5.1,4.2,-8.55); scene.add(board);
+board.position.set(-12.66,4.2,0.6);
+board.rotation.y = Math.PI / 2;
+scene.add(board);
 const boardGlass = new THREE.Mesh(new THREE.PlaneGeometry(7.4, 3.3), new THREE.MeshStandardMaterial({ color: 0xaec6ff, transparent:true, opacity:0.08, metalness:0.2, roughness:0.08 }));
-boardGlass.position.set(5.1,4.2,-8.525); scene.add(boardGlass);
+boardGlass.position.set(-12.64,4.2,0.6);
+boardGlass.rotation.y = Math.PI / 2;
+scene.add(boardGlass);
 const boardAlert = new THREE.Mesh(new THREE.PlaneGeometry(0.2,0.2), new THREE.MeshBasicMaterial({ color: 0xff3030, transparent:true, opacity:0.0 }));
-boardAlert.position.set(8.45,4.95,-8.5); scene.add(boardAlert);
+boardAlert.position.set(-12.62,4.95,3.95);
+boardAlert.rotation.y = Math.PI / 2;
+scene.add(boardAlert);
 const boardAlertLight = new THREE.PointLight(0xff2a2a, 0.0, 3.5);
-boardAlertLight.position.set(8.45,4.95,-8.2); scene.add(boardAlertLight);
+boardAlertLight.position.set(-12.2,4.95,3.95);
+scene.add(boardAlertLight);
 
 // frog
 const frog = new THREE.Group();
@@ -718,6 +732,8 @@ function animate(t){
 
   // window, board and vignette behavior
   drawWindowView(h, sTime);
+  sunPatch.material.opacity = modeBlend * 0.23;
+  moonPatch.material.opacity = (1 - modeBlend) * 0.16;
   if (vignetteEl) vignetteEl.style.opacity = String(lerp(0.78, 0.38, modeBlend));
   winGlass.material.opacity = lerp(0.46, 0.62, modeBlend);
   boardGlass.material.opacity = lerp(0.04, 0.11, modeBlend);
