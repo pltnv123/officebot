@@ -114,9 +114,7 @@ scene.add(backWall);
 const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.24, 9, 18), wallMat);
 leftWall.position.set(-13, 4.5, 0);
 scene.add(leftWall);
-const rightWall = leftWall.clone();
-rightWall.position.x = 13;
-scene.add(rightWall);
+// правая стена убрана по запросу: открываем сцену справа
 const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(26, 18), new THREE.MeshStandardMaterial({ color: 0x7f7f84, roughness: 0.95 }));
 ceiling.rotation.x = Math.PI / 2;
 ceiling.position.set(0, 9, 0);
