@@ -122,6 +122,14 @@ ceiling.rotation.x = Math.PI / 2;
 ceiling.position.set(0, 9, 0);
 scene.add(ceiling);
 
+// fail-safe: удалить любые правые боковые стены (если случайно добавились в другом месте)
+scene.traverse((obj) => {
+  if (!obj.isMesh || !obj.geometry?.parameters) return;
+  const p = obj.geometry.parameters;
+  const isSideWall = (p.width && p.height && p.depth) && p.width <= 0.3 && p.height >= 8.5 && p.depth >= 17;
+  if (isSideWall && obj.position.x > 10) obj.visible = false;
+});
+
 // left wall door
 const doorFrameMat = new THREE.MeshStandardMaterial({ color: 0x454c60, roughness: 0.82 });
 const doorMat = new THREE.MeshStandardMaterial({ color: 0x5d4a3b, roughness: 0.78 });
