@@ -60,10 +60,31 @@ floor.rotation.x = -Math.PI/2;
 floor.receiveShadow = true;
 scene.add(floor);
 
+function makeContactShadow(x, z, sx, sz, opacity = 0.2) {
+  const sh = new THREE.Mesh(
+    new THREE.PlaneGeometry(sx, sz),
+    new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity, depthWrite: false })
+  );
+  sh.rotation.x = -Math.PI / 2;
+  sh.position.set(x, 0.012, z);
+  scene.add(sh);
+  return sh;
+}
+
 const wallMat = new THREE.MeshStandardMaterial({ color: 0x5a6075, roughness: 0.92 });
 const backWall = new THREE.Mesh(new THREE.BoxGeometry(26, 9, 0.24), wallMat);
 backWall.position.set(0,4.5,-9);
 scene.add(backWall);
+const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.24, 9, 18), wallMat);
+leftWall.position.set(-13, 4.5, 0);
+scene.add(leftWall);
+const rightWall = leftWall.clone();
+rightWall.position.x = 13;
+scene.add(rightWall);
+const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(26, 18), new THREE.MeshStandardMaterial({ color: 0x7f7f84, roughness: 0.95 }));
+ceiling.rotation.x = Math.PI / 2;
+ceiling.position.set(0, 9, 0);
+scene.add(ceiling);
 
 // window
 const frameMat = new THREE.MeshStandardMaterial({ color: 0x463a46, roughness: 0.8 });
@@ -91,6 +112,22 @@ const sunDisk = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 12), new THREE
 const moonDisk = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 12), new THREE.MeshBasicMaterial({ color: 0xe8f2ff }));
 win.add(sunDisk, moonDisk);
 
+const cityLine = new THREE.Group();
+for (let i = 0; i < 8; i++) {
+  const h = 0.5 + Math.random() * 0.85;
+  const b = new THREE.Mesh(new THREE.BoxGeometry(0.58, h, 0.05), new THREE.MeshBasicMaterial({ color: 0x27314b }));
+  b.position.set(-2.85 + i * 0.8, -1.2 + h / 2, -0.03);
+  cityLine.add(b);
+}
+win.add(cityLine);
+const starField = [];
+for (let i = 0; i < 22; i++) {
+  const star = new THREE.Mesh(new THREE.PlaneGeometry(0.03, 0.03), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.0 }));
+  star.position.set(-3.0 + Math.random() * 6.0, -0.2 + Math.random() * 1.5, -0.025);
+  win.add(star);
+  starField.push(star);
+}
+
 // desk area
 const desk = new THREE.Mesh(new THREE.BoxGeometry(6.2,0.35,2.4), new THREE.MeshStandardMaterial({ color: 0x9b6a49, roughness: 0.82 }));
 desk.position.set(-4.4,1.5,-1.7); desk.castShadow = true; scene.add(desk);
@@ -113,6 +150,8 @@ const chairPole = new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.06,0.48,12), 
 chair.add(chairSeat, chairBack, chairPole);
 chair.position.set(-4.25,0,0.55); chair.rotation.y = 0.42;
 scene.add(chair);
+const shDesk = makeContactShadow(-4.4, -1.7, 6.6, 2.8, 0.2);
+const shChair = makeContactShadow(-4.25, 0.55, 1.4, 1.3, 0.24);
 
 // lounge
 const rug = new THREE.Mesh(new THREE.PlaneGeometry(4.4,3.2), new THREE.MeshStandardMaterial({ color: 0x2d3459, roughness: 0.95 }));
@@ -121,6 +160,16 @@ const sofa = new THREE.Mesh(new THREE.BoxGeometry(3.5,0.65,1.4), new THREE.MeshS
 sofa.position.set(5.2,0.45,3.0); sofa.castShadow = true; scene.add(sofa);
 const sofaBack = new THREE.Mesh(new THREE.BoxGeometry(3.5,0.8,0.28), new THREE.MeshStandardMaterial({ color: 0x838ab8, roughness: 0.8 }));
 sofaBack.position.set(5.2,0.98,3.55); sofaBack.castShadow = true; scene.add(sofaBack);
+const shSofa = makeContactShadow(5.2, 3.0, 3.8, 1.7, 0.24);
+
+const coffeeTable = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.58, 0.2, 18), new THREE.MeshStandardMaterial({ color: 0x4a3a35, roughness: 0.82 }));
+coffeeTable.position.set(6.5,0.22,2.15); coffeeTable.castShadow = true; scene.add(coffeeTable);
+makeContactShadow(6.5, 2.15, 1.3, 1.1, 0.22);
+
+const plantPot = new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.26,0.32,12), new THREE.MeshStandardMaterial({ color: 0x6e4d38, roughness: 0.9 }));
+plantPot.position.set(7.4,0.16,1.8); plantPot.castShadow = true; scene.add(plantPot);
+const plantLeaf = new THREE.Mesh(new THREE.SphereGeometry(0.34, 14, 12), new THREE.MeshStandardMaterial({ color: 0x4cab73, roughness: 0.78 }));
+plantLeaf.position.set(7.4,0.58,1.8); plantLeaf.castShadow = true; scene.add(plantLeaf);
 
 // board
 const boardCanvas = document.createElement('canvas'); boardCanvas.width = 1024; boardCanvas.height = 512;
@@ -139,6 +188,32 @@ const hoodie = new THREE.Mesh(new THREE.CapsuleGeometry(0.33,0.52,4,8), new THRE
 frog.add(body, head, hoodie);
 frog.position.set(-4.25,0,0.55); frog.scale.set(1.35,1.35,1.35);
 scene.add(frog);
+
+function createMiniAssistant(color = 0x79cf68, hoodieColor = 0x6ea8ff) {
+  const a = new THREE.Group();
+  const b = new THREE.Mesh(new THREE.SphereGeometry(0.25, 14, 12), new THREE.MeshStandardMaterial({ color, roughness: 0.72 }));
+  b.position.y = 0.5;
+  const h = new THREE.Mesh(new THREE.SphereGeometry(0.2, 14, 12), new THREE.MeshStandardMaterial({ color: 0x9be483, roughness: 0.72 }));
+  h.position.y = 0.8;
+  const hd = new THREE.Mesh(new THREE.CapsuleGeometry(0.18, 0.24, 4, 8), new THREE.MeshStandardMaterial({ color: hoodieColor, roughness: 0.76 }));
+  hd.position.y = 0.26;
+  a.add(b, h, hd);
+  a.userData.body = b;
+  return a;
+}
+
+const assistants = [];
+const assistantA = createMiniAssistant(0x6ed06a, 0x7fb3ff);
+assistantA.position.set(4.5, 0, 2.4);
+assistantA.rotation.y = -1.2;
+scene.add(assistantA);
+assistants.push(assistantA);
+
+const assistantB = createMiniAssistant(0x79cc71, 0xffb26f);
+assistantB.position.set(6.7, 0, 2.8);
+assistantB.rotation.y = -2.3;
+scene.add(assistantB);
+assistants.push(assistantB);
 
 // particles
 const pCount = 160;
@@ -239,6 +314,8 @@ function animate(t){
     sunDisk.visible = true;
     moonDisk.visible = false;
     sunDisk.position.set(-2.6 + p * 5.2, 0.5 + Math.sin(p * Math.PI) * 0.95, -0.01);
+    cityLine.children.forEach((b)=>b.material.color.set(0x334768));
+    starField.forEach((s)=>{ s.material.opacity = 0; });
 
     key.position.set(-10 + p * 20, 6 + Math.sin(p * Math.PI) * 9, 6);
     key.color.setRGB(1.0, 0.82 + day * 0.14, 0.65 + day * 0.2);
@@ -247,10 +324,21 @@ function animate(t){
     moonDisk.visible = true;
     const n = ((h >= 18 ? (h - 18) : (h + 6)) / 12); // 0..1 across night
     moonDisk.position.set(2.6 - n * 5.2, 0.45 + Math.sin(n * Math.PI) * 0.75, -0.01);
+    cityLine.children.forEach((b)=>b.material.color.set(0x1f2a42));
+    starField.forEach((st, i)=>{ st.material.opacity = 0.25 + Math.abs(Math.sin(s * 0.8 + i * 1.7)) * 0.7; });
 
     key.position.set(6 - n * 12, 7 + Math.sin(n * Math.PI) * 4, 6);
     key.color.setRGB(0.64, 0.75, 1.0);
   }
+
+  shDesk.material.opacity = 0.13 + (1 - day) * 0.12;
+  shChair.material.opacity = 0.18 + (1 - day) * 0.14;
+  shSofa.material.opacity = 0.18 + (1 - day) * 0.1;
+
+  assistants.forEach((a, i) => {
+    a.position.y = Math.sin(s * 2.4 + i * 1.2) * 0.03;
+    a.rotation.z = Math.sin(s * 1.6 + i) * 0.03;
+  });
 
   screen.material.color.setRGB(0.55 + Math.random()*0.07, 0.88 + Math.random()*0.07, 1);
   frog.position.y = Math.sin(s*4.5)*0.02;
