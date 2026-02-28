@@ -136,31 +136,90 @@ win.add(winMidV, winMidH);
 win.position.set(-6.4, 4.5, -8.84);
 scene.add(win);
 
+const windowViewCanvas = document.createElement('canvas');
+windowViewCanvas.width = 900;
+windowViewCanvas.height = 420;
+const windowViewCtx = windowViewCanvas.getContext('2d');
+const windowViewTex = new THREE.CanvasTexture(windowViewCanvas);
+windowViewTex.colorSpace = THREE.SRGBColorSpace;
+
 const skyPane = new THREE.Mesh(
   new THREE.PlaneGeometry(6.45, 2.95),
-  new THREE.MeshBasicMaterial({ color: 0x6f8fca, transparent: true, opacity: 0.82 })
+  new THREE.MeshBasicMaterial({ map: windowViewTex, transparent: true, opacity: 0.9 })
 );
 skyPane.position.set(0, 0, -0.02);
 win.add(skyPane);
 
-const sunDisk = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 12), new THREE.MeshBasicMaterial({ color: 0xffe3a0 }));
-const moonDisk = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 12), new THREE.MeshBasicMaterial({ color: 0xe8f2ff }));
-win.add(sunDisk, moonDisk);
+function drawWindowView(hours, tSec) {
+  const ctx = windowViewCtx;
+  const w = windowViewCanvas.width;
+  const h = windowViewCanvas.height;
+  const isDay = hours >= 6 && hours < 18;
+  const day = isDay ? Math.sin(((hours - 6) / 12) * Math.PI) : 0;
 
-const cityLine = new THREE.Group();
-for (let i = 0; i < 8; i++) {
-  const h = 0.5 + Math.random() * 0.85;
-  const b = new THREE.Mesh(new THREE.BoxGeometry(0.58, h, 0.05), new THREE.MeshBasicMaterial({ color: 0x27314b }));
-  b.position.set(-2.85 + i * 0.8, -1.2 + h / 2, -0.03);
-  cityLine.add(b);
-}
-win.add(cityLine);
-const starField = [];
-for (let i = 0; i < 22; i++) {
-  const star = new THREE.Mesh(new THREE.PlaneGeometry(0.03, 0.03), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.0 }));
-  star.position.set(-3.0 + Math.random() * 6.0, -0.2 + Math.random() * 1.5, -0.025);
-  win.add(star);
-  starField.push(star);
+  // sky gradient
+  const g = ctx.createLinearGradient(0, 0, 0, h);
+  const topR = Math.round(12 + day * 130);
+  const topG = Math.round(20 + day * 155);
+  const topB = Math.round(40 + day * 175);
+  const botR = Math.round(24 + day * 95);
+  const botG = Math.round(34 + day * 110);
+  const botB = Math.round(52 + day * 130);
+  g.addColorStop(0, `rgb(${topR},${topG},${topB})`);
+  g.addColorStop(1, `rgb(${botR},${botG},${botB})`);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, w, h);
+
+  // sun / moon
+  if (isDay) {
+    const p = (hours - 6) / 12;
+    const sx = 80 + p * (w - 160);
+    const sy = 160 - Math.sin(p * Math.PI) * 105;
+    ctx.fillStyle = 'rgba(255, 226, 160, 0.95)';
+    ctx.beginPath(); ctx.arc(sx, sy, 26, 0, Math.PI * 2); ctx.fill();
+  } else {
+    const n = ((hours >= 18 ? (hours - 18) : (hours + 6)) / 12);
+    const mx = w - 110 - n * (w - 220);
+    const my = 88 + Math.sin(n * Math.PI) * 38;
+    ctx.fillStyle = 'rgba(232, 242, 255, 0.92)';
+    ctx.beginPath(); ctx.arc(mx, my, 18, 0, Math.PI * 2); ctx.fill();
+
+    // stars
+    for (let i = 0; i < 32; i++) {
+      const x = (i * 127) % w;
+      const y = 22 + ((i * 71) % 160);
+      const tw = 0.3 + Math.abs(Math.sin(tSec * 0.6 + i * 1.4)) * 0.7;
+      ctx.fillStyle = `rgba(255,255,255,${tw * 0.8})`;
+      ctx.fillRect(x, y, 2, 2);
+    }
+  }
+
+  // skyline
+  const baseY = 220;
+  for (let i = 0; i < 10; i++) {
+    const bw = 60 + (i % 3) * 18;
+    const bh = 85 + ((i * 37) % 95);
+    const bx = -10 + i * 95;
+    const by = baseY + (i % 2) * 6;
+    const shade = isDay ? 70 + i * 3 : 35 + i * 3;
+    ctx.fillStyle = `rgb(${shade},${shade + 8},${shade + 18})`;
+    ctx.fillRect(bx, by, bw, bh);
+
+    if (!isDay) {
+      ctx.fillStyle = 'rgba(255,220,150,0.75)';
+      for (let wy = by + 10; wy < by + bh - 8; wy += 16) {
+        for (let wx = bx + 8; wx < bx + bw - 8; wx += 13) {
+          if (((wx + wy + i) % 3) === 0) ctx.fillRect(wx, wy, 6, 8);
+        }
+      }
+    }
+  }
+
+  // foreground haze
+  ctx.fillStyle = isDay ? 'rgba(220,235,255,0.12)' : 'rgba(140,170,220,0.08)';
+  ctx.fillRect(0, 0, w, h);
+
+  windowViewTex.needsUpdate = true;
 }
 
 // desk area
@@ -562,9 +621,6 @@ function animate(t){
     sunDisk.visible = true;
     moonDisk.visible = false;
     sunDisk.position.set(-2.6 + p * 5.2, 0.5 + Math.sin(p * Math.PI) * 0.95, -0.01);
-    cityLine.children.forEach((b)=>b.material.color.set(0x334768));
-    starField.forEach((s)=>{ s.material.opacity = 0; });
-
     key.position.set(-10 + p * 20, 6 + Math.sin(p * Math.PI) * 9, 6);
     key.color.setRGB(1.0, 0.82 + day * 0.14, 0.65 + day * 0.2);
     sunPatch.material.opacity = 0.14 + day * 0.18;
@@ -574,14 +630,13 @@ function animate(t){
     moonDisk.visible = true;
     const n = ((h >= 18 ? (h - 18) : (h + 6)) / 12); // 0..1 across night
     moonDisk.position.set(2.6 - n * 5.2, 0.45 + Math.sin(n * Math.PI) * 0.75, -0.01);
-    cityLine.children.forEach((b)=>b.material.color.set(0x1f2a42));
-    starField.forEach((st, i)=>{ st.material.opacity = 0.25 + Math.abs(Math.sin(s * 0.8 + i * 1.7)) * 0.7; });
-
     key.position.set(6 - n * 12, 7 + Math.sin(n * Math.PI) * 4, 6);
     key.color.setRGB(0.64, 0.75, 1.0);
     sunPatch.material.opacity = 0.0;
     moonPatch.material.opacity = 0.12 + (1 - day) * 0.2;
   }
+
+  drawWindowView(h, s);
 
   shDesk.material.opacity = 0.13 + (1 - day) * 0.12;
   shChair.material.opacity = 0.18 + (1 - day) * 0.14;
