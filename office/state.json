@@ -1,4 +1,4 @@
-{
+{"timestamp":"2026-03-01T13:24:46Z","gatewayUp":true,"gatewayCpu":2.60,"recentCmds":0,"load1":0.11,"mode":"working","taskState":{
   "tasks": [
     {
       "id": "BOOT-001",
@@ -51,4 +51,4 @@
       ]
     }
   ]
-}
+}}

@@ -1,0 +1,12 @@
+name: webgl-build
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unity WebGL build (stub)
+        run: echo "TODO: game-ci/unity-builder targetPlatform=WebGL"

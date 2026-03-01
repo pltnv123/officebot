@@ -1,45 +1,47 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Frog Office</title>
-<link rel="stylesheet" href="./style.css?v=25" />
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-  }
-}
-</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Office Unity WebGL</title>
+  <link rel="stylesheet" href="./style.css?v=1" />
 </head>
 <body>
-<div id="app">
-  <div class="scene-wrap">
-    <canvas id="scene"></canvas>
-    <div class="vignette"></div>
+  <div id="app">
+    <div class="scene-wrap">
+      <div id="unity-container" class="unity-container">
+        <canvas id="unity-canvas"></canvas>
+        <div id="unity-overlay" class="unity-overlay">Unity WebGL build не загружен. Ожидаю файлы в /office/Build</div>
+      </div>
+      <div class="vignette"></div>
+    </div>
+
+    <aside class="panel">
+      <div><b>Активные:</b> <span id="active">0</span></div>
+      <div><b>Выполненные:</b> <span id="done">0</span></div>
+      <div><b>CPU:</b> <span id="cpu">--</span> · <b>Load:</b> <span id="load">--</span></div>
+      <div style="opacity:.65;font-size:12px">build: <span id="build-ver">unity-v1</span></div>
+
+      <div class="now-card">
+        <b>Сейчас делаю</b>
+        <div id="now-doing" class="now-doing">Ожидаю задачи…</div>
+      </div>
+
+      <div class="task-columns">
+        <div class="task-column">
+          <h4>Активные</h4>
+          <div id="tasks-active" class="tasks"></div>
+        </div>
+        <div class="task-column">
+          <h4>Последние</h4>
+          <div id="tasks-done" class="tasks tasks-done"></div>
+        </div>
+      </div>
+    </aside>
   </div>
-  <aside class="panel">
-    <div><b>Активные:</b> <span id="active">0</span></div>
-    <div><b>Выполненные:</b> <span id="done">0</span></div>
-    <div style="opacity:.65;font-size:12px">build: <span id="build-ver">v25</span></div>
-    <div class="now-card">
-      <b>Сейчас делаю</b>
-      <div id="now-doing" class="now-doing">Ожидаю задачи…</div>
-    </div>
-    <div class="task-columns">
-      <div class="task-column">
-        <h4>Активные</h4>
-        <div id="tasks-active" class="tasks"></div>
-      </div>
-      <div class="task-column">
-        <h4>Последние</h4>
-        <div id="tasks-done" class="tasks tasks-done"></div>
-      </div>
-    </div>
-  </aside>
-</div>
-<script type="module" src="./script.js?v=25"></script>
+
+  <script src="./Build/office.loader.js"></script>
+  <script src="./scripts/tasks-ui.js?v=1"></script>
+  <script src="./scripts/unity-loader.js?v=1"></script>
 </body>
 </html>
