@@ -17,9 +17,9 @@
   };
 
   async function runFallback(reason) {
-    setMessage(`Unity build не найден (${reason}). Запущен fallback 3D.`);
+    setMessage(`Unity build ещё не готов (${reason}). Показан стартовый fallback-офис.`);
     try {
-      const mod = await import('./fallback-scene.js?v=1');
+      const mod = await import('./fallback-scene.js?v=2');
       mod.launchFallbackScene(canvas);
     } catch (error) {
       setMessage('Ошибка fallback-сцены: ' + error);
