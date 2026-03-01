@@ -1,76 +1,63 @@
 {
   "tasks": [
     {
-      "id": "PLAN-001",
-      "title": "API and data contracts freeze",
+      "id": "U-FOUND-001",
+      "title": "Unity URP Mobile foundation",
       "status": "doing",
       "subtasks": [
-        { "title": "Define GET /state canonical schema", "status": "doing" },
-        { "title": "Map agents/tasks/events/stability to runtime models", "status": "todo" },
-        { "title": "Add validation and fallback defaults", "status": "todo" }
+        { "title": "Bootstrap Unity 2022+ URP Mobile project checklist", "status": "doing" },
+        { "title": "Define scene baseline (1 bot + 1 assistant)", "status": "todo" },
+        { "title": "Camera/isometric framing baseline", "status": "todo" }
       ]
     },
     {
-      "id": "ARCH-001",
-      "title": "LookProfile data architecture (single scene)",
+      "id": "U-NET-001",
+      "title": "OpenClaw API integration contract",
       "status": "doing",
       "subtasks": [
-        { "title": "Freeze ModePreset fields", "status": "done" },
-        { "title": "Bind cozy/thriller to runtime controller", "status": "doing" },
-        { "title": "Remove hardcoded visual branching", "status": "todo" }
+        { "title": "Freeze GET /state JSON schema", "status": "doing" },
+        { "title": "Map JSON -> Unity runtime models", "status": "todo" },
+        { "title": "Polling strategy + retry/backoff", "status": "todo" }
       ]
     },
     {
-      "id": "SCENE-001",
-      "title": "Scene constraints parity",
-      "status": "doing",
-      "subtasks": [
-        { "title": "Right wall removed in live scene", "status": "doing" },
-        { "title": "Left wall: door + board + window", "status": "doing" },
-        { "title": "Natural window light readability", "status": "todo" }
-      ]
-    },
-    {
-      "id": "PIXEL-001",
-      "title": "Pixel-perfect contract",
+      "id": "U-MODE-001",
+      "title": "Cozy/Thriller single-scene mode system",
       "status": "todo",
       "subtasks": [
-        { "title": "Lock R_ref and integer X", "status": "todo" },
-        { "title": "Nearest filtering audit", "status": "todo" },
-        { "title": "Pixel stability panning test", "status": "todo" }
+        { "title": "Define ModePreset fields", "status": "todo" },
+        { "title": "Bind LUT/light/post to mode switch", "status": "todo" },
+        { "title": "JS -> Unity SendMessage bridge", "status": "todo" }
       ]
     },
     {
-      "id": "QA-001",
-      "title": "QA scene pack and acceptance checks",
+      "id": "U-OPT-001",
+      "title": "WebGL optimization and quality tiers",
       "status": "todo",
       "subtasks": [
-        { "title": "Material board", "status": "todo" },
-        { "title": "Lighting board", "status": "todo" },
-        { "title": "Diegetic UI board", "status": "todo" },
-        { "title": "LOD/noise board", "status": "todo" }
+        { "title": "KTX2/Basis texture pipeline", "status": "todo" },
+        { "title": "Quality tiers (High/Mid/Low)", "status": "todo" },
+        { "title": "Memory/FPS budget validation", "status": "todo" }
       ]
     },
     {
-      "id": "OPS-001",
-      "title": "CI/CD and deploy hardening",
+      "id": "U-OPS-001",
+      "title": "CI/CD and VPS deployment",
       "status": "todo",
       "subtasks": [
-        { "title": "Web build automation", "status": "todo" },
-        { "title": "Nginx compression/cache headers", "status": "todo" },
-        { "title": "Observability baseline", "status": "todo" }
+        { "title": "GitHub Actions WebGL build workflow", "status": "todo" },
+        { "title": "deploy.sh + rsync pipeline", "status": "todo" },
+        { "title": "nginx static delivery tuning", "status": "todo" }
       ]
     },
     {
-      "id": "S001",
-      "title": "Cozy / Thriller dual-mode art direction baseline",
-      "status": "done",
+      "id": "U-QA-001",
+      "title": "Mobile/browser QA",
+      "status": "todo",
       "subtasks": [
-        { "title": "Световые пресеты Cozy + Thriller", "status": "done" },
-        { "title": "Смена дня/ночи за окном по времени", "status": "done" },
-        { "title": "Материалы и диван переработаны", "status": "done" },
-        { "title": "Diegetic UI доски + тревожный индикатор", "status": "done" },
-        { "title": "VFX/контраст/виньетка и плавный переход", "status": "done" }
+        { "title": "WebGL Android/iOS smoke", "status": "todo" },
+        { "title": "TTFF < 3s validation", "status": "todo" },
+        { "title": "FPS > 30 and memory < 400MB", "status": "todo" }
       ]
     }
   ]

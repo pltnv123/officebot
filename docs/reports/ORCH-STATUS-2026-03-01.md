@@ -1,15 +1,18 @@
-# ORCH STATUS — 2026-03-01
+# ORCH STATUS — 2026-03-01 (updated)
 
-## Started
-- Оркестрация принята.
-- План зафиксирован в docs/plans/ORCH-2026-03-01-openclaw-office.md.
+## Current command context
+`/orchetrate` accepted. Switching to Unity WebGL execution track.
+
+## Done
+- Orchestration plan frozen: `docs/plans/ORCH-2026-03-01-unity-webgl.md`
+- Project execution phases defined (Foundation -> Runtime -> Modes -> Optimization -> CI/CD -> QA)
 
 ## In Progress
-- SCENE parity and constraints
-- LookProfile architecture
-- Pixel contract setup
+- API state contract freeze
+- Sprint-1 task board alignment
+- Web wrapper / deployment checklist prep
 
-## Next
-- API contract freeze
-- QA scene harness
-- Deploy/perf checklist
+## Next up
+1) `/state` schema + runtime mapping table
+2) Unity bootstrap package/config checklist
+3) CI workflow + deploy script stubs
