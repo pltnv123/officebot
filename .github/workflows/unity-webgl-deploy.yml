@@ -6,17 +6,26 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  preflight:
+    runs-on: ubuntu-latest
+    outputs:
+      can_build: ${{ steps.chk.outputs.can_build }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: chk
+        run: |
+          if [ -f UnityProject/ProjectSettings/ProjectVersion.txt ] && [ -f UnityProject/Assets/Editor/BuildScript.cs ]; then
+            echo "can_build=true" >> $GITHUB_OUTPUT
+          else
+            echo "can_build=false" >> $GITHUB_OUTPUT
+          fi
+
+  build-unity:
+    needs: preflight
+    if: needs.preflight.outputs.can_build == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Validate Unity project presence
-        run: |
-          test -d UnityProject/Assets || (echo "UnityProject/Assets not found" && exit 1)
-          test -f UnityProject/ProjectSettings/ProjectVersion.txt || (echo "Unity project settings missing" && exit 1)
-
+      - uses: actions/checkout@v4
       - name: Build Unity WebGL
         uses: game-ci/unity-builder@v4
         env:
@@ -27,35 +36,48 @@ jobs:
           targetPlatform: WebGL
           projectPath: UnityProject
           buildMethod: BuildScript.BuildWebGL
-
-      - name: Upload Build artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: webgl-build
           path: UnityProject/Builds/WebGL
 
-  deploy:
-    needs: build
+  build-bootstrap:
+    needs: preflight
+    if: needs.preflight.outputs.can_build != 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Download Build artifact
-        uses: actions/download-artifact@v4
+      - uses: actions/checkout@v4
+      - name: Package existing Web build
+        run: |
+          mkdir -p out
+          cp -r Build out/Build
+          cp -r TemplateData out/TemplateData || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: webgl-build
+          path: out
+
+  deploy:
+    needs: [build-unity, build-bootstrap]
+    if: always() && (needs.build-unity.result == 'success' || needs.build-bootstrap.result == 'success')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
         with:
           name: webgl-build
           path: webgl
-
-      - name: Setup SSH key
+      - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Deploy to VPS
+      - name: Deploy Build
         run: |
           rsync -avz --delete webgl/Build/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/office/Build/
-          rsync -avz webgl/TemplateData/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/office/TemplateData/
-
+          if [ -d webgl/TemplateData ]; then
+            rsync -avz --delete webgl/TemplateData/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/office/TemplateData/
+          fi
       - name: Smoke check
         run: |
           curl -fsS "http://${{ secrets.VPS_HOST }}/office/index.html" >/dev/null
