@@ -1,0 +1,62 @@
+name: Unity WebGL Build & Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Unity project presence
+        run: |
+          test -d UnityProject/Assets || (echo "UnityProject/Assets not found" && exit 1)
+          test -f UnityProject/ProjectSettings/ProjectVersion.txt || (echo "Unity project settings missing" && exit 1)
+
+      - name: Build Unity WebGL
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          targetPlatform: WebGL
+          projectPath: UnityProject
+          buildMethod: BuildScript.BuildWebGL
+
+      - name: Upload Build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: webgl-build
+          path: UnityProject/Builds/WebGL
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: webgl-build
+          path: webgl
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to VPS
+        run: |
+          rsync -avz --delete webgl/Build/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/office/Build/
+          rsync -avz webgl/TemplateData/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/office/TemplateData/
+
+      - name: Smoke check
+        run: |
+          curl -fsS "http://${{ secrets.VPS_HOST }}/office/index.html" >/dev/null
+          echo "Deploy smoke-check passed"

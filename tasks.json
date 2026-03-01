@@ -1,125 +1,33 @@
 {
   "tasks": [
     {
-      "id": "UNITY-LIVE-001",
-      "title": "Перевод офиса на реальный Unity runtime",
+      "id": "AUTO-UNITY-001",
+      "title": "Автосборка Unity WebGL через GitHub Actions",
       "status": "doing",
-      "estimate": 220.0,
-      "actual": 56.24,
+      "estimate": 180,
+      "actual": 70,
       "subtasks": [
-        {
-          "title": "Синхронизировать полный Build (loader/data/framework/wasm)",
-          "status": "done",
-          "estimate": 25.0,
-          "actual": 25.0,
-          "progress": 100
-        },
-        {
-          "title": "Проверить запуск Unity без fallback",
-          "status": "doing",
-          "estimate": 35.0,
-          "actual": 12.62,
-          "progress": 36.1
-        },
-        {
-          "title": "Подтянуть визуал офиса в Unity-сцене",
-          "status": "doing",
-          "estimate": 70.0,
-          "actual": 18.62,
-          "progress": 26.6
-        },
-        {
-          "title": "Синхронизировать Cozy/Thriller переключение",
-          "status": "todo",
-          "estimate": 45.0,
-          "actual": 0.0,
-          "progress": 0
-        },
-        {
-          "title": "Подключить роли ассистентов к runtime",
-          "status": "todo",
-          "estimate": 45.0,
-          "actual": 0.0,
-          "progress": 0
-        }
+        { "title": "Создать workflow build+deploy", "status": "done", "estimate": 40, "actual": 40, "progress": 100 },
+        { "title": "Добавить BuildScript.BuildWebGL", "status": "done", "estimate": 25, "actual": 25, "progress": 100 },
+        { "title": "Проверка секретов и SSH-деплоя", "status": "doing", "estimate": 35, "actual": 5, "progress": 14.3 },
+        { "title": "Собрать первый green run в Actions", "status": "todo", "estimate": 45, "actual": 0, "progress": 0 },
+        { "title": "Задеплоить билд в /var/www/office/Build", "status": "todo", "estimate": 35, "actual": 0, "progress": 0 }
       ],
-      "progress": 25.6
+      "progress": 38.9
     },
     {
-      "id": "API-LIVE-001",
-      "title": "Подключение OpenClaw /state к Unity",
-      "status": "doing",
-      "estimate": 180.0,
-      "actual": 40.62,
+      "id": "UNITY-SCENE-001",
+      "title": "Боевая Unity-сцена офиса",
+      "status": "todo",
+      "estimate": 260,
+      "actual": 0,
       "subtasks": [
-        {
-          "title": "Зафиксировать контракт /state v1",
-          "status": "done",
-          "estimate": 35.0,
-          "actual": 35.0,
-          "progress": 100
-        },
-        {
-          "title": "Сделать маппинг JSON -> runtime модели",
-          "status": "doing",
-          "estimate": 55.0,
-          "actual": 5.62,
-          "progress": 10.2
-        },
-        {
-          "title": "Сделать polling + retry/backoff",
-          "status": "todo",
-          "estimate": 45.0,
-          "actual": 0.0,
-          "progress": 0
-        },
-        {
-          "title": "Привязать задачи к UI/анимации",
-          "status": "todo",
-          "estimate": 45.0,
-          "actual": 0.0,
-          "progress": 0
-        }
+        { "title": "Создать MainOffice сцену и добавить в Build Settings", "status": "todo", "estimate": 60, "actual": 0, "progress": 0 },
+        { "title": "Сделать layout офиса (дверь/окно/доска/зоны)", "status": "todo", "estimate": 80, "actual": 0, "progress": 0 },
+        { "title": "Роли ассистентов и простые idle-анимации", "status": "todo", "estimate": 60, "actual": 0, "progress": 0 },
+        { "title": "Cozy/Thriller mode controller", "status": "todo", "estimate": 60, "actual": 0, "progress": 0 }
       ],
-      "progress": 22.6
-    },
-    {
-      "id": "CICD-REAL-001",
-      "title": "Реальный CI/CD WebGL",
-      "status": "doing",
-      "estimate": 140.0,
-      "actual": 0.62,
-      "subtasks": [
-        {
-          "title": "Заменить workflow-заглушку на game-ci/unity-builder",
-          "status": "doing",
-          "estimate": 45.0,
-          "actual": 0.62,
-          "progress": 1.4
-        },
-        {
-          "title": "Добавить deploy шаг на VPS",
-          "status": "todo",
-          "estimate": 45.0,
-          "actual": 0.0,
-          "progress": 0
-        },
-        {
-          "title": "Smoke-check после деплоя",
-          "status": "todo",
-          "estimate": 25.0,
-          "actual": 0.0,
-          "progress": 0
-        },
-        {
-          "title": "Документация запуска",
-          "status": "todo",
-          "estimate": 25.0,
-          "actual": 0.0,
-          "progress": 0
-        }
-      ],
-      "progress": 0.4
+      "progress": 0
     }
   ]
 }
