@@ -1,0 +1,195 @@
+import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+
+export function launchFallbackScene(canvas) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x111a31);
+
+  const camera = new THREE.PerspectiveCamera(48, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+  camera.position.set(9.5, 7.2, 13.5);
+  camera.lookAt(0, 1.8, 0);
+
+  const hemi = new THREE.HemisphereLight(0xc1dbff, 0x34281f, 0.72);
+  scene.add(hemi);
+  const key = new THREE.DirectionalLight(0xffddb5, 0.92);
+  key.position.set(-6, 10, 5);
+  scene.add(key);
+
+  const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(20, 14),
+    new THREE.MeshStandardMaterial({ color: 0x655a52, roughness: 0.94 })
+  );
+  floor.rotation.x = -Math.PI / 2;
+  scene.add(floor);
+
+  const backWall = new THREE.Mesh(
+    new THREE.BoxGeometry(20, 8, 0.2),
+    new THREE.MeshStandardMaterial({ color: 0x4e5a75, roughness: 0.9 })
+  );
+  backWall.position.set(0, 4, -7);
+  scene.add(backWall);
+
+  const leftWall = new THREE.Mesh(
+    new THREE.BoxGeometry(0.2, 8, 14),
+    new THREE.MeshStandardMaterial({ color: 0x576281, roughness: 0.9 })
+  );
+  leftWall.position.set(-10, 4, 0);
+  scene.add(leftWall);
+
+  // left wall door
+  const doorFrame = new THREE.Mesh(
+    new THREE.BoxGeometry(0.24, 3.3, 1.8),
+    new THREE.MeshStandardMaterial({ color: 0x49536b, roughness: 0.85 })
+  );
+  doorFrame.position.set(-9.88, 1.65, 3.7);
+  scene.add(doorFrame);
+  const door = new THREE.Mesh(
+    new THREE.BoxGeometry(0.12, 3.0, 1.5),
+    new THREE.MeshStandardMaterial({ color: 0x6a5446, roughness: 0.8 })
+  );
+  door.position.set(-9.8, 1.5, 3.7);
+  scene.add(door);
+
+  // left wall window
+  const winFrame = new THREE.Mesh(
+    new THREE.BoxGeometry(0.22, 2.6, 3.2),
+    new THREE.MeshStandardMaterial({ color: 0x4e5875, roughness: 0.82 })
+  );
+  winFrame.position.set(-9.9, 4.7, -3.2);
+  scene.add(winFrame);
+  const winGlass = new THREE.Mesh(
+    new THREE.PlaneGeometry(2.9, 2.3),
+    new THREE.MeshBasicMaterial({ color: 0x8fb6ff, transparent: true, opacity: 0.65 })
+  );
+  winGlass.position.set(-9.77, 4.7, -3.2);
+  winGlass.rotation.y = Math.PI / 2;
+  scene.add(winGlass);
+
+  const windowLight = new THREE.PointLight(0xffd7a8, 0.65, 9);
+  windowLight.position.set(-8.5, 4.6, -3.2);
+  scene.add(windowLight);
+
+  const desk = new THREE.Mesh(
+    new THREE.BoxGeometry(4.6, 0.28, 1.9),
+    new THREE.MeshStandardMaterial({ color: 0x946547, roughness: 0.84 })
+  );
+  desk.position.set(-3.2, 1.22, -1.5);
+  scene.add(desk);
+
+  const monitor = new THREE.Mesh(
+    new THREE.BoxGeometry(1.4, 0.9, 0.08),
+    new THREE.MeshStandardMaterial({ color: 0x2c3442, roughness: 0.45 })
+  );
+  monitor.position.set(-3.4, 1.95, -2.05);
+  scene.add(monitor);
+
+  const screen = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.2, 0.7),
+    new THREE.MeshBasicMaterial({ color: 0x9de6ff })
+  );
+  screen.position.z = 0.05;
+  monitor.add(screen);
+
+  const board = new THREE.Mesh(
+    new THREE.BoxGeometry(4.6, 2.1, 0.12),
+    new THREE.MeshStandardMaterial({ color: 0x3c2d25, roughness: 0.78 })
+  );
+  board.position.set(4.2, 4.1, -6.85);
+  scene.add(board);
+
+  const boardFace = new THREE.Mesh(
+    new THREE.PlaneGeometry(4.3, 1.85),
+    new THREE.MeshBasicMaterial({ color: 0x8fb8ff })
+  );
+  boardFace.position.z = 0.07;
+  board.add(boardFace);
+
+  // simple board lines to imitate tasks
+  const lineMat = new THREE.MeshBasicMaterial({ color: 0x24406f });
+  for (let i = 0; i < 5; i++) {
+    const ln = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 0.08), lineMat);
+    ln.position.set(-0.15, 0.65 - i * 0.35, 0.08);
+    board.add(ln);
+  }
+
+  const sofa = new THREE.Mesh(
+    new THREE.BoxGeometry(3.0, 0.5, 1.25),
+    new THREE.MeshStandardMaterial({ color: 0x6d79a6, roughness: 0.86 })
+  );
+  sofa.position.set(3.6, 0.3, 2.2);
+  scene.add(sofa);
+
+  function makeBadge(text, color = 0x9cc2ff){
+    const c = document.createElement('canvas');
+    c.width = 256; c.height = 64;
+    const g = c.getContext('2d');
+    g.fillStyle = 'rgba(8,14,28,0.72)';
+    g.fillRect(0, 8, 256, 48);
+    g.strokeStyle = `#${color.toString(16).padStart(6, '0')}`;
+    g.lineWidth = 3;
+    g.strokeRect(2, 10, 252, 44);
+    g.fillStyle = '#e7f1ff';
+    g.font = 'bold 22px sans-serif';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.fillText(text, 128, 33);
+    const tex = new THREE.CanvasTexture(c);
+    const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+    spr.scale.set(1.5, 0.35, 1);
+    return spr;
+  }
+
+  function makeBot(color, hoodie, role, badgeColor) {
+    const g = new THREE.Group();
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.28, 14, 12), new THREE.MeshStandardMaterial({ color, roughness: 0.75 }));
+    body.position.y = 0.55;
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 14, 12), new THREE.MeshStandardMaterial({ color: 0x92df73, roughness: 0.75 }));
+    head.position.y = 0.9;
+    const hood = new THREE.Mesh(new THREE.CapsuleGeometry(0.17, 0.22, 4, 8), new THREE.MeshStandardMaterial({ color: hoodie, roughness: 0.8 }));
+    hood.position.y = 0.3;
+    g.add(body, head, hood);
+    if (role) {
+      const badge = makeBadge(role, badgeColor || 0x9cc2ff);
+      badge.position.set(0, 1.35, 0);
+      g.add(badge);
+    }
+    return g;
+  }
+
+  const bots = [];
+  const b1 = makeBot(0x71d464, 0xff9b49, 'WORKER', 0xffb26f); b1.position.set(-3.0, 0, -0.2); scene.add(b1); bots.push(b1);
+  const b2 = makeBot(0x6ecf68, 0x7db3ff, 'PLANNER', 0x7db3ff); b2.position.set(2.5, 0, 1.2); scene.add(b2); bots.push(b2);
+  const b3 = makeBot(0x7ad06f, 0xffb875, 'REVIEW', 0xff8f8f); b3.position.set(5.2, 0, 2.2); scene.add(b3); bots.push(b3);
+
+  const warm = new THREE.PointLight(0xffc78e, 0.38, 8);
+  warm.position.set(3.5, 2.2, 2.0);
+  scene.add(warm);
+
+  const moon = new THREE.PointLight(0x8fb7ff, 0.22, 12);
+  moon.position.set(-4.2, 6.5, -5.8);
+  scene.add(moon);
+
+  function resize() {
+    const w = canvas.clientWidth;
+    const h = Math.max(1, canvas.clientHeight);
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  addEventListener('resize', resize);
+
+  function tick(t = 0) {
+    const s = t * 0.001;
+    screen.material.color.setRGB(0.55 + Math.random() * 0.08, 0.87 + Math.random() * 0.08, 1);
+    bots.forEach((b, i) => {
+      b.position.y = Math.sin(s * 2.2 + i) * 0.03;
+      b.rotation.z = Math.sin(s * 1.7 + i * 0.8) * 0.03;
+    });
+    renderer.render(scene, camera);
+    requestAnimationFrame(tick);
+  }
+  tick();
+}
