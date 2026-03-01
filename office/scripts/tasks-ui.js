@@ -7,20 +7,11 @@
   const tasksDoneEl = document.getElementById('tasks-done');
   const nowDoingEl = document.getElementById('now-doing');
 
-  const doingProgress = new Map();
-
   function clamp(v, min, max){
     return Math.max(min, Math.min(max, v));
   }
 
-  function progressiveDoingValue(key){
-    const prev = doingProgress.get(key) ?? 8;
-    const next = clamp(prev + 2, 8, 92);
-    doingProgress.set(key, next);
-    return next;
-  }
-
-  function leafProgress(node, key){
+  function leafProgress(node){
     if(node.status === 'done') return 100;
 
     const explicit = Number(node.progress);
@@ -32,20 +23,20 @@
     const estimate = Number(node.estimate || 0);
     const actual = Number(node.actual || 0);
     if(estimate > 0){
-      return Math.round(clamp((actual / estimate) * 100, node.status === 'doing' ? 5 : 0, 100));
+      return Math.round(clamp((actual / estimate) * 100, 0, 100));
     }
 
-    if(node.status === 'doing') return progressiveDoingValue(key);
-    return 0;
+    // no synthetic progress: only factual data from status/progress/actual
+    return node.status === 'doing' ? 0 : 0;
   }
 
   function nodeProgress(node, key = 'root'){
     const children = node.subtasks || [];
-    if(!children.length) return leafProgress(node, key);
+    if(!children.length) return leafProgress(node);
     const total = children.reduce((sum, child, i) => sum + nodeProgress(child, `${key}.${i}`), 0);
     const avg = Math.round(total / children.length);
     if(node.status === 'done') return 100;
-    if(node.status === 'doing') return clamp(avg, 1, 99);
+    if(node.status === 'doing') return clamp(avg, 0, 99);
     return avg;
   }
 
@@ -65,11 +56,13 @@
     const icon = node.status === 'done' ? '✅' : node.status === 'doing' ? '🟡' : '⚪';
     const estimate = Number(node.estimate || 0);
     const actual = Number(node.actual || 0);
-    const timing = node.status === 'done' ? `факт ${actual || estimate} мин` : `оценка ${estimate || 0} мин`;
+    let timing = '';
+    if(node.status === 'done' && (actual || estimate)) timing = ` · факт ${actual || estimate} мин`;
+    if(node.status !== 'done' && estimate > 0) timing = ` · оценка ${estimate} мин`;
     const hasChildren = (node.subtasks || []).length > 0;
     const collapsed = getCollapsedSet().has(key);
 
-    wrapper.innerHTML = `<div class="sub-head" style="cursor:${hasChildren ? 'pointer' : 'default'}"><span>${hasChildren ? (collapsed ? '▸' : '▾') : '•'} ${icon} ${index}. ${node.title}</span><span class="sub-meta">${progress}% · ${timing}</span></div>
+    wrapper.innerHTML = `<div class="sub-head" style="cursor:${hasChildren ? 'pointer' : 'default'}"><span>${hasChildren ? (collapsed ? '▸' : '▾') : '•'} ${icon} ${index}. ${node.title}</span><span class="sub-meta">${progress}%${timing}</span></div>
       <div class="sub-progress"><div class="sub-progress-fill" style="width:${progress}%"></div></div>`;
 
     const head = wrapper.querySelector('.sub-head');
@@ -95,14 +88,27 @@
   function renderTaskCard(task){
     const card = document.createElement('div');
     card.className = 'task';
+    const taskKey = `task.${task.id || task.title || 'task'}`;
+    const collapsed = getCollapsedSet().has(taskKey);
     const progress = nodeProgress(task, task.id || task.title || 'task');
-    card.innerHTML = `<div><b>🟡 ${task.id || ''}</b> — ${task.title || 'task'}</div>
+
+    card.innerHTML = `<div class="task-head" style="cursor:pointer"><b>${collapsed ? '▸' : '▾'} 🟡 ${task.id || ''}</b> — ${task.title || 'task'}</div>
       <div class="task-progress"><div class="task-progress-fill" style="width:${progress}%"></div></div>
       <div class="task-progress-label">${progress}%</div>`;
 
-    (task.subtasks || []).forEach((subtask, index) => {
-      card.appendChild(renderNode(subtask, 0, index + 1, `${task.id || 'task'}.${index}`));
+    const head = card.querySelector('.task-head');
+    head.addEventListener('click', () => {
+      const set = getCollapsedSet();
+      if(set.has(taskKey)) set.delete(taskKey); else set.add(taskKey);
+      saveCollapsedSet(set);
+      poll();
     });
+
+    if(!collapsed){
+      (task.subtasks || []).forEach((subtask, index) => {
+        card.appendChild(renderNode(subtask, 0, index + 1, `${task.id || 'task'}.${index}`));
+      });
+    }
 
     return card;
   }
