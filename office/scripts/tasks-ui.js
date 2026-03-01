@@ -49,6 +49,15 @@
     return avg;
   }
 
+  const collapseStoreKey = 'officeCollapsedNodes';
+  function getCollapsedSet(){
+    try { return new Set(JSON.parse(localStorage.getItem(collapseStoreKey) || '[]')); }
+    catch { return new Set(); }
+  }
+  function saveCollapsedSet(set){
+    try { localStorage.setItem(collapseStoreKey, JSON.stringify(Array.from(set))); } catch {}
+  }
+
   function renderNode(node, level, index, key){
     const wrapper = document.createElement('div');
     wrapper.className = 'sub';
@@ -57,13 +66,28 @@
     const estimate = Number(node.estimate || 0);
     const actual = Number(node.actual || 0);
     const timing = node.status === 'done' ? `факт ${actual || estimate} мин` : `оценка ${estimate || 0} мин`;
+    const hasChildren = (node.subtasks || []).length > 0;
+    const collapsed = getCollapsedSet().has(key);
 
-    wrapper.innerHTML = `<div class="sub-head"><span>${icon} ${index}. ${node.title}</span><span class="sub-meta">${progress}% · ${timing}</span></div>
+    wrapper.innerHTML = `<div class="sub-head" style="cursor:${hasChildren ? 'pointer' : 'default'}"><span>${hasChildren ? (collapsed ? '▸' : '▾') : '•'} ${icon} ${index}. ${node.title}</span><span class="sub-meta">${progress}% · ${timing}</span></div>
       <div class="sub-progress"><div class="sub-progress-fill" style="width:${progress}%"></div></div>`;
 
-    (node.subtasks || []).forEach((child, childIndex) => {
-      wrapper.appendChild(renderNode(child, level + 1, childIndex + 1, `${key}.${childIndex}`));
-    });
+    const head = wrapper.querySelector('.sub-head');
+
+    if(hasChildren){
+      head.addEventListener('click', () => {
+        const set = getCollapsedSet();
+        if(set.has(key)) set.delete(key); else set.add(key);
+        saveCollapsedSet(set);
+        poll();
+      });
+    }
+
+    if(!collapsed){
+      (node.subtasks || []).forEach((child, childIndex) => {
+        wrapper.appendChild(renderNode(child, level + 1, childIndex + 1, `${key}.${childIndex}`));
+      });
+    }
 
     return wrapper;
   }
