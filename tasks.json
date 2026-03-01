@@ -1,94 +1,125 @@
 {
   "tasks": [
     {
-      "id": "VIS-001",
-      "title": "Визуал стартовой сцены (fallback office v3)",
-      "status": "done",
-      "estimate": 150.0,
-      "actual": 150.0,
+      "id": "UNITY-LIVE-001",
+      "title": "Перевод офиса на реальный Unity runtime",
+      "status": "doing",
+      "estimate": 220.0,
+      "actual": 56.24,
       "subtasks": [
         {
-          "title": "Левая стена: дверь",
-          "status": "done",
-          "estimate": 20.0,
-          "actual": 20.0,
-          "progress": 100
-        },
-        {
-          "title": "Левая стена: окно",
-          "status": "done",
-          "estimate": 20.0,
-          "actual": 20.0,
-          "progress": 100
-        },
-        {
-          "title": "Живой свет из окна",
-          "status": "done",
-          "estimate": 30.0,
-          "actual": 30.0,
-          "progress": 100
-        },
-        {
-          "title": "Доска задач с читаемыми линиями",
+          "title": "Синхронизировать полный Build (loader/data/framework/wasm)",
           "status": "done",
           "estimate": 25.0,
           "actual": 25.0,
           "progress": 100
         },
         {
-          "title": "Роли ассистентов бейджами",
-          "status": "done",
-          "estimate": 25.0,
-          "actual": 25.0,
-          "progress": 100
+          "title": "Проверить запуск Unity без fallback",
+          "status": "doing",
+          "estimate": 35.0,
+          "actual": 12.62,
+          "progress": 36.1
         },
         {
-          "title": "Полировка света Cozy/Thriller ощущений",
-          "status": "done",
-          "estimate": 30.0,
-          "actual": 30.0,
-          "progress": 100
+          "title": "Подтянуть визуал офиса в Unity-сцене",
+          "status": "doing",
+          "estimate": 70.0,
+          "actual": 18.62,
+          "progress": 26.6
+        },
+        {
+          "title": "Синхронизировать Cozy/Thriller переключение",
+          "status": "todo",
+          "estimate": 45.0,
+          "actual": 0.0,
+          "progress": 0
+        },
+        {
+          "title": "Подключить роли ассистентов к runtime",
+          "status": "todo",
+          "estimate": 45.0,
+          "actual": 0.0,
+          "progress": 0
         }
       ],
-      "progress": 100
+      "progress": 25.6
     },
     {
-      "id": "SPR-001",
-      "title": "Sprint-1 Unity WebGL bootstrap",
-      "status": "done",
-      "estimate": 210.0,
-      "actual": 210.0,
+      "id": "API-LIVE-001",
+      "title": "Подключение OpenClaw /state к Unity",
+      "status": "doing",
+      "estimate": 180.0,
+      "actual": 40.62,
       "subtasks": [
         {
-          "title": "Контракт /state v1",
+          "title": "Зафиксировать контракт /state v1",
           "status": "done",
-          "estimate": 60.0,
-          "actual": 60.0,
+          "estimate": 35.0,
+          "actual": 35.0,
           "progress": 100
         },
         {
-          "title": "URP mobile baseline checklist",
-          "status": "done",
-          "estimate": 70.0,
-          "actual": 70.0,
-          "progress": 100
+          "title": "Сделать маппинг JSON -> runtime модели",
+          "status": "doing",
+          "estimate": 55.0,
+          "actual": 5.62,
+          "progress": 10.2
         },
         {
-          "title": "Web wrapper + bridge контур",
-          "status": "done",
-          "estimate": 50.0,
-          "actual": 50.0,
-          "progress": 100
+          "title": "Сделать polling + retry/backoff",
+          "status": "todo",
+          "estimate": 45.0,
+          "actual": 0.0,
+          "progress": 0
         },
         {
-          "title": "CI/CD scaffold",
-          "status": "done",
-          "estimate": 30.0,
-          "actual": 30.0,
-          "progress": 100
+          "title": "Привязать задачи к UI/анимации",
+          "status": "todo",
+          "estimate": 45.0,
+          "actual": 0.0,
+          "progress": 0
         }
       ],
-      "progress": 100
+      "progress": 22.6
+    },
+    {
+      "id": "CICD-REAL-001",
+      "title": "Реальный CI/CD WebGL",
+      "status": "doing",
+      "estimate": 140.0,
+      "actual": 0.62,
+      "subtasks": [
+        {
+          "title": "Заменить workflow-заглушку на game-ci/unity-builder",
+          "status": "doing",
+          "estimate": 45.0,
+          "actual": 0.62,
+          "progress": 1.4
+        },
+        {
+          "title": "Добавить deploy шаг на VPS",
+          "status": "todo",
+          "estimate": 45.0,
+          "actual": 0.0,
+          "progress": 0
+        },
+        {
+          "title": "Smoke-check после деплоя",
+          "status": "todo",
+          "estimate": 25.0,
+          "actual": 0.0,
+          "progress": 0
+        },
+        {
+          "title": "Документация запуска",
+          "status": "todo",
+          "estimate": 25.0,
+          "actual": 0.0,
+          "progress": 0
+        }
+      ],
+      "progress": 0.4
     }
   ]
 }
