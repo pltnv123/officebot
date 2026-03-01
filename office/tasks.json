@@ -2,53 +2,291 @@
   "tasks": [
     {
       "id": "BOOT-001",
-      "title": "Новый старт проекта Unity WebGL (OpenClaw Visual)",
+      "title": "Новый старт Unity WebGL проекта (каркас + живое табло)",
       "status": "doing",
       "subtasks": [
-        { "title": "Очистить старые задачи и планы", "status": "done" },
-        { "title": "Создать новую структуру проекта", "status": "doing" },
-        { "title": "Подготовить Sprint-1 backlog", "status": "todo" }
-      ]
+        {
+          "title": "Очистить старые планы/таски",
+          "status": "done",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Собрать структуру каталогов (UnityProject/Web/CI)",
+          "status": "done",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Синхронизировать новое tasks.json в live",
+          "status": "done",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Обновить state.json через update_state.sh",
+          "status": "done",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Проверить отображение активных/последних в табле",
+          "status": "doing",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Убрать legacy-скрипты/дубли после миграции",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        }
+      ],
+      "estimate": 180,
+      "actual": 0
     },
     {
       "id": "API-001",
       "title": "Контракт OpenClaw API /state",
-      "status": "todo",
+      "status": "doing",
       "subtasks": [
-        { "title": "Зафиксировать JSON-схему", "status": "todo" },
-        { "title": "Описать маппинг в Unity-модели", "status": "todo" },
-        { "title": "Fallback/валидация полей", "status": "todo" }
-      ]
+        {
+          "title": "Зафиксировать JSON-схему v1",
+          "status": "doing",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Список обязательных полей и default fallback",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Статусы задач: todo/doing/done + валидация",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Роли агентов: Worker/Planner/Reviewer/Debugger",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Док: маппинг JSON -> C# DTO",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Док: ошибки сети и retry/backoff",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Пример payload и edge-cases",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        }
+      ],
+      "estimate": 180,
+      "actual": 0
     },
     {
       "id": "UNITY-001",
-      "title": "Unity URP mobile bootstrap",
+      "title": "Unity URP Mobile bootstrap",
       "status": "todo",
       "subtasks": [
-        { "title": "Сцена baseline: 1 bot + 1 assistant", "status": "todo" },
-        { "title": "Quality tiers (High/Mid/Low)", "status": "todo" },
-        { "title": "ModePreset Cozy/Thriller", "status": "todo" }
-      ]
+        {
+          "title": "Создать проект Unity 2022+ URP",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Сцена baseline: 1 bot + 1 assistant",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Изометрическая камера и safe framing",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Directional + baked окружение",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Quality tiers: High/Mid/Low",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "ModePreset ScriptableObject (Cozy/Thriller)",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Привязка mode switch к свету/посту",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "WebGL Player settings baseline",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        }
+      ],
+      "estimate": 180,
+      "actual": 0
     },
     {
       "id": "WEB-001",
-      "title": "Web wrapper + bridge",
-      "status": "todo",
+      "title": "Web wrapper + JS↔Unity bridge",
+      "status": "doing",
       "subtasks": [
-        { "title": "Web/index.html + loader.js scaffold", "status": "todo" },
-        { "title": "JS -> Unity SendMessage", "status": "todo" },
-        { "title": "Loading/fallback mobile UX", "status": "todo" }
-      ]
+        {
+          "title": "Scaffold Web/index.html + loader.js",
+          "status": "done",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Панель статусов + табло задач",
+          "status": "done",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Проверка наличия Unity Build файлов",
+          "status": "doing",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Отображать понятный fallback если build неполный",
+          "status": "doing",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Добавить SendMessage API (mode/task actions)",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Loading screen + mobile fullscreen UX",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Убрать пересечения с legacy js/scene",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        }
+      ],
+      "estimate": 180,
+      "actual": 0
     },
     {
       "id": "CICD-001",
       "title": "CI/CD and VPS deploy",
       "status": "todo",
       "subtasks": [
-        { "title": "GitHub Actions WebGL build", "status": "todo" },
-        { "title": "deploy.sh rsync scaffold", "status": "todo" },
-        { "title": "nginx checklist", "status": "todo" }
-      ]
+        {
+          "title": "GitHub Actions workflow WebGL build",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Подключить game-ci/unity-builder",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Артефакт Build и публикация",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "deploy.sh (rsync + target env)",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "nginx cache/compression checklist",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Smoke-check после деплоя",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        }
+      ],
+      "estimate": 180,
+      "actual": 0
+    },
+    {
+      "id": "QA-001",
+      "title": "Тесты и метрики",
+      "status": "todo",
+      "subtasks": [
+        {
+          "title": "TTFF < 3s (target)",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Memory < 400MB (target)",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "FPS > 30 на телефоне (target)",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Android/iOS browser smoke",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        },
+        {
+          "title": "Логи и алерты ошибок",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0
+        }
+      ],
+      "estimate": 180,
+      "actual": 0
     }
   ]
 }

@@ -17,13 +17,13 @@
     const explicit = Number(node.progress);
     if(Number.isFinite(explicit) && explicit >= 0){
       const pct = explicit <= 1 ? explicit * 100 : explicit;
-      return Math.round(clamp(pct, 0, 100));
+      return Math.round(clamp(pct, 0, 100) * 10) / 10;
     }
 
     const estimate = Number(node.estimate || 0);
     const actual = Number(node.actual || 0);
     if(estimate > 0){
-      return Math.round(clamp((actual / estimate) * 100, 0, 100));
+      return Math.round(clamp((actual / estimate) * 100, 0, 100) * 10) / 10;
     }
 
     // no synthetic progress: only factual data from status/progress/actual
@@ -34,7 +34,7 @@
     const children = node.subtasks || [];
     if(!children.length) return leafProgress(node);
     const total = children.reduce((sum, child, i) => sum + nodeProgress(child, `${key}.${i}`), 0);
-    const avg = Math.round(total / children.length);
+    const avg = Math.round((total / children.length) * 10) / 10;
     if(node.status === 'done') return 100;
     if(node.status === 'doing') return clamp(avg, 0, 99);
     return avg;
