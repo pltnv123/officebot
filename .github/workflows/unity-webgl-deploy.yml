@@ -76,9 +76,11 @@ jobs:
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
       - name: Deploy Build
         run: |
-          rsync -avz --delete webgl/Build/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/office/Build/
+          # Avoid metadata/mtime permission errors on target dir
+          RSYNC_FLAGS="-rlvz --delete --omit-dir-times --no-perms --no-owner --no-group"
+          rsync $RSYNC_FLAGS webgl/Build/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/office/Build/
           if [ -d webgl/TemplateData ]; then
-            rsync -avz --delete webgl/TemplateData/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/office/TemplateData/
+            rsync $RSYNC_FLAGS webgl/TemplateData/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/office/TemplateData/
           fi
       - name: Smoke check
         run: |
