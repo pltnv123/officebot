@@ -15,8 +15,7 @@ jobs:
       - id: chk
         run: |
           if [ -f UnityProject/ProjectSettings/ProjectVersion.txt ] \
-             && [ -f UnityProject/Assets/Editor/BuildScript.cs ] \
-             && find UnityProject/Assets -type f -name '*.unity' | grep -q .; then
+             && [ -f UnityProject/Assets/Editor/BuildScript.cs ]; then
             echo "can_build=true" >> $GITHUB_OUTPUT
           else
             echo "can_build=false" >> $GITHUB_OUTPUT
