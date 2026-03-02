@@ -29,7 +29,8 @@ jobs:
       - name: Build Unity WebGL
         uses: game-ci/unity-builder@v4
         env:
-          # ULF-only activation path (avoid serial activation branch)
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: WebGL
