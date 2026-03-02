@@ -14,7 +14,9 @@ jobs:
       - uses: actions/checkout@v4
       - id: chk
         run: |
-          if [ -f UnityProject/ProjectSettings/ProjectVersion.txt ] && [ -f UnityProject/Assets/Editor/BuildScript.cs ]; then
+          if [ -f UnityProject/ProjectSettings/ProjectVersion.txt ] \
+             && [ -f UnityProject/Assets/Editor/BuildScript.cs ] \
+             && find UnityProject/Assets -type f -name '*.unity' | grep -q .; then
             echo "can_build=true" >> $GITHUB_OUTPUT
           else
             echo "can_build=false" >> $GITHUB_OUTPUT
