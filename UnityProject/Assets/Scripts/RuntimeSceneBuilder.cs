@@ -51,10 +51,12 @@ namespace OfficeHub
                 r.transform.position = new Vector3(basePos.x, bobY, basePos.z);
             }
 
-            foreach (var light in _eyeLights)
+            // ROUND_6: per-robot eye light phase offsets
+            for (int i = 0; i < _eyeLights.Count; i++)
             {
+                var light = _eyeLights[i];
                 if (light == null) continue;
-                light.intensity = 0.6f + Mathf.Sin(_time * 2f) * 0.3f;
+                light.intensity = 0.65f + Mathf.Sin(_time * 2.2f + i * 0.9f) * 0.28f;
             }
         }
 
