@@ -8,22 +8,21 @@ on:
 jobs:
   preflight:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     continue-on-error: false
     strategy:
       fail-fast: false
+      max-parallel: 1
     env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GIT_HTTP_LOW_SPEED_LIMIT: 0
       GIT_HTTP_LOW_SPEED_TIME: 999999
     outputs:
       can_build: ${{ steps.chk.outputs.can_build }}
     steps:
-      - name: Checkout with retry
-        uses: nick-fields/retry@v3
+      - uses: actions/checkout@v4
         with:
-          timeout_minutes: 10
-          max_attempts: 5
-          retry_wait_seconds: 30
-          command: git clone --depth=1 https://github.com/${{ github.repository }}.git .
+          fetch-depth: 1
       - id: chk
         run: |
           if [ -f UnityProject/ProjectSettings/ProjectVersion.txt ] \
@@ -37,14 +36,15 @@ jobs:
     needs: preflight
     if: needs.preflight.outputs.can_build == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      max-parallel: 1
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Checkout with retry
-        uses: nick-fields/retry@v3
+      - uses: actions/checkout@v4
         with:
-          timeout_minutes: 10
-          max_attempts: 5
-          retry_wait_seconds: 30
-          command: git clone --depth=1 https://github.com/${{ github.repository }}.git .
+          fetch-depth: 1
       - name: Build Unity WebGL
         uses: game-ci/unity-builder@v4
         env:
@@ -64,14 +64,15 @@ jobs:
     needs: preflight
     if: needs.preflight.outputs.can_build != 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      max-parallel: 1
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Checkout with retry
-        uses: nick-fields/retry@v3
+      - uses: actions/checkout@v4
         with:
-          timeout_minutes: 10
-          max_attempts: 5
-          retry_wait_seconds: 30
-          command: git clone --depth=1 https://github.com/${{ github.repository }}.git .
+          fetch-depth: 1
       - name: Package existing Web build
         run: |
           mkdir -p out
