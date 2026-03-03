@@ -367,6 +367,7 @@ GameObject:
   m_Component:
   - component: {fileID: 400001}
   - component: {fileID: 400002}
+  - component: {fileID: 400003}
   m_Layer: 0
   m_Name: WebGLBridge
   m_TagString: Untagged
@@ -403,6 +404,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lastRawJson: 
+--- !u!114 &400003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 400000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b0f6f093d8b4f26aa527f2c9d620333, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
