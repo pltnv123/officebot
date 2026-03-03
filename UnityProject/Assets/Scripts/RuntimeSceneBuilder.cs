@@ -6,8 +6,11 @@ namespace OfficeHub
     {
         private Material floorMat;
         private Material wallMat;
-        private Material deskMat;
         private Material boardMat;
+        private Material deskMat;
+        private Material paperMat;
+        private Material robotMat;
+        private Material screenMat;
 
         private void Start()
         {
@@ -15,39 +18,98 @@ namespace OfficeHub
             SetupCamera();
             SetupLighting();
             BuildRoom();
-            BuildFurniture();
-            BuildTaskBoard();
-            BuildAgents();
-            BuildDecor();
+            BuildBoard();
+            BuildDesk();
+            BuildRobots();
+            BuildSideMonitors();
         }
 
-        private static bool Missing(string objectName) => GameObject.Find(objectName) == null;
-
-        private static Shader PickLitShader() => Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard") ?? Shader.Find("Diffuse");
-
-        private static Material NewMat(Color color, float metallic = 0f, float smoothness = 0.2f)
+        private static Shader LitShader()
         {
-            var mat = new Material(PickLitShader()) { color = color };
+            return Shader.Find("Universal Render Pipeline/Lit")
+                ?? Shader.Find("Standard")
+                ?? Shader.Find("Diffuse");
+        }
+
+        private static Material MakeMat(Color color, float metallic = 0f, float smoothness = 0.25f)
+        {
+            var mat = new Material(LitShader()) { color = color };
             if (mat.HasProperty("_Metallic")) mat.SetFloat("_Metallic", metallic);
             if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", smoothness);
             return mat;
         }
 
-        private static Material NewEmissiveMat(Color color, float emissionMul)
+        private static Material MakeEmissive(Color baseColor, Color emission, float intensity = 1f)
         {
-            var mat = NewMat(color, 0f, 0.25f);
+            var mat = MakeMat(baseColor, 0f, 0.35f);
             if (mat.HasProperty("_EmissionColor"))
             {
                 mat.EnableKeyword("_EMISSION");
-                mat.SetColor("_EmissionColor", color * emissionMul);
+                mat.SetColor("_EmissionColor", emission * intensity);
             }
             return mat;
         }
 
-        private static GameObject CreateBox(string name, Vector3 pos, Vector3 scale, Material mat)
+        private void SetupMaterials()
+        {
+            floorMat = MakeMat(new Color(0.18f, 0.19f, 0.22f), 0f, 0.08f);
+            wallMat = MakeMat(new Color(0.13f, 0.16f, 0.22f), 0f, 0.12f);
+            boardMat = MakeEmissive(new Color(0.10f, 0.12f, 0.16f), new Color(0.06f, 0.08f, 0.12f), 0.7f);
+            deskMat = MakeMat(new Color(0.42f, 0.31f, 0.22f), 0.05f, 0.2f);
+            paperMat = MakeMat(new Color(0.82f, 0.83f, 0.79f), 0f, 0.05f);
+            robotMat = MakeMat(new Color(0.78f, 0.80f, 0.84f), 0.05f, 0.35f);
+            screenMat = MakeEmissive(new Color(0.16f, 0.25f, 0.36f), new Color(0.2f, 0.55f, 1f), 1.4f);
+        }
+
+        private static void SetupCamera()
+        {
+            var cam = Camera.main;
+            if (cam == null) return;
+
+            cam.orthographic = true;
+            cam.orthographicSize = 9f;
+            cam.transform.position = new Vector3(8f, 8f, -8f);
+            cam.transform.rotation = Quaternion.Euler(30f, -45f, 0f);
+            cam.transform.LookAt(new Vector3(0f, 1f, 2f));
+            cam.backgroundColor = new Color(0.07f, 0.09f, 0.13f);
+        }
+
+        private static void SetupLighting()
+        {
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            RenderSettings.ambientLight = new Color(0.10f, 0.14f, 0.22f);
+
+            var dir = GameObject.Find("LegacyDirectional");
+            if (dir == null)
+            {
+                dir = new GameObject("LegacyDirectional");
+                var l = dir.AddComponent<Light>();
+                l.type = LightType.Directional;
+                l.intensity = 0f;
+                l.shadows = LightShadows.None;
+            }
+
+            CreatePointLight("DeskWarmLight", new Vector3(0f, 3.2f, 2.0f), new Color(1f, 0.64f, 0.35f), 2f, 6f);
+        }
+
+        private static void CreatePointLight(string name, Vector3 pos, Color color, float intensity, float range)
+        {
+            if (GameObject.Find(name) != null) return;
+            var lightGo = new GameObject(name);
+            var light = lightGo.AddComponent<Light>();
+            light.type = LightType.Point;
+            light.color = color;
+            light.intensity = intensity;
+            light.range = range;
+            light.shadows = LightShadows.None;
+            lightGo.transform.position = pos;
+        }
+
+        private static GameObject Box(string name, Vector3 pos, Vector3 scale, Material mat, Transform parent = null)
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
             go.name = name;
+            if (parent != null) go.transform.SetParent(parent);
             go.transform.position = pos;
             go.transform.localScale = scale;
             var r = go.GetComponent<Renderer>();
@@ -55,90 +117,38 @@ namespace OfficeHub
             return go;
         }
 
-        private void SetupMaterials()
-        {
-            floorMat = NewMat(new Color(0.15f, 0.15f, 0.20f), 0f, 0.08f);
-            wallMat = NewMat(new Color(0.18f, 0.22f, 0.30f), 0f, 0.12f);
-            deskMat = NewMat(new Color(0.42f, 0.29f, 0.20f), 0.05f, 0.18f);
-            boardMat = NewEmissiveMat(new Color(0.20f, 0.24f, 0.32f), 0.35f);
-        }
-
-        private static void SetupCamera()
-        {
-            var cam = Camera.main;
-            if (cam == null) return;
-            cam.orthographic = true;
-            cam.orthographicSize = 7f;
-            cam.transform.position = new Vector3(12f, 12f, -12f);
-            cam.transform.rotation = Quaternion.Euler(35f, 45f, 0f);
-            cam.backgroundColor = new Color(0.07f, 0.09f, 0.13f);
-        }
-
-        private static void SetupLighting()
-        {
-            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.13f, 0.16f, 0.24f);
-
-            if (GameObject.Find("KeyLight") == null)
-            {
-                var keyGo = new GameObject("KeyLight");
-                var key = keyGo.AddComponent<Light>();
-                key.type = LightType.Directional;
-                key.color = Color.white;
-                key.intensity = 0.8f;
-                keyGo.transform.rotation = Quaternion.Euler(50f, 30f, 0f);
-            }
-
-            CreateWarmDeskLight("DeskWarm_A", new Vector3(-2.6f, 2.0f, -1.2f));
-            CreateWarmDeskLight("DeskWarm_B", new Vector3(2.2f, 2.0f, -0.6f));
-            CreateWarmDeskLight("DeskWarm_C", new Vector3(0.0f, 2.0f, 1.0f));
-
-            if (GameObject.Find("TaskBoardSpot") == null)
-            {
-                var go = new GameObject("TaskBoardSpot");
-                var l = go.AddComponent<Light>();
-                l.type = LightType.Spot;
-                l.color = Color.white;
-                l.intensity = 2f;
-                l.range = 14f;
-                l.spotAngle = 55f;
-                go.transform.position = new Vector3(0f, 5.5f, 4.5f);
-                go.transform.rotation = Quaternion.Euler(35f, 0f, 0f);
-            }
-        }
-
-        private static void CreateWarmDeskLight(string name, Vector3 pos)
-        {
-            if (GameObject.Find(name) != null) return;
-            var l = new GameObject(name).AddComponent<Light>();
-            l.type = LightType.Point;
-            l.color = new Color(1f, 0.66f, 0.35f);
-            l.intensity = 1.5f;
-            l.range = 4f;
-            l.transform.position = pos;
-        }
-
         private void BuildRoom()
         {
-            if (Missing("Floor")) CreateBox("Floor", new Vector3(0f, -0.1f, 0f), new Vector3(20f, 0.2f, 20f), floorMat);
-            if (Missing("BackWall")) CreateBox("BackWall", new Vector3(0f, 2.5f, 9.95f), new Vector3(20f, 5f, 0.2f), wallMat);
-            if (Missing("LeftWall")) CreateBox("LeftWall", new Vector3(-9.95f, 2.5f, 0f), new Vector3(0.2f, 5f, 20f), wallMat);
-            if (Missing("RightWall")) CreateBox("RightWall", new Vector3(9.95f, 2.5f, 0f), new Vector3(0.2f, 5f, 20f), wallMat);
-            if (Missing("FrontWallLeft")) CreateBox("FrontWallLeft", new Vector3(-6.0f, 2.5f, -9.95f), new Vector3(8f, 5f, 0.2f), NewMat(new Color(0.18f, 0.22f, 0.30f, 0.65f)));
-            if (Missing("FrontWallRight")) CreateBox("FrontWallRight", new Vector3(6.0f, 2.5f, -9.95f), new Vector3(8f, 5f, 0.2f), NewMat(new Color(0.18f, 0.22f, 0.30f, 0.65f)));
+            Box("Floor", new Vector3(0f, -0.1f, 2f), new Vector3(30f, 0.2f, 30f), floorMat);
+            Box("BackWall", new Vector3(0f, 3f, 12f), new Vector3(30f, 6f, 0.2f), wallMat);
+            Box("LeftWall", new Vector3(-15f, 3f, 2f), new Vector3(0.2f, 6f, 20f), wallMat);
+            Box("RightWall", new Vector3(15f, 3f, 2f), new Vector3(0.2f, 6f, 20f), wallMat);
+            // intentionally no front wall (open room)
         }
 
-        private void BuildFurniture()
+        private void BuildBoard()
         {
-            if (Missing("MainDesk")) CreateBox("MainDesk", new Vector3(-2.6f, 0.9f, -1.2f), new Vector3(3.8f, 0.2f, 1.4f), deskMat);
-            if (Missing("MainMonitor")) CreateBox("MainMonitor", new Vector3(-2.6f, 1.45f, -1.55f), new Vector3(0.9f, 0.55f, 0.08f), NewEmissiveMat(new Color(0.30f, 0.55f, 0.85f), 0.8f));
-            if (Missing("EmployeeDesk")) CreateBox("EmployeeDesk", new Vector3(2.2f, 0.9f, -0.6f), new Vector3(2.6f, 0.2f, 1.2f), deskMat);
-            if (Missing("EmployeeMonitor")) CreateBox("EmployeeMonitor", new Vector3(2.2f, 1.35f, -0.85f), new Vector3(0.8f, 0.45f, 0.08f), NewEmissiveMat(new Color(0.28f, 0.50f, 0.82f), 0.8f));
+            var boardRoot = new GameObject("TaskBoardRoot").transform;
+            Box("TaskBoard", new Vector3(0f, 2.8f, 11.85f), new Vector3(24f, 4.8f, 0.1f), boardMat, boardRoot);
+
+            // column backgrounds
+            var colA = Box("Col_INBOX", new Vector3(-8f, 2.7f, 11.78f), new Vector3(6.8f, 3.8f, 0.04f), MakeMat(new Color(0.16f, 0.19f, 0.25f)), boardRoot);
+            var colB = Box("Col_PLAN", new Vector3(0f, 2.7f, 11.78f), new Vector3(6.8f, 3.8f, 0.04f), MakeMat(new Color(0.16f, 0.19f, 0.25f)), boardRoot);
+            var colC = Box("Col_WORK", new Vector3(8f, 2.7f, 11.78f), new Vector3(6.8f, 3.8f, 0.04f), MakeMat(new Color(0.16f, 0.19f, 0.25f)), boardRoot);
+
+            CreateHeader("INBOX", new Vector3(-8f, 4.45f, 11.7f), new Color(0.70f, 0.90f, 1f));
+            CreateHeader("PLAN", new Vector3(0f, 4.45f, 11.7f), new Color(1f, 0.86f, 0.45f));
+            CreateHeader("WORK", new Vector3(8f, 4.45f, 11.7f), new Color(0.58f, 0.84f, 1f));
+
+            // cards
+            CreateCards(colA.transform, -8f, new[] { new Color(0.66f, 0.78f, 0.88f), new Color(0.46f, 0.52f, 0.60f), new Color(0.44f, 0.50f, 0.56f), new Color(0.62f, 0.68f, 0.74f) });
+            CreateCards(colB.transform, 0f, new[] { new Color(0.92f, 0.74f, 0.35f), new Color(0.56f, 0.56f, 0.56f), new Color(0.46f, 0.46f, 0.46f), new Color(0.58f, 0.75f, 0.96f) });
+            CreateCards(colC.transform, 8f, new[] { new Color(0.45f, 0.66f, 0.92f), new Color(0.56f, 0.56f, 0.56f), new Color(0.48f, 0.72f, 0.62f), new Color(0.44f, 0.50f, 0.56f) });
         }
 
-        private static void CreateBoardLabel(string text, Vector3 pos)
+        private static void CreateHeader(string text, Vector3 pos, Color color)
         {
-            var go = new GameObject("Label_" + text);
+            var go = new GameObject("Header_" + text);
             go.transform.position = pos;
             var tm = go.AddComponent<TextMesh>();
             tm.text = text;
@@ -146,90 +156,121 @@ namespace OfficeHub
             tm.characterSize = 0.3f;
             tm.anchor = TextAnchor.MiddleCenter;
             tm.alignment = TextAlignment.Center;
-            tm.color = new Color(0.95f, 0.98f, 1f);
+            tm.color = color;
         }
 
-        private void BuildTaskBoard()
+        private void CreateCards(Transform parent, float centerX, Color[] colors)
         {
-            if (Missing("TaskBoard")) CreateBox("TaskBoard", new Vector3(0f, 2.5f, 9.84f), new Vector3(8f, 3f, 0.1f), boardMat);
-            if (Missing("Board_INBOX")) CreateBox("Board_INBOX", new Vector3(-2.6f, 2.4f, 9.78f), new Vector3(2.2f, 2.2f, 0.02f), NewMat(new Color(0.24f, 0.28f, 0.36f)));
-            if (Missing("Board_DOING")) CreateBox("Board_DOING", new Vector3(0f, 2.4f, 9.78f), new Vector3(2.2f, 2.2f, 0.02f), NewMat(new Color(0.24f, 0.28f, 0.36f)));
-            if (Missing("Board_REVIEW")) CreateBox("Board_REVIEW", new Vector3(2.6f, 2.4f, 9.78f), new Vector3(2.2f, 2.2f, 0.02f), NewMat(new Color(0.24f, 0.28f, 0.36f)));
-            if (Missing("Label_INBOX")) CreateBoardLabel("INBOX", new Vector3(-2.6f, 3.45f, 9.72f));
-            if (Missing("Label_DOING")) CreateBoardLabel("DOING", new Vector3(0f, 3.45f, 9.72f));
-            if (Missing("Label_REVIEW")) CreateBoardLabel("REVIEW", new Vector3(2.6f, 3.45f, 9.72f));
+            for (int i = 0; i < colors.Length; i++)
+            {
+                var y = 3.65f - i * 0.85f;
+                var card = Box($"Card_{centerX}_{i}", new Vector3(centerX, y, 11.73f), new Vector3(5.6f, 0.55f, 0.02f), MakeMat(colors[i]), parent);
+                var strip = Box($"CardStrip_{centerX}_{i}", new Vector3(centerX - 1.7f, y, 11.71f), new Vector3(1.2f, 0.12f, 0.01f), MakeMat(new Color(0.9f, 0.9f, 0.9f)), card.transform);
+            }
         }
 
-        private static void AddNameLabel(Transform parent, string text)
+        private void BuildDesk()
         {
-            var label = new GameObject("NameLabel");
-            label.transform.SetParent(parent);
-            label.transform.localPosition = new Vector3(0f, 2.0f, 0f);
-            var tm = label.AddComponent<TextMesh>();
-            tm.text = text;
-            tm.fontSize = 48;
-            tm.characterSize = 0.1f;
-            tm.anchor = TextAnchor.MiddleCenter;
-            tm.alignment = TextAlignment.Center;
-            tm.color = new Color(0.92f, 0.96f, 1f);
+            Box("MainDesk", new Vector3(0f, 0.55f, 2f), new Vector3(5f, 1f, 3f), deskMat);
+
+            Box("Paper_1", new Vector3(-1.2f, 1.08f, 1.5f), new Vector3(1.0f, 0.03f, 0.7f), paperMat);
+            Box("Paper_2", new Vector3(0.2f, 1.08f, 2.3f), new Vector3(0.9f, 0.03f, 0.6f), paperMat);
+            Box("Paper_3", new Vector3(1.1f, 1.08f, 1.2f), new Vector3(1.2f, 0.03f, 0.8f), paperMat);
         }
 
-        private static void CreateEye(Transform parent, Vector3 localPos, Color glow)
+        private void BuildRobots()
         {
-            var eye = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            eye.name = "Eye";
-            eye.transform.SetParent(parent);
-            eye.transform.localPosition = localPos;
-            eye.transform.localScale = Vector3.one * 0.10f;
-
-            var r = eye.GetComponent<Renderer>();
-            if (r != null) r.material = NewEmissiveMat(glow, 2.2f);
-
-            var l = eye.AddComponent<Light>();
-            l.type = LightType.Point;
-            l.color = glow;
-            l.intensity = 0.5f;
-            l.range = 1.5f;
+            BuildRobot("WORKER", new Vector3(-4.7f, 0f, 3.8f), new Color(0.25f, 1f, 0.45f), true);
+            BuildRobot("PLAN", new Vector3(0f, 0f, 1.2f), new Color(0.35f, 0.75f, 1f), false);
+            BuildRobot("REVIEW", new Vector3(4.9f, 0f, 3.5f), new Color(0.25f, 1f, 0.45f), false);
         }
 
-        private static void EnsureRobot(string name, Vector3 pos, Color eyeColor)
+        private void BuildRobot(string name, Vector3 rootPos, Color eyeColor, bool pointAtBoard)
         {
-            if (!Missing(name)) return;
-            var root = new GameObject(name);
-            root.transform.position = pos;
+            var root = new GameObject("Robot_" + name);
+            root.transform.position = rootPos;
 
             var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            body.name = "Body";
             body.transform.SetParent(root.transform);
-            body.transform.localPosition = new Vector3(0f, 0.9f, 0f);
-            body.transform.localScale = new Vector3(0.6f, 1.2f, 0.6f);
-            var br = body.GetComponent<Renderer>();
-            if (br != null) br.material = NewMat(new Color(0.78f, 0.80f, 0.84f), 0.05f, 0.38f);
+            body.transform.localPosition = new Vector3(0f, 0.95f, 0f);
+            body.transform.localScale = new Vector3(0.8f, 1.0f, 0.8f);
+            body.GetComponent<Renderer>().material = robotMat;
 
             var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            head.name = "Head";
             head.transform.SetParent(root.transform);
-            head.transform.localPosition = new Vector3(0f, 1.95f, 0f);
-            head.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-            var hr = head.GetComponent<Renderer>();
-            if (hr != null) hr.material = NewMat(new Color(0.86f, 0.88f, 0.92f), 0.03f, 0.35f);
+            head.transform.localPosition = new Vector3(0f, 2.15f, 0f);
+            head.transform.localScale = Vector3.one * 1.2f;
+            head.GetComponent<Renderer>().material = robotMat;
 
-            CreateEye(head.transform, new Vector3(-0.12f, 0.0f, 0.20f), eyeColor);
-            CreateEye(head.transform, new Vector3(0.12f, 0.0f, 0.20f), eyeColor);
-            AddNameLabel(root.transform, name.Replace("Agent", "").ToUpperInvariant());
+            CreateBigEye(head.transform, new Vector3(-0.23f, 0.03f, 0.55f), eyeColor);
+            CreateBigEye(head.transform, new Vector3(0.23f, 0.03f, 0.55f), eyeColor);
+
+            var leftArm = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            leftArm.transform.SetParent(root.transform);
+            leftArm.transform.localScale = new Vector3(0.15f, 0.4f, 0.15f);
+            leftArm.transform.localPosition = new Vector3(-0.75f, 1.15f, 0.0f);
+            leftArm.GetComponent<Renderer>().material = robotMat;
+
+            var rightArm = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            rightArm.transform.SetParent(root.transform);
+            rightArm.transform.localScale = new Vector3(0.15f, 0.4f, 0.15f);
+            rightArm.transform.localPosition = new Vector3(0.75f, 1.15f, 0.0f);
+            rightArm.GetComponent<Renderer>().material = robotMat;
+
+            if (pointAtBoard)
+            {
+                rightArm.transform.localRotation = Quaternion.Euler(0f, 0f, -65f);
+                rightArm.transform.localPosition = new Vector3(0.85f, 1.45f, 0.2f);
+            }
         }
 
-        private static void BuildAgents()
+        private static void CreateBigEye(Transform parent, Vector3 localPos, Color color)
         {
-            EnsureRobot("AgentWorker", new Vector3(-3f, 0f, 2f), new Color(0.25f, 1f, 0.35f));
-            EnsureRobot("AgentPlanner", new Vector3(0f, 0f, 1f), new Color(0.25f, 0.65f, 1f));
-            EnsureRobot("AgentReviewer", new Vector3(3f, 0f, 2f), new Color(1f, 0.86f, 0.2f));
+            var eye = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            eye.transform.SetParent(parent);
+            eye.transform.localPosition = localPos;
+            eye.transform.localScale = Vector3.one * 0.25f;
+            var r = eye.GetComponent<Renderer>();
+            r.material = MakeEmissive(color, color, 2.3f);
+
+            var glow = eye.AddComponent<Light>();
+            glow.type = LightType.Point;
+            glow.color = color;
+            glow.intensity = 0.5f;
+            glow.range = 2f;
+            glow.shadows = LightShadows.None;
         }
 
-        private void BuildDecor()
+        private void BuildSideMonitors()
         {
-            if (Missing("PlantA")) CreateBox("PlantA", new Vector3(7.8f, 0.7f, 7.8f), new Vector3(0.4f, 1.4f, 0.4f), NewMat(new Color(0.36f, 0.63f, 0.35f)));
-            if (Missing("PlantB")) CreateBox("PlantB", new Vector3(-7.8f, 0.7f, 7.2f), new Vector3(0.35f, 1.1f, 0.35f), NewMat(new Color(0.36f, 0.63f, 0.35f)));
-            if (Missing("Coffee")) CreateBox("Coffee", new Vector3(-2.0f, 1.05f, -0.9f), new Vector3(0.15f, 0.18f, 0.15f), NewMat(new Color(0.25f, 0.16f, 0.1f), 0f, 0.25f));
-            if (Missing("PaperA")) CreateBox("PaperA", new Vector3(-2.3f, 1.02f, -1.0f), new Vector3(0.4f, 0.02f, 0.3f), NewMat(new Color(0.82f, 0.84f, 0.86f)));
+            // left wall monitors
+            for (int i = 0; i < 5; i++)
+            {
+                var y = 1.4f + i * 0.9f;
+                var z = -4f + i * 2f;
+                BuildMonitor($"LMon_{i}", new Vector3(-14.7f, y, z), Quaternion.Euler(0f, 90f, 0f));
+            }
+
+            // right wall monitors
+            for (int i = 0; i < 5; i++)
+            {
+                var y = 1.4f + i * 0.9f;
+                var z = -3.5f + i * 2f;
+                BuildMonitor($"RMon_{i}", new Vector3(14.7f, y, z), Quaternion.Euler(0f, -90f, 0f));
+            }
+        }
+
+        private void BuildMonitor(string name, Vector3 pos, Quaternion rot)
+        {
+            var body = Box(name, pos, new Vector3(1.2f, 0.8f, 0.2f), MakeMat(new Color(0.08f, 0.1f, 0.12f)));
+            body.transform.rotation = rot;
+
+            var screen = Box(name + "_Screen", pos + new Vector3(0f, 0f, 0.11f), new Vector3(1.0f, 0.62f, 0.03f), screenMat);
+            screen.transform.rotation = rot;
+
+            CreatePointLight(name + "_Glow", pos + new Vector3(0f, 0f, 0.7f), new Color(0.25f, 0.55f, 1f), 0.5f, 2.8f);
         }
     }
 }
