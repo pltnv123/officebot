@@ -64,8 +64,8 @@ namespace OfficeHub
             if (cam == null) return;
             cam.orthographic = true;
             cam.orthographicSize = 8f;
-            cam.transform.position = new Vector3(10f, 8f, -10f);
-            cam.transform.rotation = Quaternion.Euler(30f, 45f, 0f);
+            cam.transform.position = new Vector3(8f, 10f, -8f);
+            cam.transform.rotation = Quaternion.Euler(35f, -45f, 0f);
             cam.backgroundColor = new Color(0.07f, 0.09f, 0.13f);
         }
 
@@ -79,9 +79,9 @@ namespace OfficeHub
                 var keyGo = new GameObject("KeyLight");
                 var key = keyGo.AddComponent<Light>();
                 key.type = LightType.Directional;
-                key.color = new Color(1f, 0.88f, 0.72f);
-                key.intensity = 0.85f;
-                keyGo.transform.rotation = Quaternion.Euler(42f, -35f, 0f);
+                key.color = Color.white;
+                key.intensity = 0.8f;
+                keyGo.transform.rotation = Quaternion.Euler(50f, 30f, 0f);
             }
 
             if (GameObject.Find("DeskLamp_A") == null)
@@ -107,7 +107,7 @@ namespace OfficeHub
 
         private void BuildRoom()
         {
-            if (Missing("Floor")) CreateBox("Floor", new Vector3(0f, -0.1f, 0f), new Vector3(16f, 0.2f, 10f), floorMat);
+            if (Missing("Floor")) CreateBox("Floor", new Vector3(0f, -0.1f, 0f), new Vector3(20f, 0.2f, 20f), floorMat);
             if (Missing("BackWall")) CreateBox("BackWall", new Vector3(0f, 2.5f, -5f), new Vector3(16f, 5f, 0.2f), wallMat);
             if (Missing("LeftWall")) CreateBox("LeftWall", new Vector3(-8f, 2.5f, 0f), new Vector3(0.2f, 5f, 10f), wallMat);
             if (Missing("WindowFrame")) CreateBox("WindowFrame", new Vector3(-7.9f, 3.2f, -2.2f), new Vector3(0.12f, 2.2f, 3f), NewMat(new Color(0.26f, 0.24f, 0.28f), 0f, 0.25f));
@@ -137,7 +137,7 @@ namespace OfficeHub
 
         private void BuildTaskBoard()
         {
-            if (Missing("TaskBoard")) CreateBox("TaskBoard", new Vector3(4.8f, 3.0f, -4.85f), new Vector3(4.8f, 2.6f, 0.1f), boardMat);
+            if (Missing("TaskBoard")) CreateBox("TaskBoard", new Vector3(0f, 2f, 8f), new Vector3(9f, 4f, 0.2f), boardMat);
             if (Missing("Board_INBOX")) CreateBox("Board_INBOX", new Vector3(3.4f, 3.0f, -4.78f), new Vector3(1.2f, 2.2f, 0.02f), NewMat(new Color(0.20f, 0.24f, 0.30f)));
             if (Missing("Board_DOING")) CreateBox("Board_DOING", new Vector3(4.8f, 3.0f, -4.78f), new Vector3(1.2f, 2.2f, 0.02f), NewMat(new Color(0.20f, 0.24f, 0.30f)));
             if (Missing("Board_REVIEW")) CreateBox("Board_REVIEW", new Vector3(6.2f, 3.0f, -4.78f), new Vector3(1.2f, 2.2f, 0.02f), NewMat(new Color(0.20f, 0.24f, 0.30f)));
@@ -192,9 +192,9 @@ namespace OfficeHub
 
         private static void BuildAgents()
         {
-            EnsureRobot("AgentWorker", new Vector3(1.8f, 0.5f, 1.8f), new Color(0.25f, 1f, 0.35f));
-            EnsureRobot("AgentPlanner", new Vector3(3.4f, 0.5f, 1.8f), new Color(0.25f, 0.65f, 1f));
-            EnsureRobot("AgentReviewer", new Vector3(5.0f, 0.5f, 1.8f), new Color(1f, 0.86f, 0.2f));
+            EnsureRobot("AgentWorker", new Vector3(-3f, 0f, 0f), new Color(0.25f, 1f, 0.35f));
+            EnsureRobot("AgentPlanner", new Vector3(0f, 0f, 0f), new Color(0.25f, 0.65f, 1f));
+            EnsureRobot("AgentReviewer", new Vector3(3f, 0f, 0f), new Color(1f, 0.86f, 0.2f));
         }
 
         private void BuildDecor()
