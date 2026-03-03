@@ -359,6 +359,7 @@ sync_file() {
 
   # Fast path when direct overwrite is allowed.
   if cp "$src" "$dst" 2>/dev/null; then
+    chmod 0644 "$dst" 2>/dev/null || true
     return 0
   fi
 
@@ -368,7 +369,11 @@ sync_file() {
   local tmp
   tmp="$(mktemp "$dstdir/.sync.XXXXXX")" || return 1
   if cp "$src" "$tmp"; then
-    mv -f "$tmp" "$dst" && return 0
+    chmod 0644 "$tmp" 2>/dev/null || true
+    if mv -f "$tmp" "$dst"; then
+      chmod 0644 "$dst" 2>/dev/null || true
+      return 0
+    fi
   fi
   rm -f "$tmp"
   return 1
