@@ -275,6 +275,27 @@ namespace OfficeHub
             face.transform.localScale = new Vector3(0.6f, 0.45f, 0.05f);
             face.GetComponent<Renderer>().material = _facePlateMat;
 
+            var chestPanel = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            chestPanel.name = "ChestPanel";
+            chestPanel.transform.parent = root.transform;
+            chestPanel.transform.localPosition = new Vector3(0f, 0.95f, 0.39f);
+            chestPanel.transform.localScale = new Vector3(0.42f, 0.25f, 0.05f);
+            chestPanel.GetComponent<Renderer>().material = NewEmissive(new Color(0.06f, 0.08f, 0.12f), eyeColor, 1.2f);
+
+            var antenna = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            antenna.name = "Antenna";
+            antenna.transform.parent = root.transform;
+            antenna.transform.localPosition = new Vector3(0f, 2.05f, 0f);
+            antenna.transform.localScale = new Vector3(0.03f, 0.2f, 0.03f);
+            antenna.GetComponent<Renderer>().material = _robotHeadMat;
+
+            var antennaTip = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            antennaTip.name = "AntennaTip";
+            antennaTip.transform.parent = root.transform;
+            antennaTip.transform.localPosition = new Vector3(0f, 2.28f, 0f);
+            antennaTip.transform.localScale = new Vector3(0.09f, 0.09f, 0.09f);
+            antennaTip.GetComponent<Renderer>().material = NewEmissive(eyeColor, eyeColor, 1.8f);
+
             var eyeMat = NewEmissive(eyeColor, eyeColor, 2.5f);
 
             var eyeL = GameObject.CreatePrimitive(PrimitiveType.Sphere);
