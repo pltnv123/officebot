@@ -28,6 +28,10 @@ namespace OfficeHub
 
         private void Start()
         {
+            // ROUND_12: reset runtime caches before scene construction
+            _robots.Clear();
+            _eyeLights.Clear();
+            _monitorGlowLights.Clear();
             SetupMaterials();
             SetupCamera();
             BuildRoom();
