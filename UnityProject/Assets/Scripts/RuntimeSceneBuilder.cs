@@ -461,9 +461,11 @@ namespace OfficeHub
 
         private void BuildPlants()
         {
+            // ROUND_9: expand greenery balance around room edges
             MakePlant(new Vector3(-8f, 0.15f, -2f));
             MakePlant(new Vector3(7f, 0.15f, -2f));
             MakePlant(new Vector3(-8f, 0.15f, 7f));
+            MakePlant(new Vector3(8.5f, 0.15f, 7f));
         }
 
         private void MakePlant(Vector3 p)
