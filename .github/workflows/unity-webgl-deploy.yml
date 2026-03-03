@@ -17,16 +17,13 @@ jobs:
     outputs:
       can_build: ${{ steps.chk.outputs.can_build }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout with retry
+        uses: nick-fields/retry@v3
         with:
-          fetch-depth: 1
-        timeout-minutes: 10
-      - name: Retry checkout if failed
-        if: failure()
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
+          timeout_minutes: 10
+          max_attempts: 5
+          retry_wait_seconds: 30
+          command: git clone --depth=1 https://github.com/${{ github.repository }}.git .
       - id: chk
         run: |
           if [ -f UnityProject/ProjectSettings/ProjectVersion.txt ] \
@@ -41,7 +38,13 @@ jobs:
     if: needs.preflight.outputs.can_build == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout with retry
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 5
+          retry_wait_seconds: 30
+          command: git clone --depth=1 https://github.com/${{ github.repository }}.git .
       - name: Build Unity WebGL
         uses: game-ci/unity-builder@v4
         env:
@@ -62,7 +65,13 @@ jobs:
     if: needs.preflight.outputs.can_build != 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout with retry
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 5
+          retry_wait_seconds: 30
+          command: git clone --depth=1 https://github.com/${{ github.repository }}.git .
       - name: Package existing Web build
         run: |
           mkdir -p out
