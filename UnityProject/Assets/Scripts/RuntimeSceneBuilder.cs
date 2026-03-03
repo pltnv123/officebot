@@ -392,6 +392,7 @@ namespace OfficeHub
 
         private void BuildLighting()
         {
+            // ROUND_2: cinematic layered office lighting
             var lights = FindObjectsByType<Light>(FindObjectsSortMode.None);
             foreach (var l in lights) Destroy(l.gameObject);
 
@@ -423,13 +424,23 @@ namespace OfficeHub
 
             var spot = new GameObject("BoardSpot").AddComponent<Light>();
             spot.type = LightType.Spot;
-            spot.transform.position = new Vector3(0f, 6f, 5f);
-            spot.transform.rotation = Quaternion.Euler(30f, 0f, 0f);
-            spot.color = Color.white;
-            spot.intensity = 1.5f;
-            spot.range = 8f;
-            spot.spotAngle = 60f;
+            spot.transform.position = new Vector3(0f, 6.2f, 5.4f);
+            spot.transform.rotation = Quaternion.Euler(34f, 0f, 0f);
+            spot.color = new Color(0.95f, 0.98f, 1f);
+            spot.intensity = 1.9f;
+            spot.range = 9f;
+            spot.spotAngle = 54f;
             spot.shadows = LightShadows.None;
+
+            var rim = new GameObject("RobotRimLight").AddComponent<Light>();
+            rim.type = LightType.Spot;
+            rim.transform.position = new Vector3(0f, 4.6f, -3.8f);
+            rim.transform.rotation = Quaternion.Euler(30f, 180f, 0f);
+            rim.color = new Color(0.35f, 0.52f, 1f);
+            rim.intensity = 1.1f;
+            rim.range = 11f;
+            rim.spotAngle = 72f;
+            rim.shadows = LightShadows.None;
         }
 
         private void BuildPlants()
