@@ -243,6 +243,9 @@ namespace OfficeHub
             Cube("PaperStack1", new Vector3(1.4f, 0.69f, 2.1f), new Vector3(0.9f, 0.02f, 0.7f), _paperMat);
             Cube("PaperStack2", new Vector3(1.43f, 0.71f, 2.12f), new Vector3(0.9f, 0.02f, 0.7f), _paperMat);
             Cube("PaperStack3", new Vector3(1.46f, 0.73f, 2.14f), new Vector3(0.9f, 0.02f, 0.7f), _paperMat);
+            // ROUND_8: add keyboard strip and mouse prop
+            Cube("Keyboard", new Vector3(0f, 0.72f, 1.55f), new Vector3(1.4f, 0.04f, 0.4f), NewMat(new Color(0.1f, 0.1f, 0.12f), 0.15f));
+            Cube("Mouse", new Vector3(1.0f, 0.73f, 1.55f), new Vector3(0.16f, 0.05f, 0.24f), NewMat(new Color(0.18f, 0.18f, 0.2f), 0.2f));
         }
 
         private void BuildRobots()
