@@ -165,6 +165,7 @@ namespace OfficeHub
 
         private void BuildTaskBoard()
         {
+            // ROUND_3: richer board lanes and progress rail
             Cube("TaskBoard", new Vector3(0f, 3.5f, 8.7f), new Vector3(14f, 5f, 0.2f), _boardMat);
             Cube("BoardFrameTop", new Vector3(0f, 6.0f, 8.59f), new Vector3(14.2f, 0.08f, 0.1f), _frameMat);
             Cube("BoardFrameBottom", new Vector3(0f, 1.0f, 8.59f), new Vector3(14.2f, 0.08f, 0.1f), _frameMat);
@@ -193,6 +194,11 @@ namespace OfficeHub
 
             Cube("DoneBadge", new Vector3(4.6f, 5.0f, 8.4f), new Vector3(2.0f, 0.4f, 0.05f), NewMat(new Color(0.25f, 0.50f, 0.75f), 0.2f));
             Txt("DoneText", "DONE", new Vector3(4.6f, 5.0f, 8.35f), 10, 0.12f, Color.white, FontStyle.Bold);
+
+            Cube("UrgentRail", new Vector3(0f, 1.45f, 8.45f), new Vector3(13.4f, 0.12f, 0.05f), NewEmissive(new Color(0.3f, 0.06f, 0.07f), new Color(1f, 0.12f, 0.08f), 0.8f));
+            Txt("WIPCounter", "WIP 07", new Vector3(0f, 1.8f, 8.35f), 10, 0.1f, new Color(0.85f, 0.92f, 1f), FontStyle.Bold);
+            Txt("SLAInfo", "SLA 99.2%", new Vector3(-5.6f, 1.8f, 8.35f), 8, 0.09f, new Color(0.75f, 0.85f, 1f));
+            Txt("FlowInfo", "FLOW +12", new Vector3(5.6f, 1.8f, 8.35f), 8, 0.09f, new Color(0.70f, 1f, 0.78f));
         }
 
         private void MakeCard(float x, float y, Color color, string label)
