@@ -1,12 +1,6 @@
 {
   "name": "OfficeHub.Editor",
-  "rootNamespace": "OfficeHub.Editor",
-  "references": [
-    "OfficeHub.Runtime"
-  ],
-  "includePlatforms": [
-    "Editor"
-  ],
+  "includePlatforms": ["Editor"],
   "excludePlatforms": [],
   "allowUnsafeCode": false,
   "overrideReferences": false,
