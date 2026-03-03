@@ -350,8 +350,31 @@ except Exception:
 print('ok')
 PY
 
-# Keep served files in sync with workspace source-of-truth
+# Keep served files in sync with workspace source-of-truth.
+# /var/www/office files may be owned by www-data and not writable in-place by antonbot,
+# even when directory ACL allows replacement. Use atomic temp->mv fallback.
+sync_file() {
+  local src="$1"
+  local dst="$2"
+
+  # Fast path when direct overwrite is allowed.
+  if cp "$src" "$dst" 2>/dev/null; then
+    return 0
+  fi
+
+  # Fallback: write temp in destination dir, then atomically replace.
+  local dstdir
+  dstdir="$(dirname "$dst")"
+  local tmp
+  tmp="$(mktemp "$dstdir/.sync.XXXXXX")" || return 1
+  if cp "$src" "$tmp"; then
+    mv -f "$tmp" "$dst" && return 0
+  fi
+  rm -f "$tmp"
+  return 1
+}
+
 if [ -d /var/www/office ]; then
-  cp "$SCRIPT_DIR/tasks.json" /var/www/office/tasks.json || true
-  cp "$SCRIPT_DIR/state.json" /var/www/office/state.json || true
+  sync_file "$SCRIPT_DIR/tasks.json" /var/www/office/tasks.json || true
+  sync_file "$SCRIPT_DIR/state.json" /var/www/office/state.json || true
 fi
