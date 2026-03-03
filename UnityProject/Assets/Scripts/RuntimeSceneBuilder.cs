@@ -369,6 +369,7 @@ namespace OfficeHub
 
         private void BuildMonitors()
         {
+            // ROUND_5: monitor wall color variance and glow balance
             float[] zPositions = { -1f, 1.5f, 4f, 6.5f };
             float[] yPositions = { 3.5f, 5f };
 
