@@ -33,7 +33,9 @@
 
   createUnityInstance(canvas, config, (progress) => {
     setMessage(`Загрузка Unity: ${Math.round(progress * 100)}%`);
-  }).then(() => {
+  }).then((instance) => {
+    window.OfficeUnity = { instance, loadedAt: Date.now() };
+    window.dispatchEvent(new CustomEvent('office:unity-ready', { detail: { loadedAt: Date.now() } }));
     setMessage('Unity сцена загружена');
     setTimeout(() => { if (overlay) overlay.style.display = 'none'; }, 1200);
   }).catch(async (error) => {

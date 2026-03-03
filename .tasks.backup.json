@@ -1,0 +1,100 @@
+{
+  "tasks": [
+    {
+      "id": "PLAN-001",
+      "title": "Unity URP WebGL: Базовая сцена офиса",
+      "status": "done",
+      "estimate": 90.0,
+      "actual": 90.0,
+      "progress": 100,
+      "subtasks": [
+        {
+          "title": "Очистить и стабилизировать task/state pipeline",
+          "status": "done",
+          "estimate": 20.0,
+          "actual": 20.0,
+          "progress": 100
+        },
+        {
+          "title": "Главный стол + свет читаемый",
+          "status": "done",
+          "estimate": 40.0,
+          "actual": 40.0,
+          "progress": 100
+        },
+        {
+          "title": "Стол сотрудника + chill зона",
+          "status": "done",
+          "estimate": 30.0,
+          "actual": 30.0,
+          "progress": 100
+        }
+      ],
+      "completed_at": 1772546027
+    },
+    {
+      "id": "PLAN-002",
+      "title": "Правая панель: Сейчас делаю / Активные / Последние",
+      "status": "done",
+      "estimate": 45.0,
+      "actual": 45.0,
+      "progress": 100,
+      "subtasks": [
+        {
+          "title": "Показывать только актуальные задачи",
+          "status": "done",
+          "estimate": 15.0,
+          "actual": 15.0,
+          "progress": 100
+        },
+        {
+          "title": "Вложенные подзадачи + прогресс бары",
+          "status": "done",
+          "estimate": 20.0,
+          "actual": 20.0,
+          "progress": 100
+        },
+        {
+          "title": "CPU/Load + now-doing синхронизация",
+          "status": "done",
+          "estimate": 10.0,
+          "actual": 10.0,
+          "progress": 100
+        }
+      ],
+      "completed_at": 1772546389
+    },
+    {
+      "id": "PLAN-003",
+      "title": "Unity сцена: финализация столов, ассистентов и chill-zone",
+      "status": "doing",
+      "estimate": 120.0,
+      "actual": 18.0,
+      "progress": 15.0,
+      "started_at": 1772546389,
+      "subtasks": [
+        {
+          "title": "Детализировать стол сотрудника и монитор",
+          "status": "doing",
+          "estimate": 40.0,
+          "actual": 18.0,
+          "progress": 45.0
+        },
+        {
+          "title": "Ассистенты с ролями и бейджами (3+)",
+          "status": "todo",
+          "estimate": 40.0,
+          "actual": 0.0,
+          "progress": 0
+        },
+        {
+          "title": "Chill-zone (софа, лампа, растения) финальный вид",
+          "status": "todo",
+          "estimate": 40.0,
+          "actual": 0.0,
+          "progress": 0
+        }
+      ]
+    }
+  ]
+}

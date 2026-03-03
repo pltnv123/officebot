@@ -12,9 +12,9 @@ export function launchFallbackScene(canvas) {
   camera.position.set(9.5, 7.2, 13.5);
   camera.lookAt(0, 1.8, 0);
 
-  const hemi = new THREE.HemisphereLight(0xc1dbff, 0x34281f, 0.72);
+  const hemi = new THREE.HemisphereLight(0xd3e4ff, 0x3f3024, 0.88);
   scene.add(hemi);
-  const key = new THREE.DirectionalLight(0xffddb5, 0.92);
+  const key = new THREE.DirectionalLight(0xffdeb6, 1.15);
   key.position.set(-6, 10, 5);
   scene.add(key);
 
@@ -68,9 +68,13 @@ export function launchFallbackScene(canvas) {
   winGlass.rotation.y = Math.PI / 2;
   scene.add(winGlass);
 
-  const windowLight = new THREE.PointLight(0xffd7a8, 0.65, 9);
+  const windowLight = new THREE.PointLight(0xffd7a8, 1.0, 11);
   windowLight.position.set(-8.5, 4.6, -3.2);
   scene.add(windowLight);
+
+  const ambientFill = new THREE.PointLight(0xa8caff, 0.35, 16);
+  ambientFill.position.set(0.5, 3.8, -1.2);
+  scene.add(ambientFill);
 
   const desk = new THREE.Mesh(
     new THREE.BoxGeometry(4.6, 0.28, 1.9),
@@ -78,6 +82,19 @@ export function launchFallbackScene(canvas) {
   );
   desk.position.set(-3.2, 1.22, -1.5);
   scene.add(desk);
+
+  const chairSeat = new THREE.Mesh(
+    new THREE.BoxGeometry(0.95, 0.16, 0.95),
+    new THREE.MeshStandardMaterial({ color: 0x5f6b8d, roughness: 0.82 })
+  );
+  chairSeat.position.set(-4.9, 0.82, -0.6);
+  scene.add(chairSeat);
+  const chairBack = new THREE.Mesh(
+    new THREE.BoxGeometry(0.95, 0.9, 0.16),
+    new THREE.MeshStandardMaterial({ color: 0x67749a, roughness: 0.8 })
+  );
+  chairBack.position.set(-4.9, 1.28, -1.0);
+  scene.add(chairBack);
 
   const monitor = new THREE.Mesh(
     new THREE.BoxGeometry(1.4, 0.9, 0.08),
@@ -122,6 +139,43 @@ export function launchFallbackScene(canvas) {
   sofa.position.set(3.6, 0.3, 2.2);
   scene.add(sofa);
 
+  const employeeDesk = new THREE.Mesh(
+    new THREE.BoxGeometry(2.2, 0.22, 1.0),
+    new THREE.MeshStandardMaterial({ color: 0x8b6046, roughness: 0.84 })
+  );
+  employeeDesk.position.set(2.8, 1.1, 1.1);
+  scene.add(employeeDesk);
+
+  const employeeMonitor = new THREE.Mesh(
+    new THREE.BoxGeometry(0.7, 0.42, 0.06),
+    new THREE.MeshStandardMaterial({ color: 0x2d3648, roughness: 0.5 })
+  );
+  employeeMonitor.position.set(2.8, 1.45, 0.82);
+  scene.add(employeeMonitor);
+  const employeeScreen = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.58, 0.31),
+    new THREE.MeshBasicMaterial({ color: 0x9adfff })
+  );
+  employeeScreen.position.z = 0.04;
+  employeeMonitor.add(employeeScreen);
+
+  function addPlant(x, z) {
+    const pot = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.16, 0.2, 0.26, 10),
+      new THREE.MeshStandardMaterial({ color: 0x7a4f39, roughness: 0.86 })
+    );
+    pot.position.set(x, 0.13, z);
+    scene.add(pot);
+    const crown = new THREE.Mesh(
+      new THREE.SphereGeometry(0.25, 12, 10),
+      new THREE.MeshStandardMaterial({ color: 0x71c56e, roughness: 0.72 })
+    );
+    crown.position.set(x, 0.45, z);
+    scene.add(crown);
+  }
+  addPlant(-1.0, 3.9);
+  addPlant(6.2, -0.8);
+
   function makeBadge(text, color = 0x9cc2ff){
     const c = document.createElement('canvas');
     c.width = 256; c.height = 64;
@@ -164,11 +218,11 @@ export function launchFallbackScene(canvas) {
   const b2 = makeBot(0x6ecf68, 0x7db3ff, 'PLANNER', 0x7db3ff); b2.position.set(2.5, 0, 1.2); scene.add(b2); bots.push(b2);
   const b3 = makeBot(0x7ad06f, 0xffb875, 'REVIEW', 0xff8f8f); b3.position.set(5.2, 0, 2.2); scene.add(b3); bots.push(b3);
 
-  const warm = new THREE.PointLight(0xffc78e, 0.38, 8);
+  const warm = new THREE.PointLight(0xffc78e, 0.65, 9);
   warm.position.set(3.5, 2.2, 2.0);
   scene.add(warm);
 
-  const moon = new THREE.PointLight(0x8fb7ff, 0.22, 12);
+  const moon = new THREE.PointLight(0x8fb7ff, 0.30, 14);
   moon.position.set(-4.2, 6.5, -5.8);
   scene.add(moon);
 

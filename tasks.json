@@ -1,33 +1,100 @@
 {
   "tasks": [
     {
-      "id": "AUTO-UNITY-001",
-      "title": "Автосборка Unity WebGL через GitHub Actions",
-      "status": "doing",
-      "estimate": 180,
-      "actual": 70,
+      "id": "PLAN-001",
+      "title": "Unity URP WebGL: Базовая сцена офиса",
+      "status": "done",
+      "estimate": 90,
+      "actual": 62,
+      "progress": 100,
       "subtasks": [
-        { "title": "Создать workflow build+deploy", "status": "done", "estimate": 40, "actual": 40, "progress": 100 },
-        { "title": "Добавить BuildScript.BuildWebGL", "status": "done", "estimate": 25, "actual": 25, "progress": 100 },
-        { "title": "Проверка секретов и SSH-деплоя", "status": "doing", "estimate": 35, "actual": 5, "progress": 14.3 },
-        { "title": "Собрать первый green run в Actions", "status": "todo", "estimate": 45, "actual": 0, "progress": 0 },
-        { "title": "Задеплоить билд в /var/www/office/Build", "status": "todo", "estimate": 35, "actual": 0, "progress": 0 }
+        {
+          "title": "Очистить и стабилизировать task/state pipeline",
+          "status": "done",
+          "estimate": 20,
+          "actual": 20,
+          "progress": 100
+        },
+        {
+          "title": "Главный стол + свет читаемый",
+          "status": "done",
+          "estimate": 40,
+          "actual": 18,
+          "progress": 100
+        },
+        {
+          "title": "Стол сотрудника + chill зона",
+          "status": "done",
+          "estimate": 30,
+          "actual": 30,
+          "progress": 100
+        }
       ],
-      "progress": 38.9
+      "completed_at": 1772546027
     },
     {
-      "id": "UNITY-SCENE-001",
-      "title": "Боевая Unity-сцена офиса",
-      "status": "todo",
-      "estimate": 260,
-      "actual": 0,
+      "id": "PLAN-002",
+      "title": "Правая панель: Сейчас делаю / Активные / Последние",
+      "status": "done",
+      "estimate": 45,
+      "actual": 45,
+      "progress": 100,
       "subtasks": [
-        { "title": "Создать MainOffice сцену и добавить в Build Settings", "status": "todo", "estimate": 60, "actual": 0, "progress": 0 },
-        { "title": "Сделать layout офиса (дверь/окно/доска/зоны)", "status": "todo", "estimate": 80, "actual": 0, "progress": 0 },
-        { "title": "Роли ассистентов и простые idle-анимации", "status": "todo", "estimate": 60, "actual": 0, "progress": 0 },
-        { "title": "Cozy/Thriller mode controller", "status": "todo", "estimate": 60, "actual": 0, "progress": 0 }
+        {
+          "title": "Показывать только актуальные задачи",
+          "status": "done",
+          "estimate": 15,
+          "actual": 5,
+          "progress": 100
+        },
+        {
+          "title": "Вложенные подзадачи + прогресс бары",
+          "status": "done",
+          "estimate": 20,
+          "actual": 10,
+          "progress": 100
+        },
+        {
+          "title": "CPU/Load + now-doing синхронизация",
+          "status": "done",
+          "estimate": 10,
+          "actual": 10,
+          "progress": 100
+        }
       ],
-      "progress": 0
+      "completed_at": 1772546389
+    },
+    {
+      "id": "PLAN-003",
+      "title": "Unity сцена: финализация столов, ассистентов и chill-zone",
+      "status": "doing",
+      "estimate": 120,
+      "actual": 18,
+      "progress": 15,
+      "started_at": 1772546389,
+      "subtasks": [
+        {
+          "title": "Детализировать стол сотрудника и монитор",
+          "status": "doing",
+          "estimate": 40,
+          "actual": 18,
+          "progress": 45
+        },
+        {
+          "title": "Ассистенты с ролями и бейджами (3+)",
+          "status": "todo",
+          "estimate": 40,
+          "actual": 0,
+          "progress": 0
+        },
+        {
+          "title": "Chill-zone (софа, лампа, растения) финальный вид",
+          "status": "todo",
+          "estimate": 40,
+          "actual": 0,
+          "progress": 0
+        }
+      ]
     }
   ]
 }

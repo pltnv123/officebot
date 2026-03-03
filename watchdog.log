@@ -1,0 +1,91 @@
+=== 2026-03-03 13:34:14 UTC ===
+ERROR: page returned 000
+OK: watchdog complete
+=== 2026-03-03 13:40:01 UTC ===
+=== 2026-03-03 13:40:02 UTC ===
+OK: watchdog complete
+OK: watchdog complete
+=== ENFORCER 2026-03-03 13:43:15 UTC ===
+ENFORCER: active=PLAN-001 progress=22% title=Unity URP WebGL: Базовая сцена офиса
+ENFORCER: active=PLAN-002 progress=33% title=Правая панель: Сейчас делаю / Активные / Последние
+ENFORCER: complete
+=== ENFORCER 2026-03-03 13:45:01 UTC ===
+ENFORCER: active=PLAN-001 progress=22% title=Unity URP WebGL: Базовая сцена офиса
+ENFORCER: active=PLAN-002 progress=33% title=Правая панель: Сейчас делаю / Активные / Последние
+ENFORCER: complete
+=== ENFORCER 2026-03-03 13:50:01 UTC ===
+=== 2026-03-03 13:50:01 UTC ===
+ENFORCER: active=PLAN-001 progress=22% title=Unity URP WebGL: Базовая сцена офиса
+ENFORCER: active=PLAN-002 progress=33% title=Правая панель: Сейчас делаю / Активные / Последние
+ENFORCER: complete
+OK: watchdog complete
+=== ENFORCER 2026-03-03 13:55:01 UTC ===
+ENFORCER: active=PLAN-002 progress=33% title=Правая панель: Сейчас делаю / Активные / Последние
+ENFORCER: complete
+=== 2026-03-03 14:00:01 UTC ===
+=== ENFORCER 2026-03-03 14:00:02 UTC ===
+ENFORCER: active=PLAN-003 progress=0% title=Unity сцена: финализация столов, ассистентов и chill-zone
+ENFORCER: complete
+OK: watchdog complete
+=== ENFORCER 2026-03-03 14:05:01 UTC ===
+ENFORCER: active=PLAN-003 progress=15% title=Unity сцена: финализация столов, ассистентов и chill-zone
+ENFORCER: complete
+=== ENFORCER 2026-03-03 14:10:01 UTC ===
+=== 2026-03-03 14:10:01 UTC ===
+ENFORCER: active=PLAN-003 progress=15% title=Unity сцена: финализация столов, ассистентов и chill-zone
+ENFORCER: complete
+OK: watchdog complete
+=== ENFORCER 2026-03-03 14:15:01 UTC ===
+ENFORCER: active=PLAN-003 progress=15% title=Unity сцена: финализация столов, ассистентов и chill-zone
+ENFORCER: complete
+=== ENFORCER 2026-03-03 14:20:01 UTC ===
+=== 2026-03-03 14:20:01 UTC ===
+ENFORCER: active=PLAN-003 progress=15% title=Unity сцена: финализация столов, ассистентов и chill-zone
+ENFORCER: complete
+OK: watchdog complete
+=== ENFORCER 2026-03-03 14:25:01 UTC ===
+ENFORCER: active=PLAN-003 progress=15% title=Unity сцена: финализация столов, ассистентов и chill-zone
+ENFORCER: complete
+=== 2026-03-03 14:30:01 UTC ===
+=== ENFORCER 2026-03-03 14:30:01 UTC ===
+ENFORCER: active=PLAN-003 progress=15% title=Unity сцена: финализация столов, ассистентов и chill-zone
+ENFORCER: complete
+OK: watchdog complete
+=== ENFORCER 2026-03-03 14:35:01 UTC ===
+ENFORCER: active=PLAN-003 progress=15% title=Unity сцена: финализация столов, ассистентов и chill-zone
+ENFORCER: complete
+=== 2026-03-03 14:40:01 UTC ===
+=== ENFORCER 2026-03-03 14:40:01 UTC ===
+ENFORCER: active=PLAN-003 progress=15% title=Unity сцена: финализация столов, ассистентов и chill-zone
+ENFORCER: complete
+OK: watchdog complete
+=== ENFORCER 2026-03-03 14:45:01 UTC ===
+ENFORCER: active=PLAN-003 progress=15% title=Unity сцена: финализация столов, ассистентов и chill-zone
+ENFORCER: complete
+=== ENFORCER 2026-03-03 14:50:01 UTC ===
+=== 2026-03-03 14:50:01 UTC ===
+ENFORCER: active=PLAN-003 progress=15% title=Unity сцена: финализация столов, ассистентов и chill-zone
+ENFORCER: complete
+WARNING: task PLAN-003 stuck >45min
+OK: watchdog complete
+=== ENFORCER 2026-03-03 14:55:01 UTC ===
+ENFORCER: active=PLAN-003 progress=15% title=Unity сцена: финализация столов, ассистентов и chill-zone
+ENFORCER: complete
+=== 2026-03-03 15:00:01 UTC ===
+=== ENFORCER 2026-03-03 15:00:01 UTC ===
+ENFORCER: active=PLAN-003 progress=15% title=Unity сцена: финализация столов, ассистентов и chill-zone
+ENFORCER: complete
+WARNING: task PLAN-003 stuck >45min
+OK: watchdog complete
+=== ENFORCER 2026-03-03 15:05:01 UTC ===
+ENFORCER: active=PLAN-003 progress=15% title=Unity сцена: финализация столов, ассистентов и chill-zone
+ENFORCER: complete
+=== ENFORCER 2026-03-03 15:10:01 UTC ===
+=== 2026-03-03 15:10:01 UTC ===
+ENFORCER: active=PLAN-003 progress=15% title=Unity сцена: финализация столов, ассистентов и chill-zone
+ENFORCER: complete
+WARNING: task PLAN-003 stuck >45min
+OK: watchdog complete
+=== ENFORCER 2026-03-03 15:15:01 UTC ===
+ENFORCER: active=PLAN-003 progress=15% title=Unity сцена: финализация столов, ассистентов и chill-zone
+ENFORCER: complete

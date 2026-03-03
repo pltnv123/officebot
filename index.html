@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Office Unity WebGL</title>
-  <link rel="stylesheet" href="./style.css?v=1" />
+  <link rel="stylesheet" href="./style.css?v=3" />
 </head>
 <body>
   <div id="app">
@@ -20,7 +20,20 @@
       <div><b>Активные:</b> <span id="active">0</span></div>
       <div><b>Выполненные:</b> <span id="done">0</span></div>
       <div><b>CPU:</b> <span id="cpu">--</span> · <b>Load:</b> <span id="load">--</span></div>
-      <div style="opacity:.65;font-size:12px">build: <span id="build-ver">unity-v1</span></div>
+      <div style="opacity:.65;font-size:12px">build: <span id="build-ver">unity-v2</span></div>
+
+      <div class="api-tools">
+        <b>Backend client</b>
+        <div class="api-row">
+          <input id="new-task-title" type="text" placeholder="Новая задача (POST /api/tasks)" />
+          <button id="new-task-btn" type="button">Добавить</button>
+        </div>
+        <div class="api-row">
+          <input id="toggle-id" type="text" placeholder="toggle id" value="lights" />
+          <button id="toggle-btn" type="button">Toggle</button>
+        </div>
+        <div id="api-status" class="api-status">API: idle</div>
+      </div>
 
       <div class="now-card">
         <b>Сейчас делаю</b>
@@ -40,8 +53,35 @@
     </aside>
   </div>
 
+  <script>
+    // Ignore known browser-extension ethereum redefine crash (not project code)
+    (function(){
+      const isEthereumExtError = (msg, src) => {
+        const m = String(msg || '');
+        const s = String(src || '');
+        return m.includes('Cannot redefine property: ethereum') && s.startsWith('chrome-extension://');
+      };
+
+      window.addEventListener('error', function(e){
+        if(isEthereumExtError(e?.message, e?.filename)){
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          return false;
+        }
+      }, true);
+
+      window.addEventListener('unhandledrejection', function(e){
+        const txt = String(e?.reason?.message || e?.reason || '');
+        if(txt.includes('Cannot redefine property: ethereum')){
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          return false;
+        }
+      }, true);
+    })();
+  </script>
   <script src="./Build/office.loader.js"></script>
-  <script src="./scripts/tasks-ui.js?v=8"></script>
-  <script src="./scripts/unity-loader.js?v=8"></script>
+  <script src="./scripts/tasks-ui.js?v=48"></script>
+  <script src="./scripts/unity-loader.js?v=15"></script>
 </body>
 </html>
