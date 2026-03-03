@@ -116,3 +116,9 @@ OK: watchdog complete
 === ENFORCER 2026-03-03 15:45:01 UTC ===
 ENFORCER: active=PLAN-003 progress=15% title=Unity сцена: финализация столов, ассистентов и chill-zone
 ENFORCER: complete
+=== 2026-03-03 15:50:01 UTC ===
+=== ENFORCER 2026-03-03 15:50:01 UTC ===
+ENFORCER: active=PLAN-003 progress=15% title=Unity сцена: финализация столов, ассистентов и chill-zone
+ENFORCER: complete
+WARNING: task PLAN-003 stuck >45min
+OK: watchdog complete
