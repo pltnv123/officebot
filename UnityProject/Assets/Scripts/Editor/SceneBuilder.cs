@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -168,3 +169,4 @@ public static class SceneBuilder
         leaves.transform.localScale = new Vector3(0.75f, 0.75f, 0.75f);
     }
 }
+#endif
