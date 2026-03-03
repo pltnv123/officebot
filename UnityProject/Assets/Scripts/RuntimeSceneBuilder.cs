@@ -201,6 +201,10 @@ namespace OfficeHub
             Txt("WIPCounter", "WIP 07", new Vector3(0f, 1.8f, 8.35f), 10, 0.1f, new Color(0.85f, 0.92f, 1f), FontStyle.Bold);
             Txt("SLAInfo", "SLA 99.2%", new Vector3(-5.6f, 1.8f, 8.35f), 8, 0.09f, new Color(0.75f, 0.85f, 1f));
             Txt("FlowInfo", "FLOW +12", new Vector3(5.6f, 1.8f, 8.35f), 8, 0.09f, new Color(0.70f, 1f, 0.78f));
+            // ROUND_7: board footer telemetry labels
+            Txt("QueueDepth", "QUEUE 23", new Vector3(-5.6f, 1.3f, 8.35f), 8, 0.08f, new Color(0.92f, 0.86f, 0.68f));
+            Txt("Blockers", "BLOCKERS 2", new Vector3(0f, 1.3f, 8.35f), 8, 0.08f, new Color(1f, 0.72f, 0.70f));
+            Txt("Throughput", "THROUGHPUT 19", new Vector3(5.6f, 1.3f, 8.35f), 8, 0.08f, new Color(0.74f, 0.90f, 1f));
         }
 
         private void MakeCard(float x, float y, Color color, string label)
