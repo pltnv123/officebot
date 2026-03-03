@@ -8,6 +8,7 @@ namespace OfficeHub
     {
         private readonly List<GameObject> _robots = new();
         private readonly List<Light> _eyeLights = new();
+        private readonly List<Light> _monitorGlowLights = new();
         private float _time;
 
         private Material _floorMat;
@@ -57,6 +58,14 @@ namespace OfficeHub
                 var light = _eyeLights[i];
                 if (light == null) continue;
                 light.intensity = 0.65f + Mathf.Sin(_time * 2.2f + i * 0.9f) * 0.28f;
+            }
+
+            // ROUND_11: monitor glow breathing rhythm
+            for (int i = 0; i < _monitorGlowLights.Count; i++)
+            {
+                var glow = _monitorGlowLights[i];
+                if (glow == null) continue;
+                glow.intensity = 0.28f + Mathf.Sin(_time * 1.6f + i * 0.7f) * 0.14f;
             }
         }
 
@@ -399,6 +408,7 @@ namespace OfficeHub
                     glow.intensity = 0.4f;
                     glow.range = 2.5f;
                     glow.shadows = LightShadows.None;
+                    _monitorGlowLights.Add(glow);
                 }
             }
 
