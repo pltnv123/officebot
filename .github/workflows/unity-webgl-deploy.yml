@@ -8,10 +8,25 @@ on:
 jobs:
   preflight:
     runs-on: ubuntu-latest
+    continue-on-error: false
+    strategy:
+      fail-fast: false
+    env:
+      GIT_HTTP_LOW_SPEED_LIMIT: 0
+      GIT_HTTP_LOW_SPEED_TIME: 999999
     outputs:
       can_build: ${{ steps.chk.outputs.can_build }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+        timeout-minutes: 10
+      - name: Retry checkout if failed
+        if: failure()
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       - id: chk
         run: |
           if [ -f UnityProject/ProjectSettings/ProjectVersion.txt ] \
