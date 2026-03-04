@@ -4,7 +4,8 @@ set -euo pipefail
 STATE_URL="${STATE_URL:-http://5.45.115.12:8787/api/state}"
 BUILD_DIR="${BUILD_DIR:-/var/www/office/Build}"
 
-curl -s "$STATE_URL" | python3 -c "import sys,json; d=json.load(sys.stdin); print('tasks:', len(d.get('tasks',[])))"
+TASKS=$(curl -s "$STATE_URL" | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('tasks',[])))")
+echo "tasks: $TASKS"
 
 if [[ -f "$BUILD_DIR/WebGL.wasm" ]]; then
   ls -la "$BUILD_DIR/WebGL.wasm"
@@ -16,6 +17,7 @@ else
 fi
 
 MAX_AGE_MIN="${MAX_AGE_MIN:-120}"
+OUTPUT_JSON="${OUTPUT_JSON:-0}"
 
 pick_artifact() {
   if [[ -f "$BUILD_DIR/WebGL.wasm.gz" ]]; then
@@ -33,7 +35,16 @@ NOW=$(date +%s)
 AGE_MIN=$(( (NOW - ART_MTIME) / 60 ))
 
 if (( AGE_MIN > MAX_AGE_MIN )); then
+  STATUS="STALE"
   echo "BUILD STALE (${AGE_MIN}min > ${MAX_AGE_MIN}min): $ARTIFACT"
 else
+  STATUS="FRESH"
   echo "BUILD FRESH (${AGE_MIN}min <= ${MAX_AGE_MIN}min): $ARTIFACT"
+fi
+
+if [[ "$OUTPUT_JSON" == "1" ]]; then
+  python3 - <<JSON
+import json
+print(json.dumps({"tasks": int("$TASKS"), "status": "$STATUS", "age_min": int("$AGE_MIN"), "max_age_min": int("$MAX_AGE_MIN"), "artifact": "$ARTIFACT"}))
+JSON
 fi
