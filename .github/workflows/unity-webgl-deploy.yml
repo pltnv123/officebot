@@ -101,7 +101,7 @@ jobs:
       - name: Deploy Build
         run: |
           # Avoid metadata/mtime permission errors on target dir
-          RSYNC_FLAGS="-rlvz --delete --omit-dir-times --no-perms --no-owner --no-group"
+          RSYNC_FLAGS="-rlvz --delete --omit-dir-times --no-perms --no-owner --no-group --ignore-errors"
           rsync $RSYNC_FLAGS webgl/Build/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/office/Build/
           if [ -d webgl/TemplateData ]; then
             rsync $RSYNC_FLAGS webgl/TemplateData/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/office/TemplateData/
@@ -111,19 +111,3 @@ jobs:
           curl -fsS "http://${{ secrets.VPS_HOST }}/office/index.html" >/dev/null
           echo "Deploy smoke-check passed"
 
-
-  auto-rerun:
-    needs: [build-unity, build-bootstrap, deploy]
-    if: failure()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Re-run failed workflow
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            await github.rest.actions.reRunWorkflowFailedJobs({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: context.runId
-            });
