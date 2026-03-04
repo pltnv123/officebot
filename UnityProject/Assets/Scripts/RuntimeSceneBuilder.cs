@@ -35,6 +35,7 @@ namespace OfficeHub
         private TextMesh _queueDepthText;
         private TextMesh _blockersText;
         private TextMesh _throughputText;
+        private readonly List<Transform> _robotLabelTransforms = new();
         [SerializeField] private string taskStateUrl = "/api/state";
 
         private void Start()
@@ -47,6 +48,7 @@ namespace OfficeHub
             _monitorGlowLights.Clear();
             _robotIdleAnchors.Clear();
             _eyePulseMats.Clear();
+            _robotLabelTransforms.Clear();
             SetupMaterials();
             SetupCamera();
             BuildRoom();
@@ -159,6 +161,21 @@ namespace OfficeHub
                 var glow = _monitorGlowLights[i];
                 if (glow == null) continue;
                 glow.intensity = 0.28f + Mathf.Sin(_time * 1.6f + i * 0.7f) * 0.14f;
+            }
+
+            var cam = Camera.main;
+            if (cam != null)
+            {
+                for (int i = 0; i < _robotLabelTransforms.Count; i++)
+                {
+                    var label = _robotLabelTransforms[i];
+                    if (label == null) continue;
+                    var toCam = cam.transform.position - label.position;
+                    if (toCam.sqrMagnitude > 0.0001f)
+                    {
+                        label.rotation = Quaternion.LookRotation(-toCam.normalized, Vector3.up);
+                    }
+                }
             }
         }
 
@@ -410,6 +427,7 @@ namespace OfficeHub
             tm.anchor = TextAnchor.MiddleCenter;
             tm.alignment = TextAlignment.Center;
             labelGo.transform.localScale = Vector3.one * 0.18f;
+            _robotLabelTransforms.Add(labelGo.transform);
 
             _robots.Add(root);
             _robotIdleAnchors.Add(position);
