@@ -10,6 +10,8 @@ namespace OfficeHub
         private readonly List<GameObject> _robots = new();
         private readonly List<Light> _eyeLights = new();
         private readonly List<Light> _monitorGlowLights = new();
+        private readonly List<Vector3> _robotIdleAnchors = new();
+        private readonly List<Material> _eyePulseMats = new();
         private float _time;
 
         private Material _floorMat;
@@ -39,6 +41,8 @@ namespace OfficeHub
             _robots.Clear();
             _eyeLights.Clear();
             _monitorGlowLights.Clear();
+            _robotIdleAnchors.Clear();
+            _eyePulseMats.Clear();
             SetupMaterials();
             SetupCamera();
             BuildRoom();
@@ -59,9 +63,10 @@ namespace OfficeHub
             {
                 var r = _robots[i];
                 if (r == null) continue;
-                var basePos = r.transform.position;
-                float bobY = Mathf.Sin(_time * 1.5f + i * 2.1f) * 0.06f;
-                r.transform.position = new Vector3(basePos.x, bobY, basePos.z);
+                var anchor = i < _robotIdleAnchors.Count ? _robotIdleAnchors[i] : r.transform.position;
+                float bobY = Mathf.Sin(_time * 1.8f + i * 1.6f) * 0.09f;
+                r.transform.position = new Vector3(anchor.x, anchor.y + bobY, anchor.z);
+                r.transform.rotation = Quaternion.Euler(0f, r.transform.rotation.eulerAngles.y, Mathf.Sin(_time * 1.25f + i * 0.8f) * 1.9f);
             }
 
             // ROUND_6: per-robot eye light phase offsets
@@ -69,7 +74,16 @@ namespace OfficeHub
             {
                 var light = _eyeLights[i];
                 if (light == null) continue;
-                light.intensity = 0.65f + Mathf.Sin(_time * 2.2f + i * 0.9f) * 0.28f;
+                light.intensity = 1.2f + Mathf.Sin(_time * 3.0f + i * 0.9f) * 0.5f;
+            }
+
+
+            for (int i = 0; i < _eyePulseMats.Count; i++)
+            {
+                var mat = _eyePulseMats[i];
+                if (mat == null || !mat.HasProperty("_EmissionColor")) continue;
+                float pulse = 4.2f + Mathf.Sin(_time * 3.3f + i * 0.7f) * 1.1f;
+                mat.SetColor("_EmissionColor", mat.color * pulse);
             }
 
             // ROUND_11: monitor glow breathing rhythm
@@ -399,6 +413,8 @@ namespace OfficeHub
             label.transform.localScale = Vector3.one * 0.15f;
 
             _robots.Add(root);
+            _robotIdleAnchors.Add(position);
+            _eyePulseMats.Add(eyeMat);
             return root;
         }
 
