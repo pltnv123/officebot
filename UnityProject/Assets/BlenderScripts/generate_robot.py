@@ -115,7 +115,7 @@ def build_robot(name, eye_color_hex, output_path):
     )
     print(f"Exported {name} to {output_path}")
 
-output_dir = "/github/workspace/UnityProject/Assets/Models/Robots"
+output_dir = os.path.join(os.getcwd(), "UnityProject", "Assets", "Models", "Robots")
 os.makedirs(output_dir, exist_ok=True)
 
 build_robot("WorkerBot", "1AE066", f"{output_dir}/WorkerBot.fbx")
