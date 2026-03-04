@@ -118,8 +118,8 @@ namespace OfficeHub
             var cam = Camera.main;
             if (cam == null) return;
             cam.orthographic = true;
-            cam.orthographicSize = 8.6f;
-            cam.transform.position = new Vector3(9.6f, 9.5f, -9.2f);
+            cam.orthographicSize = 10.8f;
+            cam.transform.position = new Vector3(11.8f, 11.2f, -12.4f);
             cam.transform.LookAt(new Vector3(0f, 1.4f, 3.2f));
             cam.backgroundColor = new Color(0.05f, 0.06f, 0.10f);
             cam.clearFlags = CameraClearFlags.SolidColor;
