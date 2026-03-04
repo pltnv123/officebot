@@ -202,8 +202,8 @@ namespace OfficeHub
 
         private void SetupMaterials()
         {
-            _floorMat = NewMat(new Color(0.28f, 0.25f, 0.20f), 0.05f);
-            _tileLineMat = NewMat(new Color(0.18f, 0.13f, 0.10f), 0.03f);
+            _floorMat = NewMat(new Color(0.52f, 0.46f, 0.36f), 0.08f);
+            _tileLineMat = NewMat(new Color(0.38f, 0.33f, 0.26f), 0.05f);
             _leftWallMat = NewMat(new Color(0.12f, 0.13f, 0.17f), 0.08f);
             _backWallMat = NewMat(new Color(0.10f, 0.11f, 0.15f), 0.08f);
             _boardMat = NewMat(new Color(0.08f, 0.09f, 0.12f), 0.1f);
