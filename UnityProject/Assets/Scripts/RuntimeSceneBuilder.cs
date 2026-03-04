@@ -264,15 +264,17 @@ namespace OfficeHub
 
         private void BuildRobots()
         {
-            var worker = BuildRobot(new Vector3(-3.5f, 0f, 1.5f), new Color(0.1f, 0.9f, 0.4f), "WORKER");
-            worker.transform.rotation = Quaternion.Euler(0f, 30f, 0f);
+            var worker = BuildRobot(new Vector3(-4.4f, 0f, 2.1f), new Color(0.1f, 0.9f, 0.4f), "WORKER");
+            worker.transform.rotation = Quaternion.Euler(0f, 58f, 0f);
             var wArmL = worker.transform.Find("ArmL");
             if (wArmL != null) wArmL.localRotation = Quaternion.Euler(0f, 0f, 65f);
+            var wArmR = worker.transform.Find("ArmR");
+            if (wArmR != null) wArmR.localRotation = Quaternion.Euler(-22f, 18f, -118f);
 
-            var planner = BuildRobot(new Vector3(0f, 0f, 0.5f), new Color(0.2f, 0.5f, 1.0f), "PLANNER");
+            var planner = BuildRobot(new Vector3(0.4f, 0f, 0.2f), new Color(0.2f, 0.5f, 1.0f), "PLANNER");
             planner.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
 
-            var reviewer = BuildRobot(new Vector3(3.5f, 0f, 1.5f), new Color(0.1f, 0.9f, 0.4f), "REVIEWER");
+            var reviewer = BuildRobot(new Vector3(4.8f, 0f, 1.9f), new Color(0.1f, 0.9f, 0.4f), "REVIEWER");
             reviewer.transform.rotation = Quaternion.Euler(0f, -20f, 0f);
             var rArmR = reviewer.transform.Find("ArmR");
             if (rArmR != null) rArmR.localRotation = Quaternion.Euler(0f, 0f, -50f);
