@@ -205,8 +205,8 @@ namespace OfficeHub
         {
             _floorMat = NewMat(new Color(0.52f, 0.46f, 0.36f), 0.08f);
             _tileLineMat = NewMat(new Color(0.38f, 0.33f, 0.26f), 0.05f);
-            _leftWallMat = NewMat(new Color(0.12f, 0.13f, 0.17f), 0.08f);
-            _backWallMat = NewMat(new Color(0.10f, 0.11f, 0.15f), 0.08f);
+            _leftWallMat = NewMat(new Color(0.08f, 0.09f, 0.13f), 0.08f);
+            _backWallMat = NewMat(new Color(0.08f, 0.09f, 0.13f), 0.08f);
             _boardMat = NewMat(new Color(0.08f, 0.09f, 0.12f), 0.1f);
             _frameMat = NewMat(new Color(0.30f, 0.30f, 0.35f), 0.15f);
             _dividerMat = NewMat(new Color(0.25f, 0.25f, 0.30f), 0.15f);
