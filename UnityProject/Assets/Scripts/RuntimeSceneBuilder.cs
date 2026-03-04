@@ -282,6 +282,7 @@ namespace OfficeHub
         {
             var root = new GameObject(name);
             root.transform.position = position;
+            root.transform.localScale = Vector3.one * 1.8f;
 
             var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             body.name = "Body";
@@ -325,20 +326,20 @@ namespace OfficeHub
             antennaTip.transform.localScale = new Vector3(0.09f, 0.09f, 0.09f);
             antennaTip.GetComponent<Renderer>().material = NewEmissive(eyeColor, eyeColor, 1.8f);
 
-            var eyeMat = NewEmissive(eyeColor, eyeColor, 2.5f);
+            var eyeMat = NewEmissive(eyeColor, eyeColor, 4.8f);
 
             var eyeL = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             eyeL.name = "EyeL";
             eyeL.transform.parent = root.transform;
             eyeL.transform.localPosition = new Vector3(-0.14f, 1.57f, 0.42f);
-            eyeL.transform.localScale = new Vector3(0.18f, 0.18f, 0.08f);
+            eyeL.transform.localScale = new Vector3(0.28f, 0.28f, 0.12f);
             eyeL.GetComponent<Renderer>().material = eyeMat;
 
             var eyeR = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             eyeR.name = "EyeR";
             eyeR.transform.parent = root.transform;
             eyeR.transform.localPosition = new Vector3(0.14f, 1.57f, 0.42f);
-            eyeR.transform.localScale = new Vector3(0.18f, 0.18f, 0.08f);
+            eyeR.transform.localScale = new Vector3(0.28f, 0.28f, 0.12f);
             eyeR.GetComponent<Renderer>().material = eyeMat;
 
             var eyeLightGo = new GameObject("EyeLight");
@@ -347,8 +348,8 @@ namespace OfficeHub
             var lt = eyeLightGo.AddComponent<Light>();
             lt.type = LightType.Point;
             lt.color = eyeColor;
-            lt.intensity = 0.8f;
-            lt.range = 1.5f;
+            lt.intensity = 1.85f;
+            lt.range = 2.9f;
             lt.shadows = LightShadows.None;
             _eyeLights.Add(lt);
 
