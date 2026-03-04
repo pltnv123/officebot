@@ -611,26 +611,35 @@ namespace OfficeHub
             // ROUND_5: monitor wall color variance and glow balance
             float[] zPositions = { -1f, 1.5f, 4f, 6.5f };
             float[] yPositions = { 3.5f, 5f };
+            Color[] monitorBlue = {
+                new Color(0.08f, 0.25f, 0.65f),
+                new Color(0.10f, 0.30f, 0.70f),
+                new Color(0.06f, 0.22f, 0.60f),
+                new Color(0.09f, 0.28f, 0.68f),
+                new Color(0.07f, 0.24f, 0.62f),
+                new Color(0.10f, 0.32f, 0.72f)
+            };
 
             for (int row = 0; row < 2; row++)
             {
                 for (int col = 0; col < 4; col++)
                 {
                     var body = Cube($"Monitor_{row}_{col}", new Vector3(-9.3f, yPositions[row], zPositions[col]), new Vector3(0.15f, 1.2f, 1.8f), _darkMat);
-                    var screenColor = (col % 2 == 0) ? new Color(0.22f, 0.56f, 1.0f) : new Color(0.18f, 0.82f, 0.92f);
+                    var screenColor = monitorBlue[(row * 4 + col) % monitorBlue.Length];
                     var screenMat = NewEmissive(screenColor, screenColor, 3.2f);
                     Cube($"MonitorScreen_{row}_{col}", new Vector3(-9.15f, yPositions[row], zPositions[col]), new Vector3(0.05f, 1.0f, 1.6f), screenMat).transform.SetParent(body.transform);
                     for (int stripe = 0; stripe < 4; stripe++)
                     {
                         float yStripe = yPositions[row] + 0.35f - stripe * 0.24f;
-                        var stripeMat = NewEmissive(new Color(0.08f, 0.25f, 0.58f), new Color(0.35f, 0.78f, 1f), 2.6f);
+                        var stripeBase = monitorBlue[(row * 4 + col + stripe) % monitorBlue.Length];
+                        var stripeMat = NewEmissive(stripeBase * 0.85f, stripeBase, 2.6f);
                         Cube($"MonitorStripe_{row}_{col}_{stripe}", new Vector3(-9.11f, yStripe, zPositions[col]), new Vector3(0.03f, 0.08f, 1.45f), stripeMat).transform.SetParent(body.transform);
                     }
 
                     var glow = new GameObject($"ScreenGlow_{row}_{col}").AddComponent<Light>();
                     glow.transform.position = new Vector3(-8.8f, yPositions[row], zPositions[col]);
                     glow.type = LightType.Point;
-                    glow.color = new Color(0.2f, 0.4f, 0.8f);
+                    glow.color = monitorBlue[(row * 4 + col) % monitorBlue.Length];
                     glow.intensity = 0.95f;
                     glow.range = 2.5f;
                     glow.shadows = LightShadows.None;
@@ -640,7 +649,7 @@ namespace OfficeHub
 
             Cube("RightDesk", new Vector3(9f, 0.6f, 5f), new Vector3(3f, 0.15f, 2f), _deskMat);
             Cube("RightMonitorBody", new Vector3(9f, 1.8f, 5f), new Vector3(0.1f, 1.4f, 2.0f), _darkMat);
-            Cube("RightMonitorScreen", new Vector3(8.92f, 1.8f, 5f), new Vector3(0.04f, 1.2f, 1.8f), NewEmissive(new Color(0.2f, 0.5f, 1f), new Color(0.22f, 0.7f, 1f), 3.4f));
+            Cube("RightMonitorScreen", new Vector3(8.92f, 1.8f, 5f), new Vector3(0.04f, 1.2f, 1.8f), NewEmissive(new Color(0.10f, 0.32f, 0.72f), new Color(0.08f, 0.25f, 0.65f), 3.4f));
         }
 
         private void BuildLighting()
@@ -648,7 +657,7 @@ namespace OfficeHub
             // Warm ambient
             RenderSettings.ambientMode =
             UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.18f, 0.16f, 0.14f);
+            RenderSettings.ambientLight = new Color(0.25f, 0.22f, 0.18f);
 
             // Remove old directional if exists
             var old = GameObject.Find("Directional Light");
