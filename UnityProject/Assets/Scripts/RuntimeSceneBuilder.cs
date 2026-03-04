@@ -479,19 +479,25 @@ namespace OfficeHub
             face.transform.localScale = new Vector3(0.62f, 0.52f, 0.05f);
             face.GetComponent<Renderer>().material = ToonMat(blk);
 
-            var eyeMatL = EmissiveMat(eyeColor, 10.0f);
-            var eyeMatR = EmissiveMat(eyeColor, 10.0f);
+            var eyeCol = eyeColor;
+            var eyeMat = new Material(Shader.Find("Standard"));
+            eyeMat.color = eyeCol;
+            eyeMat.EnableKeyword("_EMISSION");
+            eyeMat.SetColor("_EmissionColor", eyeCol * 12.0f);
+            eyeMat.SetFloat("_Metallic", 0f);
+            eyeMat.SetFloat("_Glossiness", 1.0f);
+            eyeMat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
             var eyeL = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             eyeL.transform.parent = root.transform;
             eyeL.transform.localPosition = new Vector3(-0.15f, 1.50f, 0.43f);
-            eyeL.transform.localScale = new Vector3(0.19f, 0.19f, 0.06f);
-            eyeL.GetComponent<Renderer>().material = eyeMatL;
+            eyeL.transform.localScale = new Vector3(0.20f, 0.20f, 0.08f);
+            eyeL.GetComponent<Renderer>().material = eyeMat;
 
             var eyeR = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             eyeR.transform.parent = root.transform;
             eyeR.transform.localPosition = new Vector3(0.15f, 1.50f, 0.43f);
-            eyeR.transform.localScale = new Vector3(0.19f, 0.19f, 0.06f);
-            eyeR.GetComponent<Renderer>().material = eyeMatR;
+            eyeR.transform.localScale = new Vector3(0.20f, 0.20f, 0.08f);
+            eyeR.GetComponent<Renderer>().material = eyeMat;
 
             var glowGo = new GameObject("EyeGlow");
             glowGo.transform.parent = root.transform;
@@ -499,8 +505,8 @@ namespace OfficeHub
             var lt = glowGo.AddComponent<Light>();
             lt.type = LightType.Point;
             lt.color = eyeColor;
-            lt.intensity = 3.5f;
-            lt.range = 5.0f;
+            lt.intensity = 4.0f;
+            lt.range = 6.0f;
             _eyeLights.Add(lt);
 
             var ringL = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
