@@ -425,7 +425,7 @@ namespace OfficeHub
 
             Color dk = new Color(0.16f, 0.16f, 0.19f);
             Color md = new Color(0.24f, 0.24f, 0.28f);
-            Color lt = new Color(0.68f, 0.68f, 0.72f);
+            Color liteCol = new Color(0.68f, 0.68f, 0.72f);
             Color blk = new Color(0.04f, 0.04f, 0.06f);
 
             var wheels = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
@@ -535,7 +535,7 @@ namespace OfficeHub
             handL.transform.parent = root.transform;
             handL.transform.localPosition = new Vector3(-0.68f, 0.33f, 0.15f);
             handL.transform.localScale = new Vector3(0.16f, 0.12f, 0.14f);
-            handL.GetComponent<Renderer>().material = ToonMat(lt);
+            handL.GetComponent<Renderer>().material = ToonMat(liteCol);
 
             var aRU = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             aRU.transform.parent = root.transform;
@@ -554,7 +554,7 @@ namespace OfficeHub
             handR.transform.parent = root.transform;
             handR.transform.localPosition = new Vector3(0.68f, 0.33f, 0.15f);
             handR.transform.localScale = new Vector3(0.16f, 0.12f, 0.14f);
-            handR.GetComponent<Renderer>().material = ToonMat(lt);
+            handR.GetComponent<Renderer>().material = ToonMat(liteCol);
 
             var ant = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             ant.transform.parent = root.transform;
