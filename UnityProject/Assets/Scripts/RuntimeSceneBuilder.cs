@@ -208,11 +208,11 @@ namespace OfficeHub
 
             // Perspective — matches reference image style
             cam.orthographic = false;
-            cam.fieldOfView = 50f;
+            cam.fieldOfView = 52f;
 
             // Position: above and in front, looking into scene
-            cam.transform.position = new Vector3(0f, 14f, -16f);
-            cam.transform.rotation = Quaternion.Euler(38f, 0f, 0f);
+            cam.transform.position = new Vector3(2f, 11f, -14f);
+            cam.transform.rotation = Quaternion.Euler(34f, -8f, 0f);
 
             cam.backgroundColor = new Color(0.04f, 0.05f, 0.08f);
             cam.clearFlags = CameraClearFlags.SolidColor;
