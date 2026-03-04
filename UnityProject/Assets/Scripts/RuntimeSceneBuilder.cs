@@ -33,7 +33,7 @@ namespace OfficeHub
         private TextMesh _queueDepthText;
         private TextMesh _blockersText;
         private TextMesh _throughputText;
-        [SerializeField] private string taskStateUrl = "http://127.0.0.1:8787/api/state";
+        [SerializeField] private string taskStateUrl = "/api/state";
 
         private void Start()
         {
@@ -541,6 +541,13 @@ namespace OfficeHub
             public List<RuntimeTask> tasks;
         }
 
+        [System.Serializable]
+        private sealed class RuntimeStateEnvelope
+        {
+            public RuntimeState taskState;
+            public List<RuntimeTask> tasks;
+        }
+
         private System.Collections.IEnumerator PollTaskState()
         {
             while (true)
@@ -551,14 +558,15 @@ namespace OfficeHub
 
                 if (req.result == UnityWebRequest.Result.Success && !string.IsNullOrWhiteSpace(req.downloadHandler.text))
                 {
-                    var state = JsonUtility.FromJson<RuntimeState>(req.downloadHandler.text);
-                    if (state?.tasks != null && state.tasks.Count > 0)
+                    var payload = JsonUtility.FromJson<RuntimeStateEnvelope>(req.downloadHandler.text);
+                    var tasks = payload?.tasks ?? payload?.taskState?.tasks;
+                    if (tasks != null)
                     {
                         int doing = 0;
                         int done = 0;
-                        for (int i = 0; i < state.tasks.Count; i++)
+                        for (int i = 0; i < tasks.Count; i++)
                         {
-                            var st = (state.tasks[i].status ?? string.Empty).ToLowerInvariant();
+                            var st = (tasks[i].status ?? string.Empty).ToLowerInvariant();
                             if (st == "done") done++; else doing++;
                         }
 
@@ -566,13 +574,13 @@ namespace OfficeHub
                         {
                             var tm = _liveTaskLabels[i];
                             if (tm == null) continue;
-                            tm.text = i < state.tasks.Count
-                                ? string.IsNullOrWhiteSpace(state.tasks[i].title) ? $"Task {i + 1}" : state.tasks[i].title
+                            tm.text = i < tasks.Count
+                                ? string.IsNullOrWhiteSpace(tasks[i].title) ? $"Task {i + 1}" : tasks[i].title
                                 : "";
                         }
 
                         if (_wipCounterText != null) _wipCounterText.text = $"WIP {doing:00}";
-                        if (_queueDepthText != null) _queueDepthText.text = $"QUEUE {state.tasks.Count:00}";
+                        if (_queueDepthText != null) _queueDepthText.text = $"QUEUE {tasks.Count:00}";
                         if (_blockersText != null) _blockersText.text = $"BLOCKERS {Mathf.Max(0, doing - 3)}";
                         if (_throughputText != null) _throughputText.text = $"THROUGHPUT {done:00}";
                     }
