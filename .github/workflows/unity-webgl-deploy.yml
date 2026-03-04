@@ -32,8 +32,43 @@ jobs:
             echo "can_build=false" >> $GITHUB_OUTPUT
           fi
 
+  generate-models:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install Blender
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y blender
+          blender --version
+
+      - name: Generate Robot 3D Models
+        run: |
+          mkdir -p UnityProject/Assets/Models/Robots
+          blender --background --python UnityProject/Assets/BlenderScripts/generate_robot.py
+          ls -la UnityProject/Assets/Models/Robots/
+
+      - name: Verify FBX files created
+        run: |
+          for f in WorkerBot PlannerBot ReviewerBot; do
+            if [ ! -f "UnityProject/Assets/Models/Robots/${f}.fbx" ]; then
+              echo "ERROR: ${f}.fbx not found!"
+              exit 1
+            fi
+            echo "OK: ${f}.fbx exists"
+          done
+
+      - name: Upload robot models as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: robot-models
+          path: UnityProject/Assets/Models/Robots/
+
   build-unity:
-    needs: preflight
+    needs: [preflight, generate-models]
     if: needs.preflight.outputs.can_build == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -45,6 +80,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - name: Download robot models
+        uses: actions/download-artifact@v4
+        with:
+          name: robot-models
+          path: UnityProject/Assets/Models/Robots/
       - name: Build Unity WebGL
         uses: game-ci/unity-builder@v4
         env:

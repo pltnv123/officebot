@@ -302,8 +302,54 @@ namespace OfficeHub
             var rArmR = reviewer.transform.Find("ArmR");
             if (rArmR != null) rArmR.localRotation = Quaternion.Euler(0f, 0f, -50f);
         }
+        private GameObject BuildRobot(Vector3 position, Color eyeColor, string roleName)
+        {
+            // Try FBX/prefab pipeline first; fallback to primitive build if missing
+            string modelName = roleName + "Bot";
+            var prefab = Resources.Load<GameObject>("Robots/" + modelName);
 
-        private GameObject BuildRobot(Vector3 position, Color eyeColor, string name)
+            GameObject root;
+            if (prefab != null)
+            {
+                root = Instantiate(prefab);
+                root.name = roleName;
+                root.transform.position = position;
+
+                foreach (var renderer in root.GetComponentsInChildren<Renderer>(true))
+                {
+                    if (!renderer.name.Contains("Eye")) continue;
+                    var mat = new Material(Shader.Find("Standard") ?? LitShader());
+                    mat.color = eyeColor;
+                    mat.EnableKeyword("_EMISSION");
+                    if (mat.HasProperty("_EmissionColor")) mat.SetColor("_EmissionColor", eyeColor * 8f);
+                    renderer.material = mat;
+                    _eyePulseMats.Add(mat);
+                }
+            }
+            else
+            {
+                root = BuildRobotFromPrimitives(position, eyeColor, roleName);
+            }
+
+            var labelGo = new GameObject("Label");
+            labelGo.transform.parent = root.transform;
+            labelGo.transform.localPosition = new Vector3(0, 2.5f, 0);
+            var tm = labelGo.AddComponent<TextMesh>();
+            tm.text = roleName;
+            tm.fontSize = 18;
+            tm.color = Color.white;
+            tm.anchor = TextAnchor.MiddleCenter;
+            tm.alignment = TextAlignment.Center;
+            labelGo.transform.localScale = Vector3.one * 0.18f;
+
+            _robots.Add(root);
+            _robotIdleAnchors.Add(position);
+            foreach (var lt in root.GetComponentsInChildren<Light>(true)) _eyeLights.Add(lt);
+
+            return root;
+        }
+
+        private GameObject BuildRobotFromPrimitives(Vector3 position, Color eyeColor, string name)
         {
             var root = new GameObject(name);
             root.transform.position = position;
@@ -351,20 +397,20 @@ namespace OfficeHub
             antennaTip.transform.localScale = new Vector3(0.09f, 0.09f, 0.09f);
             antennaTip.GetComponent<Renderer>().material = NewEmissive(eyeColor, eyeColor, 1.8f);
 
-            var eyeMat = NewEmissive(eyeColor, eyeColor, 4.8f);
+            var eyeMat = NewEmissive(eyeColor, eyeColor, 6.0f);
 
             var eyeL = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             eyeL.name = "EyeL";
             eyeL.transform.parent = root.transform;
             eyeL.transform.localPosition = new Vector3(-0.14f, 1.57f, 0.42f);
-            eyeL.transform.localScale = new Vector3(0.28f, 0.28f, 0.12f);
+            eyeL.transform.localScale = new Vector3(0.25f, 0.25f, 0.12f);
             eyeL.GetComponent<Renderer>().material = eyeMat;
 
             var eyeR = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             eyeR.name = "EyeR";
             eyeR.transform.parent = root.transform;
             eyeR.transform.localPosition = new Vector3(0.14f, 1.57f, 0.42f);
-            eyeR.transform.localScale = new Vector3(0.28f, 0.28f, 0.12f);
+            eyeR.transform.localScale = new Vector3(0.25f, 0.25f, 0.12f);
             eyeR.GetComponent<Renderer>().material = eyeMat;
 
             var eyeLightGo = new GameObject("EyeLight");
@@ -373,8 +419,8 @@ namespace OfficeHub
             var lt = eyeLightGo.AddComponent<Light>();
             lt.type = LightType.Point;
             lt.color = eyeColor;
-            lt.intensity = 1.85f;
-            lt.range = 2.9f;
+            lt.intensity = 2.0f;
+            lt.range = 4.0f;
             lt.shadows = LightShadows.None;
             _eyeLights.Add(lt);
 
@@ -401,19 +447,6 @@ namespace OfficeHub
             wheel.transform.localScale = new Vector3(0.5f, 0.08f, 0.5f);
             wheel.GetComponent<Renderer>().material = NewMat(new Color(0.20f, 0.20f, 0.22f), 0.2f);
 
-            var label = new GameObject("Label");
-            label.transform.parent = root.transform;
-            label.transform.localPosition = new Vector3(0, 2.2f, 0);
-            var tm = label.AddComponent<TextMesh>();
-            tm.text = name;
-            tm.fontSize = 14;
-            tm.color = Color.white;
-            tm.anchor = TextAnchor.MiddleCenter;
-            tm.alignment = TextAlignment.Center;
-            label.transform.localScale = Vector3.one * 0.15f;
-
-            _robots.Add(root);
-            _robotIdleAnchors.Add(position);
             _eyePulseMats.Add(eyeMat);
             return root;
         }
