@@ -429,15 +429,21 @@ namespace OfficeHub
                 for (int col = 0; col < 4; col++)
                 {
                     var body = Cube($"Monitor_{row}_{col}", new Vector3(-9.3f, yPositions[row], zPositions[col]), new Vector3(0.15f, 1.2f, 1.8f), _darkMat);
-                    var screenColor = (col % 2 == 0) ? new Color(0.1f, 0.3f, 0.6f) : new Color(0.1f, 0.4f, 0.5f);
-                    var screenMat = NewEmissive(screenColor, screenColor, 1.5f);
+                    var screenColor = (col % 2 == 0) ? new Color(0.22f, 0.56f, 1.0f) : new Color(0.18f, 0.82f, 0.92f);
+                    var screenMat = NewEmissive(screenColor, screenColor, 3.2f);
                     Cube($"MonitorScreen_{row}_{col}", new Vector3(-9.15f, yPositions[row], zPositions[col]), new Vector3(0.05f, 1.0f, 1.6f), screenMat).transform.SetParent(body.transform);
+                    for (int stripe = 0; stripe < 4; stripe++)
+                    {
+                        float yStripe = yPositions[row] + 0.35f - stripe * 0.24f;
+                        var stripeMat = NewEmissive(new Color(0.08f, 0.25f, 0.58f), new Color(0.35f, 0.78f, 1f), 2.6f);
+                        Cube($"MonitorStripe_{row}_{col}_{stripe}", new Vector3(-9.11f, yStripe, zPositions[col]), new Vector3(0.03f, 0.08f, 1.45f), stripeMat).transform.SetParent(body.transform);
+                    }
 
                     var glow = new GameObject($"ScreenGlow_{row}_{col}").AddComponent<Light>();
                     glow.transform.position = new Vector3(-8.8f, yPositions[row], zPositions[col]);
                     glow.type = LightType.Point;
                     glow.color = new Color(0.2f, 0.4f, 0.8f);
-                    glow.intensity = 0.4f;
+                    glow.intensity = 0.95f;
                     glow.range = 2.5f;
                     glow.shadows = LightShadows.None;
                     _monitorGlowLights.Add(glow);
@@ -446,7 +452,7 @@ namespace OfficeHub
 
             Cube("RightDesk", new Vector3(9f, 0.6f, 5f), new Vector3(3f, 0.15f, 2f), _deskMat);
             Cube("RightMonitorBody", new Vector3(9f, 1.8f, 5f), new Vector3(0.1f, 1.4f, 2.0f), _darkMat);
-            Cube("RightMonitorScreen", new Vector3(8.92f, 1.8f, 5f), new Vector3(0.04f, 1.2f, 1.8f), NewEmissive(new Color(0.1f, 0.3f, 0.7f), new Color(0.1f, 0.4f, 1f), 1.5f));
+            Cube("RightMonitorScreen", new Vector3(8.92f, 1.8f, 5f), new Vector3(0.04f, 1.2f, 1.8f), NewEmissive(new Color(0.2f, 0.5f, 1f), new Color(0.22f, 0.7f, 1f), 3.4f));
         }
 
         private void BuildLighting()
