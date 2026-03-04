@@ -228,8 +228,8 @@ namespace OfficeHub
             cam.fieldOfView = 52f;
 
             // Position: above and in front, looking into scene
-            cam.transform.position = new Vector3(2f, 11f, -14f);
-            cam.transform.rotation = Quaternion.Euler(34f, -8f, 0f);
+            cam.transform.position = new Vector3(0f, 9f, -11f);
+            cam.transform.rotation = Quaternion.Euler(32f, 0f, 0f);
 
             cam.backgroundColor = new Color(0.04f, 0.05f, 0.08f);
             cam.clearFlags = CameraClearFlags.SolidColor;
@@ -675,7 +675,7 @@ namespace OfficeHub
             // Warm ambient
             RenderSettings.ambientMode =
             UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.25f, 0.22f, 0.18f);
+            RenderSettings.ambientLight = new Color(0.42f, 0.38f, 0.32f);
 
             // Remove old directional if exists
             var old = GameObject.Find("Directional Light");
