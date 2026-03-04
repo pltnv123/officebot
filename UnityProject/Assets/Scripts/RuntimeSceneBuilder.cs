@@ -56,6 +56,69 @@ namespace OfficeHub
             BuildMonitors();
             BuildLighting();
             BuildPlants();
+
+            // ═══════════════════════════════════════════════
+            // WIRE UP TASK PIPELINE
+            // ═══════════════════════════════════════════════
+
+            // 1. Find or create SceneManager object
+            var mgr = GameObject.Find("SceneManager")
+             ?? new GameObject("SceneManager");
+
+            // 2. Add ApiClient
+            var api = mgr.GetComponent<ApiClient>()
+             ?? mgr.AddComponent<ApiClient>();
+
+            // 3. Setup robot movers from _robotTransforms list
+            // Index 0 = WORKER, 1 = PLANNER, 2 = REVIEWER
+            BotMover AddMover(int idx, string role,
+             Vector3 idle, Vector3 desk, Vector3 done)
+            {
+             if (idx >= _robotTransforms.Count) return null;
+             var go = _robotTransforms[idx].gameObject;
+             var mover = go.GetComponent<BotMover>()
+             ?? go.AddComponent<BotMover>();
+             mover.SetRole(role);
+             mover.idlePos = idle;
+             mover.boardPos = new Vector3(0f, 0f, 7.0f);
+             mover.deskPos = desk;
+             mover.donePos = done;
+             // Collect eye lights
+             mover.eyeLights.Clear();
+             foreach (var lt in go.GetComponentsInChildren<Light>())
+             mover.eyeLights.Add(lt);
+             return mover;
+            }
+
+            var plannerMover = AddMover(1, "planner",
+             new Vector3(-3.5f, 0f, 1.5f),
+             new Vector3(-3.5f, 0f, 0.5f),
+             new Vector3( 5.5f, 0f, 7.0f));
+
+            var workerMover = AddMover(0, "worker",
+             new Vector3( 0.0f, 0f, 0.0f),
+             new Vector3( 0.0f, 0f, 0.5f),
+             new Vector3( 5.5f, 0f, 7.0f));
+
+            var testerMover = AddMover(2, "tester",
+             new Vector3( 3.5f, 0f, 1.5f),
+             new Vector3( 3.5f, 0f, 0.5f),
+             new Vector3( 5.5f, 0f, 7.0f));
+
+            // 4. Setup TaskOrchestrator
+            var orch = mgr.GetComponent<TaskOrchestrator>()
+             ?? mgr.AddComponent<TaskOrchestrator>();
+            orch.plannerBot = plannerMover;
+            orch.workerBot = workerMover;
+            orch.testerBot = testerMover;
+
+            // 5. Setup StatePoller
+            var poller = mgr.GetComponent<StatePoller>()
+             ?? mgr.AddComponent<StatePoller>();
+            poller.orchestrator = orch;
+
+            // 6. Rename SceneManager so JS can find it
+            mgr.name = "SceneManager";
             StartCoroutine(PollTaskState());
         }
 
@@ -290,15 +353,15 @@ namespace OfficeHub
 
         private void BuildRobots()
         {
-            var worker = BuildRobot(new Vector3(-3.5f, 0f, 1.0f), new Color(0.15f, 0.90f, 0.75f), "WORKER");
+            var worker = BuildRobot(new Vector3(-3.5f, 0f, 1.0f), new Color(0.10f, 0.95f, 0.72f), "WORKER");
             worker.transform.rotation = Quaternion.Euler(0f, -30f, 0f);
             var wArm = worker.transform.Find("ArmLUp");
             if (wArm != null) wArm.localRotation = Quaternion.Euler(-65f, 0f, 35f);
 
-            var planner = BuildRobot(new Vector3(0f, 0f, -0.5f), new Color(0.20f, 0.55f, 1.00f), "PLANNER");
+            var planner = BuildRobot(new Vector3(0f, 0f, -0.5f), new Color(0.15f, 0.50f, 1.00f), "PLANNER");
             planner.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
 
-            var reviewer = BuildRobot(new Vector3(3.8f, 0f, 0.8f), new Color(0.15f, 0.90f, 0.75f), "REVIEWER");
+            var reviewer = BuildRobot(new Vector3(3.8f, 0f, 0.8f), new Color(0.10f, 0.95f, 0.72f), "REVIEWER");
             reviewer.transform.rotation = Quaternion.Euler(0f, 25f, 0f);
         }
         private GameObject BuildRobot(Vector3 position, Color eyeColor, string roleName)
@@ -353,9 +416,10 @@ namespace OfficeHub
             var root = new GameObject(roleName);
             root.transform.position = position;
 
-            Color dark = new Color(0.18f, 0.18f, 0.21f);
-            Color mid = new Color(0.26f, 0.26f, 0.30f);
-            Color lite = new Color(0.72f, 0.72f, 0.75f);
+            Color dk = new Color(0.16f, 0.16f, 0.19f);
+            Color md = new Color(0.24f, 0.24f, 0.28f);
+            Color lt = new Color(0.68f, 0.68f, 0.72f);
+            Color blk = new Color(0.04f, 0.04f, 0.06f);
 
             var wheels = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             wheels.name = "WheelBase";
@@ -382,13 +446,13 @@ namespace OfficeHub
             body.transform.parent = root.transform;
             body.transform.localPosition = new Vector3(0, 0.68f, 0);
             body.transform.localScale = new Vector3(0.72f, 0.62f, 0.55f);
-            body.GetComponent<Renderer>().material = ToonMat(dark);
+            body.GetComponent<Renderer>().material = ToonMat(dk);
 
             var chest = GameObject.CreatePrimitive(PrimitiveType.Cube);
             chest.transform.parent = root.transform;
             chest.transform.localPosition = new Vector3(0, 0.68f, 0.285f);
             chest.transform.localScale = new Vector3(0.45f, 0.38f, 0.02f);
-            chest.GetComponent<Renderer>().material = ToonMat(mid);
+            chest.GetComponent<Renderer>().material = ToonMat(md);
 
             var neck = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             neck.transform.parent = root.transform;
@@ -400,26 +464,26 @@ namespace OfficeHub
             head.transform.parent = root.transform;
             head.transform.localPosition = new Vector3(0, 1.48f, 0);
             head.transform.localScale = new Vector3(0.80f, 0.75f, 0.78f);
-            head.GetComponent<Renderer>().material = ToonMat(mid);
+            head.GetComponent<Renderer>().material = ToonMat(md);
 
             var face = GameObject.CreatePrimitive(PrimitiveType.Cube);
             face.transform.parent = root.transform;
             face.transform.localPosition = new Vector3(0, 1.48f, 0.39f);
             face.transform.localScale = new Vector3(0.62f, 0.52f, 0.05f);
-            face.GetComponent<Renderer>().material = ToonMat(new Color(0.04f,0.04f,0.06f));
+            face.GetComponent<Renderer>().material = ToonMat(blk);
 
-            var eyeMatL = EmissiveMat(eyeColor);
-            var eyeMatR = EmissiveMat(eyeColor);
+            var eyeMatL = EmissiveMat(eyeColor, 10.0f);
+            var eyeMatR = EmissiveMat(eyeColor, 10.0f);
             var eyeL = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             eyeL.transform.parent = root.transform;
             eyeL.transform.localPosition = new Vector3(-0.15f, 1.50f, 0.43f);
-            eyeL.transform.localScale = new Vector3(0.18f, 0.18f, 0.05f);
+            eyeL.transform.localScale = new Vector3(0.19f, 0.19f, 0.06f);
             eyeL.GetComponent<Renderer>().material = eyeMatL;
 
             var eyeR = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             eyeR.transform.parent = root.transform;
             eyeR.transform.localPosition = new Vector3(0.15f, 1.50f, 0.43f);
-            eyeR.transform.localScale = new Vector3(0.18f, 0.18f, 0.05f);
+            eyeR.transform.localScale = new Vector3(0.19f, 0.19f, 0.06f);
             eyeR.GetComponent<Renderer>().material = eyeMatR;
 
             var glowGo = new GameObject("EyeGlow");
@@ -428,8 +492,8 @@ namespace OfficeHub
             var lt = glowGo.AddComponent<Light>();
             lt.type = LightType.Point;
             lt.color = eyeColor;
-            lt.intensity = 3.0f;
-            lt.range = 4.0f;
+            lt.intensity = 3.5f;
+            lt.range = 5.0f;
             _eyeLights.Add(lt);
 
             var ringL = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
@@ -451,39 +515,39 @@ namespace OfficeHub
             aLU.transform.parent = root.transform;
             aLU.transform.localPosition = new Vector3(-0.58f, 0.80f, 0.05f);
             aLU.transform.localScale = new Vector3(0.14f, 0.20f, 0.14f);
-            aLU.GetComponent<Renderer>().material = ToonMat(dark);
+            aLU.GetComponent<Renderer>().material = ToonMat(dk);
 
             var aLD = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             aLD.transform.parent = root.transform;
             aLD.transform.localPosition = new Vector3(-0.64f, 0.52f, 0.10f);
             aLD.transform.localScale = new Vector3(0.12f, 0.16f, 0.12f);
             aLD.transform.localRotation = Quaternion.Euler(20f, 0, 12f);
-            aLD.GetComponent<Renderer>().material = ToonMat(dark);
+            aLD.GetComponent<Renderer>().material = ToonMat(dk);
 
             var handL = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             handL.transform.parent = root.transform;
             handL.transform.localPosition = new Vector3(-0.68f, 0.33f, 0.15f);
             handL.transform.localScale = new Vector3(0.16f, 0.12f, 0.14f);
-            handL.GetComponent<Renderer>().material = ToonMat(lite);
+            handL.GetComponent<Renderer>().material = ToonMat(lt);
 
             var aRU = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             aRU.transform.parent = root.transform;
             aRU.transform.localPosition = new Vector3(0.58f, 0.80f, 0.05f);
             aRU.transform.localScale = new Vector3(0.14f, 0.20f, 0.14f);
-            aRU.GetComponent<Renderer>().material = ToonMat(dark);
+            aRU.GetComponent<Renderer>().material = ToonMat(dk);
 
             var aRD = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             aRD.transform.parent = root.transform;
             aRD.transform.localPosition = new Vector3(0.64f, 0.52f, 0.10f);
             aRD.transform.localScale = new Vector3(0.12f, 0.16f, 0.12f);
             aRD.transform.localRotation = Quaternion.Euler(20f, 0, -12f);
-            aRD.GetComponent<Renderer>().material = ToonMat(dark);
+            aRD.GetComponent<Renderer>().material = ToonMat(dk);
 
             var handR = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             handR.transform.parent = root.transform;
             handR.transform.localPosition = new Vector3(0.68f, 0.33f, 0.15f);
             handR.transform.localScale = new Vector3(0.16f, 0.12f, 0.14f);
-            handR.GetComponent<Renderer>().material = ToonMat(lite);
+            handR.GetComponent<Renderer>().material = ToonMat(lt);
 
             var ant = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             ant.transform.parent = root.transform;
@@ -495,7 +559,7 @@ namespace OfficeHub
             antTip.transform.parent = root.transform;
             antTip.transform.localPosition = new Vector3(0.18f, 2.14f, 0);
             antTip.transform.localScale = Vector3.one * 0.07f;
-            antTip.GetComponent<Renderer>().material = EmissiveMat(eyeColor * 0.5f);
+            antTip.GetComponent<Renderer>().material = EmissiveMat(eyeColor * 0.5f, 10.0f);
 
             root.transform.localScale = Vector3.one * 1.35f;
             _eyePulseMats.Add(eyeMatL);
@@ -516,12 +580,12 @@ namespace OfficeHub
             return m;
         }
 
-        private static Material EmissiveMat(Color c)
+        private static Material EmissiveMat(Color c, float mul = 8.0f)
         {
             var m = new Material(Shader.Find("Standard") ?? LitShader());
             m.color = c;
             m.EnableKeyword("_EMISSION");
-            if (m.HasProperty("_EmissionColor")) m.SetColor("_EmissionColor", c * 8.0f);
+            if (m.HasProperty("_EmissionColor")) m.SetColor("_EmissionColor", c * mul);
             if (m.HasProperty("_Metallic")) m.SetFloat("_Metallic", 0f);
             if (m.HasProperty("_Glossiness")) m.SetFloat("_Glossiness", 0.9f);
             if (m.HasProperty("_Smoothness")) m.SetFloat("_Smoothness", 0.9f);
