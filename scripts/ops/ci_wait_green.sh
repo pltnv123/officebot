@@ -16,12 +16,24 @@ TOKEN=$(cat "$TOKEN_FILE")
 START=$(date +%s)
 
 while true; do
-  LINE=$(curl -s -H "Authorization: token $TOKEN" -H "Accept: application/vnd.github.v3+json" \
-    "https://api.github.com/repos/$REPO/actions/runs?per_page=30" | \
-    python3 -c "import sys,json; j=json.load(sys.stdin); s='$SHA_PREFIX';
+  RESP=$(curl -s -H "Authorization: token $TOKEN" -H "Accept: application/vnd.github.v3+json" \
+    "https://api.github.com/repos/$REPO/actions/runs?per_page=30" || true)
+
+  LINE=$(printf '%s' "$RESP" | python3 -c "import sys,json
+s='$SHA_PREFIX'
+raw=sys.stdin.read().strip()
+if not raw:
+  print('')
+  raise SystemExit(0)
+try:
+  j=json.loads(raw)
+except Exception:
+  print('')
+  raise SystemExit(0)
 for r in j.get('workflow_runs',[]):
   if r.get('head_sha','').startswith(s):
-    print(r['id'], r['status'], str(r.get('conclusion'))); break")
+    print(r['id'], r['status'], str(r.get('conclusion')))
+    break")
 
   if [[ -n "$LINE" ]]; then
     echo "$LINE"
@@ -31,7 +43,7 @@ for r in j.get('workflow_runs',[]):
       [[ "$CONCLUSION" == "success" ]] && exit 0 || exit 1
     fi
   else
-    echo "no-run-yet for $SHA_PREFIX"
+    echo "no-run-yet/temporary-api-parse-issue for $SHA_PREFIX"
   fi
 
   NOW=$(date +%s)
