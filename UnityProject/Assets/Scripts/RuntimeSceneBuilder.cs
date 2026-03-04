@@ -429,20 +429,20 @@ namespace OfficeHub
             foreach (var l in lights) Destroy(l.gameObject);
 
             RenderSettings.ambientMode = AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.08f, 0.10f, 0.18f);
+            RenderSettings.ambientLight = new Color(0.15f, 0.18f, 0.30f);
 
             var key = new GameObject("KeyLight").AddComponent<Light>();
             key.type = LightType.Directional;
             key.transform.rotation = Quaternion.Euler(45f, -30f, 0f);
             key.color = new Color(0.9f, 0.85f, 0.75f);
-            key.intensity = 0.6f;
+            key.intensity = 1.15f;
             key.shadows = LightShadows.None;
 
             var desk = new GameObject("DeskLamp").AddComponent<Light>();
             desk.type = LightType.Point;
             desk.transform.position = new Vector3(0f, 3.5f, 2f);
             desk.color = new Color(1.0f, 0.75f, 0.4f);
-            desk.intensity = 2.0f;
+            desk.intensity = 3.1f;
             desk.range = 6.0f;
             desk.shadows = LightShadows.None;
 
@@ -450,7 +450,7 @@ namespace OfficeHub
             fill.type = LightType.Point;
             fill.transform.position = new Vector3(-5f, 4f, -3f);
             fill.color = new Color(0.4f, 0.5f, 0.8f);
-            fill.intensity = 0.5f;
+            fill.intensity = 1.0f;
             fill.range = 12f;
             fill.shadows = LightShadows.None;
 
@@ -459,7 +459,7 @@ namespace OfficeHub
             spot.transform.position = new Vector3(0f, 6.2f, 5.4f);
             spot.transform.rotation = Quaternion.Euler(34f, 0f, 0f);
             spot.color = new Color(0.95f, 0.98f, 1f);
-            spot.intensity = 1.9f;
+            spot.intensity = 2.8f;
             spot.range = 9f;
             spot.spotAngle = 54f;
             spot.shadows = LightShadows.None;
@@ -469,7 +469,7 @@ namespace OfficeHub
             rim.transform.position = new Vector3(0f, 4.6f, -3.8f);
             rim.transform.rotation = Quaternion.Euler(30f, 180f, 0f);
             rim.color = new Color(0.35f, 0.52f, 1f);
-            rim.intensity = 1.1f;
+            rim.intensity = 1.7f;
             rim.range = 11f;
             rim.spotAngle = 72f;
             rim.shadows = LightShadows.None;
