@@ -452,13 +452,13 @@ namespace OfficeHub
             }
 
             eyeGlow.gameObject.name = "EyeGlow";
-            eyeGlow.localPosition = new Vector3(0f, 1.48f, 0.55f);
+            eyeGlow.localPosition = new Vector3(0f, 1.50f, 0.43f);
             eyeGlow.localRotation = Quaternion.identity;
             var lt = eyeGlow.GetComponent<Light>() ?? eyeGlow.gameObject.AddComponent<Light>();
             lt.type = LightType.Point;
             lt.color = eyeColor;
-            lt.range = 7.5f;
-            lt.intensity = 6.0f;
+            lt.range = 5.0f;
+            lt.intensity = 4.0f;
             lt.shadows = LightShadows.None;
         }
 
@@ -534,13 +534,13 @@ namespace OfficeHub
             var eyeL = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             eyeL.transform.parent = root.transform;
             eyeL.transform.localPosition = new Vector3(-0.15f, 1.50f, 0.43f);
-            eyeL.transform.localScale = new Vector3(0.20f, 0.20f, 0.08f);
+            eyeL.transform.localScale = new Vector3(0.22f, 0.22f, 0.08f);
             eyeL.GetComponent<Renderer>().material = eyeMat;
 
             var eyeR = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             eyeR.transform.parent = root.transform;
             eyeR.transform.localPosition = new Vector3(0.15f, 1.50f, 0.43f);
-            eyeR.transform.localScale = new Vector3(0.20f, 0.20f, 0.08f);
+            eyeR.transform.localScale = new Vector3(0.22f, 0.22f, 0.08f);
             eyeR.GetComponent<Renderer>().material = eyeMat;
 
 
@@ -628,7 +628,7 @@ namespace OfficeHub
             return m;
         }
 
-        private static Material EmissiveMat(Color c, float mul = 8.0f)
+        private static Material EmissiveMat(Color c, float mul = 12.0f)
         {
             var m = new Material(Shader.Find("Standard") ?? LitShader());
             m.color = c;
