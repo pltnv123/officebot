@@ -143,7 +143,8 @@ namespace OfficeHub
             {
                 var light = _eyeLights[i];
                 if (light == null) continue;
-                light.intensity = 1.2f + Mathf.Sin(_time * 3.0f + i * 0.9f) * 0.5f;
+                light.range = 7.0f;
+                light.intensity = 6.0f + Mathf.Sin(_time * 3.0f + i * 0.9f) * 1.8f;
             }
 
 
@@ -151,7 +152,7 @@ namespace OfficeHub
             {
                 var mat = _eyePulseMats[i];
                 if (mat == null || !mat.HasProperty("_EmissionColor")) continue;
-                float pulse = 4.2f + Mathf.Sin(_time * 3.3f + i * 0.7f) * 1.1f;
+                float pulse = 12.0f + Mathf.Sin(_time * 3.3f + i * 0.7f) * 4.0f;
                 mat.SetColor("_EmissionColor", mat.color * pulse);
             }
 
@@ -407,7 +408,8 @@ namespace OfficeHub
                     var mat = new Material(Shader.Find("Standard") ?? LitShader());
                     mat.color = eyeColor;
                     mat.EnableKeyword("_EMISSION");
-                    if (mat.HasProperty("_EmissionColor")) mat.SetColor("_EmissionColor", eyeColor * 8f);
+                    if (mat.HasProperty("_EmissionColor")) mat.SetColor("_EmissionColor", eyeColor * 15f);
+                    mat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
                     renderer.material = mat;
                     _eyePulseMats.Add(mat);
                 }
@@ -416,6 +418,8 @@ namespace OfficeHub
             {
                 root = BuildRobotFromPrimitives(position, eyeColor, roleName);
             }
+
+            EnsureEyeGlowLight(root, eyeColor);
 
             var labelGo = new GameObject("Label");
             labelGo.transform.parent = root.transform;
@@ -434,6 +438,28 @@ namespace OfficeHub
             foreach (var lt in root.GetComponentsInChildren<Light>(true)) _eyeLights.Add(lt);
 
             return root;
+        }
+
+        private void EnsureEyeGlowLight(GameObject root, Color eyeColor)
+        {
+            if (root == null) return;
+            var eyeGlow = root.transform.Find("EyeGlow");
+            if (eyeGlow == null)
+            {
+                var glowGo = new GameObject("EyeGlow");
+                glowGo.transform.SetParent(root.transform);
+                eyeGlow = glowGo.transform;
+            }
+
+            eyeGlow.gameObject.name = "EyeGlow";
+            eyeGlow.localPosition = new Vector3(0f, 1.48f, 0.55f);
+            eyeGlow.localRotation = Quaternion.identity;
+            var lt = eyeGlow.GetComponent<Light>() ?? eyeGlow.gameObject.AddComponent<Light>();
+            lt.type = LightType.Point;
+            lt.color = eyeColor;
+            lt.range = 7.5f;
+            lt.intensity = 6.0f;
+            lt.shadows = LightShadows.None;
         }
 
         private GameObject BuildRobotFromPrimitives(Vector3 position, Color eyeColor, string roleName)
@@ -501,7 +527,7 @@ namespace OfficeHub
             var eyeMat = new Material(Shader.Find("Standard"));
             eyeMat.color = eyeCol;
             eyeMat.EnableKeyword("_EMISSION");
-            eyeMat.SetColor("_EmissionColor", eyeCol * 12.0f);
+            eyeMat.SetColor("_EmissionColor", eyeCol * 20.0f);
             eyeMat.SetFloat("_Metallic", 0f);
             eyeMat.SetFloat("_Glossiness", 1.0f);
             eyeMat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
@@ -517,15 +543,6 @@ namespace OfficeHub
             eyeR.transform.localScale = new Vector3(0.20f, 0.20f, 0.08f);
             eyeR.GetComponent<Renderer>().material = eyeMat;
 
-            var glowGo = new GameObject("EyeGlow");
-            glowGo.transform.parent = root.transform;
-            glowGo.transform.localPosition = new Vector3(0, 1.50f, 0.6f);
-            var lt = glowGo.AddComponent<Light>();
-            lt.type = LightType.Point;
-            lt.color = eyeColor;
-            lt.intensity = 4.0f;
-            lt.range = 6.0f;
-            _eyeLights.Add(lt);
 
             var ringL = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             ringL.transform.parent = root.transform;
