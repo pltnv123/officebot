@@ -48,10 +48,15 @@ def add_sphere(name, location, scale, color_hex, emission=0):
     g = int(color_hex[2:4], 16) / 255
     b = int(color_hex[4:6], 16) / 255
     bsdf = nodes["Principled BSDF"]
-    bsdf.inputs[0].default_value = (r, g, b, 1)
+    bsdf.inputs["Base Color"].default_value = (r, g, b, 1)
     if emission > 0:
-        bsdf.inputs[19].default_value = (r, g, b, 1)
-        bsdf.inputs[20].default_value = emission
+        # Blender 4.x safe emission setup by socket name
+        if "Emission Color" in bsdf.inputs:
+            bsdf.inputs["Emission Color"].default_value = (r, g, b, 1)
+        elif "Emission" in bsdf.inputs:
+            bsdf.inputs["Emission"].default_value = (r, g, b, 1)
+        if "Emission Strength" in bsdf.inputs:
+            bsdf.inputs["Emission Strength"].default_value = float(emission)
     obj.data.materials.append(mat)
     return obj
 
