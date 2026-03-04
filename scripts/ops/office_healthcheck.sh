@@ -15,10 +15,25 @@ else
   exit 2
 fi
 
-if find "$BUILD_DIR" -name "*.wasm" -mmin +120 | grep -q .; then
-  echo "BUILD STALE (.wasm)"
-elif find "$BUILD_DIR" -name "*.wasm.gz" -mmin +120 | grep -q .; then
-  echo "BUILD STALE (.wasm.gz)"
+MAX_AGE_MIN="${MAX_AGE_MIN:-120}"
+
+pick_artifact() {
+  if [[ -f "$BUILD_DIR/WebGL.wasm.gz" ]]; then
+    echo "$BUILD_DIR/WebGL.wasm.gz"
+  elif [[ -f "$BUILD_DIR/WebGL.wasm" ]]; then
+    echo "$BUILD_DIR/WebGL.wasm"
+  else
+    return 1
+  fi
+}
+
+ARTIFACT=$(pick_artifact)
+ART_MTIME=$(stat -c %Y "$ARTIFACT")
+NOW=$(date +%s)
+AGE_MIN=$(( (NOW - ART_MTIME) / 60 ))
+
+if (( AGE_MIN > MAX_AGE_MIN )); then
+  echo "BUILD STALE (${AGE_MIN}min > ${MAX_AGE_MIN}min): $ARTIFACT"
 else
-  echo "BUILD FRESH"
+  echo "BUILD FRESH (${AGE_MIN}min <= ${MAX_AGE_MIN}min): $ARTIFACT"
 fi
