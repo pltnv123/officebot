@@ -624,12 +624,16 @@ namespace OfficeHub
             return m;
         }
 
+        
         private void BuildMonitors()
         {
-            // ROUND_5: monitor wall color variance and glow balance
-            float[] zPositions = { -1f, 1.5f, 4f, 6.5f };
-            float[] yPositions = { 3.5f, 5f };
-            Color[] monitorBlue = {
+            // STEP4: six angled monitors visible from diagonal camera
+            float leftX = -4.0f;
+            float[] zPositions = { 2.0f, 4.0f, 6.0f };
+            float[] yPositions = { 3.2f, 4.7f };
+            var monitorFacing = Quaternion.Euler(0f, -45f, 0f);
+            Color[] monitorBlue =
+            {
                 new Color(0.08f, 0.25f, 0.65f),
                 new Color(0.10f, 0.30f, 0.70f),
                 new Color(0.06f, 0.22f, 0.60f),
@@ -638,29 +642,41 @@ namespace OfficeHub
                 new Color(0.10f, 0.32f, 0.72f)
             };
 
-            for (int row = 0; row < 2; row++)
+            int idx = 0;
+            for (int row = 0; row < yPositions.Length; row++)
             {
-                for (int col = 0; col < 4; col++)
+                for (int col = 0; col < zPositions.Length; col++, idx++)
                 {
-                    var body = Cube($"Monitor_{row}_{col}", new Vector3(-9.3f, yPositions[row], zPositions[col]), new Vector3(0.15f, 1.2f, 1.8f), _darkMat);
-                    var screenColor = monitorBlue[(row * 4 + col) % monitorBlue.Length];
-                    var screenMat = NewEmissive(screenColor, screenColor, 3.2f);
-                    Cube($"MonitorScreen_{row}_{col}", new Vector3(-9.15f, yPositions[row], zPositions[col]), new Vector3(0.05f, 1.0f, 1.6f), screenMat).transform.SetParent(body.transform);
-                    for (int stripe = 0; stripe < 4; stripe++)
+                    var anchor = new Vector3(leftX, yPositions[row], zPositions[col]);
+                    var body = Cube($"Monitor_{row}_{col}", anchor, new Vector3(0.16f, 1.1f, 1.7f), _darkMat);
+                    body.transform.rotation = monitorFacing;
+
+                    var screenColor = monitorBlue[idx % monitorBlue.Length];
+                    var screenMat = NewEmissive(screenColor, screenColor, 3.8f);
+                    var screen = Cube($"MonitorScreen_{row}_{col}", anchor, new Vector3(0.05f, 0.95f, 1.5f), screenMat);
+                    screen.transform.SetParent(body.transform);
+                    screen.transform.localPosition = new Vector3(0.08f, 0f, 0f);
+                    screen.transform.localRotation = Quaternion.identity;
+
+                    for (int stripe = 0; stripe < 3; stripe++)
                     {
-                        float yStripe = yPositions[row] + 0.35f - stripe * 0.24f;
-                        var stripeBase = monitorBlue[(row * 4 + col + stripe) % monitorBlue.Length];
-                        var stripeMat = NewEmissive(stripeBase * 0.85f, stripeBase, 2.6f);
-                        Cube($"MonitorStripe_{row}_{col}_{stripe}", new Vector3(-9.11f, yStripe, zPositions[col]), new Vector3(0.03f, 0.08f, 1.45f), stripeMat).transform.SetParent(body.transform);
+                        float yLocal = 0.30f - stripe * 0.28f;
+                        var stripeBase = monitorBlue[(idx + stripe) % monitorBlue.Length];
+                        var stripeMat = NewEmissive(stripeBase * 0.85f, stripeBase, 2.9f);
+                        var stripeGo = Cube($"MonitorStripe_{row}_{col}_{stripe}", anchor, new Vector3(0.03f, 0.08f, 1.35f), stripeMat);
+                        stripeGo.transform.SetParent(body.transform);
+                        stripeGo.transform.localPosition = new Vector3(0.09f, yLocal, 0f);
+                        stripeGo.transform.localRotation = Quaternion.identity;
                     }
 
                     var glow = new GameObject($"ScreenGlow_{row}_{col}").AddComponent<Light>();
-                    glow.transform.position = new Vector3(-8.8f, yPositions[row], zPositions[col]);
                     glow.type = LightType.Point;
-                    glow.color = monitorBlue[(row * 4 + col) % monitorBlue.Length];
-                    glow.intensity = 0.95f;
-                    glow.range = 2.5f;
+                    glow.color = screenColor;
+                    glow.intensity = 1.0f;
+                    glow.range = 3.0f;
                     glow.shadows = LightShadows.None;
+                    glow.transform.position = body.transform.position + body.transform.right * 0.6f;
+                    glow.transform.position += new Vector3(0f, 0.05f, 0f);
                     _monitorGlowLights.Add(glow);
                 }
             }
@@ -669,6 +685,7 @@ namespace OfficeHub
             Cube("RightMonitorBody", new Vector3(9f, 1.8f, 5f), new Vector3(0.1f, 1.4f, 2.0f), _darkMat);
             Cube("RightMonitorScreen", new Vector3(8.92f, 1.8f, 5f), new Vector3(0.04f, 1.2f, 1.8f), NewEmissive(new Color(0.10f, 0.32f, 0.72f), new Color(0.08f, 0.25f, 0.65f), 3.4f));
         }
+
         private void BuildLighting()
         {
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
