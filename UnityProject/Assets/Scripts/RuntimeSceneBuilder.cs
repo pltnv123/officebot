@@ -205,12 +205,19 @@ namespace OfficeHub
         {
             var cam = Camera.main;
             if (cam == null) return;
+
+            // Perspective — matches reference image style
             cam.orthographic = false;
-            cam.fieldOfView = 55f;
-            cam.transform.position = new Vector3(0f, 12f, -14f);
+            cam.fieldOfView = 50f;
+
+            // Position: above and in front, looking into scene
+            cam.transform.position = new Vector3(0f, 14f, -16f);
             cam.transform.rotation = Quaternion.Euler(38f, 0f, 0f);
+
             cam.backgroundColor = new Color(0.04f, 0.05f, 0.08f);
             cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.nearClipPlane = 0.3f;
+            cam.farClipPlane = 80f;
         }
 
         private static GameObject Cube(string n, Vector3 p, Vector3 s, Material m)
