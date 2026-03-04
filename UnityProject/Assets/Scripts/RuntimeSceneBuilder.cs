@@ -575,8 +575,8 @@ namespace OfficeHub
             antTip.GetComponent<Renderer>().material = EmissiveMat(eyeColor * 0.5f, 10.0f);
 
             root.transform.localScale = Vector3.one * 1.35f;
-            _eyePulseMats.Add(eyeMatL);
-            _eyePulseMats.Add(eyeMatR);
+            _eyePulseMats.Add(eyeMat);
+            _eyePulseMats.Add(eyeMat);
             _robotTransforms.Add(root.transform);
             _robotBasePos.Add(position);
             return root;
