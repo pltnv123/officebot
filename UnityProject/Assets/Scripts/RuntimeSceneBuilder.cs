@@ -669,68 +669,54 @@ namespace OfficeHub
             Cube("RightMonitorBody", new Vector3(9f, 1.8f, 5f), new Vector3(0.1f, 1.4f, 2.0f), _darkMat);
             Cube("RightMonitorScreen", new Vector3(8.92f, 1.8f, 5f), new Vector3(0.04f, 1.2f, 1.8f), NewEmissive(new Color(0.10f, 0.32f, 0.72f), new Color(0.08f, 0.25f, 0.65f), 3.4f));
         }
-
         private void BuildLighting()
         {
-            // Warm ambient
-            RenderSettings.ambientMode =
-            UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.42f, 0.38f, 0.32f);
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            RenderSettings.ambientLight = new Color(0.55f, 0.50f, 0.42f);
 
-            // Remove old directional if exists
             var old = GameObject.Find("Directional Light");
             if (old != null) Object.DestroyImmediate(old);
 
             var lights = FindObjectsByType<Light>(FindObjectsSortMode.None);
             foreach (var l in lights) Destroy(l.gameObject);
 
-            // Key light — warm top-left
+            // Key light — warm from top-left diagonal
             var keyGo = new GameObject("KeyLight");
             var keyLt = keyGo.AddComponent<Light>();
             keyLt.type = LightType.Directional;
-            keyLt.color = new Color(1.0f, 0.90f, 0.75f);
-            keyLt.intensity = 1.0f;
+            keyLt.color = new Color(1.0f, 0.92f, 0.78f);
+            keyLt.intensity = 1.4f;
             keyLt.shadows = LightShadows.Soft;
-            keyGo.transform.rotation = Quaternion.Euler(48f, -28f, 0f);
+            keyGo.transform.rotation = Quaternion.Euler(45f, -45f, 0f);
 
-            // Desk lamp — warm orange point
+            // Desk lamp — warm orange
             var deskGo = new GameObject("DeskLamp");
             var deskLt = deskGo.AddComponent<Light>();
             deskLt.type = LightType.Point;
-            deskLt.color = new Color(1.0f, 0.78f, 0.40f);
-            deskLt.intensity = 4.5f;
-            deskLt.range = 9f;
-            deskGo.transform.position = new Vector3(0f, 3.5f, 1.5f);
+            deskLt.color = new Color(1.0f, 0.80f, 0.45f);
+            deskLt.intensity = 5.0f;
+            deskLt.range = 10f;
+            deskGo.transform.position = new Vector3(0f, 4f, 0f);
 
-            // Board spot — cool white
+            // Board spotlight
             var boardGo = new GameObject("BoardSpot");
             var boardLt = boardGo.AddComponent<Light>();
             boardLt.type = LightType.Spot;
-            boardLt.color = new Color(0.88f, 0.92f, 1.0f);
-            boardLt.intensity = 2.8f;
-            boardLt.range = 12f;
-            boardLt.spotAngle = 58f;
-            boardLt.shadows = LightShadows.None;
-            boardGo.transform.position = new Vector3(0f, 7f, 4f);
-            boardGo.transform.rotation = Quaternion.Euler(48f, 0f, 0f);
+            boardLt.color = new Color(0.90f, 0.95f, 1.0f);
+            boardLt.intensity = 3.5f;
+            boardLt.range = 14f;
+            boardLt.spotAngle = 65f;
+            boardGo.transform.position = new Vector3(0f, 8f, 2f);
+            boardGo.transform.rotation = Quaternion.Euler(55f, 0f, 0f);
 
-            // Fill light — cool blue from right
+            // Fill light from right — cool blue
             var fillGo = new GameObject("FillLight");
             var fillLt = fillGo.AddComponent<Light>();
             fillLt.type = LightType.Point;
-            fillLt.color = new Color(0.40f, 0.52f, 0.88f);
-            fillLt.intensity = 0.9f;
-            fillLt.range = 20f;
-            fillGo.transform.position = new Vector3(7f, 5f, 2f);
-
-            // Floor warm bounce
-            var bounceGo = new GameObject("FloorBounce");
-            var bounceLt = bounceGo.AddComponent<Light>();
-            bounceLt.type = LightType.Point;
-            bounceLt.color = new Color(0.65f, 0.42f, 0.18f);
-            bounceLt.intensity = 1.2f;
-            bounceLt.range = 7f;
-            bounceGo.transform.position = new Vector3(0f, 0.3f, 2f);
+            fillLt.color = new Color(0.45f, 0.55f, 0.90f);
+            fillLt.intensity = 1.2f;
+            fillLt.range = 22f;
+            fillGo.transform.position = new Vector3(8f, 6f, 0f);
         }
 
         private void BuildPlants()
