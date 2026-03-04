@@ -391,33 +391,7 @@ namespace OfficeHub
         }
         private GameObject BuildRobot(Vector3 position, Color eyeColor, string roleName)
         {
-            // Try FBX/prefab pipeline first; fallback to primitive build if missing
-            string modelName = roleName + "Bot";
-            var prefab = Resources.Load<GameObject>("Robots/" + modelName);
-
-            GameObject root;
-            if (prefab != null)
-            {
-                root = Instantiate(prefab);
-                root.name = roleName;
-                root.transform.position = position;
-
-                foreach (var renderer in root.GetComponentsInChildren<Renderer>(true))
-                {
-                    if (!renderer.name.Contains("Eye")) continue;
-                    var mat = new Material(Shader.Find("Standard") ?? LitShader());
-                    mat.color = eyeColor;
-                    mat.EnableKeyword("_EMISSION");
-                    if (mat.HasProperty("_EmissionColor")) mat.SetColor("_EmissionColor", eyeColor * 15f);
-                    mat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
-                    renderer.material = mat;
-                    _eyePulseMats.Add(mat);
-                }
-            }
-            else
-            {
-                root = BuildRobotFromPrimitives(position, eyeColor, roleName);
-            }
+            var root = TryLoadFbxRobot(position, roleName) ?? BuildRobotFromPrimitives(position, eyeColor, roleName);
 
             EnsureEyeGlowLight(root, eyeColor);
 
@@ -460,6 +434,26 @@ namespace OfficeHub
             lt.range = 5.0f;
             lt.intensity = 4.0f;
             lt.shadows = LightShadows.None;
+        }
+
+        private GameObject TryLoadFbxRobot(Vector3 position, string roleName)
+        {
+            var prefab = Resources.Load<GameObject>("Models/" + roleName);
+            if (prefab == null) return null;
+            var go = Instantiate(prefab, position, Quaternion.identity);
+            go.name = roleName + "_bot";
+            foreach (var r in go.GetComponentsInChildren<Renderer>())
+            {
+                foreach (var mat in r.materials)
+                {
+                    if (mat.name.Contains("eye"))
+                    {
+                        mat.EnableKeyword("_EMISSION");
+                        mat.SetColor("_EmissionColor", new Color(0.2f, 0.9f, 1.0f) * 10f);
+                    }
+                }
+            }
+            return go;
         }
 
         private GameObject BuildRobotFromPrimitives(Vector3 position, Color eyeColor, string roleName)
