@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Networking;
 
 namespace OfficeHub
 {
@@ -25,6 +26,12 @@ namespace OfficeHub
         private Material _robotBodyMat;
         private Material _robotHeadMat;
         private Material _facePlateMat;
+        private readonly List<TextMesh> _liveTaskLabels = new();
+        private TextMesh _wipCounterText;
+        private TextMesh _queueDepthText;
+        private TextMesh _blockersText;
+        private TextMesh _throughputText;
+        [SerializeField] private string taskStateUrl = "http://127.0.0.1:8787/api/state";
 
         private void Start()
         {
@@ -41,6 +48,7 @@ namespace OfficeHub
             BuildMonitors();
             BuildLighting();
             BuildPlants();
+            StartCoroutine(PollTaskState());
         }
 
         private void Update()
@@ -212,19 +220,20 @@ namespace OfficeHub
             Txt("DoneText", "DONE", new Vector3(4.6f, 5.0f, 8.35f), 10, 0.12f, Color.white, FontStyle.Bold);
 
             Cube("UrgentRail", new Vector3(0f, 1.45f, 8.45f), new Vector3(13.4f, 0.12f, 0.05f), NewEmissive(new Color(0.3f, 0.06f, 0.07f), new Color(1f, 0.12f, 0.08f), 0.8f));
-            Txt("WIPCounter", "WIP 07", new Vector3(0f, 1.8f, 8.35f), 10, 0.1f, new Color(0.85f, 0.92f, 1f), FontStyle.Bold);
+            _wipCounterText = Txt("WIPCounter", "WIP 07", new Vector3(0f, 1.8f, 8.35f), 10, 0.1f, new Color(0.85f, 0.92f, 1f), FontStyle.Bold);
             Txt("SLAInfo", "SLA 99.2%", new Vector3(-5.6f, 1.8f, 8.35f), 8, 0.09f, new Color(0.75f, 0.85f, 1f));
             Txt("FlowInfo", "FLOW +12", new Vector3(5.6f, 1.8f, 8.35f), 8, 0.09f, new Color(0.70f, 1f, 0.78f));
             // ROUND_7: board footer telemetry labels
-            Txt("QueueDepth", "QUEUE 23", new Vector3(-5.6f, 1.3f, 8.35f), 8, 0.08f, new Color(0.92f, 0.86f, 0.68f));
-            Txt("Blockers", "BLOCKERS 2", new Vector3(0f, 1.3f, 8.35f), 8, 0.08f, new Color(1f, 0.72f, 0.70f));
-            Txt("Throughput", "THROUGHPUT 19", new Vector3(5.6f, 1.3f, 8.35f), 8, 0.08f, new Color(0.74f, 0.90f, 1f));
+            _queueDepthText = Txt("QueueDepth", "QUEUE 23", new Vector3(-5.6f, 1.3f, 8.35f), 8, 0.08f, new Color(0.92f, 0.86f, 0.68f));
+            _blockersText = Txt("Blockers", "BLOCKERS 2", new Vector3(0f, 1.3f, 8.35f), 8, 0.08f, new Color(1f, 0.72f, 0.70f));
+            _throughputText = Txt("Throughput", "THROUGHPUT 19", new Vector3(5.6f, 1.3f, 8.35f), 8, 0.08f, new Color(0.74f, 0.90f, 1f));
         }
 
         private void MakeCard(float x, float y, Color color, string label)
         {
             Cube($"Card_{x}_{y}", new Vector3(x, y, 8.4f), new Vector3(3.5f, 0.55f, 0.05f), NewMat(color, 0.12f));
-            Txt($"CardTxt_{x}_{y}", label, new Vector3(x, y, 8.34f), 8, 0.09f, Color.white);
+            var tm = Txt($"CardTxt_{x}_{y}", label, new Vector3(x, y, 8.34f), 8, 0.09f, Color.white);
+            _liveTaskLabels.Add(tm);
         }
 
         private void BuildDeskAndProps()
@@ -496,5 +505,61 @@ namespace OfficeHub
             leaf.GetComponent<Renderer>().material = NewMat(new Color(0.15f, 0.35f, 0.10f), 0.2f);
             leaf.transform.SetParent(pot.transform);
         }
+
+        [System.Serializable]
+        private sealed class RuntimeTask
+        {
+            public string title;
+            public string status;
+        }
+
+        [System.Serializable]
+        private sealed class RuntimeState
+        {
+            public List<RuntimeTask> tasks;
+        }
+
+        private System.Collections.IEnumerator PollTaskState()
+        {
+            while (true)
+            {
+                var req = UnityWebRequest.Get(taskStateUrl);
+                req.timeout = 4;
+                yield return req.SendWebRequest();
+
+                if (req.result == UnityWebRequest.Result.Success && !string.IsNullOrWhiteSpace(req.downloadHandler.text))
+                {
+                    var state = JsonUtility.FromJson<RuntimeState>(req.downloadHandler.text);
+                    if (state?.tasks != null && state.tasks.Count > 0)
+                    {
+                        int doing = 0;
+                        int done = 0;
+                        for (int i = 0; i < state.tasks.Count; i++)
+                        {
+                            var st = (state.tasks[i].status ?? string.Empty).ToLowerInvariant();
+                            if (st == "done") done++; else doing++;
+                        }
+
+                        for (int i = 0; i < _liveTaskLabels.Count; i++)
+                        {
+                            var tm = _liveTaskLabels[i];
+                            if (tm == null) continue;
+                            tm.text = i < state.tasks.Count
+                                ? string.IsNullOrWhiteSpace(state.tasks[i].title) ? $"Task {i + 1}" : state.tasks[i].title
+                                : "";
+                        }
+
+                        if (_wipCounterText != null) _wipCounterText.text = $"WIP {doing:00}";
+                        if (_queueDepthText != null) _queueDepthText.text = $"QUEUE {state.tasks.Count:00}";
+                        if (_blockersText != null) _blockersText.text = $"BLOCKERS {Mathf.Max(0, doing - 3)}";
+                        if (_throughputText != null) _throughputText.text = $"THROUGHPUT {done:00}";
+                    }
+                }
+                req.Dispose();
+
+                yield return new WaitForSeconds(3f);
+            }
+        }
+
     }
 }
