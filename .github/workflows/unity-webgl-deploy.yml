@@ -95,6 +95,7 @@ jobs:
           targetPlatform: WebGL
           projectPath: UnityProject
           buildMethod: BuildScript.BuildWebGL
+          versioning: None
       - uses: actions/upload-artifact@v4
         with:
           name: webgl-build
