@@ -74,6 +74,25 @@ app.get('/api/state', async (_req, res) => {
   res.json({ ...state, world: state.world || world });
 });
 
+app.get('/api/ops/health', async (_req, res) => {
+  const state = await readJsonSafe(STATE_PATH, {});
+  const world = await readJsonSafe(WORLD_PATH, { toggles: {}, metrics: {} });
+  const tasks = Array.isArray(state?.taskState?.tasks) ? state.taskState.tasks : [];
+  const active = tasks.filter((t) => t?.status === 'doing').length;
+  const done = tasks.filter((t) => t?.status === 'done').length;
+
+  res.json({
+    ok: true,
+    ts: nowIso(),
+    gatewayUp: Boolean(state?.gatewayUp),
+    cpu: Number(state?.gatewayCpu || 0),
+    load1: Number(state?.load1 || 0),
+    tasks: { active, done, total: tasks.length },
+    toggles: world?.toggles || {},
+    metrics: world?.metrics || {},
+  });
+});
+
 app.post('/api/tasks', async (req, res) => {
   const title = String(req.body?.title || req.body?.text || '').trim();
   if (!title) return res.status(400).json({ ok: false, error: 'title is required' });
