@@ -171,7 +171,8 @@
         const total = Number(t.total || 0);
         const active = Number(t.active || 0);
         const done = Number(t.done || 0);
-        opsTasksEl.textContent = `${active} active / ${done} done / ${total} total`;
+        const recentDone = Number(t.recentDone || 0);
+        opsTasksEl.textContent = `${active} active / ${done} done / ${total} total / recent:${recentDone}`;
       }
     } catch (error) {
       // keep last known values visible; do not hardcode fake runtime values

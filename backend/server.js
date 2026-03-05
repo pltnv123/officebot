@@ -80,6 +80,7 @@ app.get('/api/ops/health', async (_req, res) => {
   const tasks = Array.isArray(state?.taskState?.tasks) ? state.taskState.tasks : [];
   const active = tasks.filter((t) => t?.status === 'doing').length;
   const done = tasks.filter((t) => t?.status === 'done').length;
+  const recentDone = Array.isArray(state?.recentDone) ? state.recentDone.length : 0;
   const stateTs = Date.parse(state?.timestamp || '') || Date.now();
   const stateAgeSec = Math.max(0, Math.floor((Date.now() - stateTs) / 1000));
 
@@ -96,7 +97,7 @@ app.get('/api/ops/health', async (_req, res) => {
     cpu: Number(state?.gatewayCpu || 0),
     load1: Number(state?.load1 || 0),
     stateAgeSec,
-    tasks: { active, done, total: tasks.length },
+    tasks: { active, done, total: tasks.length, recentDone },
     toggles: world?.toggles || {},
     metrics: world?.metrics || {},
   });
