@@ -7,6 +7,8 @@
 - `POST /api/toggles/:id` body: `{ "value": true|false }` (optional)
 - `POST /api/orchestrator/tick` (закрывает текущий `doing` subtask и запускает следующий `todo`)
 - `POST /telegram/webhook` (Telegram update payload)
+  - обычный текст: создаёт новую задачу
+  - `/tick` или `/done`: переводит текущий `doing` subtask в `done` и двигает FSM дальше
 
 ## Run
 ```bash

@@ -118,6 +118,15 @@ app.post('/telegram/webhook', async (req, res) => {
 
   const payload = await readJsonSafe(TASKS_PATH, { tasks: [] });
   payload.tasks = Array.isArray(payload.tasks) ? payload.tasks : [];
+
+  const low = title.toLowerCase();
+  if (low === '/tick' || low === '/done') {
+    const result = tickFirstDoingTask(payload);
+    await writeJson(TASKS_PATH, result.payload);
+    await rebuildState();
+    return res.json({ ok: true, command: low, changed: result.changed, taskId: result.taskId || null });
+  }
+
   const task = taskTemplate(title);
   payload.tasks.unshift(task);
   const normalized = runOrchestrator(payload);
