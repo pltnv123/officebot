@@ -77,7 +77,9 @@ app.get('/api/state', async (_req, res) => {
 app.get('/api/ops/health', async (_req, res) => {
   const state = await readJsonSafe(STATE_PATH, {});
   const world = await readJsonSafe(WORLD_PATH, { toggles: {}, metrics: {} });
-  const tasks = Array.isArray(state?.taskState?.tasks) ? state.taskState.tasks : [];
+  const tasks = Array.isArray(state?.taskState?.tasks)
+    ? state.taskState.tasks
+    : (Array.isArray(state?.tasks) ? state.tasks : []);
   const active = tasks.filter((t) => t?.status === 'doing').length;
   const done = tasks.filter((t) => t?.status === 'done').length;
   const recentDone = Array.isArray(state?.recentDone) ? state.recentDone.length : 0;
