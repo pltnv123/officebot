@@ -203,7 +203,7 @@ namespace OfficeHub
 
         private void SetupMaterials()
         {
-            _floorMat = NewMat(new Color(0.50f, 0.44f, 0.34f), 0.08f); // floor
+            _floorMat = NewMat(new Color(0.54f, 0.48f, 0.38f), 0.08f); // floor
             _tileLineMat = NewMat(new Color(0.38f, 0.33f, 0.26f), 0.05f);
             _leftWallMat = NewMat(new Color(0.08f, 0.09f, 0.13f), 0.08f);
             _backWallMat = NewMat(new Color(0.08f, 0.09f, 0.13f), 0.08f);
@@ -275,7 +275,7 @@ namespace OfficeHub
 
         private void BuildRoom()
         {
-            Cube("Floor", new Vector3(0f, 0f, 0f), new Vector3(22f, 0.1f, 18f), _floorMat);
+            Cube("Floor", new Vector3(0f, -0.05f, 0f), new Vector3(12f, 0.1f, 10f), _floorMat);
 
             for (int i = 0; i < 6; i++)
             {
