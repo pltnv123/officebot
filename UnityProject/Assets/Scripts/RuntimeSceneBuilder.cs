@@ -451,6 +451,21 @@ namespace OfficeHub
                 return null;
             }
 
+            // Normalize suspicious FBX scale so robots stay visible in frame.
+            var ls = go.transform.localScale;
+            if (ls.x < 0.01f || ls.y < 0.01f || ls.z < 0.01f)
+            {
+                go.transform.localScale = Vector3.one;
+            }
+
+            var bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++) bounds.Encapsulate(renderers[i].bounds);
+            if (bounds.size.sqrMagnitude < 0.001f)
+            {
+                Destroy(go);
+                return null;
+            }
+
             foreach (var r in renderers)
             {
                 foreach (var mat in r.materials)
