@@ -766,9 +766,18 @@ namespace OfficeHub
             var fillLt = fillGo.AddComponent<Light>();
             fillLt.type = LightType.Point;
             fillLt.color = new Color(0.45f, 0.55f, 0.90f);
-            fillLt.intensity = 1.2f;
-            fillLt.range = 22f;
+            fillLt.intensity = 1.6f;
+            fillLt.range = 24f;
             fillGo.transform.position = new Vector3(8f, 6f, 0f);
+
+            // Warm front bounce to lift robot faces from shadows
+            var bounceGo = new GameObject("BounceLight");
+            var bounceLt = bounceGo.AddComponent<Light>();
+            bounceLt.type = LightType.Point;
+            bounceLt.color = new Color(1.0f, 0.86f, 0.70f);
+            bounceLt.intensity = 1.35f;
+            bounceLt.range = 16f;
+            bounceGo.transform.position = new Vector3(0f, 3.2f, -3.8f);
         }
 
         private void BuildPlants()
