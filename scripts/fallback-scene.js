@@ -148,16 +148,60 @@ export function launchFallbackScene(canvas) {
 
   const employeeMonitor = new THREE.Mesh(
     new THREE.BoxGeometry(0.7, 0.42, 0.06),
-    new THREE.MeshStandardMaterial({ color: 0x2d3648, roughness: 0.5 })
+    new THREE.MeshStandardMaterial({ color: 0x2d3648, roughness: 0.5, metalness: 0.25 })
   );
   employeeMonitor.position.set(2.8, 1.45, 0.82);
   scene.add(employeeMonitor);
+
+  const employeeMonitorStand = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.03, 0.035, 0.26, 12),
+    new THREE.MeshStandardMaterial({ color: 0x586173, roughness: 0.35, metalness: 0.55 })
+  );
+  employeeMonitorStand.position.set(2.8, 1.23, 0.88);
+  scene.add(employeeMonitorStand);
+
+  const employeeMonitorBase = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.16, 0.18, 0.03, 18),
+    new THREE.MeshStandardMaterial({ color: 0x414a5e, roughness: 0.42, metalness: 0.42 })
+  );
+  employeeMonitorBase.position.set(2.8, 1.1, 0.88);
+  scene.add(employeeMonitorBase);
+
   const employeeScreen = new THREE.Mesh(
     new THREE.PlaneGeometry(0.58, 0.31),
     new THREE.MeshBasicMaterial({ color: 0x9adfff })
   );
   employeeScreen.position.z = 0.04;
   employeeMonitor.add(employeeScreen);
+
+  const keyboard = new THREE.Mesh(
+    new THREE.BoxGeometry(0.48, 0.03, 0.18),
+    new THREE.MeshStandardMaterial({ color: 0x2a2f39, roughness: 0.66 })
+  );
+  keyboard.position.set(2.78, 1.13, 1.22);
+  scene.add(keyboard);
+
+  const mouse = new THREE.Mesh(
+    new THREE.SphereGeometry(0.055, 12, 10),
+    new THREE.MeshStandardMaterial({ color: 0x404754, roughness: 0.58 })
+  );
+  mouse.scale.set(1.0, 0.62, 1.24);
+  mouse.position.set(3.12, 1.14, 1.2);
+  scene.add(mouse);
+
+  const mug = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.065, 0.07, 0.14, 14),
+    new THREE.MeshStandardMaterial({ color: 0xd3dbe8, roughness: 0.45 })
+  );
+  mug.position.set(2.42, 1.18, 1.22);
+  scene.add(mug);
+
+  const mugCoffee = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.052, 0.052, 0.01, 14),
+    new THREE.MeshBasicMaterial({ color: 0x3f2919 })
+  );
+  mugCoffee.position.set(2.42, 1.245, 1.22);
+  scene.add(mugCoffee);
 
   function addPlant(x, z) {
     const pot = new THREE.Mesh(
@@ -238,6 +282,7 @@ export function launchFallbackScene(canvas) {
   function tick(t = 0) {
     const s = t * 0.001;
     screen.material.color.setRGB(0.55 + Math.random() * 0.08, 0.87 + Math.random() * 0.08, 1);
+    employeeScreen.material.color.setRGB(0.49 + Math.sin(s * 3.0) * 0.05, 0.83 + Math.cos(s * 2.4) * 0.04, 1.0);
     bots.forEach((b, i) => {
       b.position.y = Math.sin(s * 2.2 + i) * 0.03;
       b.rotation.z = Math.sin(s * 1.7 + i * 0.8) * 0.03;

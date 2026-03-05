@@ -75,10 +75,10 @@
       "subtasks": [
         {
           "title": "Детализировать стол сотрудника и монитор",
-          "status": "doing",
+          "status": "done",
           "estimate": 40,
-          "actual": 18,
-          "progress": 45
+          "actual": 40,
+          "progress": 100
         },
         {
           "title": "Ассистенты с ролями и бейджами (3+)",
