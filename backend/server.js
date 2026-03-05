@@ -80,6 +80,8 @@ app.get('/api/ops/health', async (_req, res) => {
   const tasks = Array.isArray(state?.taskState?.tasks) ? state.taskState.tasks : [];
   const active = tasks.filter((t) => t?.status === 'doing').length;
   const done = tasks.filter((t) => t?.status === 'done').length;
+  const stateTs = Date.parse(state?.timestamp || '') || Date.now();
+  const stateAgeSec = Math.max(0, Math.floor((Date.now() - stateTs) / 1000));
 
   res.json({
     ok: true,
@@ -87,6 +89,7 @@ app.get('/api/ops/health', async (_req, res) => {
     gatewayUp: Boolean(state?.gatewayUp),
     cpu: Number(state?.gatewayCpu || 0),
     load1: Number(state?.load1 || 0),
+    stateAgeSec,
     tasks: { active, done, total: tasks.length },
     toggles: world?.toggles || {},
     metrics: world?.metrics || {},

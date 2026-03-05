@@ -153,7 +153,9 @@
       cpuEl.textContent = cpu;
       loadEl.textContent = load;
       if (gatewayStateEl) {
-        gatewayStateEl.textContent = payload.gatewayUp ? 'online' : 'offline';
+        const age = Number(payload.stateAgeSec || 0);
+        const ageLabel = Number.isFinite(age) ? ` · ${age}s` : '';
+        gatewayStateEl.textContent = (payload.gatewayUp ? 'online' : 'offline') + ageLabel;
         gatewayStateEl.style.color = payload.gatewayUp ? '#7CFC9A' : '#ff8f8f';
       }
     } catch (error) {
