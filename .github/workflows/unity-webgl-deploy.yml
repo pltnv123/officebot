@@ -141,11 +141,33 @@ jobs:
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
       - name: Deploy Build
         run: |
+          set -euo pipefail
+          echo "Artifact layout:"
+          find webgl -maxdepth 3 -type d | sort
+
+          # Support both layouts:
+          # A) webgl/Build + webgl/TemplateData
+          # B) webgl/WebGL/Build + webgl/WebGL/TemplateData
+          BUILD_SRC=""
+          TPL_SRC=""
+
+          if [ -d webgl/Build ]; then
+            BUILD_SRC="webgl/Build"
+            [ -d webgl/TemplateData ] && TPL_SRC="webgl/TemplateData"
+          elif [ -d webgl/WebGL/Build ]; then
+            BUILD_SRC="webgl/WebGL/Build"
+            [ -d webgl/WebGL/TemplateData ] && TPL_SRC="webgl/WebGL/TemplateData"
+          else
+            echo "ERROR: Build directory not found in artifact"
+            find webgl -maxdepth 4 -type f | head -n 200
+            exit 1
+          fi
+
           # Avoid metadata/mtime permission errors on target dir
           RSYNC_FLAGS="-rlvz --delete --omit-dir-times --no-perms --no-owner --no-group --ignore-errors"
-          rsync $RSYNC_FLAGS webgl/Build/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/office/Build/
-          if [ -d webgl/TemplateData ]; then
-            rsync $RSYNC_FLAGS webgl/TemplateData/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/office/TemplateData/
+          rsync $RSYNC_FLAGS "$BUILD_SRC/" ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/office/Build/
+          if [ -n "$TPL_SRC" ]; then
+            rsync $RSYNC_FLAGS "$TPL_SRC/" ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/office/TemplateData/
           fi
       - name: Smoke check
         run: |
