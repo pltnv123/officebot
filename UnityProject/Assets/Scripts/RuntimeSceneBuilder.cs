@@ -226,11 +226,11 @@ namespace OfficeHub
 
             // Perspective — matches reference image style
             cam.orthographic = false;
-            cam.fieldOfView = 52f;
+            cam.fieldOfView = 58f;
 
             // Position: above and in front, looking into scene
-            cam.transform.position = new Vector3(6f, 10f, -10f);
-            cam.transform.rotation = Quaternion.Euler(38f, -30f, 0f);
+            cam.transform.position = new Vector3(5f, 8f, -12f);
+            cam.transform.rotation = Quaternion.Euler(30f, -25f, 0f);
 
             cam.backgroundColor = new Color(0.04f, 0.05f, 0.08f);
             cam.clearFlags = CameraClearFlags.SolidColor;
@@ -378,15 +378,15 @@ namespace OfficeHub
 
         private void BuildRobots()
         {
-            var worker = BuildRobot(new Vector3(-3.2f, 0f, -0.8f), new Color(0.10f, 0.95f, 0.72f), "WORKER");
+            var worker = BuildRobot(new Vector3(-3.5f, 0f, 1.5f), new Color(0.10f, 0.95f, 0.72f), "WORKER");
             worker.transform.rotation = Quaternion.Euler(0f, 140f, 0f);
             var wArm = worker.transform.Find("ArmLUp");
             if (wArm != null) wArm.localRotation = Quaternion.Euler(-65f, 0f, 35f);
 
-            var planner = BuildRobot(new Vector3(0f, 0f, -1.8f), new Color(0.15f, 0.50f, 1.00f), "PLANNER");
+            var planner = BuildRobot(new Vector3(3.5f, 0f, 1.5f), new Color(0.15f, 0.50f, 1.00f), "PLANNER");
             planner.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
 
-            var reviewer = BuildRobot(new Vector3(3.2f, 0f, -0.8f), new Color(0.10f, 0.95f, 0.72f), "REVIEWER");
+            var reviewer = BuildRobot(new Vector3(3.5f, 0f, 1.5f), new Color(0.10f, 0.95f, 0.72f), "REVIEWER");
             reviewer.transform.rotation = Quaternion.Euler(0f, 220f, 0f);
         }
         private GameObject BuildRobot(Vector3 position, Color eyeColor, string roleName)
@@ -722,7 +722,7 @@ namespace OfficeHub
             var keyLt = keyGo.AddComponent<Light>();
             keyLt.type = LightType.Directional;
             keyLt.color = new Color(1.0f, 0.92f, 0.78f);
-            keyLt.intensity = 1.4f;
+            keyLt.intensity = 1.8f;
             keyLt.shadows = LightShadows.Soft;
             keyGo.transform.rotation = Quaternion.Euler(45f, -45f, 0f);
 
