@@ -203,7 +203,7 @@ namespace OfficeHub
 
         private void SetupMaterials()
         {
-            _floorMat = NewMat(new Color(0.54f, 0.48f, 0.38f), 0.08f); // floor
+            _floorMat = NewMat(new Color(0.50f, 0.44f, 0.34f), 0.08f); // floor
             _tileLineMat = NewMat(new Color(0.38f, 0.33f, 0.26f), 0.05f);
             _leftWallMat = NewMat(new Color(0.08f, 0.09f, 0.13f), 0.08f);
             _backWallMat = NewMat(new Color(0.08f, 0.09f, 0.13f), 0.08f);
@@ -226,11 +226,11 @@ namespace OfficeHub
 
             // Perspective — matches reference image style
             cam.orthographic = false;
-            cam.fieldOfView = 56f;
+            cam.fieldOfView = 52f;
 
             // Position: above and in front, looking into scene
-            cam.transform.position = new Vector3(7f, 9f, -11f);
-            cam.transform.rotation = Quaternion.Euler(33f, -40f, 0f);
+            cam.transform.position = new Vector3(6f, 10f, -10f);
+            cam.transform.rotation = Quaternion.Euler(38f, -30f, 0f);
 
             cam.backgroundColor = new Color(0.04f, 0.05f, 0.08f);
             cam.clearFlags = CameraClearFlags.SolidColor;
@@ -709,7 +709,7 @@ namespace OfficeHub
         private void BuildLighting()
         {
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.60f, 0.55f, 0.45f);
+            RenderSettings.ambientLight = new Color(0.55f, 0.50f, 0.42f);
 
             var old = GameObject.Find("Directional Light");
             if (old != null) Object.DestroyImmediate(old);
