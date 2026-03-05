@@ -37,7 +37,7 @@ runs = j.get('workflow_runs',[]) if isinstance(j, dict) else []
 # pick newest matching run for this sha prefix
 for r in runs:
   if str(r.get('head_sha','')).startswith(s):
-    print(r['id'], r.get('status'), str(r.get('conclusion')))
+    print(r['id'], r.get('status'), str(r.get('conclusion')), r.get('html_url',''))
     break")
 
   if [[ -n "$LINE" ]]; then
