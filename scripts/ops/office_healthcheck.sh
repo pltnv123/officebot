@@ -4,8 +4,20 @@ set -euo pipefail
 STATE_URL="${STATE_URL:-http://5.45.115.12:8787/api/state}"
 BUILD_DIR="${BUILD_DIR:-/var/www/office/Build}"
 
-TASKS=$(curl -s "$STATE_URL" | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('tasks',[])))")
-echo "tasks: $TASKS"
+TASKS=-1
+API_OK=0
+if RAW=$(curl -sS --max-time 10 "$STATE_URL" 2>/dev/null); then
+  if TASKS_PARSED=$(printf '%s' "$RAW" | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('tasks',[])))" 2>/dev/null); then
+    TASKS="$TASKS_PARSED"
+    API_OK=1
+  fi
+fi
+
+if [[ "$API_OK" == "1" ]]; then
+  echo "tasks: $TASKS"
+else
+  echo "tasks: unknown (API_UNREACHABLE)"
+fi
 
 if [[ -f "$BUILD_DIR/WebGL.wasm" ]]; then
   ls -la "$BUILD_DIR/WebGL.wasm"
@@ -45,6 +57,6 @@ fi
 if [[ "$OUTPUT_JSON" == "1" ]]; then
   python3 - <<JSON
 import json
-print(json.dumps({"tasks": int("$TASKS"), "status": "$STATUS", "age_min": int("$AGE_MIN"), "max_age_min": int("$MAX_AGE_MIN"), "artifact": "$ARTIFACT"}))
+print(json.dumps({"tasks": int("$TASKS"), "api_ok": int("$API_OK"), "status": "$STATUS", "age_min": int("$AGE_MIN"), "max_age_min": int("$MAX_AGE_MIN"), "artifact": "$ARTIFACT"}))
 JSON
 fi
