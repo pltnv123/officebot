@@ -229,8 +229,8 @@ namespace OfficeHub
             cam.fieldOfView = 45f;
 
             // Position: above and in front, looking into scene
-            cam.transform.position = new Vector3(6f, 6f, -6f);
-            cam.transform.rotation = Quaternion.Euler(35f, -45f, 0f);
+            cam.transform.position = new Vector3(4f, 6f, -6f);
+            cam.transform.rotation = Quaternion.Euler(32f, -30f, 0f);
 
             cam.backgroundColor = new Color(0.04f, 0.05f, 0.08f);
             cam.clearFlags = CameraClearFlags.SolidColor;
@@ -295,11 +295,11 @@ namespace OfficeHub
         private void BuildTaskBoard()
         {
             // ROUND_3: richer board lanes and progress rail
-            Cube("TaskBoard", new Vector3(0f, 3.5f, 8.7f), new Vector3(14f, 5f, 0.2f), _boardMat);
-            Cube("BoardFrameTop", new Vector3(0f, 6.0f, 8.59f), new Vector3(14.2f, 0.08f, 0.1f), _frameMat);
-            Cube("BoardFrameBottom", new Vector3(0f, 1.0f, 8.59f), new Vector3(14.2f, 0.08f, 0.1f), _frameMat);
-            Cube("BoardFrameLeft", new Vector3(-7.05f, 3.5f, 8.59f), new Vector3(0.08f, 5.0f, 0.1f), _frameMat);
-            Cube("BoardFrameRight", new Vector3(7.05f, 3.5f, 8.59f), new Vector3(0.08f, 5.0f, 0.1f), _frameMat);
+            Cube("TaskBoard", new Vector3(0f, 2.3f, 4.2f), new Vector3(8f, 2f, 0.2f), _boardMat);
+            Cube("BoardFrameTop", new Vector3(0f, 3.35f, 4.09f), new Vector3(8.2f, 0.08f, 0.1f), _frameMat);
+            Cube("BoardFrameBottom", new Vector3(0f, 1.25f, 4.09f), new Vector3(8.2f, 0.08f, 0.1f), _frameMat);
+            Cube("BoardFrameLeft", new Vector3(-4.05f, 2.3f, 4.09f), new Vector3(0.08f, 2.0f, 0.1f), _frameMat);
+            Cube("BoardFrameRight", new Vector3(4.05f, 2.3f, 4.09f), new Vector3(0.08f, 2.0f, 0.1f), _frameMat);
 
             Cube("Divider1", new Vector3(-2.3f, 3.5f, 8.5f), new Vector3(0.08f, 4.5f, 0.1f), _dividerMat);
             Cube("Divider2", new Vector3(2.3f, 3.5f, 8.5f), new Vector3(0.08f, 4.5f, 0.1f), _dividerMat);
@@ -343,11 +343,11 @@ namespace OfficeHub
 
         private void BuildDeskAndProps()
         {
-            Cube("DeskTop", new Vector3(0f, 0.4f, 0f), new Vector3(3.0f, 0.8f, 1.2f), _deskMat);
-            Cube("DeskLeg_FL", new Vector3(-2.3f, 0.3f, 0.6f), new Vector3(0.2f, 0.6f, 0.2f), _legMat);
-            Cube("DeskLeg_FR", new Vector3(2.3f, 0.3f, 0.6f), new Vector3(0.2f, 0.6f, 0.2f), _legMat);
-            Cube("DeskLeg_BL", new Vector3(-2.3f, 0.3f, 3.4f), new Vector3(0.2f, 0.6f, 0.2f), _legMat);
-            Cube("DeskLeg_BR", new Vector3(2.3f, 0.3f, 3.4f), new Vector3(0.2f, 0.6f, 0.2f), _legMat);
+            Cube("DeskTop", new Vector3(0f, 0.76f, 0f), new Vector3(3.0f, 0.06f, 1.2f), _deskMat);
+            Cube("DeskLeg_FL", new Vector3(-1.3f, 0.37f, -0.5f), new Vector3(0.1f, 0.74f, 0.1f), _legMat);
+            Cube("DeskLeg_FR", new Vector3(1.3f, 0.37f, -0.5f), new Vector3(0.1f, 0.74f, 0.1f), _legMat);
+            Cube("DeskLeg_BL", new Vector3(-1.3f, 0.37f, 0.5f), new Vector3(0.1f, 0.74f, 0.1f), _legMat);
+            Cube("DeskLeg_BR", new Vector3(1.3f, 0.37f, 0.5f), new Vector3(0.1f, 0.74f, 0.1f), _legMat);
 
             Vector3[] paperPos = {
                 new(-1.5f,0.69f,1.2f), new(-0.4f,0.69f,1.9f), new(0.9f,0.69f,2.5f),
