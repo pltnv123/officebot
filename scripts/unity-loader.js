@@ -62,10 +62,38 @@
     productVersion: '1.0'
   };
 
+  function forwardEventToUnity(detail) {
+    try {
+      const inst = window.OfficeUnity?.instance;
+      if (!inst || typeof inst.SendMessage !== 'function') return false;
+      const payload = JSON.stringify(detail || {});
+      inst.SendMessage('WebBridge', 'OnWebEvent', payload);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  window.addEventListener('office:api-action', (evt) => {
+    const detail = evt?.detail || {};
+    if (!forwardEventToUnity(detail)) {
+      window.__officeUnityEventQueue = window.__officeUnityEventQueue || [];
+      window.__officeUnityEventQueue.push(detail);
+      if (window.__officeUnityEventQueue.length > 30) window.__officeUnityEventQueue.shift();
+    }
+  });
+
   createUnityInstance(canvas, config, (progress) => {
     setMessage(`Загрузка Unity: ${Math.round(progress * 100)}%`);
   }).then((instance) => {
     window.OfficeUnity = { instance, loadedAt: Date.now() };
+
+    const queue = window.__officeUnityEventQueue || [];
+    while (queue.length) {
+      const msg = queue.shift();
+      forwardEventToUnity(msg);
+    }
+
     setMessage('Unity сцена загружена');
     setTimeout(() => { if (overlay) overlay.style.display = 'none'; }, 1200);
   }).catch(async (error) => {

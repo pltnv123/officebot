@@ -162,6 +162,18 @@
     }
   }
 
+  function emitUnityEvent(type, payload) {
+    try {
+      window.dispatchEvent(new CustomEvent('office:api-action', {
+        detail: {
+          type,
+          payload: payload || {},
+          ts: Date.now(),
+        }
+      }));
+    } catch (_) {}
+  }
+
   function setApiStatus(text, isError = false) {
     if (!apiStatusEl) return;
     apiStatusEl.textContent = text;
@@ -186,9 +198,10 @@
     if (!title) return setApiStatus('API: введите заголовок задачи', true);
     try {
       setApiStatus('API: создаю задачу…');
-      await postJson(API_BASE + '/api/tasks', { title });
+      const out = await postJson(API_BASE + '/api/tasks', { title });
       newTaskInput.value = '';
       setApiStatus('API: задача создана');
+      emitUnityEvent('task-created', { title, taskId: out?.task?.id || null });
       await pollTasks();
     } catch (e) {
       setApiStatus('API: ошибка create task — ' + e.message, true);
@@ -199,8 +212,9 @@
     const id = String(toggleInput?.value || '').trim() || 'lights';
     try {
       setApiStatus('API: переключаю ' + id + '…');
-      await postJson(API_BASE + '/api/toggles/' + encodeURIComponent(id), {});
+      const out = await postJson(API_BASE + '/api/toggles/' + encodeURIComponent(id), {});
       setApiStatus('API: toggle ' + id + ' обновлён');
+      emitUnityEvent('toggle-updated', { id, value: out?.value });
       await pollCpuLoad();
     } catch (e) {
       setApiStatus('API: ошибка toggle — ' + e.message, true);
@@ -213,8 +227,10 @@
       const out = await postJson(API_BASE + '/api/orchestrator/tick', {});
       if (out.changed) {
         setApiStatus('API: шаг закрыт, FSM сдвинут');
+        emitUnityEvent('fsm-tick', { changed: true, taskId: out.taskId || null });
       } else {
         setApiStatus('API: активного шага нет');
+        emitUnityEvent('fsm-tick', { changed: false });
       }
       await pollTasks();
     } catch (e) {
