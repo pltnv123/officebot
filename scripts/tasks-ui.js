@@ -156,7 +156,8 @@
         const age = Number(payload.stateAgeSec || 0);
         const ageLabel = Number.isFinite(age) ? ` · ${age}s` : '';
         const stale = Boolean(payload.stale);
-        gatewayStateEl.textContent = (payload.gatewayUp ? (stale ? 'online(stale)' : 'online') : 'offline') + ageLabel;
+        const mode = String(payload.mode || 'unknown');
+        gatewayStateEl.textContent = (payload.gatewayUp ? (stale ? 'online(stale)' : 'online') : 'offline') + ageLabel + ` · ${mode}`;
         gatewayStateEl.style.color = payload.gatewayUp ? (stale ? '#ffd27f' : '#7CFC9A') : '#ff8f8f';
       }
     } catch (error) {

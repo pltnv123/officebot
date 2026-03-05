@@ -91,6 +91,8 @@ app.get('/api/ops/health', async (_req, res) => {
     ts: nowIso(),
     gatewayUp,
     stale,
+    mode: String(state?.mode || 'unknown'),
+    stateTimestamp: String(state?.timestamp || ''),
     cpu: Number(state?.gatewayCpu || 0),
     load1: Number(state?.load1 || 0),
     stateAgeSec,
