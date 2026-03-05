@@ -379,17 +379,18 @@ namespace OfficeHub
         private void BuildRobots()
         {
             var worker = BuildRobot(new Vector3(-2.5f, 0f, -3.0f), new Color(0.10f, 0.95f, 0.72f), "WORKER");
- if (worker) worker.transform.rotation = Quaternion.Euler(0f, 35f, 0f);
-            worker.transform.rotation = Quaternion.Euler(0f, 35f, 0f);
-            var wArm = worker.transform.Find("ArmLUp");
-            if (wArm != null) wArm.localRotation = Quaternion.Euler(-65f, 0f, 35f);
+            if (worker != null)
+            {
+                worker.transform.rotation = Quaternion.Euler(0f, 35f, 0f);
+                var wArm = worker.transform.Find("ArmLUp");
+                if (wArm != null) wArm.localRotation = Quaternion.Euler(-65f, 0f, 35f);
+            }
 
             var planner = BuildRobot(new Vector3(0f, 0f, -2.5f), new Color(0.15f, 0.50f, 1.00f), "PLANNER");
-            planner.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+            if (planner != null) planner.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
 
             var reviewer = BuildRobot(new Vector3(2.5f, 0f, -3.0f), new Color(0.10f, 0.95f, 0.72f), "REVIEWER");
- if (reviewer) reviewer.transform.rotation = Quaternion.Euler(0f, -40f, 0f);
-            reviewer.transform.rotation = Quaternion.Euler(0f, -40f, 0f);
+            if (reviewer != null) reviewer.transform.rotation = Quaternion.Euler(0f, -40f, 0f);
         }
         private GameObject BuildRobot(Vector3 position, Color eyeColor, string roleName)
         {
