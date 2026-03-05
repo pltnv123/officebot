@@ -378,16 +378,16 @@ namespace OfficeHub
 
         private void BuildRobots()
         {
-            var worker = BuildRobot(new Vector3(-2.5f, 0f, -1.0f), new Color(0.10f, 0.95f, 0.72f), "WORKER");
-            worker.transform.rotation = Quaternion.Euler(0f, 135f, 0f);
+            var worker = BuildRobot(new Vector3(-3.2f, 0f, -0.8f), new Color(0.10f, 0.95f, 0.72f), "WORKER");
+            worker.transform.rotation = Quaternion.Euler(0f, 140f, 0f);
             var wArm = worker.transform.Find("ArmLUp");
             if (wArm != null) wArm.localRotation = Quaternion.Euler(-65f, 0f, 35f);
 
-            var planner = BuildRobot(new Vector3(0f, 0f, -2.5f), new Color(0.15f, 0.50f, 1.00f), "PLANNER");
-            planner.transform.rotation = Quaternion.Euler(0f, 160f, 0f);
+            var planner = BuildRobot(new Vector3(0f, 0f, -1.8f), new Color(0.15f, 0.50f, 1.00f), "PLANNER");
+            planner.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
 
-            var reviewer = BuildRobot(new Vector3(2.5f, 0f, -1.5f), new Color(0.10f, 0.95f, 0.72f), "REVIEWER");
-            reviewer.transform.rotation = Quaternion.Euler(0f, 25f, 0f);
+            var reviewer = BuildRobot(new Vector3(3.2f, 0f, -0.8f), new Color(0.10f, 0.95f, 0.72f), "REVIEWER");
+            reviewer.transform.rotation = Quaternion.Euler(0f, 220f, 0f);
         }
         private GameObject BuildRobot(Vector3 position, Color eyeColor, string roleName)
         {
@@ -440,13 +440,22 @@ namespace OfficeHub
         {
             var prefab = Resources.Load<GameObject>("Models/" + roleName);
             if (prefab == null) return null;
+
             var go = Instantiate(prefab, position, Quaternion.identity);
             go.name = roleName + "_bot";
-            foreach (var r in go.GetComponentsInChildren<Renderer>())
+
+            var renderers = go.GetComponentsInChildren<Renderer>(true);
+            if (renderers == null || renderers.Length == 0)
+            {
+                Destroy(go);
+                return null;
+            }
+
+            foreach (var r in renderers)
             {
                 foreach (var mat in r.materials)
                 {
-                    if (mat.name.Contains("eye"))
+                    if (mat.name.ToLower().Contains("eye"))
                     {
                         mat.EnableKeyword("_EMISSION");
                         mat.SetColor("_EmissionColor", new Color(0.2f, 0.9f, 1.0f) * 10f);
