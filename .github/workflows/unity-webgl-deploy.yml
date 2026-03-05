@@ -45,8 +45,12 @@ jobs:
 
       - name: Install Blender
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y blender python3-numpy
+          set -euo pipefail
+          for i in 1 2 3; do
+            sudo apt-get update -qq && sudo apt-get install -y blender python3-numpy && break
+            echo "apt attempt $i failed, retrying..."
+            sleep 10
+          done
           blender --version
 
       - name: Generate Robot 3D Models
