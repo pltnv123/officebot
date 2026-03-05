@@ -7,7 +7,15 @@
   const tasksDoneEl = document.getElementById('tasks-done');
   const nowDoingEl = document.getElementById('now-doing');
 
-  const API_ENDPOINT = 'http://5.45.115.12:8787/api/state';
+  const API_BASE = 'http://5.45.115.12:8787';
+  const API_ENDPOINT = API_BASE + '/api/state';
+
+  const newTaskInput = document.getElementById('new-task-title');
+  const newTaskBtn = document.getElementById('new-task-btn');
+  const toggleInput = document.getElementById('toggle-id');
+  const toggleBtn = document.getElementById('toggle-btn');
+  const tickBtn = document.getElementById('tick-btn');
+  const apiStatusEl = document.getElementById('api-status');
 
   let lastTasks = [];
   let lastCpuLoad = { cpu: '--', load: '--' };
@@ -153,6 +161,73 @@
       console.error('cpu/load poll failed', error);
     }
   }
+
+  function setApiStatus(text, isError = false) {
+    if (!apiStatusEl) return;
+    apiStatusEl.textContent = text;
+    apiStatusEl.style.color = isError ? '#ff8f8f' : '#b9ffcf';
+  }
+
+  async function postJson(url, body) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body || {}),
+    });
+    const json = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(json?.error || ('HTTP ' + response.status));
+    }
+    return json;
+  }
+
+  async function handleNewTask() {
+    const title = String(newTaskInput?.value || '').trim();
+    if (!title) return setApiStatus('API: введите заголовок задачи', true);
+    try {
+      setApiStatus('API: создаю задачу…');
+      await postJson(API_BASE + '/api/tasks', { title });
+      newTaskInput.value = '';
+      setApiStatus('API: задача создана');
+      await pollTasks();
+    } catch (e) {
+      setApiStatus('API: ошибка create task — ' + e.message, true);
+    }
+  }
+
+  async function handleToggle() {
+    const id = String(toggleInput?.value || '').trim() || 'lights';
+    try {
+      setApiStatus('API: переключаю ' + id + '…');
+      await postJson(API_BASE + '/api/toggles/' + encodeURIComponent(id), {});
+      setApiStatus('API: toggle ' + id + ' обновлён');
+      await pollCpuLoad();
+    } catch (e) {
+      setApiStatus('API: ошибка toggle — ' + e.message, true);
+    }
+  }
+
+  async function handleTick() {
+    try {
+      setApiStatus('API: закрываю текущий шаг…');
+      const out = await postJson(API_BASE + '/api/orchestrator/tick', {});
+      if (out.changed) {
+        setApiStatus('API: шаг закрыт, FSM сдвинут');
+      } else {
+        setApiStatus('API: активного шага нет');
+      }
+      await pollTasks();
+    } catch (e) {
+      setApiStatus('API: ошибка tick — ' + e.message, true);
+    }
+  }
+
+  newTaskBtn?.addEventListener('click', handleNewTask);
+  toggleBtn?.addEventListener('click', handleToggle);
+  tickBtn?.addEventListener('click', handleTick);
+  newTaskInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleNewTask();
+  });
 
   pollTasks();
   pollCpuLoad();
