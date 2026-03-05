@@ -260,7 +260,9 @@ export function launchFallbackScene(canvas) {
   const bots = [];
   const b1 = makeBot(0x71d464, 0xff9b49, 'WORKER', 0xffb26f); b1.position.set(-3.0, 0, -0.2); scene.add(b1); bots.push(b1);
   const b2 = makeBot(0x6ecf68, 0x7db3ff, 'PLANNER', 0x7db3ff); b2.position.set(2.5, 0, 1.2); scene.add(b2); bots.push(b2);
-  const b3 = makeBot(0x7ad06f, 0xffb875, 'REVIEW', 0xff8f8f); b3.position.set(5.2, 0, 2.2); scene.add(b3); bots.push(b3);
+  const b3 = makeBot(0x7ad06f, 0xffb875, 'REVIEWER', 0xff8f8f); b3.position.set(5.2, 0, 2.2); scene.add(b3); bots.push(b3);
+  const b4 = makeBot(0x68c98d, 0xa591ff, 'DEBUG', 0xb9a5ff); b4.position.set(1.6, 0, -0.9); scene.add(b4); bots.push(b4);
+  const b5 = makeBot(0x79d07a, 0x6fd4ff, 'TEST', 0x8fe7ff); b5.position.set(4.4, 0, 0.5); scene.add(b5); bots.push(b5);
 
   const warm = new THREE.PointLight(0xffc78e, 0.65, 9);
   warm.position.set(3.5, 2.2, 2.0);

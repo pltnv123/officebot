@@ -69,8 +69,8 @@
       "title": "Unity сцена: финализация столов, ассистентов и chill-zone",
       "status": "doing",
       "estimate": 120,
-      "actual": 18,
-      "progress": 15,
+      "actual": 80,
+      "progress": 66.7,
       "started_at": 1772546389,
       "subtasks": [
         {
@@ -82,10 +82,10 @@
         },
         {
           "title": "Ассистенты с ролями и бейджами (3+)",
-          "status": "todo",
+          "status": "done",
           "estimate": 40,
-          "actual": 0,
-          "progress": 0
+          "actual": 40,
+          "progress": 100
         },
         {
           "title": "Chill-zone (софа, лампа, растения) финальный вид",
