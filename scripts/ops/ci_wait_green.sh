@@ -45,7 +45,14 @@ for r in runs:
     STATUS=$(awk '{print $2}' <<<"$LINE")
     CONCLUSION=$(awk '{print $3}' <<<"$LINE")
     if [[ "$STATUS" == "completed" ]]; then
-      [[ "$CONCLUSION" == "success" ]] && exit 0 || exit 1
+      if [[ "$CONCLUSION" == "success" ]]; then
+        exit 0
+      elif [[ "$CONCLUSION" == "cancelled" ]]; then
+        echo "run cancelled for $SHA_PREFIX" >&2
+        exit 3
+      else
+        exit 1
+      fi
     fi
   else
     echo "no-run-yet for $SHA_PREFIX"
