@@ -9,6 +9,7 @@
 
   const API_BASE = 'http://5.45.115.12:8787';
   const API_ENDPOINT = API_BASE + '/api/state';
+  const OPS_HEALTH_ENDPOINT = API_BASE + '/api/ops/health';
 
   const newTaskInput = document.getElementById('new-task-title');
   const newTaskBtn = document.getElementById('new-task-btn');
@@ -142,18 +143,14 @@
 
   async function pollCpuLoad() {
     try {
-      const response = await fetch(API_ENDPOINT + '?ts=' + Date.now(), { cache: 'no-store' });
+      const response = await fetch(OPS_HEALTH_ENDPOINT + '?ts=' + Date.now(), { cache: 'no-store' });
       if (!response.ok) throw new Error('api status ' + response.status);
       const payload = await response.json();
-      const cpu = Number(payload.gatewayCpu || 0).toFixed(2) + '%';
+      const cpu = Number(payload.cpu || 0).toFixed(2) + '%';
       const load = Number(payload.load1 || 0).toFixed(2);
       lastCpuLoad = { cpu, load };
       cpuEl.textContent = cpu;
       loadEl.textContent = load;
-      if (Array.isArray(payload.taskState?.tasks) && payload.taskState.tasks.length) {
-        lastTasks = payload.taskState.tasks;
-        renderTasks(lastTasks);
-      }
     } catch (error) {
       // keep last known values visible; do not hardcode fake runtime values
       cpuEl.textContent = lastCpuLoad.cpu;
