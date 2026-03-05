@@ -343,7 +343,7 @@ namespace OfficeHub
 
         private void BuildDeskAndProps()
         {
-            Cube("DeskTop", new Vector3(0f, 0.6f, 0f), new Vector3(5f, 0.15f, 3f), _deskMat);
+            Cube("DeskTop", new Vector3(0f, 0.4f, 0f), new Vector3(3.0f, 0.8f, 1.2f), _deskMat);
             Cube("DeskLeg_FL", new Vector3(-2.3f, 0.3f, 0.6f), new Vector3(0.2f, 0.6f, 0.2f), _legMat);
             Cube("DeskLeg_FR", new Vector3(2.3f, 0.3f, 0.6f), new Vector3(0.2f, 0.6f, 0.2f), _legMat);
             Cube("DeskLeg_BL", new Vector3(-2.3f, 0.3f, 3.4f), new Vector3(0.2f, 0.6f, 0.2f), _legMat);
@@ -379,6 +379,7 @@ namespace OfficeHub
         private void BuildRobots()
         {
             var worker = BuildRobot(new Vector3(-2.2f, 0f, 1.3f), new Color(0.10f, 0.95f, 0.72f), "WORKER");
+ if (worker) worker.transform.rotation = Quaternion.Euler(0f, 35f, 0f);
             worker.transform.rotation = Quaternion.Euler(0f, 35f, 0f);
             var wArm = worker.transform.Find("ArmLUp");
             if (wArm != null) wArm.localRotation = Quaternion.Euler(-65f, 0f, 35f);
@@ -387,6 +388,7 @@ namespace OfficeHub
             planner.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
 
             var reviewer = BuildRobot(new Vector3(2.4f, 0f, 1.1f), new Color(0.10f, 0.95f, 0.72f), "REVIEWER");
+ if (reviewer) reviewer.transform.rotation = Quaternion.Euler(0f, -40f, 0f);
             reviewer.transform.rotation = Quaternion.Euler(0f, -40f, 0f);
         }
         private GameObject BuildRobot(Vector3 position, Color eyeColor, string roleName)
@@ -627,7 +629,7 @@ namespace OfficeHub
             antTip.transform.localScale = Vector3.one * 0.07f;
             antTip.GetComponent<Renderer>().material = EmissiveMat(eyeColor * 0.5f, 10.0f);
 
-            root.transform.localScale = Vector3.one * 2.0f;
+            root.transform.localScale = Vector3.one * 1.8f;
             _eyePulseMats.Add(eyeMat);
             _eyePulseMats.Add(eyeMat);
             _robotTransforms.Add(root.transform);
@@ -748,7 +750,7 @@ namespace OfficeHub
             deskLt.color = new Color(1.0f, 0.80f, 0.45f);
             deskLt.intensity = 5.0f;
             deskLt.range = 10f;
-            deskGo.transform.position = new Vector3(0f, 4f, 0f);
+            deskGo.transform.position = new Vector3(0f, 2.3f, 4.2f);
 
             // Board spotlight
             var boardGo = new GameObject("BoardSpot");
