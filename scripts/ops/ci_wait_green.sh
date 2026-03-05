@@ -48,8 +48,8 @@ for r in runs:
       if [[ "$CONCLUSION" == "success" ]]; then
         exit 0
       elif [[ "$CONCLUSION" == "cancelled" ]]; then
-        echo "run cancelled for $SHA_PREFIX" >&2
-        exit 3
+        # superseded run; keep waiting for the next run on same SHA prefix
+        echo "run cancelled for $SHA_PREFIX; waiting for next run" >&2
       else
         exit 1
       fi
