@@ -724,7 +724,7 @@ namespace OfficeHub
         private void BuildLighting()
         {
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.55f, 0.50f, 0.42f);
+            RenderSettings.ambientLight = new Color(0.75f, 0.70f, 0.60f);
 
             var old = GameObject.Find("Directional Light");
             if (old != null) Object.DestroyImmediate(old);
