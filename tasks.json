@@ -67,11 +67,12 @@
     {
       "id": "PLAN-003",
       "title": "Unity сцена: финализация столов, ассистентов и chill-zone",
-      "status": "doing",
+      "status": "done",
       "estimate": 120,
-      "actual": 80,
-      "progress": 66.7,
+      "actual": 120,
+      "progress": 100,
       "started_at": 1772546389,
+      "completed_at": 1772688521,
       "subtasks": [
         {
           "title": "Детализировать стол сотрудника и монитор",
@@ -89,10 +90,10 @@
         },
         {
           "title": "Chill-zone (софа, лампа, растения) финальный вид",
-          "status": "todo",
+          "status": "done",
           "estimate": 40,
-          "actual": 0,
-          "progress": 0
+          "actual": 40,
+          "progress": 100
         }
       ]
     }

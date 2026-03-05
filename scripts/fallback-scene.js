@@ -139,6 +139,54 @@ export function launchFallbackScene(canvas) {
   sofa.position.set(3.6, 0.3, 2.2);
   scene.add(sofa);
 
+  const sofaBack = new THREE.Mesh(
+    new THREE.BoxGeometry(3.0, 0.55, 0.2),
+    new THREE.MeshStandardMaterial({ color: 0x6270a0, roughness: 0.84 })
+  );
+  sofaBack.position.set(3.6, 0.65, 1.66);
+  scene.add(sofaBack);
+
+  const pillow1 = new THREE.Mesh(
+    new THREE.BoxGeometry(0.55, 0.22, 0.45),
+    new THREE.MeshStandardMaterial({ color: 0xe0bf8e, roughness: 0.9 })
+  );
+  pillow1.position.set(2.85, 0.62, 2.15);
+  scene.add(pillow1);
+
+  const pillow2 = new THREE.Mesh(
+    new THREE.BoxGeometry(0.5, 0.2, 0.42),
+    new THREE.MeshStandardMaterial({ color: 0x98b2da, roughness: 0.9 })
+  );
+  pillow2.position.set(4.25, 0.61, 2.23);
+  scene.add(pillow2);
+
+  const rug = new THREE.Mesh(
+    new THREE.PlaneGeometry(3.6, 2.3),
+    new THREE.MeshStandardMaterial({ color: 0x5e4b6f, roughness: 0.95, metalness: 0.0 })
+  );
+  rug.rotation.x = -Math.PI / 2;
+  rug.position.set(3.8, 0.01, 2.25);
+  scene.add(rug);
+
+  const floorLampStand = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.04, 0.04, 1.8, 12),
+    new THREE.MeshStandardMaterial({ color: 0x555b66, roughness: 0.42, metalness: 0.55 })
+  );
+  floorLampStand.position.set(5.9, 0.92, 2.8);
+  scene.add(floorLampStand);
+
+  const floorLampShade = new THREE.Mesh(
+    new THREE.ConeGeometry(0.28, 0.45, 18),
+    new THREE.MeshStandardMaterial({ color: 0xf1dfbd, roughness: 0.74, emissive: 0x2a1b08, emissiveIntensity: 0.28 })
+  );
+  floorLampShade.position.set(5.9, 1.95, 2.8);
+  floorLampShade.rotation.x = Math.PI;
+  scene.add(floorLampShade);
+
+  const floorLampLight = new THREE.PointLight(0xffd39a, 0.72, 8.5);
+  floorLampLight.position.set(5.9, 1.75, 2.8);
+  scene.add(floorLampLight);
+
   const employeeDesk = new THREE.Mesh(
     new THREE.BoxGeometry(2.2, 0.22, 1.0),
     new THREE.MeshStandardMaterial({ color: 0x8b6046, roughness: 0.84 })
@@ -219,6 +267,7 @@ export function launchFallbackScene(canvas) {
   }
   addPlant(-1.0, 3.9);
   addPlant(6.2, -0.8);
+  addPlant(5.8, 3.55);
 
   function makeBadge(text, color = 0x9cc2ff){
     const c = document.createElement('canvas');
