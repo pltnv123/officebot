@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs/promises');
 const path = require('path');
 const { spawn } = require('child_process');
+const { runOrchestrator, tickFirstDoingTask } = require('./taskOrchestrator');
 
 const app = express();
 app.use((req, res, next) => {
@@ -81,7 +82,8 @@ app.post('/api/tasks', async (req, res) => {
   payload.tasks = Array.isArray(payload.tasks) ? payload.tasks : [];
   const task = taskTemplate(title);
   payload.tasks.unshift(task);
-  await writeJson(TASKS_PATH, payload);
+  const normalized = runOrchestrator(payload);
+  await writeJson(TASKS_PATH, normalized);
   await rebuildState();
 
   res.status(201).json({ ok: true, task });
@@ -101,6 +103,14 @@ app.post('/api/toggles/:id', async (req, res) => {
   res.json({ ok: true, id, value, world });
 });
 
+app.post('/api/orchestrator/tick', async (_req, res) => {
+  const payload = await readJsonSafe(TASKS_PATH, { tasks: [] });
+  const result = tickFirstDoingTask(payload);
+  await writeJson(TASKS_PATH, result.payload);
+  await rebuildState();
+  res.json({ ok: true, changed: result.changed, reason: result.reason || null, taskId: result.taskId || null });
+});
+
 app.post('/telegram/webhook', async (req, res) => {
   const msg = req.body?.message?.text || req.body?.edited_message?.text || '';
   const title = String(msg).trim();
@@ -110,7 +120,8 @@ app.post('/telegram/webhook', async (req, res) => {
   payload.tasks = Array.isArray(payload.tasks) ? payload.tasks : [];
   const task = taskTemplate(title);
   payload.tasks.unshift(task);
-  await writeJson(TASKS_PATH, payload);
+  const normalized = runOrchestrator(payload);
+  await writeJson(TASKS_PATH, normalized);
   await rebuildState();
 
   res.json({ ok: true, createdTaskId: task.id });
