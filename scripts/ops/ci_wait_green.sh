@@ -17,7 +17,7 @@ START=$(date +%s)
 
 while true; do
   RESP=$(curl -s -H "Authorization: token $TOKEN" -H "Accept: application/vnd.github.v3+json" \
-    "https://api.github.com/repos/$REPO/actions/runs?per_page=30" || true)
+    "https://api.github.com/repos/$REPO/actions/runs?per_page=100" || true)
 
   LINE=$(printf '%s' "$RESP" | python3 -c "import sys,json
 s='$SHA_PREFIX'
@@ -30,9 +30,14 @@ try:
 except Exception:
   print('')
   raise SystemExit(0)
-for r in j.get('workflow_runs',[]):
-  if r.get('head_sha','').startswith(s):
-    print(r['id'], r['status'], str(r.get('conclusion')))
+if isinstance(j, dict) and j.get('message'):
+  print('')
+  raise SystemExit(0)
+runs = j.get('workflow_runs',[]) if isinstance(j, dict) else []
+# pick newest matching run for this sha prefix
+for r in runs:
+  if str(r.get('head_sha','')).startswith(s):
+    print(r['id'], r.get('status'), str(r.get('conclusion')))
     break")
 
   if [[ -n "$LINE" ]]; then
@@ -43,7 +48,7 @@ for r in j.get('workflow_runs',[]):
       [[ "$CONCLUSION" == "success" ]] && exit 0 || exit 1
     fi
   else
-    echo "no-run-yet/temporary-api-parse-issue for $SHA_PREFIX"
+    echo "no-run-yet for $SHA_PREFIX"
   fi
 
   NOW=$(date +%s)
