@@ -6,6 +6,7 @@
   const tasksActiveEl = document.getElementById('tasks-active');
   const tasksDoneEl = document.getElementById('tasks-done');
   const nowDoingEl = document.getElementById('now-doing');
+  const gatewayStateEl = document.getElementById('gateway-state');
 
   const API_BASE = 'http://5.45.115.12:8787';
   const API_ENDPOINT = API_BASE + '/api/state';
@@ -151,10 +152,18 @@
       lastCpuLoad = { cpu, load };
       cpuEl.textContent = cpu;
       loadEl.textContent = load;
+      if (gatewayStateEl) {
+        gatewayStateEl.textContent = payload.gatewayUp ? 'online' : 'offline';
+        gatewayStateEl.style.color = payload.gatewayUp ? '#7CFC9A' : '#ff8f8f';
+      }
     } catch (error) {
       // keep last known values visible; do not hardcode fake runtime values
       cpuEl.textContent = lastCpuLoad.cpu;
       loadEl.textContent = lastCpuLoad.load;
+      if (gatewayStateEl) {
+        gatewayStateEl.textContent = 'unknown';
+        gatewayStateEl.style.color = '#ffd27f';
+      }
       console.error('cpu/load poll failed', error);
     }
   }
