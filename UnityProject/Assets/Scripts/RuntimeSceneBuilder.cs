@@ -229,8 +229,8 @@ namespace OfficeHub
             cam.fieldOfView = 45f;
 
             // Position: above and in front, looking into scene
-            cam.transform.position = new Vector3(0f, 5.6f, -6.8f);
-            cam.transform.rotation = Quaternion.Euler(32f, 0f, 0f);
+            cam.transform.position = new Vector3(0f, 7f, -8f);
+            cam.transform.rotation = Quaternion.Euler(38f, 0f, 0f);
 
             cam.backgroundColor = new Color(0.04f, 0.05f, 0.08f);
             cam.clearFlags = CameraClearFlags.SolidColor;
@@ -378,16 +378,16 @@ namespace OfficeHub
 
         private void BuildRobots()
         {
-            var worker = BuildRobot(new Vector3(-2.5f, 0f, -1.0f), new Color(0.10f, 0.95f, 0.72f), "WORKER");
+            var worker = BuildRobot(new Vector3(-2.2f, 0f, 1.3f), new Color(0.10f, 0.95f, 0.72f), "WORKER");
  if (worker) worker.transform.rotation = Quaternion.Euler(0f, 35f, 0f);
             worker.transform.rotation = Quaternion.Euler(0f, 35f, 0f);
             var wArm = worker.transform.Find("ArmLUp");
             if (wArm != null) wArm.localRotation = Quaternion.Euler(-65f, 0f, 35f);
 
-            var planner = BuildRobot(new Vector3(0f, 0f, -2.0f), new Color(0.15f, 0.50f, 1.00f), "PLANNER");
+            var planner = BuildRobot(new Vector3(0f, 0f, -0.7f), new Color(0.15f, 0.50f, 1.00f), "PLANNER");
             planner.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
 
-            var reviewer = BuildRobot(new Vector3(2.5f, 0f, -1.0f), new Color(0.10f, 0.95f, 0.72f), "REVIEWER");
+            var reviewer = BuildRobot(new Vector3(2.4f, 0f, 1.1f), new Color(0.10f, 0.95f, 0.72f), "REVIEWER");
  if (reviewer) reviewer.transform.rotation = Quaternion.Euler(0f, -40f, 0f);
             reviewer.transform.rotation = Quaternion.Euler(0f, -40f, 0f);
         }
@@ -629,7 +629,7 @@ namespace OfficeHub
             antTip.transform.localScale = Vector3.one * 0.07f;
             antTip.GetComponent<Renderer>().material = EmissiveMat(eyeColor * 0.5f, 10.0f);
 
-            root.transform.localScale = Vector3.one * 0.7f;
+            root.transform.localScale = Vector3.one * 1.0f;
             _eyePulseMats.Add(eyeMat);
             _eyePulseMats.Add(eyeMat);
             _robotTransforms.Add(root.transform);
@@ -726,7 +726,7 @@ namespace OfficeHub
         private void BuildLighting()
         {
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.95f, 0.90f, 0.80f);
+            RenderSettings.ambientLight = new Color(1.0f, 0.95f, 0.85f);
 
             var old = GameObject.Find("Directional Light");
             if (old != null) Object.DestroyImmediate(old);
