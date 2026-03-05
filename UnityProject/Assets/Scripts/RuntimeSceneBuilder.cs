@@ -391,7 +391,7 @@ namespace OfficeHub
         }
         private GameObject BuildRobot(Vector3 position, Color eyeColor, string roleName)
         {
-            var root = TryLoadFbxRobot(position, roleName) ?? BuildRobotFromPrimitives(position, eyeColor, roleName);
+            var root = BuildRobotFromPrimitives(position, eyeColor, roleName);
 
             EnsureEyeGlowLight(root, eyeColor);
 
