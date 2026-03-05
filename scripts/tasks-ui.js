@@ -156,7 +156,8 @@
       loadEl.textContent = load;
       if (gatewayStateEl) {
         const age = Number(payload.stateAgeSec || 0);
-        const ageLabel = Number.isFinite(age) ? ` · ${age}s` : '';
+        const humanAge = String(payload.stateAgeHuman || '').trim();
+        const ageLabel = humanAge ? ` · ${humanAge}` : (Number.isFinite(age) ? ` · ${age}s` : '');
         const stale = Boolean(payload.stale);
         const mode = String(payload.mode || 'unknown');
         gatewayStateEl.textContent = (payload.gatewayUp ? (stale ? 'online(stale)' : 'online') : 'offline') + ageLabel + ` · ${mode}`;

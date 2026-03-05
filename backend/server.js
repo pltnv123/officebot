@@ -83,6 +83,9 @@ app.get('/api/ops/health', async (_req, res) => {
   const recentDone = Array.isArray(state?.recentDone) ? state.recentDone.length : 0;
   const stateTs = Date.parse(state?.timestamp || '') || Date.now();
   const stateAgeSec = Math.max(0, Math.floor((Date.now() - stateTs) / 1000));
+  const stateAgeHuman = stateAgeSec < 60
+    ? `${stateAgeSec}s`
+    : `${Math.floor(stateAgeSec / 60)}m ${stateAgeSec % 60}s`;
 
   const gatewayUp = Boolean(state?.gatewayUp);
   const stale = stateAgeSec > 120;
@@ -97,6 +100,7 @@ app.get('/api/ops/health', async (_req, res) => {
     cpu: Number(state?.gatewayCpu || 0),
     load1: Number(state?.load1 || 0),
     stateAgeSec,
+    stateAgeHuman,
     tasks: { active, done, total: tasks.length, recentDone },
     toggles: world?.toggles || {},
     metrics: world?.metrics || {},
