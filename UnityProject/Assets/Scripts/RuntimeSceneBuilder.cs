@@ -226,11 +226,11 @@ namespace OfficeHub
 
             // Perspective — matches reference image style
             cam.orthographic = false;
-            cam.fieldOfView = 52f;
+            cam.fieldOfView = 45f;
 
             // Position: above and in front, looking into scene
-            cam.transform.position = new Vector3(6f, 10f, -10f);
-            cam.transform.rotation = Quaternion.Euler(38f, -30f, 0f);
+            cam.transform.position = new Vector3(0f, 5.6f, -6.8f);
+            cam.transform.rotation = Quaternion.Euler(32f, 0f, 0f);
 
             cam.backgroundColor = new Color(0.04f, 0.05f, 0.08f);
             cam.clearFlags = CameraClearFlags.SolidColor;
@@ -343,7 +343,7 @@ namespace OfficeHub
 
         private void BuildDeskAndProps()
         {
-            Cube("DeskTop", new Vector3(0f, 0.6f, 2f), new Vector3(5f, 0.15f, 3f), _deskMat);
+            Cube("DeskTop", new Vector3(0f, 0.6f, 0f), new Vector3(5f, 0.15f, 3f), _deskMat);
             Cube("DeskLeg_FL", new Vector3(-2.3f, 0.3f, 0.6f), new Vector3(0.2f, 0.6f, 0.2f), _legMat);
             Cube("DeskLeg_FR", new Vector3(2.3f, 0.3f, 0.6f), new Vector3(0.2f, 0.6f, 0.2f), _legMat);
             Cube("DeskLeg_BL", new Vector3(-2.3f, 0.3f, 3.4f), new Vector3(0.2f, 0.6f, 0.2f), _legMat);
@@ -378,15 +378,15 @@ namespace OfficeHub
 
         private void BuildRobots()
         {
-            var worker = BuildRobot(new Vector3(-2.5f, 0f, 1f), new Color(0.10f, 0.95f, 0.72f), "WORKER");
+            var worker = BuildRobot(new Vector3(-2.2f, 0f, 1.3f), new Color(0.10f, 0.95f, 0.72f), "WORKER");
             worker.transform.rotation = Quaternion.Euler(0f, 140f, 0f);
             var wArm = worker.transform.Find("ArmLUp");
             if (wArm != null) wArm.localRotation = Quaternion.Euler(-65f, 0f, 35f);
 
-            var planner = BuildRobot(new Vector3(0f, 0f, 0f), new Color(0.15f, 0.50f, 1.00f), "PLANNER");
+            var planner = BuildRobot(new Vector3(0f, 0f, -0.7f), new Color(0.15f, 0.50f, 1.00f), "PLANNER");
             planner.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
 
-            var reviewer = BuildRobot(new Vector3(2.5f, 0f, 1f), new Color(0.10f, 0.95f, 0.72f), "REVIEWER");
+            var reviewer = BuildRobot(new Vector3(2.4f, 0f, 1.1f), new Color(0.10f, 0.95f, 0.72f), "REVIEWER");
             reviewer.transform.rotation = Quaternion.Euler(0f, 220f, 0f);
         }
         private GameObject BuildRobot(Vector3 position, Color eyeColor, string roleName)
@@ -627,7 +627,7 @@ namespace OfficeHub
             antTip.transform.localScale = Vector3.one * 0.07f;
             antTip.GetComponent<Renderer>().material = EmissiveMat(eyeColor * 0.5f, 10.0f);
 
-            root.transform.localScale = Vector3.one * 3.0f;
+            root.transform.localScale = Vector3.one * 2.0f;
             _eyePulseMats.Add(eyeMat);
             _eyePulseMats.Add(eyeMat);
             _robotTransforms.Add(root.transform);
