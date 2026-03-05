@@ -50,3 +50,15 @@ curl -s http://localhost:8787/api/state | head
 
 ## Быстрый smoke-test fallback
 Останови backend и обнови страницу. UI должен продолжить отрисовку через `state.json`.
+
+## CI/Deploy quick notes
+- Основной workflow: `.github/workflows/unity-webgl-deploy.yml`
+- Ожидание зелёной сборки локально:
+```bash
+bash scripts/ops/ci_wait_green.sh <sha-prefix>
+```
+- Если run cancelled, `ci_wait_green.sh` продолжает ждать следующий run для того же SHA-prefix.
+- Для health-check перед циклом:
+```bash
+bash scripts/ops/office_healthcheck.sh
+```
