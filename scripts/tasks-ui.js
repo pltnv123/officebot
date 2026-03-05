@@ -155,8 +155,9 @@
       if (gatewayStateEl) {
         const age = Number(payload.stateAgeSec || 0);
         const ageLabel = Number.isFinite(age) ? ` · ${age}s` : '';
-        gatewayStateEl.textContent = (payload.gatewayUp ? 'online' : 'offline') + ageLabel;
-        gatewayStateEl.style.color = payload.gatewayUp ? '#7CFC9A' : '#ff8f8f';
+        const stale = Boolean(payload.stale);
+        gatewayStateEl.textContent = (payload.gatewayUp ? (stale ? 'online(stale)' : 'online') : 'offline') + ageLabel;
+        gatewayStateEl.style.color = payload.gatewayUp ? (stale ? '#ffd27f' : '#7CFC9A') : '#ff8f8f';
       }
     } catch (error) {
       // keep last known values visible; do not hardcode fake runtime values

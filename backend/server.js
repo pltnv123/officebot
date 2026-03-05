@@ -83,10 +83,14 @@ app.get('/api/ops/health', async (_req, res) => {
   const stateTs = Date.parse(state?.timestamp || '') || Date.now();
   const stateAgeSec = Math.max(0, Math.floor((Date.now() - stateTs) / 1000));
 
+  const gatewayUp = Boolean(state?.gatewayUp);
+  const stale = stateAgeSec > 120;
+
   res.json({
     ok: true,
     ts: nowIso(),
-    gatewayUp: Boolean(state?.gatewayUp),
+    gatewayUp,
+    stale,
     cpu: Number(state?.gatewayCpu || 0),
     load1: Number(state?.load1 || 0),
     stateAgeSec,
