@@ -229,8 +229,8 @@ namespace OfficeHub
             cam.fieldOfView = 45f;
 
             // Position: above and in front, looking into scene
-            cam.transform.position = new Vector3(0f, 5.6f, -6.8f);
-            cam.transform.rotation = Quaternion.Euler(32f, 0f, 0f);
+            cam.transform.position = new Vector3(6f, 6f, -6f);
+            cam.transform.rotation = Quaternion.Euler(35f, -45f, 0f);
 
             cam.backgroundColor = new Color(0.04f, 0.05f, 0.08f);
             cam.clearFlags = CameraClearFlags.SolidColor;
@@ -629,7 +629,7 @@ namespace OfficeHub
             antTip.transform.localScale = Vector3.one * 0.07f;
             antTip.GetComponent<Renderer>().material = EmissiveMat(eyeColor * 0.5f, 10.0f);
 
-            root.transform.localScale = Vector3.one * 1.8f;
+            root.transform.localScale = Vector3.one * 1.4f;
             _eyePulseMats.Add(eyeMat);
             _eyePulseMats.Add(eyeMat);
             _robotTransforms.Add(root.transform);
@@ -726,7 +726,7 @@ namespace OfficeHub
         private void BuildLighting()
         {
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.75f, 0.70f, 0.60f);
+            RenderSettings.ambientLight = new Color(0.85f, 0.80f, 0.70f);
 
             var old = GameObject.Find("Directional Light");
             if (old != null) Object.DestroyImmediate(old);
