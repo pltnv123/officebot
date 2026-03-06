@@ -229,8 +229,8 @@ namespace OfficeHub
             cam.fieldOfView = 60f;
 
             // Position: above and in front, looking into scene
-            cam.transform.position = new Vector3(0f, 6f, -8f);
-            cam.transform.rotation = Quaternion.Euler(30f, 0f, 0f);
+            cam.transform.position = new Vector3(0f, 5.6f, -6.8f);
+            cam.transform.rotation = Quaternion.Euler(32f, 0f, 0f);
 
             cam.backgroundColor = new Color(0.04f, 0.05f, 0.08f);
             cam.clearFlags = CameraClearFlags.SolidColor;
@@ -378,7 +378,7 @@ namespace OfficeHub
 
         private void BuildRobots()
         {
-            var worker = BuildRobot(new Vector3(-2.5f, 0f, -3.0f), new Color(0.10f, 0.95f, 0.72f), "WORKER");
+            var worker = BuildRobot(new Vector3(-2.5f, 0f, -3.5f), new Color(0.10f, 0.95f, 0.72f), "WORKER");
             if (worker != null)
             {
                 worker.transform.rotation = Quaternion.Euler(0f, 35f, 0f);
@@ -386,10 +386,10 @@ namespace OfficeHub
                 if (wArm != null) wArm.localRotation = Quaternion.Euler(-65f, 0f, 35f);
             }
 
-            var planner = BuildRobot(new Vector3(0f, 0f, -2.5f), new Color(0.15f, 0.50f, 1.00f), "PLANNER");
+            var planner = BuildRobot(new Vector3(0f, 0f, -3.0f), new Color(0.15f, 0.50f, 1.00f), "PLANNER");
             if (planner != null) planner.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
 
-            var reviewer = BuildRobot(new Vector3(2.5f, 0f, -3.0f), new Color(0.10f, 0.95f, 0.72f), "REVIEWER");
+            var reviewer = BuildRobot(new Vector3(2.5f, 0f, -3.5f), new Color(0.10f, 0.95f, 0.72f), "REVIEWER");
             if (reviewer != null) reviewer.transform.rotation = Quaternion.Euler(0f, -40f, 0f);
         }
         private GameObject BuildRobot(Vector3 position, Color eyeColor, string roleName)
