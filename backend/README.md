@@ -5,7 +5,7 @@
 - `GET /api/state`
 - `GET /api/ops/health`
   - Возвращает сводку по runtime:
-    - `gatewayUp`, `mode`, `stateTimestamp`
+    - `gatewayUp`, `mode`, `stateTimestamp`, `stateUrl`
     - `cpu`, `load1`
     - `stateAgeSec`, `stateAgeHuman`, `stale`
     - `tasks.active|done|total|recentDone`
