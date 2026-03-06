@@ -75,10 +75,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  {
  var cam = Camera.main; if (cam == null) return;
  cam.orthographic = false;
- cam.fieldOfView = 48f;
- // Offset left and rotate right to see all 3 robots
- cam.transform.position = new Vector3(0f, 5.6f, -6.8f);
- cam.transform.rotation = Quaternion.Euler(35f, 15f, 0f);
+ cam.fieldOfView = 45f;
+ // Slight X offset to keep Worker in frame while matching reference pitch
+ cam.transform.position = new Vector3(-0.8f, 5.6f, -6.8f);
+ cam.transform.rotation = Quaternion.Euler(32f, 0f, 0f);
  cam.backgroundColor = new Color(0.04f, 0.04f, 0.07f);
  cam.clearFlags = CameraClearFlags.SolidColor;
  cam.nearClipPlane = 0.3f;
