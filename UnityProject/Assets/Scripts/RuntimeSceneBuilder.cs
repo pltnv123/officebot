@@ -378,6 +378,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  L("Rim", LightType.Point, new Color(1.00f,0.82f,0.52f),2.8f,22f,
  LightShadows.None, new Vector3(0f,5f,7f));
 
+ // VIZ-002 target: warm white point light for overall scene brightness
+ L("WarmFill", LightType.Point, new Color(1.00f, 0.95f, 0.85f), 3.0f, 20f,
+ LightShadows.None, new Vector3(0f, 4f, -3f));
+
  // ROBOT FRONT — dedicated bright fill so robot faces glow
  // Positioned at camera-side to light all 3 robot faces
  L("RobotFront",LightType.Point, new Color(1.00f,0.96f,0.88f),6.0f,18f,
