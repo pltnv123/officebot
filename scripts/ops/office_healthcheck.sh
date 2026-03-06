@@ -40,8 +40,11 @@ else
   echo "tasks: unknown (API_UNREACHABLE${API_NOTE:+:$API_NOTE})"
 fi
 
+HOSTNAME_VAL="$(hostname 2>/dev/null || echo unknown)"
+
 echo "state_url: $STATE_URL"
 echo "alt_state_url: $ALT_STATE_URL"
+echo "host: $HOSTNAME_VAL"
 echo "checked_at_utc: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 if [[ -f "$BUILD_DIR/WebGL.wasm" ]]; then
@@ -84,6 +87,6 @@ fi
 if [[ "$OUTPUT_JSON" == "1" ]]; then
   python3 - <<JSON
 import json
-print(json.dumps({"tasks": int("$TASKS"), "api_ok": int("$API_OK"), "api_source": "$API_SOURCE", "api_note": "$API_NOTE", "state_url": "$STATE_URL", "alt_state_url": "$ALT_STATE_URL", "status": "$STATUS", "age_min": int("$AGE_MIN"), "age_sec": int("$AGE_SEC"), "max_age_min": int("$MAX_AGE_MIN"), "build_dir": "$BUILD_DIR", "artifact": "$ARTIFACT", "artifact_mtime": int("$ART_MTIME"), "checked_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"}))
+print(json.dumps({"tasks": int("$TASKS"), "api_ok": int("$API_OK"), "api_source": "$API_SOURCE", "api_note": "$API_NOTE", "state_url": "$STATE_URL", "alt_state_url": "$ALT_STATE_URL", "host": "$HOSTNAME_VAL", "status": "$STATUS", "age_min": int("$AGE_MIN"), "age_sec": int("$AGE_SEC"), "max_age_min": int("$MAX_AGE_MIN"), "build_dir": "$BUILD_DIR", "artifact": "$ARTIFACT", "artifact_mtime": int("$ART_MTIME"), "checked_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"}))
 JSON
 fi
