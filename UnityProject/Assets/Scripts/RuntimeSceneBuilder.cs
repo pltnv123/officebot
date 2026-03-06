@@ -228,7 +228,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
  private GameObject BuildRobot(Vector3 pos,Color eyeCol,string role,float rotY)
  {
- var root=BuildPixarRobot(pos,eyeCol,role);
+ var root=TryLoadFbxRobot(pos, role) ?? BuildPixarRobot(pos,eyeCol,role);
  if(root==null)return null;
  root.transform.rotation=Quaternion.Euler(0f,rotY,0f);
 
@@ -256,6 +256,28 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  _robotTransforms.Add(root.transform);
  foreach(var lt in root.GetComponentsInChildren<Light>(true))_eyeLights.Add(lt);
  return root;
+ }
+
+ private GameObject TryLoadFbxRobot(Vector3 pos, string role)
+ {
+ var prefab = Resources.Load<GameObject>("Models/" + role);
+ if (prefab == null) return null;
+
+ var go = Instantiate(prefab, pos, Quaternion.identity);
+ go.name = role;
+
+ var renderers = go.GetComponentsInChildren<Renderer>(true);
+ if (renderers == null || renderers.Length == 0)
+ {
+ Destroy(go);
+ return null;
+ }
+
+ var ls = go.transform.localScale;
+ if (ls.x < 0.01f || ls.y < 0.01f || ls.z < 0.01f)
+ go.transform.localScale = Vector3.one;
+
+ return go;
  }
 
  // Pixar robot — round head, white body, big glowy eyes
