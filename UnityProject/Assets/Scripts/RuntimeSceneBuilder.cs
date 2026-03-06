@@ -237,6 +237,15 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  lg.transform.SetParent(root.transform);
  lg.transform.localPosition=new Vector3(0f,2.55f,0f);
  lg.transform.localScale=Vector3.one*0.22f;
+
+ var labelBack=GameObject.CreatePrimitive(PrimitiveType.Cube);
+ labelBack.name="LabelBack";
+ labelBack.transform.SetParent(lg.transform,false);
+ labelBack.transform.localPosition=new Vector3(0f,0f,0.12f);
+ labelBack.transform.localScale=new Vector3(4.8f,1.2f,0.12f);
+ var lbR=labelBack.GetComponent<Renderer>();
+ if(lbR!=null) lbR.material=Emissive(new Color(0.02f,0.02f,0.03f),new Color(0.02f,0.02f,0.03f),0.4f);
+
  var tm=lg.AddComponent<TextMesh>();
  tm.text=role; tm.fontSize=20; tm.color=Color.white;
  tm.anchor=TextAnchor.MiddleCenter; tm.alignment=TextAlignment.Center;
