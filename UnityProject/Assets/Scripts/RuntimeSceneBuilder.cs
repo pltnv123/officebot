@@ -109,7 +109,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  // ═══════════════════════════════════════════
  private void BuildTaskBoard()
  {
- float bz = 10.0f; // board Z position on back wall
+ float bz = 4.2f; // align frame with TaskBoard on back wall
  var board = Mat(new Color(0.07f, 0.08f, 0.11f), 0.08f);
  var frame = Mat(new Color(0.26f, 0.26f, 0.31f), 0.18f);
  var div = Mat(new Color(0.20f, 0.20f, 0.25f), 0.12f);
