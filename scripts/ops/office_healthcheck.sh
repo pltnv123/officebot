@@ -2,25 +2,39 @@
 set -euo pipefail
 
 STATE_URL="${STATE_URL:-http://5.45.115.12:8787/api/state}"
+ALT_STATE_URL="${ALT_STATE_URL:-http://5.45.115.12:8787/api/ops/health}"
 BUILD_DIR="${BUILD_DIR:-/var/www/office/Build}"
 
 TASKS=-1
 API_OK=0
+API_SOURCE="none"
 if RAW=$(curl -sS --max-time 10 "$STATE_URL" 2>/dev/null); then
   if TASKS_PARSED=$(printf '%s' "$RAW" | python3 -c "import sys,json; d=json.load(sys.stdin); t=d.get('tasks'); ts=(d.get('taskState') or {}).get('tasks');
 arr=t if isinstance(t,list) else (ts if isinstance(ts,list) else []); print(len(arr))" 2>/dev/null); then
     TASKS="$TASKS_PARSED"
     API_OK=1
+    API_SOURCE="state"
+  fi
+fi
+
+if [[ "$API_OK" != "1" ]]; then
+  if RAW2=$(curl -sS --max-time 10 "$ALT_STATE_URL" 2>/dev/null); then
+    if TASKS_PARSED2=$(printf '%s' "$RAW2" | python3 -c "import sys,json; d=json.load(sys.stdin); t=d.get('tasks',{}); print(int(t.get('total',-1)))" 2>/dev/null); then
+      TASKS="$TASKS_PARSED2"
+      API_OK=1
+      API_SOURCE="ops_health"
+    fi
   fi
 fi
 
 if [[ "$API_OK" == "1" ]]; then
-  echo "tasks: $TASKS"
+  echo "tasks: $TASKS (source:$API_SOURCE)"
 else
   echo "tasks: unknown (API_UNREACHABLE)"
 fi
 
 echo "state_url: $STATE_URL"
+echo "alt_state_url: $ALT_STATE_URL"
 
 if [[ -f "$BUILD_DIR/WebGL.wasm" ]]; then
   ls -la "$BUILD_DIR/WebGL.wasm"
