@@ -456,15 +456,17 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  if(m.HasProperty("_Glossiness"))m.SetFloat("_Glossiness",s);
  return m;
  }
- private static Material ToonM(Color c){ var m=new Material(LS()){color=c}; if(m.HasProperty("_Metallic"))m.SetFloat("_Metallic",0f); if(m.HasProperty("_Smoothness"))m.SetFloat("_Smoothness",0.04f); return m; };
- if(m.HasProperty("_Metallic")) m.SetFloat("_Metallic", 0f);
- if(m.HasProperty("_Glossiness"))m.SetFloat("_Glossiness",0.04f);
- if(m.HasProperty("_Smoothness"))m.SetFloat("_Smoothness",0.04f);
+ private static Material ToonM(Color c){
+ var m=new Material(LS()){color=c};
+ if(m.HasProperty("_Metallic")) m.SetFloat("_Metallic",0f);
+ if(m.HasProperty("_Glossiness")) m.SetFloat("_Glossiness",0.04f);
+ if(m.HasProperty("_Smoothness")) m.SetFloat("_Smoothness",0.04f);
  return m;
  }
- private static Material Emissive(Color b,Color e,float mul){ var m=new Material(LS()){color=b}; m.EnableKeyword("_EMISSION"); if(m.HasProperty("_EmissionColor"))m.SetColor("_EmissionColor",e*mul); m.globalIlluminationFlags=MaterialGlobalIlluminationFlags.RealtimeEmissive; return m; };
+ private static Material Emissive(Color b,Color e,float mul){
+ var m=new Material(LS()){color=b};
  m.EnableKeyword("_EMISSION");
- if(m.HasProperty("_EmissionColor"))m.SetColor("_EmissionColor",e*mul);
+ if(m.HasProperty("_EmissionColor")) m.SetColor("_EmissionColor",e*mul);
  m.globalIlluminationFlags=MaterialGlobalIlluminationFlags.RealtimeEmissive;
  return m;
  }
