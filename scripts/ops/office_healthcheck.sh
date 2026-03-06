@@ -10,18 +10,25 @@ API_OK=0
 API_SOURCE="none"
 API_NOTE=""
 API_ERR=""
+STATE_CURL_RC=0
+OPS_CURL_RC=0
 if RAW=$(curl -sS --max-time 10 "$STATE_URL" 2>/dev/null); then
   if TASKS_PARSED=$(printf '%s' "$RAW" | python3 -c "import sys,json; d=json.load(sys.stdin); t=d.get('tasks'); ts=(d.get('taskState') or {}).get('tasks');
 arr=t if isinstance(t,list) else (ts if isinstance(ts,list) else []); print(len(arr))" 2>/dev/null); then
     TASKS="$TASKS_PARSED"
     API_OK=1
     API_SOURCE="state"
+  else
+    API_NOTE="state_parse_failed"
+    API_ERR="state_parse_failed"
   fi
+else
+  STATE_CURL_RC=$?
+  API_NOTE="state_unreachable"
+  API_ERR="state_fetch_failed(rc:${STATE_CURL_RC})"
 fi
 
 if [[ "$API_OK" != "1" ]]; then
-  API_NOTE="state_unreachable"
-  API_ERR="state_fetch_failed"
   if RAW2=$(curl -sS --max-time 10 "$ALT_STATE_URL" 2>/dev/null); then
     if TASKS_PARSED2=$(printf '%s' "$RAW2" | python3 -c "import sys,json; d=json.load(sys.stdin); t=d.get('tasks',{}); print(int(t.get('total',-1)))" 2>/dev/null); then
       TASKS="$TASKS_PARSED2"
@@ -31,9 +38,12 @@ if [[ "$API_OK" != "1" ]]; then
       API_ERR=""
     else
       API_NOTE="ops_health_parse_failed"
+      API_ERR="ops_health_parse_failed"
     fi
   else
+    OPS_CURL_RC=$?
     API_NOTE="ops_health_unreachable"
+    API_ERR="ops_health_fetch_failed(rc:${OPS_CURL_RC})"
   fi
 fi
 
