@@ -229,7 +229,7 @@ namespace OfficeHub
             cam.fieldOfView = 75f;
 
             // Position: above and in front, looking into scene
-            cam.transform.position = new Vector3(0f, 4.5f, -5.5f);
+            cam.transform.position = new Vector3(0f, 5.6f, -6.8f);
             cam.transform.rotation = Quaternion.Euler(28f, 0f, 0f);
 
             cam.backgroundColor = new Color(0.04f, 0.05f, 0.08f);
