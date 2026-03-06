@@ -75,10 +75,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  {
  var cam = Camera.main; if (cam == null) return;
  cam.orthographic = false;
- cam.fieldOfView = 40f;
- // Higher/farther camera for isometric floor perspective
- cam.transform.position = new Vector3(0f, 8.5f, -10.0f);
- cam.transform.rotation = Quaternion.Euler(28f, 0f, 0f);
+ cam.fieldOfView = 45f;
+ // Left-front camera to reveal floor perspective toward distance
+ cam.transform.position = new Vector3(-3.0f, 7.0f, -8.0f);
+ cam.transform.rotation = Quaternion.Euler(30f, 15f, 0f);
  cam.backgroundColor = new Color(0.04f, 0.04f, 0.07f);
  cam.clearFlags = CameraClearFlags.SolidColor;
  cam.nearClipPlane = 0.3f;
