@@ -57,6 +57,7 @@ else
 fi
 
 HOSTNAME_VAL="$(hostname 2>/dev/null || echo unknown)"
+SCRIPT_VERSION="2026-03-06.1"
 
 echo "state_url: $STATE_URL"
 echo "alt_state_url: $ALT_STATE_URL"
@@ -65,6 +66,7 @@ echo "curl_timeout_sec: $CURL_TIMEOUT_SEC"
 echo "curl_connect_timeout_sec: $CURL_CONNECT_TIMEOUT_SEC"
 echo "curl_retries: $CURL_RETRIES"
 echo "host: $HOSTNAME_VAL"
+echo "script_version: $SCRIPT_VERSION"
 echo "checked_at_utc: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 if [[ -f "$BUILD_DIR/WebGL.wasm" ]]; then
@@ -107,6 +109,6 @@ fi
 if [[ "$OUTPUT_JSON" == "1" ]]; then
   python3 - <<JSON
 import json
-print(json.dumps({"tasks": int("$TASKS"), "api_ok": int("$API_OK"), "api_source": "$API_SOURCE", "api_note": "$API_NOTE", "api_error": "${API_ERR:-}", "state_url": "$STATE_URL", "alt_state_url": "$ALT_STATE_URL", "curl_timeout_sec": int("$CURL_TIMEOUT_SEC"), "curl_connect_timeout_sec": int("$CURL_CONNECT_TIMEOUT_SEC"), "curl_retries": int("$CURL_RETRIES"), "host": "$HOSTNAME_VAL", "status": "$STATUS", "age_min": int("$AGE_MIN"), "age_sec": int("$AGE_SEC"), "max_age_min": int("$MAX_AGE_MIN"), "build_dir": "$BUILD_DIR", "artifact": "$ARTIFACT", "artifact_mtime": int("$ART_MTIME"), "checked_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"}))
+print(json.dumps({"tasks": int("$TASKS"), "api_ok": int("$API_OK"), "api_source": "$API_SOURCE", "api_note": "$API_NOTE", "api_error": "${API_ERR:-}", "state_url": "$STATE_URL", "alt_state_url": "$ALT_STATE_URL", "curl_timeout_sec": int("$CURL_TIMEOUT_SEC"), "curl_connect_timeout_sec": int("$CURL_CONNECT_TIMEOUT_SEC"), "curl_retries": int("$CURL_RETRIES"), "host": "$HOSTNAME_VAL", "script_version": "$SCRIPT_VERSION", "status": "$STATUS", "age_min": int("$AGE_MIN"), "age_sec": int("$AGE_SEC"), "max_age_min": int("$MAX_AGE_MIN"), "build_dir": "$BUILD_DIR", "artifact": "$ARTIFACT", "artifact_mtime": int("$ART_MTIME"), "checked_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"}))
 JSON
 fi
