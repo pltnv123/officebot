@@ -440,7 +440,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  // ═══════════════════════════════════════════
  // HELPERS
  // ═══════════════════════════════════════════
- private static Shader LS() => Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Universal Render Pipeline/Simple Lit") ?? Shader.Find("Sprites/Default");
+ private static Shader LS() => Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Universal Render Pipeline/Simple Lit") ?? Shader.Find("Sprites/Default") ?? Shader.Find("Hidden/InternalErrorShader");
  private static Material Mat(Color c,float s=0.2f){
  var m=new Material(LS()){color=c};
  if(m.HasProperty("_Smoothness"))m.SetFloat("_Smoothness",s);
