@@ -75,10 +75,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  {
  var cam = Camera.main; if (cam == null) return;
  cam.orthographic = false;
- cam.fieldOfView = 50f;
- // Centered, higher camera for symmetric diamond floor perspective
- cam.transform.position = new Vector3(0f, 9.0f, -7.0f);
- cam.transform.rotation = Quaternion.Euler(38f, 0f, 0f);
+ cam.fieldOfView = 45f;
+ // Reference camera framing — centered, lower pitch
+ cam.transform.position = new Vector3(0f, 5.6f, -6.8f);
+ cam.transform.rotation = Quaternion.Euler(32f, 0f, 0f);
  cam.backgroundColor = new Color(0.04f, 0.04f, 0.07f);
  cam.clearFlags = CameraClearFlags.SolidColor;
  cam.nearClipPlane = 0.3f;
@@ -93,7 +93,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  // warm beige stone floor like reference
  var floor = Mat(new Color(0.54f, 0.48f, 0.38f), 0.06f);
  var line = Mat(new Color(0.40f, 0.35f, 0.27f), 0.04f);
- Cube("Floor", new Vector3(0f, -0.05f, 3f), new Vector3(18f, 0.1f, 20f), floor);
+ Cube("Floor", new Vector3(0f, -0.05f, 0f), new Vector3(12f, 1f, 10f), floor);
  for (int i = 0; i < 7; i++) Cube($"TX{i}", new Vector3(-9f+i*3f, 0.01f, 3f), new Vector3(0.04f,0.01f,20f), line);
  for (int j = 0; j < 8; j++) Cube($"TZ{j}", new Vector3(0f, 0.01f, -6f+j*3f), new Vector3(18f,0.01f,0.04f), line);
 
@@ -219,9 +219,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  if(w!=null){var arm=w.transform.Find("ArmLUp");
  if(arm!=null)arm.localRotation=Quaternion.Euler(-55f,0f,25f);}
 
- // Planner — center, facing camera (rotate 180 to face viewer)
- var planner = BuildRobot(new Vector3(0f,0f,-0.7f), new Color(0.35f,0.65f,1.00f),"PLANNER", 0f);
- if(planner!=null) planner.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+ // Planner — center, facing board (rotY=0)
+ BuildRobot(new Vector3(0f,0f,-0.7f), new Color(0.35f,0.65f,1.00f),"PLANNER", 0f);
 
  // Reviewer — right side, facing left toward desk (rotY=-40)
  BuildRobot(new Vector3(2.4f,0f,1.1f), new Color(0.20f,0.95f,0.72f),"REVIEWER",-40f);
