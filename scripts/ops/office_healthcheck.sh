@@ -8,6 +8,7 @@ BUILD_DIR="${BUILD_DIR:-/var/www/office/Build}"
 TASKS=-1
 API_OK=0
 API_SOURCE="none"
+API_NOTE=""
 if RAW=$(curl -sS --max-time 10 "$STATE_URL" 2>/dev/null); then
   if TASKS_PARSED=$(printf '%s' "$RAW" | python3 -c "import sys,json; d=json.load(sys.stdin); t=d.get('tasks'); ts=(d.get('taskState') or {}).get('tasks');
 arr=t if isinstance(t,list) else (ts if isinstance(ts,list) else []); print(len(arr))" 2>/dev/null); then
@@ -18,19 +19,25 @@ arr=t if isinstance(t,list) else (ts if isinstance(ts,list) else []); print(len(
 fi
 
 if [[ "$API_OK" != "1" ]]; then
+  API_NOTE="state_unreachable"
   if RAW2=$(curl -sS --max-time 10 "$ALT_STATE_URL" 2>/dev/null); then
     if TASKS_PARSED2=$(printf '%s' "$RAW2" | python3 -c "import sys,json; d=json.load(sys.stdin); t=d.get('tasks',{}); print(int(t.get('total',-1)))" 2>/dev/null); then
       TASKS="$TASKS_PARSED2"
       API_OK=1
       API_SOURCE="ops_health"
+      API_NOTE=""
+    else
+      API_NOTE="ops_health_parse_failed"
     fi
+  else
+    API_NOTE="ops_health_unreachable"
   fi
 fi
 
 if [[ "$API_OK" == "1" ]]; then
   echo "tasks: $TASKS (source:$API_SOURCE)"
 else
-  echo "tasks: unknown (API_UNREACHABLE)"
+  echo "tasks: unknown (API_UNREACHABLE${API_NOTE:+:$API_NOTE})"
 fi
 
 echo "state_url: $STATE_URL"
@@ -77,6 +84,6 @@ fi
 if [[ "$OUTPUT_JSON" == "1" ]]; then
   python3 - <<JSON
 import json
-print(json.dumps({"tasks": int("$TASKS"), "api_ok": int("$API_OK"), "api_source": "$API_SOURCE", "state_url": "$STATE_URL", "alt_state_url": "$ALT_STATE_URL", "status": "$STATUS", "age_min": int("$AGE_MIN"), "age_sec": int("$AGE_SEC"), "max_age_min": int("$MAX_AGE_MIN"), "artifact": "$ARTIFACT", "checked_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"}))
+print(json.dumps({"tasks": int("$TASKS"), "api_ok": int("$API_OK"), "api_source": "$API_SOURCE", "api_note": "$API_NOTE", "state_url": "$STATE_URL", "alt_state_url": "$ALT_STATE_URL", "status": "$STATUS", "age_min": int("$AGE_MIN"), "age_sec": int("$AGE_SEC"), "max_age_min": int("$MAX_AGE_MIN"), "artifact": "$ARTIFACT", "checked_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"}))
 JSON
 fi
