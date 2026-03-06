@@ -773,15 +773,7 @@ namespace OfficeHub
             fillLt.range = 24f;
             fillGo.transform.position = new Vector3(8f, 6f, 0f);
 
-            // Strong front fill for robots
- var robotFillGo = new GameObject("RobotFrontFill");
- robotFillLt = robotFillGo.AddComponent<Light>();
- robotFillLt.type = LightType.Point;
- robotFillLt.color = new Color(1.0f, 0.95f, 0.85f);
- robotFillLt.intensity = 8.0f;
- robotFillLt.range = 20f;
- robotFillGo.transform.position = new Vector3(0f, 3f, -5f);
- // Warm front bounce to lift robot faces from shadows
+            // Warm front bounce to lift robot faces from shadows
             var bounceGo = new GameObject("BounceLight");
             var bounceLt = bounceGo.AddComponent<Light>();
             bounceLt.type = LightType.Point;
