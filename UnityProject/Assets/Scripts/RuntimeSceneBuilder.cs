@@ -478,7 +478,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  }
 
  [System.Serializable] private sealed class RT {public string title,status;}
- [System.Serializable] private sealed class RSE {public List<RT> tasks; public RSE taskState;}
+ [System.Serializable] private sealed class RS {public List<RT> tasks;}
+ [System.Serializable] private sealed class RSE {public List<RT> tasks; public RS taskState;}
 
  private System.Collections.IEnumerator PollTaskState()
  {
