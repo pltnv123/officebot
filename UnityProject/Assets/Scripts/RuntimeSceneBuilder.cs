@@ -77,7 +77,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  cam.orthographic = false;
  cam.fieldOfView = 48f;
  // Offset left and rotate right to see all 3 robots
- cam.transform.position = new Vector3(-2.5f, 6.5f, -7.5f);
+ cam.transform.position = new Vector3(0f, 5.6f, -6.8f);
  cam.transform.rotation = Quaternion.Euler(35f, 15f, 0f);
  cam.backgroundColor = new Color(0.04f, 0.04f, 0.07f);
  cam.clearFlags = CameraClearFlags.SolidColor;
@@ -91,7 +91,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  private void BuildRoom()
  {
  // warm beige stone floor like reference
- var floor = Mat(new Color(0.52f, 0.46f, 0.36f), 0.06f);
+ var floor = Mat(new Color(0.54f, 0.48f, 0.38f), 0.06f);
  var line = Mat(new Color(0.40f, 0.35f, 0.27f), 0.04f);
  Cube("Floor", new Vector3(0f, -0.05f, 3f), new Vector3(18f, 0.1f, 20f), floor);
  for (int i = 0; i < 7; i++) Cube($"TX{i}", new Vector3(-9f+i*3f, 0.01f, 3f), new Vector3(0.04f,0.01f,20f), line);
@@ -114,7 +114,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  var frame = Mat(new Color(0.26f, 0.26f, 0.31f), 0.18f);
  var div = Mat(new Color(0.20f, 0.20f, 0.25f), 0.12f);
 
- Cube("Board", new Vector3(0f, 3.2f, bz), new Vector3(11f, 4.2f, 0.15f), board);
+ Cube("TaskBoard", new Vector3(0f, 2.3f, 4.2f), new Vector3(8f, 2f, 0.2f), board);
  Cube("BrdTop", new Vector3(0f, 5.38f, bz-0.1f),new Vector3(11.2f, 0.10f, 0.12f), frame);
  Cube("BrdBot", new Vector3(0f, 1.10f, bz-0.1f),new Vector3(11.2f, 0.10f, 0.12f), frame);
  Cube("BrdL", new Vector3(-5.5f,3.2f,bz-0.1f),new Vector3(0.10f, 4.2f, 0.12f), frame);
@@ -214,19 +214,19 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  private void BuildRobots()
  {
  // Worker — left side, facing board (rotY=35)
- var w = MakeRobot(new Vector3(-2.2f,0f,1.3f), new Color(0.20f,0.95f,0.72f),"WORKER", 35f);
+ var w = BuildRobot(new Vector3(-2.5f,0f,-3.0f), new Color(0.20f,0.95f,0.72f),"WORKER", 35f);
  // raise left arm toward board
  if(w!=null){var arm=w.transform.Find("ArmLUp");
  if(arm!=null)arm.localRotation=Quaternion.Euler(-55f,0f,25f);}
 
  // Planner — center, facing camera (rotY=0)
- MakeRobot(new Vector3(0f,0f,-0.7f), new Color(0.35f,0.65f,1.00f),"PLANNER", 0f);
+ BuildRobot(new Vector3(0f,0f,-2.5f), new Color(0.35f,0.65f,1.00f),"PLANNER", 0f);
 
  // Reviewer — right side, facing left toward desk (rotY=-40)
- MakeRobot(new Vector3(2.4f,0f,1.1f), new Color(0.20f,0.95f,0.72f),"REVIEWER",-40f);
+ BuildRobot(new Vector3(2.5f,0f,-3.0f), new Color(0.20f,0.95f,0.72f),"REVIEWER",-40f);
  }
 
- private GameObject MakeRobot(Vector3 pos,Color eyeCol,string role,float rotY)
+ private GameObject BuildRobot(Vector3 pos,Color eyeCol,string role,float rotY)
  {
  var root=BuildPixarRobot(pos,eyeCol,role);
  if(root==null)return null;
@@ -361,7 +361,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  private static void BuildLighting()
  {
  RenderSettings.ambientMode = AmbientMode.Flat;
- RenderSettings.ambientLight = new Color(0.68f,0.64f,0.56f);
+ RenderSettings.ambientLight = new Color(1.0f, 0.95f, 0.85f);
 
  var def=GameObject.Find("Directional Light");
  if(def!=null)Object.DestroyImmediate(def);
