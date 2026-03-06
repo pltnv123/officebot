@@ -75,6 +75,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  {
  var cam = Camera.main; if (cam == null) return;
  cam.orthographic = false;
+ // FOV locked to reference framing (do not change for redeploy sanity checks)
  cam.fieldOfView = 45f;
  // Slight left-front view for floor depth
  cam.transform.position = new Vector3(-1.5f, 7.0f, -9.0f);
