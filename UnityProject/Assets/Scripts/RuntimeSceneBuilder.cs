@@ -216,6 +216,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  {
  // Worker — left side, facing board (rotY=35)
  var w = BuildRobot(new Vector3(-2.2f,0f,1.3f), new Color(0.20f,0.95f,0.72f),"WORKER", 35f);
+ Debug.Log($"WORKER pos: {w?.transform.position}, scale: {w?.transform.localScale}");
  // raise left arm toward board
  if(w!=null){var arm=w.transform.Find("ArmLUp");
  if(arm!=null)arm.localRotation=Quaternion.Euler(-55f,0f,25f);}
@@ -464,7 +465,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  return m;
  }
  private static Material ToonM(Color c){
- var m=new Material(LS()){color=c};
+ var s=LS();
+ if(s==null) s=Shader.Find("Standard");
+ if(s==null) return new Material(Shader.Find("Hidden/InternalErrorShader"));
+ var m=new Material(s){color=c};
  if(m.HasProperty("_Metallic")) m.SetFloat("_Metallic",0f);
  if(m.HasProperty("_Glossiness")) m.SetFloat("_Glossiness",0.04f);
  if(m.HasProperty("_Smoothness")) m.SetFloat("_Smoothness",0.04f);
