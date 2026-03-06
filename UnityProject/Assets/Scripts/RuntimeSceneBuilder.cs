@@ -214,16 +214,16 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  private void BuildRobots()
  {
  // Worker — left side, facing board (rotY=35)
- var w = BuildRobot(new Vector3(-2.5f,0f,-3.0f), new Color(0.20f,0.95f,0.72f),"WORKER", 35f);
+ var w = BuildRobot(new Vector3(-2.2f,0f,1.3f), new Color(0.20f,0.95f,0.72f),"WORKER", 35f);
  // raise left arm toward board
  if(w!=null){var arm=w.transform.Find("ArmLUp");
  if(arm!=null)arm.localRotation=Quaternion.Euler(-55f,0f,25f);}
 
  // Planner — center, facing camera (rotY=0)
- BuildRobot(new Vector3(0f,0f,-2.5f), new Color(0.35f,0.65f,1.00f),"PLANNER", 0f);
+ BuildRobot(new Vector3(0f,0f,-0.7f), new Color(0.35f,0.65f,1.00f),"PLANNER", 0f);
 
  // Reviewer — right side, facing left toward desk (rotY=-40)
- BuildRobot(new Vector3(2.5f,0f,-3.0f), new Color(0.20f,0.95f,0.72f),"REVIEWER",-40f);
+ BuildRobot(new Vector3(2.4f,0f,1.1f), new Color(0.20f,0.95f,0.72f),"REVIEWER",-40f);
  }
 
  private GameObject BuildRobot(Vector3 pos,Color eyeCol,string role,float rotY)
