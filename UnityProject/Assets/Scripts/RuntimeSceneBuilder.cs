@@ -409,7 +409,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  private void WireBackend()
  {
  var mgr=GameObject.Find("SceneManager")??new GameObject("SceneManager");
- mgr.GetComponent<ApiClient>()??mgr.AddComponent<ApiClient>();
+ if (mgr.GetComponent<ApiClient>() == null) mgr.AddComponent<ApiClient>();
 
  BotMover Mv(int idx,string role,Vector3 idle,Vector3 desk,Vector3 done){
  if(idx>=_robotTransforms.Count)return null;
