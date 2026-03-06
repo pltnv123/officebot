@@ -20,6 +20,8 @@ else
   echo "tasks: unknown (API_UNREACHABLE)"
 fi
 
+echo "state_url: $STATE_URL"
+
 if [[ -f "$BUILD_DIR/WebGL.wasm" ]]; then
   ls -la "$BUILD_DIR/WebGL.wasm"
 elif [[ -f "$BUILD_DIR/WebGL.wasm.gz" ]]; then
