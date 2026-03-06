@@ -63,12 +63,14 @@ ART_MTIME=$(stat -c %Y "$ARTIFACT")
 NOW=$(date +%s)
 AGE_MIN=$(( (NOW - ART_MTIME) / 60 ))
 
+AGE_SEC=$(( NOW - ART_MTIME ))
+
 if (( AGE_MIN > MAX_AGE_MIN )); then
   STATUS="STALE"
-  echo "BUILD STALE (${AGE_MIN}min > ${MAX_AGE_MIN}min): $ARTIFACT"
+  echo "BUILD STALE (${AGE_MIN}min / ${AGE_SEC}s > ${MAX_AGE_MIN}min): $ARTIFACT"
 else
   STATUS="FRESH"
-  echo "BUILD FRESH (${AGE_MIN}min <= ${MAX_AGE_MIN}min): $ARTIFACT"
+  echo "BUILD FRESH (${AGE_MIN}min / ${AGE_SEC}s <= ${MAX_AGE_MIN}min): $ARTIFACT"
 fi
 
 if [[ "$OUTPUT_JSON" == "1" ]]; then
