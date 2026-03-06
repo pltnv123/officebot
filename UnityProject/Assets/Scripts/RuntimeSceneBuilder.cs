@@ -290,7 +290,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  new Vector3(0f,1.54f,0.43f),new Vector3(0.66f,0.54f,0.07f),ToonM(dark));
 
  // EYES — big glowy Pixar circles
- var eyeMat=new Material(Shader.Find("Standard")){color=eyeCol};
+ var eyeMat=new Material(LS()){color=eyeCol};
  eyeMat.EnableKeyword("_EMISSION");
  eyeMat.SetColor("_EmissionColor",eyeCol*22f);
  eyeMat.SetFloat("_Metallic",0f);
@@ -440,22 +440,20 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  // ═══════════════════════════════════════════
  // HELPERS
  // ═══════════════════════════════════════════
- private static Shader LS()=>Shader.Find("Universal Render Pipeline/Lit")??Shader.Find("Standard");
+ private static Shader LS() => Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Universal Render Pipeline/Simple Lit") ?? Shader.Find("Sprites/Default");
  private static Material Mat(Color c,float s=0.2f){
  var m=new Material(LS()){color=c};
  if(m.HasProperty("_Smoothness"))m.SetFloat("_Smoothness",s);
  if(m.HasProperty("_Glossiness"))m.SetFloat("_Glossiness",s);
  return m;
  }
- private static Material ToonM(Color c){
- var m=new Material(Shader.Find("Standard")??LS()){color=c};
+ private static Material ToonM(Color c){ var m=new Material(LS()){color=c}; if(m.HasProperty("_Metallic"))m.SetFloat("_Metallic",0f); if(m.HasProperty("_Smoothness"))m.SetFloat("_Smoothness",0.04f); return m; };
  if(m.HasProperty("_Metallic")) m.SetFloat("_Metallic", 0f);
  if(m.HasProperty("_Glossiness"))m.SetFloat("_Glossiness",0.04f);
  if(m.HasProperty("_Smoothness"))m.SetFloat("_Smoothness",0.04f);
  return m;
  }
- private static Material Emissive(Color b,Color e,float mul){
- var m=new Material(Shader.Find("Standard")??LS()){color=b};
+ private static Material Emissive(Color b,Color e,float mul){ var m=new Material(LS()){color=b}; m.EnableKeyword("_EMISSION"); if(m.HasProperty("_EmissionColor"))m.SetColor("_EmissionColor",e*mul); m.globalIlluminationFlags=MaterialGlobalIlluminationFlags.RealtimeEmissive; return m; };
  m.EnableKeyword("_EMISSION");
  if(m.HasProperty("_EmissionColor"))m.SetColor("_EmissionColor",e*mul);
  m.globalIlluminationFlags=MaterialGlobalIlluminationFlags.RealtimeEmissive;
