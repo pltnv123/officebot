@@ -77,6 +77,6 @@ fi
 if [[ "$OUTPUT_JSON" == "1" ]]; then
   python3 - <<JSON
 import json
-print(json.dumps({"tasks": int("$TASKS"), "api_ok": int("$API_OK"), "status": "$STATUS", "age_min": int("$AGE_MIN"), "age_sec": int("$AGE_SEC"), "max_age_min": int("$MAX_AGE_MIN"), "artifact": "$ARTIFACT", "checked_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"}))
+print(json.dumps({"tasks": int("$TASKS"), "api_ok": int("$API_OK"), "api_source": "$API_SOURCE", "state_url": "$STATE_URL", "alt_state_url": "$ALT_STATE_URL", "status": "$STATUS", "age_min": int("$AGE_MIN"), "age_sec": int("$AGE_SEC"), "max_age_min": int("$MAX_AGE_MIN"), "artifact": "$ARTIFACT", "checked_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"}))
 JSON
 fi
