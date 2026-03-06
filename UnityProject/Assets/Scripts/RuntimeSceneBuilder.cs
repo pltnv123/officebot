@@ -76,8 +76,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  var cam = Camera.main; if (cam == null) return;
  cam.orthographic = false;
  cam.fieldOfView = 45f;
- // Slight X offset to keep Worker in frame while matching reference pitch
- cam.transform.position = new Vector3(-0.8f, 5.6f, -6.8f);
+ // Centered X to keep all robots balanced in frame
+ cam.transform.position = new Vector3(0f, 5.6f, -6.8f);
  cam.transform.rotation = Quaternion.Euler(32f, 0f, 0f);
  cam.backgroundColor = new Color(0.04f, 0.04f, 0.07f);
  cam.clearFlags = CameraClearFlags.SolidColor;
@@ -219,8 +219,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  if(w!=null){var arm=w.transform.Find("ArmLUp");
  if(arm!=null)arm.localRotation=Quaternion.Euler(-55f,0f,25f);}
 
- // Planner — center, facing camera (rotY=0)
- BuildRobot(new Vector3(0f,0f,-0.7f), new Color(0.35f,0.65f,1.00f),"PLANNER", 0f);
+ // Planner — center, facing camera (rotate 180 to face viewer)
+ var planner = BuildRobot(new Vector3(0f,0f,-0.7f), new Color(0.35f,0.65f,1.00f),"PLANNER", 0f);
+ if(planner!=null) planner.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
 
  // Reviewer — right side, facing left toward desk (rotY=-40)
  BuildRobot(new Vector3(2.4f,0f,1.1f), new Color(0.20f,0.95f,0.72f),"REVIEWER",-40f);
