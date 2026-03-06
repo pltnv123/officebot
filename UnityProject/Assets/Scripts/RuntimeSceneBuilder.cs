@@ -261,24 +261,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
  private GameObject TryLoadFbxRobot(Vector3 pos, string role)
  {
- var prefab = Resources.Load<GameObject>("Models/" + role);
- if (prefab == null) return null;
-
- var go = Instantiate(prefab, pos, Quaternion.identity);
- go.name = role;
-
- var renderers = go.GetComponentsInChildren<Renderer>(true);
- if (renderers == null || renderers.Length == 0)
- {
- Destroy(go);
- return null;
- }
-
- var ls = go.transform.localScale;
- if (ls.x < 0.01f || ls.y < 0.01f || ls.z < 0.01f)
- go.transform.localScale = Vector3.one;
-
- return go;
+     // FBX assets временно отключены — всегда строим процедурного робота
+     return null;
  }
 
  // Pixar robot — round head, white body, big glowy eyes
