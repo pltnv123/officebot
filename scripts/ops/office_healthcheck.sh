@@ -35,6 +35,7 @@ fi
 
 echo "state_url: $STATE_URL"
 echo "alt_state_url: $ALT_STATE_URL"
+echo "checked_at_utc: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 if [[ -f "$BUILD_DIR/WebGL.wasm" ]]; then
   ls -la "$BUILD_DIR/WebGL.wasm"
