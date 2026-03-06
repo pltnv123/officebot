@@ -9,6 +9,7 @@ TASKS=-1
 API_OK=0
 API_SOURCE="none"
 API_NOTE=""
+API_ERR=""
 if RAW=$(curl -sS --max-time 10 "$STATE_URL" 2>/dev/null); then
   if TASKS_PARSED=$(printf '%s' "$RAW" | python3 -c "import sys,json; d=json.load(sys.stdin); t=d.get('tasks'); ts=(d.get('taskState') or {}).get('tasks');
 arr=t if isinstance(t,list) else (ts if isinstance(ts,list) else []); print(len(arr))" 2>/dev/null); then
@@ -20,12 +21,14 @@ fi
 
 if [[ "$API_OK" != "1" ]]; then
   API_NOTE="state_unreachable"
+  API_ERR="state_fetch_failed"
   if RAW2=$(curl -sS --max-time 10 "$ALT_STATE_URL" 2>/dev/null); then
     if TASKS_PARSED2=$(printf '%s' "$RAW2" | python3 -c "import sys,json; d=json.load(sys.stdin); t=d.get('tasks',{}); print(int(t.get('total',-1)))" 2>/dev/null); then
       TASKS="$TASKS_PARSED2"
       API_OK=1
       API_SOURCE="ops_health"
       API_NOTE=""
+      API_ERR=""
     else
       API_NOTE="ops_health_parse_failed"
     fi
@@ -44,6 +47,7 @@ HOSTNAME_VAL="$(hostname 2>/dev/null || echo unknown)"
 
 echo "state_url: $STATE_URL"
 echo "alt_state_url: $ALT_STATE_URL"
+echo "api_error: ${API_ERR:-none}"
 echo "host: $HOSTNAME_VAL"
 echo "checked_at_utc: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
@@ -87,6 +91,6 @@ fi
 if [[ "$OUTPUT_JSON" == "1" ]]; then
   python3 - <<JSON
 import json
-print(json.dumps({"tasks": int("$TASKS"), "api_ok": int("$API_OK"), "api_source": "$API_SOURCE", "api_note": "$API_NOTE", "state_url": "$STATE_URL", "alt_state_url": "$ALT_STATE_URL", "host": "$HOSTNAME_VAL", "status": "$STATUS", "age_min": int("$AGE_MIN"), "age_sec": int("$AGE_SEC"), "max_age_min": int("$MAX_AGE_MIN"), "build_dir": "$BUILD_DIR", "artifact": "$ARTIFACT", "artifact_mtime": int("$ART_MTIME"), "checked_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"}))
+print(json.dumps({"tasks": int("$TASKS"), "api_ok": int("$API_OK"), "api_source": "$API_SOURCE", "api_note": "$API_NOTE", "api_error": "${API_ERR:-}", "state_url": "$STATE_URL", "alt_state_url": "$ALT_STATE_URL", "host": "$HOSTNAME_VAL", "status": "$STATUS", "age_min": int("$AGE_MIN"), "age_sec": int("$AGE_SEC"), "max_age_min": int("$MAX_AGE_MIN"), "build_dir": "$BUILD_DIR", "artifact": "$ARTIFACT", "artifact_mtime": int("$ART_MTIME"), "checked_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"}))
 JSON
 fi
