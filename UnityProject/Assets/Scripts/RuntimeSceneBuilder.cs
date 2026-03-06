@@ -488,8 +488,8 @@ namespace OfficeHub
             var root = new GameObject(roleName);
             root.transform.position = position;
 
-            Color dk = new Color(0.16f, 0.16f, 0.19f);
-            Color md = new Color(0.24f, 0.24f, 0.28f);
+            Color dk = new Color(0.72f, 0.72f, 0.75f);
+            Color md = new Color(0.82f, 0.82f, 0.85f);
             Color liteCol = new Color(0.68f, 0.68f, 0.72f);
             Color blk = new Color(0.04f, 0.04f, 0.06f);
 
@@ -773,7 +773,15 @@ namespace OfficeHub
             fillLt.range = 24f;
             fillGo.transform.position = new Vector3(8f, 6f, 0f);
 
-            // Warm front bounce to lift robot faces from shadows
+            // Strong front fill for robots
+ var robotFillGo = new GameObject("RobotFrontFill");
+ robotFillLt = robotFillGo.AddComponent<Light>();
+ robotFillLt.type = LightType.Point;
+ robotFillLt.color = new Color(1.0f, 0.95f, 0.85f);
+ robotFillLt.intensity = 8.0f;
+ robotFillLt.range = 20f;
+ robotFillGo.transform.position = new Vector3(0f, 3f, -5f);
+ // Warm front bounce to lift robot faces from shadows
             var bounceGo = new GameObject("BounceLight");
             var bounceLt = bounceGo.AddComponent<Light>();
             bounceLt.type = LightType.Point;
