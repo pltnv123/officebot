@@ -4,6 +4,7 @@ set -euo pipefail
 STATE_URL="${STATE_URL:-http://5.45.115.12:8787/api/state}"
 ALT_STATE_URL="${ALT_STATE_URL:-http://5.45.115.12:8787/api/ops/health}"
 CURL_TIMEOUT_SEC="${CURL_TIMEOUT_SEC:-10}"
+CURL_RETRIES="${CURL_RETRIES:-1}"
 BUILD_DIR="${BUILD_DIR:-/var/www/office/Build}"
 
 TASKS=-1
@@ -13,7 +14,7 @@ API_NOTE=""
 API_ERR=""
 STATE_CURL_RC=0
 OPS_CURL_RC=0
-if RAW=$(curl -sS --max-time "$CURL_TIMEOUT_SEC" "$STATE_URL" 2>/dev/null); then
+if RAW=$(curl -sS --retry "$CURL_RETRIES" --retry-delay 1 --max-time "$CURL_TIMEOUT_SEC" "$STATE_URL" 2>/dev/null); then
   if TASKS_PARSED=$(printf '%s' "$RAW" | python3 -c "import sys,json; d=json.load(sys.stdin); t=d.get('tasks'); ts=(d.get('taskState') or {}).get('tasks');
 arr=t if isinstance(t,list) else (ts if isinstance(ts,list) else []); print(len(arr))" 2>/dev/null); then
     TASKS="$TASKS_PARSED"
@@ -30,7 +31,7 @@ else
 fi
 
 if [[ "$API_OK" != "1" ]]; then
-  if RAW2=$(curl -sS --max-time "$CURL_TIMEOUT_SEC" "$ALT_STATE_URL" 2>/dev/null); then
+  if RAW2=$(curl -sS --retry "$CURL_RETRIES" --retry-delay 1 --max-time "$CURL_TIMEOUT_SEC" "$ALT_STATE_URL" 2>/dev/null); then
     if TASKS_PARSED2=$(printf '%s' "$RAW2" | python3 -c "import sys,json; d=json.load(sys.stdin); t=d.get('tasks',{}); print(int(t.get('total',-1)))" 2>/dev/null); then
       TASKS="$TASKS_PARSED2"
       API_OK=1
@@ -60,6 +61,7 @@ echo "state_url: $STATE_URL"
 echo "alt_state_url: $ALT_STATE_URL"
 echo "api_error: ${API_ERR:-none}"
 echo "curl_timeout_sec: $CURL_TIMEOUT_SEC"
+echo "curl_retries: $CURL_RETRIES"
 echo "host: $HOSTNAME_VAL"
 echo "checked_at_utc: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
@@ -103,6 +105,6 @@ fi
 if [[ "$OUTPUT_JSON" == "1" ]]; then
   python3 - <<JSON
 import json
-print(json.dumps({"tasks": int("$TASKS"), "api_ok": int("$API_OK"), "api_source": "$API_SOURCE", "api_note": "$API_NOTE", "api_error": "${API_ERR:-}", "state_url": "$STATE_URL", "alt_state_url": "$ALT_STATE_URL", "curl_timeout_sec": int("$CURL_TIMEOUT_SEC"), "host": "$HOSTNAME_VAL", "status": "$STATUS", "age_min": int("$AGE_MIN"), "age_sec": int("$AGE_SEC"), "max_age_min": int("$MAX_AGE_MIN"), "build_dir": "$BUILD_DIR", "artifact": "$ARTIFACT", "artifact_mtime": int("$ART_MTIME"), "checked_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"}))
+print(json.dumps({"tasks": int("$TASKS"), "api_ok": int("$API_OK"), "api_source": "$API_SOURCE", "api_note": "$API_NOTE", "api_error": "${API_ERR:-}", "state_url": "$STATE_URL", "alt_state_url": "$ALT_STATE_URL", "curl_timeout_sec": int("$CURL_TIMEOUT_SEC"), "curl_retries": int("$CURL_RETRIES"), "host": "$HOSTNAME_VAL", "status": "$STATUS", "age_min": int("$AGE_MIN"), "age_sec": int("$AGE_SEC"), "max_age_min": int("$MAX_AGE_MIN"), "build_dir": "$BUILD_DIR", "artifact": "$ARTIFACT", "artifact_mtime": int("$ART_MTIME"), "checked_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"}))
 JSON
 fi
