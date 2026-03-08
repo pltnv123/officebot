@@ -165,9 +165,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void BuildAgents()
     {
         BuildAgent(new Vector3(0f, 0f, -0.5f), "CHIEF", new Color(1.00f, 0.85f, 0.35f), 0f);
-        BuildAgent(new Vector3(-1.8f, 0f, 0.5f), "PLANNER", new Color(0.35f, 0.65f, 1.00f), 20f);
-        BuildAgent(new Vector3(-6.5f, 0f, 2.5f), "WORKER", new Color(0.20f, 0.95f, 0.72f), 45f);
-        BuildAgent(new Vector3(6.5f, 0f, 2.5f), "TESTER", new Color(0.45f, 1.00f, 0.65f), -45f);
+        BuildAgent(new Vector3(-2f, 0f, 1f), "PLANNER", new Color(0.35f, 0.65f, 1.00f), 20f);
+        BuildAgent(new Vector3(-5f, 0f, 2f), "WORKER", new Color(0.20f, 0.95f, 0.72f), 45f);
+        BuildAgent(new Vector3(5f, 0f, 2f), "TESTER", new Color(0.45f, 1.00f, 0.65f), -45f);
     }
 
     private void BuildAgent(Vector3 pos, string role, Color eyeCol, float rotY)
