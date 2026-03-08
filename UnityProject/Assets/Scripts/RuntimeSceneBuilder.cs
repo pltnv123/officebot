@@ -78,7 +78,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  // FOV locked to reference framing (do not change for redeploy sanity checks)
  cam.fieldOfView = 45f;
  // Slight left-front view for floor depth
- cam.transform.position = new Vector3(-1.5f, 7.0f, -9.0f);
+ cam.transform.position = new Vector3(0f, 5.6f, -6.8f);
  cam.transform.rotation = Quaternion.Euler(30f, 8f, 0f);
  cam.backgroundColor = new Color(0.04f, 0.04f, 0.07f);
  cam.clearFlags = CameraClearFlags.SolidColor;
