@@ -142,7 +142,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("DispatchDesk", new Vector3(-9f, 0.45f, 2f), new Vector3(1.8f, 0.9f, 1.1f), Mat(new Color(0.6f, 0.4f, 0.2f), 0.12f));
         Cube("DispatchTerminal", new Vector3(-9f, 1.15f, 1.7f), new Vector3(0.7f, 0.45f, 0.08f), Mat(new Color(0.10f, 0.12f, 0.14f), 0.1f));
         Cube("DispatchScreen", new Vector3(-9f, 1.15f, 1.65f), new Vector3(0.58f, 0.32f, 0.02f), Emissive(new Color(0.22f, 0.16f, 0.06f), new Color(1f, 0.60f, 0.10f), 2.2f));
-        Txt("DispatchLbl", "DISPATCH", new Vector3(-9f, 1.50f, 1.4f), 24, 0.10f, new Color(1f, 0.92f, 0.75f), FontStyle.Bold);
+        Txt("DispatchLbl", "DISPATCH", new Vector3(-5.5f, 1.50f, 1.4f), 24, 0.10f, new Color(1f, 0.92f, 0.75f), FontStyle.Bold);
 
         // Central desk (rounded)
         var desk = Cyl("CentralDesk", new Vector3(0f, 0.35f, 1f), new Vector3(1.5f, 0.35f, 1.0f), Mat(new Color(0.55f, 0.35f, 0.15f), 0.18f));
@@ -163,10 +163,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildAgents()
     {
-        BuildAgent(new Vector3(0f, 0f, 2f), "CHIEF", new Color(1.00f, 0.85f, 0.35f), 0f);
-        BuildAgent(new Vector3(-1.5f, 0f, 2.5f), "PLANNER", new Color(0.35f, 0.65f, 1.00f), 20f);
-        BuildAgent(new Vector3(-6f, 0f, 4f), "WORKER", new Color(0.20f, 0.95f, 0.72f), 45f);
-        BuildAgent(new Vector3(6f, 0f, 4f), "TESTER", new Color(0.45f, 1.00f, 0.65f), -45f);
+        BuildAgent(new Vector3(0f, 0f, 3f), "CHIEF", new Color(1.00f, 0.85f, 0.35f), 0f);
+        BuildAgent(new Vector3(-2f, 0f, 3f), "PLANNER", new Color(0.35f, 0.65f, 1.00f), 20f);
+        BuildAgent(new Vector3(-5f, 0f, 4f), "WORKER", new Color(0.20f, 0.95f, 0.72f), 45f);
+        BuildAgent(new Vector3(5f, 0f, 4f), "TESTER", new Color(0.45f, 1.00f, 0.65f), -45f);
     }
 
     private void BuildAgent(Vector3 pos, string role, Color eyeCol, float rotY)
