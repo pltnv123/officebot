@@ -324,9 +324,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  new Vector3( 0.18f,1.56f,0.45f),new Vector3(0.27f,0.27f,0.10f),ToonM(dark));
  // glowing eye
  Go(root,PrimitiveType.Sphere,"EyeL",
- new Vector3(-0.18f,1.56f,0.47f),new Vector3(0.26f,0.26f,0.11f),eyeMat);
+ new Vector3(-0.18f,1.56f,0.47f),new Vector3(0.26f,0.26f,0.26f),eyeMat);
  Go(root,PrimitiveType.Sphere,"EyeR",
- new Vector3( 0.18f,1.56f,0.47f),new Vector3(0.26f,0.26f,0.11f),eyeMat);
+ new Vector3( 0.18f,1.56f,0.47f),new Vector3(0.26f,0.26f,0.26f),eyeMat);
 
  // eye point light
  var elgo=new GameObject("EyeLight");
