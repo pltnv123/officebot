@@ -58,7 +58,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         if (cam == null) return;
         cam.orthographic = false;
         cam.fieldOfView = 60f;
-        cam.transform.position = new Vector3(0f, 18f, -14f);
+        cam.transform.position = new Vector3(1f, 18f, -14f);
         cam.transform.rotation = Quaternion.Euler(52f, 0f, 0f);
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = new Color(0.08f, 0.07f, 0.06f);
@@ -90,7 +90,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void BuildBoard()
     {
         float z = 9f;
-        Cube("TaskBoard", new Vector3(0f, 2.5f, z), new Vector3(18f, 4f, 0.2f), Mat(new Color(0.12f, 0.12f, 0.12f), 0.08f));
+        Cube("TaskBoard", new Vector3(0f, 2.5f, z), new Vector3(14f, 4f, 0.2f), Mat(new Color(0.12f, 0.12f, 0.12f), 0.08f));
 
         string[] headers = { "INBOX", "QUEUE", "PLAN", "WORK", "REVIEW", "DONE" };
         Color[] headerCols =
@@ -103,8 +103,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             new Color(0.40f,0.76f,0.40f)
         };
 
-        float startX = -7.5f;
-        float dx = 3.0f;
+        float startX = -5.8f;
+        float dx = 2.32f;
         float tz = z - 0.12f;
 
         for (int c = 0; c < headers.Length; c++)
@@ -163,10 +163,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildAgents()
     {
-        BuildAgent(new Vector3(0f, 0f, 0f), "CHIEF", new Color(1.00f, 0.85f, 0.35f), 0f);
-        BuildAgent(new Vector3(-1.5f, 0f, -0.5f), "PLANNER", new Color(0.35f, 0.65f, 1.00f), 20f);
-        BuildAgent(new Vector3(-7f, 0f, 2f), "WORKER", new Color(0.20f, 0.95f, 0.72f), 45f);
-        BuildAgent(new Vector3(7f, 0f, 2f), "TESTER", new Color(0.45f, 1.00f, 0.65f), -45f);
+        BuildAgent(new Vector3(0f, 0f, 2f), "CHIEF", new Color(1.00f, 0.85f, 0.35f), 0f);
+        BuildAgent(new Vector3(-1.5f, 0f, 2.5f), "PLANNER", new Color(0.35f, 0.65f, 1.00f), 20f);
+        BuildAgent(new Vector3(-6f, 0f, 4f), "WORKER", new Color(0.20f, 0.95f, 0.72f), 45f);
+        BuildAgent(new Vector3(6f, 0f, 4f), "TESTER", new Color(0.45f, 1.00f, 0.65f), -45f);
     }
 
     private void BuildAgent(Vector3 pos, string role, Color eyeCol, float rotY)
