@@ -297,25 +297,22 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private static Shader LS()
     {
-        Shader shader = Shader.Find("Universal Render Pipeline/Lit");
-        if (shader == null) shader = Shader.Find("Hidden/InternalErrorShader");
-        return shader;
+        return Shader.Find("Sprites/Default") ??
+               Shader.Find("UI/Default") ??
+               Shader.Find("Hidden/InternalErrorShader");
     }
 
     private static Material Mat(Color c, float smooth = 0.15f)
     {
-        var m = new Material(LS()) { color = c };
-        if (m.HasProperty("_Smoothness")) m.SetFloat("_Smoothness", smooth);
-        if (m.HasProperty("_Glossiness")) m.SetFloat("_Glossiness", smooth);
+        var m = new Material(Shader.Find("Sprites/Default") ?? Shader.Find("UI/Default") ?? Shader.Find("Hidden/InternalErrorShader"));
+        m.color = c;
         return m;
     }
 
     private static Material Emissive(Color baseColor, Color emit, float mul)
     {
-        var m = new Material(LS()) { color = baseColor };
-        m.EnableKeyword("_EMISSION");
-        if (m.HasProperty("_EmissionColor")) m.SetColor("_EmissionColor", emit * mul);
-        m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
+        var m = new Material(Shader.Find("Sprites/Default") ?? Shader.Find("UI/Default") ?? Shader.Find("Hidden/InternalErrorShader"));
+        m.color = Color.Lerp(baseColor, emit, 0.6f);
         return m;
     }
 
