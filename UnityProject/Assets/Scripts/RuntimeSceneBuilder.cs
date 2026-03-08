@@ -243,11 +243,11 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         L("Directional", LightType.Directional, new Color(1.0f, 0.92f, 0.78f), 1.2f, 0f,
             LightShadows.Soft, new Vector3(0f, 6f, 0f), Quaternion.Euler(35f, -30f, 0f));
         L("Dispatch", LightType.Point, new Color(1.0f, 0.6f, 0.1f), 2.2f, 5f,
-            LightShadows.None, new Vector3(-7f, 2.1f, 3f));
+            LightShadows.None, new Vector3(-7f, 2.1f, 3f), Quaternion.identity);
         L("Monitoring", LightType.Point, new Color(0.3f, 1.0f, 0.5f), 1.8f, 4f,
-            LightShadows.None, new Vector3(7f, 2.0f, 3f));
+            LightShadows.None, new Vector3(7f, 2.0f, 3f), Quaternion.identity);
         L("DeskLamp", LightType.Point, new Color(1.0f, 0.9f, 0.6f), 2.0f, 3f,
-            LightShadows.None, new Vector3(0f, 1.5f, 1f));
+            LightShadows.None, new Vector3(0f, 1.5f, 1f), Quaternion.identity);
     }
 
     private static void L(string n, LightType t, Color c, float intensity, float range, LightShadows sh, Vector3 pos, Quaternion rot)
