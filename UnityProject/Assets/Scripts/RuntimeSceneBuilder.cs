@@ -375,7 +375,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  }
 
  // ═══════════════════════════════════════════
- // LIGHTING — warm Pixar 3-point
+ // LIGHTING — VIZ-002 Pixar warm lighting setup
  // ═══════════════════════════════════════════
  private static void BuildLighting()
  {
@@ -385,34 +385,14 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  var def=GameObject.Find("Directional Light");
  if(def!=null)Object.DestroyImmediate(def);
 
- // KEY — warm from top-left (matches reference sun angle)
- L("Key", LightType.Directional, new Color(1.00f,0.91f,0.74f),2.4f,0f,
- LightShadows.Soft, Vector3.zero,Quaternion.Euler(42f,-35f,0f));
+ L("Directional", LightType.Directional, new Color(1.0f, 0.95f, 0.8f), 1.5f, 0f,
+ LightShadows.Soft, new Vector3(2f, 8f, -4f), Quaternion.Euler(45f, -30f, 0f));
 
- // FILL — cool from right (blue screen glow from monitors)
- L("Fill", LightType.Point, new Color(0.48f,0.58f,0.92f),2.0f,30f,
- LightShadows.None, new Vector3(8f,5f,0f));
+ L("RimLightLeft", LightType.Point, new Color(0.8f, 0.9f, 1.0f), 0.4f, 18f,
+ LightShadows.None, new Vector3(-3f, 4f, -3f));
 
- // RIM — warm from behind/above (lifts shapes from background)
- L("Rim", LightType.Point, new Color(1.00f,0.82f,0.52f),2.8f,22f,
- LightShadows.None, new Vector3(0f,5f,7f));
-
- // VIZ-002 target: warm white point light for overall scene brightness
- L("WarmFill", LightType.Point, new Color(1.00f, 0.95f, 0.85f), 3.0f, 20f,
- LightShadows.None, new Vector3(0f, 4f, -3f));
-
- // ROBOT FRONT — dedicated bright fill so robot faces glow
- // Positioned at camera-side to light all 3 robot faces
- L("RobotFront",LightType.Point, new Color(1.00f,0.96f,0.88f),6.0f,18f,
- LightShadows.None, new Vector3(-1f,3.5f,-5f));
-
- // DESK LAMP — orange pool on desk surface
- L("Desk", LightType.Point, new Color(1.00f,0.76f,0.40f),5.0f,9f,
- LightShadows.None, new Vector3(0f,2.5f,1.2f));
-
- // BOARD SPOT — cool white on task board
- L("Board",LightType.Spot, new Color(0.88f,0.93f,1.00f),4.0f,16f,
- LightShadows.None, new Vector3(0f,8f,2f),Quaternion.Euler(60f,0f,0f),55f);
+ L("RimLightRight", LightType.Point, new Color(0.8f, 0.9f, 1.0f), 0.4f, 18f,
+ LightShadows.None, new Vector3(3f, 4f, -3f));
  }
 
  private static void L(string n,LightType t,Color c,float intensity,float range,
