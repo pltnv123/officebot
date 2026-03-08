@@ -57,9 +57,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         var cam = Camera.main;
         if (cam == null) return;
         cam.orthographic = false;
-        cam.fieldOfView = 55f;
-        cam.transform.position = new Vector3(0f, 12f, -10f);
-        cam.transform.rotation = Quaternion.Euler(55f, 0f, 0f);
+        cam.fieldOfView = 60f;
+        cam.transform.position = new Vector3(0f, 18f, -14f);
+        cam.transform.rotation = Quaternion.Euler(52f, 0f, 0f);
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = new Color(0.08f, 0.07f, 0.06f);
         cam.nearClipPlane = 0.3f;
