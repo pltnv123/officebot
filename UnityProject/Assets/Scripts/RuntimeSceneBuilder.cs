@@ -239,24 +239,25 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  // floating name label (VIZ-005 readability)
  var lg=new GameObject("Label");
  lg.transform.SetParent(root.transform);
- Vector3 labelLocal = role=="WORKER"
- ? new Vector3(-0.34f,2.48f,-0.16f)
- : role=="REVIEWER"
- ? new Vector3(0.34f,2.48f,-0.16f)
- : new Vector3(0f,2.62f,-0.20f);
- lg.transform.localPosition=labelLocal;
- lg.transform.localScale=Vector3.one*0.16f;
+ // head top (~1.84f) + 0.3f = 2.14f
+ lg.transform.localPosition=new Vector3(0f,2.14f,0f);
+ lg.transform.localScale=Vector3.one*0.14f;
 
  var labelBack=GameObject.CreatePrimitive(PrimitiveType.Cube);
  labelBack.name="LabelBack";
  labelBack.transform.SetParent(lg.transform,false);
  labelBack.transform.localPosition=new Vector3(0f,0f,0.12f);
- labelBack.transform.localScale=new Vector3(4.6f,1.0f,0.12f);
+ labelBack.transform.localScale=new Vector3(4.8f,1.2f,0.12f);
  var lbR=labelBack.GetComponent<Renderer>();
  if(lbR!=null) lbR.material=Emissive(new Color(0.02f,0.02f,0.03f),new Color(0.02f,0.02f,0.03f),0.5f);
 
+ AddLabelOutline(lg.transform, role, new Vector3(0f,0.02f,0.01f));
+ AddLabelOutline(lg.transform, role, new Vector3(0f,-0.02f,0.01f));
+ AddLabelOutline(lg.transform, role, new Vector3(0.02f,0f,0.01f));
+ AddLabelOutline(lg.transform, role, new Vector3(-0.02f,0f,0.01f));
+
  var tm=lg.AddComponent<TextMesh>();
- tm.text=role; tm.fontSize=18; tm.characterSize=0.11f; tm.color=Color.white;
+ tm.text=role; tm.fontSize=26; tm.characterSize=0.11f; tm.color=Color.white;
  tm.anchor=TextAnchor.MiddleCenter; tm.alignment=TextAlignment.Center;
  _labelXforms.Add(lg.transform);
 
@@ -265,6 +266,16 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  _robotTransforms.Add(root.transform);
  foreach(var lt in root.GetComponentsInChildren<Light>(true))_eyeLights.Add(lt);
  return root;
+ }
+
+ private static void AddLabelOutline(Transform parent,string role,Vector3 lp)
+ {
+ var o=new GameObject("LabelOutline");
+ o.transform.SetParent(parent,false);
+ o.transform.localPosition=lp;
+ var t=o.AddComponent<TextMesh>();
+ t.text=role; t.fontSize=26; t.characterSize=0.11f; t.color=Color.black;
+ t.anchor=TextAnchor.MiddleCenter; t.alignment=TextAlignment.Center;
  }
 
  private GameObject TryLoadFbxRobot(Vector3 pos, string role)
