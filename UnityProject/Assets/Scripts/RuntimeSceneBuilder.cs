@@ -239,9 +239,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  // floating name label (VIZ-005 readability)
  var lg=new GameObject("Label");
  lg.transform.SetParent(root.transform);
- // head top (~1.84f) + 0.3f = 2.14f
- lg.transform.localPosition=new Vector3(0f,2.14f,0f);
- lg.transform.localScale=Vector3.one*0.14f;
+ // head top (~1.84f) + 0.5f = 2.34f
+ lg.transform.localPosition=new Vector3(0f,2.34f,0f);
+ lg.transform.localScale=Vector3.one*0.16f;
 
  var labelBack=GameObject.CreatePrimitive(PrimitiveType.Cube);
  labelBack.name="LabelBack";
@@ -257,7 +257,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  AddLabelOutline(lg.transform, role, new Vector3(-0.02f,0f,0.01f));
 
  var tm=lg.AddComponent<TextMesh>();
- tm.text=role; tm.fontSize=26; tm.characterSize=0.11f; tm.color=Color.white;
+ tm.text=role; tm.fontSize=28; tm.characterSize=0.13f; tm.color=Color.white;
  tm.anchor=TextAnchor.MiddleCenter; tm.alignment=TextAlignment.Center;
  _labelXforms.Add(lg.transform);
 
@@ -274,7 +274,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  o.transform.SetParent(parent,false);
  o.transform.localPosition=lp;
  var t=o.AddComponent<TextMesh>();
- t.text=role; t.fontSize=26; t.characterSize=0.11f; t.color=Color.black;
+ t.text=role; t.fontSize=28; t.characterSize=0.13f; t.color=Color.black;
  t.anchor=TextAnchor.MiddleCenter; t.alignment=TextAlignment.Center;
  }
 
