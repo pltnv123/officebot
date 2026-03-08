@@ -17,12 +17,14 @@
 - Fix robot rotations: worker Y=35, planner Y=0, reviewer Y=-40
 - Verify: robots face toward camera in screenshot
 
-### VIZ-004 [ACTIVE] — Pixar robot models
+### VIZ-004 [DONE] — Pixar robot models
+- Completed: 2026-03-08
+- Commits: 02ed198, adc7532
 - Big round head (0.65x0.60x0.58), glowing eyes radius=0.13
 - Light gray body Color(0.85, 0.85, 0.88)
-- Verify: robots look round and Pixar-style in screenshot
+- Verify: screenshot + CI green + wasm updated
 
-### VIZ-005 [TODO] — Robot name labels
+### VIZ-005 [ACTIVE] — Robot name labels
 - TextMesh WORKER/PLANNER/REVIEWER above each robot
 - Billboard toward camera
 - Verify: names readable in screenshot
