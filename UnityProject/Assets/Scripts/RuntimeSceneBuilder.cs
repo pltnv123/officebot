@@ -274,7 +274,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  var root=new GameObject(role);
  root.transform.position=pos;
 
- Color body =new Color(0.88f,0.88f,0.91f); // near-white
+ Color body =new Color(0.85f,0.85f,0.88f); // Pixar light gray target
  Color grey =new Color(0.68f,0.68f,0.72f);
  Color dark =new Color(0.12f,0.12f,0.14f);
 
@@ -303,7 +303,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  new Vector3(0f,1.10f,0f),new Vector3(0.19f,0.09f,0.19f),ToonM(dark));
  // HEAD — big Pixar sphere
  Go(root,PrimitiveType.Sphere,"Head",
- new Vector3(0f,1.54f,0f),new Vector3(0.90f,0.84f,0.86f),ToonM(body));
+ new Vector3(0f,1.54f,0f),new Vector3(0.65f,0.60f,0.58f),ToonM(body));
  // face plate
  Go(root,PrimitiveType.Cube,"Face",
  new Vector3(0f,1.54f,0.43f),new Vector3(0.66f,0.54f,0.07f),ToonM(dark));
@@ -324,9 +324,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  new Vector3( 0.18f,1.56f,0.45f),new Vector3(0.27f,0.27f,0.10f),ToonM(dark));
  // glowing eye
  Go(root,PrimitiveType.Sphere,"EyeL",
- new Vector3(-0.18f,1.56f,0.47f),new Vector3(0.21f,0.21f,0.09f),eyeMat);
+ new Vector3(-0.18f,1.56f,0.47f),new Vector3(0.26f,0.26f,0.11f),eyeMat);
  Go(root,PrimitiveType.Sphere,"EyeR",
- new Vector3( 0.18f,1.56f,0.47f),new Vector3(0.21f,0.21f,0.09f),eyeMat);
+ new Vector3( 0.18f,1.56f,0.47f),new Vector3(0.26f,0.26f,0.11f),eyeMat);
 
  // eye point light
  var elgo=new GameObject("EyeLight");
