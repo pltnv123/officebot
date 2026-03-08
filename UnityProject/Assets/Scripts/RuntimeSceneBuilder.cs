@@ -295,10 +295,12 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         poller.orchestrator = orch;
     }
 
-    private static Shader LS() =>
-        Shader.Find("Universal Render Pipeline/Lit") ??
-        Shader.Find("Universal Render Pipeline/Simple Lit") ??
-        Shader.Find("Hidden/InternalErrorShader");
+    private static Shader LS()
+    {
+        Shader shader = Shader.Find("Universal Render Pipeline/Lit");
+        if (shader == null) shader = Shader.Find("Hidden/InternalErrorShader");
+        return shader;
+    }
 
     private static Material Mat(Color c, float smooth = 0.15f)
     {
