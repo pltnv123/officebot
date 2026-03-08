@@ -379,7 +379,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
  }
 
  private static void L(string n,LightType t,Color c,float intensity,float range,
- private static void L(string n,LightType t,Color c,float intensity,float range,
  LightShadows sh,Vector3 pos,Quaternion? rot=null,float spot=60f)
  {
  var go=new GameObject(n+"_Light");
