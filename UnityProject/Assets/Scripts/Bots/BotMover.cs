@@ -12,6 +12,8 @@ public class BotMover : MonoBehaviour
  [Header("Idle bob")]
  public float bobAmplitude = 0.04f;
  public float bobFrequency = 1.4f;
+ public float idleYawAmplitude = 5f;
+ public float idleYawFrequency = 0.65f;
 
  [Header("Eye lights")]
  public List<Light> eyeLights = new List<Light>();
@@ -21,6 +23,7 @@ public class BotMover : MonoBehaviour
  public bool IsBusy { get; private set; }
 
  private Vector3 _basePos;
+ private Quaternion _baseRot;
  private float _time;
  private ApiClient _api;
 
@@ -47,6 +50,7 @@ public class BotMover : MonoBehaviour
  void Start()
  {
  _basePos = transform.position;
+ _baseRot = transform.rotation;
  idlePos = transform.position;
  _api = FindObjectOfType<ApiClient>();
  StartCoroutine(IdleRoam());
@@ -64,14 +68,17 @@ public class BotMover : MonoBehaviour
  Mathf.Sin(_time * 2.2f + GetInstanceID() * 0.9f) * 0.8f;
  }
 
- // Idle body bob (only when not moving)
+ // Idle body bob + micro sway (only when not moving)
  if (!IsMoving && !IsBusy)
  {
- float bob = Mathf.Sin(_time * bobFrequency +
- GetInstanceID() * 1.1f) * bobAmplitude;
+ float phase = GetInstanceID() * 1.1f;
+ float bob = Mathf.Sin(_time * bobFrequency + phase) * bobAmplitude;
+ float yaw = Mathf.Sin(_time * idleYawFrequency + phase * 0.7f) * idleYawAmplitude;
+
  var p = transform.position;
  p.y = _basePos.y + bob;
  transform.position = p;
+ transform.rotation = _baseRot * Quaternion.Euler(0f, yaw, 0f);
  }
  }
 
