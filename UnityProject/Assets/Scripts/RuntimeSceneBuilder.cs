@@ -74,7 +74,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         if (cam == null) return;
         cam.orthographic = false;
         cam.fieldOfView = 58f;
-        cam.transform.position = new Vector3(0f, 15f, -11f);
+        cam.transform.position = new Vector3(0f, 16f, -12f);
         cam.transform.rotation = Quaternion.Euler(50f, 0f, 0f);
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = new Color(0.08f, 0.07f, 0.06f);
@@ -106,8 +106,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildBoard()
     {
-        float z = 9f;
-        Cube("TaskBoard", new Vector3(0f, 2.5f, z), new Vector3(14f, 4f, 0.2f), Mat(new Color(0.12f, 0.12f, 0.12f), 0.08f));
+        float z = 8f;
+        Cube("TaskBoard", new Vector3(0f, 2.5f, z), new Vector3(11f, 4f, 0.2f), Mat(new Color(0.12f, 0.12f, 0.12f), 0.08f));
 
         string[] headers = { "INBOX", "QUEUE", "PLAN", "WORK", "REVIEW", "DONE" };
         Color[] headerCols =
@@ -123,22 +123,22 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         for (int hi = 0; hi < headerCols.Length && hi < _columnHighlightColors.Length; hi++)
             _columnHighlightColors[hi] = headerCols[hi];
 
-        float startX = -5.8f;
-        float dx = 2.32f;
+        float startX = -4.58f;
+        float dx = 1.83f;
         float tz = z - 0.12f;
 
         for (int c = 0; c < headers.Length; c++)
         {
             float x = startX + c * dx;
             var colBody = (c % 2 == 0) ? new Color(0.16f, 0.16f, 0.16f) : new Color(0.20f, 0.20f, 0.20f);
-            Cube($"BoardCol_{c}", new Vector3(x, 2.5f, tz + 0.02f), new Vector3(2.7f, 3.5f, 0.03f), Mat(colBody, 0.05f));
-            Cube($"HdrStrip_{c}", new Vector3(x, 4.15f, tz + 0.03f), new Vector3(2.7f, 0.38f, 0.03f), Mat(headerCols[c], 0.04f));
+            Cube($"BoardCol_{c}", new Vector3(x, 2.5f, tz + 0.02f), new Vector3(1.72f, 3.5f, 0.03f), Mat(colBody, 0.05f));
+            Cube($"HdrStrip_{c}", new Vector3(x, 4.15f, tz + 0.03f), new Vector3(1.72f, 0.38f, 0.03f), Mat(headerCols[c], 0.04f));
             Txt($"Hdr{c}", headers[c], new Vector3(x, 4.15f, tz - 0.04f), 24, 0.12f, Color.white, FontStyle.Bold);
 
             for (int r = 0; r < 3; r++)
             {
                 float y = 3.45f - r * 0.85f;
-                var card = Cube($"Card_{c}_{r}", new Vector3(x, y, tz + 0.03f), new Vector3(2.3f, 0.55f, 0.03f), Mat(_boardCardBaseColor, 0.04f));
+                var card = Cube($"Card_{c}_{r}", new Vector3(x, y, tz + 0.03f), new Vector3(1.45f, 0.55f, 0.03f), Mat(_boardCardBaseColor, 0.04f));
                 var renderer = card.GetComponent<Renderer>();
                 if (renderer != null)
                 {
@@ -169,9 +169,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("DispatchTerminal", new Vector3(-5f, 0.57f, 3.95f), new Vector3(0.36f, 0.12f, 0.20f), Mat(new Color(0.42f, 0.42f, 0.44f), 0.1f));
         Txt("DispatchLbl", "DISPATCH", new Vector3(-5f, 1.10f, 3.55f), 22, 0.10f, new Color(1f, 0.92f, 0.75f), FontStyle.Bold);
 
-        // Central desk (rounded)
-        var desk = Cyl("CentralDesk", new Vector3(0f, 0.35f, 1f), new Vector3(1.5f, 0.35f, 1.0f), Mat(new Color(0.55f, 0.35f, 0.15f), 0.18f));
-        desk.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
+        // Central desk (bigger)
+        Cube("CentralDesk", new Vector3(0f, 0.40f, 1f), new Vector3(4f, 0.8f, 2.5f), Mat(new Color(0.55f, 0.35f, 0.15f), 0.18f));
         Cube("DeskPaperA", new Vector3(-0.55f, 0.72f, 0.75f), new Vector3(0.8f, 0.02f, 0.6f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
         Cube("DeskPaperB", new Vector3(0.45f, 0.72f, 1.2f), new Vector3(0.9f, 0.02f, 0.6f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
 
@@ -320,7 +319,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             var mv = go.GetComponent<BotMover>() ?? go.AddComponent<BotMover>();
             mv.SetRole(role);
             mv.idlePos = idle;
-            mv.boardPos = new Vector3(0f, 0f, 9f);
+            mv.boardPos = new Vector3(0f, 0f, 8f);
             mv.deskPos = desk;
             mv.donePos = done;
             return mv;
