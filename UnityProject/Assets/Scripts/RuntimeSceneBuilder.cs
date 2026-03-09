@@ -159,6 +159,17 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             Cube($"MonScreen{i}", monPos[i] + new Vector3(0f,0f,-0.03f), new Vector3(0.50f, 0.30f, 0.02f), Emissive(new Color(0.12f, 0.30f, 0.16f), new Color(0.20f, 1.0f, 0.50f), 2.8f));
         }
         Txt("MonitoringLbl", "MONITORING", new Vector3(9f, 1.5f, 1.1f), 24, 0.10f, new Color(0.85f, 1f, 0.85f), FontStyle.Bold);
+
+        // Zone decorations
+        Cube("CenterRug", new Vector3(0f, -0.01f, 1.0f), new Vector3(5.8f, 0.01f, 3.0f), Mat(new Color(0.58f, 0.50f, 0.42f), 0.02f));
+        Cube("DispatchPlantPot", new Vector3(-10.2f, 0.30f, 3.7f), new Vector3(0.45f, 0.60f, 0.45f), Mat(new Color(0.42f, 0.28f, 0.16f), 0.10f));
+        Go(new GameObject("DispatchPlant"), PrimitiveType.Sphere, "Leaf", new Vector3(-10.2f, 0.95f, 3.7f), new Vector3(0.95f, 1.10f, 0.95f), Mat(new Color(0.22f, 0.52f, 0.24f), 0.05f));
+
+        Cube("MonitoringPlantPot", new Vector3(10.4f, 0.30f, 3.9f), new Vector3(0.45f, 0.60f, 0.45f), Mat(new Color(0.42f, 0.28f, 0.16f), 0.10f));
+        Go(new GameObject("MonitoringPlant"), PrimitiveType.Sphere, "Leaf", new Vector3(10.4f, 0.95f, 3.9f), new Vector3(0.95f, 1.10f, 0.95f), Mat(new Color(0.24f, 0.55f, 0.28f), 0.05f));
+
+        Cube("DeskLampStem", new Vector3(1.3f, 1.00f, 1.3f), new Vector3(0.07f, 0.55f, 0.07f), Mat(new Color(0.18f, 0.18f, 0.20f), 0.2f));
+        Cube("DeskLampHead", new Vector3(1.3f, 1.30f, 1.3f), new Vector3(0.22f, 0.14f, 0.22f), Emissive(new Color(0.25f, 0.18f, 0.10f), new Color(1f, 0.72f, 0.35f), 2.2f));
     }
 
     private void BuildAgents()
@@ -248,6 +259,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             LightShadows.None, new Vector3(9f, 2.1f, 2f), Quaternion.identity);
         L("BoardBlueAccent", LightType.Point, new Color(0.30f, 0.55f, 1.0f), 1.6f, 7f,
             LightShadows.None, new Vector3(0f, 3.8f, 8f), Quaternion.identity);
+        L("DeskLampWarm", LightType.Point, new Color(1.0f, 0.78f, 0.45f), 1.8f, 4.5f,
+            LightShadows.None, new Vector3(1.3f, 1.45f, 1.3f), Quaternion.identity);
+        L("Room2PortalWarm", LightType.Spot, new Color(1.0f, 0.68f, 0.25f), 2.0f, 8f,
+            LightShadows.None, new Vector3(9f, 3.4f, 7.2f), Quaternion.Euler(65f, 180f, 0f));
     }
 
     private static void L(string n, LightType t, Color c, float intensity, float range, LightShadows sh, Vector3 pos, Quaternion rot)
