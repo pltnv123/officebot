@@ -95,6 +95,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         var wall = Mat(new Color(0.34f, 0.25f, 0.18f), 0.14f);
         Cube("BackWall", new Vector3(0f, 2.5f, 10f), new Vector3(24f, 5f, 0.25f), wall);
+        Cube("DepthBackWall", new Vector3(0f, 3f, 9f), new Vector3(20f, 6f, 0.3f), Mat(new Color(0.15f, 0.12f, 0.08f), 0.12f));
         Cube("LeftWall", new Vector3(-12f, 2.5f, 3f), new Vector3(0.25f, 5f, 18f), wall);
         Cube("RightWall", new Vector3(12f, 2.5f, 3f), new Vector3(0.25f, 5f, 18f), wall);
 
@@ -203,10 +204,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildAgents()
     {
-        BuildAgent(new Vector3(0f, 0f, 2f), "CHIEF", new Color(1.00f, 0.85f, 0.35f), 0f);
-        BuildAgent(new Vector3(-2.5f, 0f, 2.5f), "PLANNER", new Color(0.35f, 0.65f, 1.00f), 20f);
-        BuildAgent(new Vector3(-4f, 0f, 3.5f), "WORKER", new Color(0.20f, 0.95f, 0.72f), 45f);
-        BuildAgent(new Vector3(4.5f, 0f, 3f), "TESTER", new Color(0.45f, 1.00f, 0.65f), -45f);
+        BuildAgent(new Vector3(0f, 0f, 1.5f), "CHIEF", new Color(1.00f, 0.85f, 0.35f), 0f);
+        BuildAgent(new Vector3(-2f, 0f, 1.5f), "PLANNER", new Color(0.35f, 0.65f, 1.00f), 20f);
+        BuildAgent(new Vector3(-5f, 0f, 3.5f), "WORKER", new Color(0.20f, 0.95f, 0.72f), 45f);
+        BuildAgent(new Vector3(5f, 0f, 3.5f), "TESTER", new Color(0.45f, 1.00f, 0.65f), -45f);
     }
 
     private void BuildAgent(Vector3 pos, string role, Color eyeCol, float rotY)
