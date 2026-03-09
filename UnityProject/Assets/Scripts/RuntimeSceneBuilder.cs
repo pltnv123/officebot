@@ -73,9 +73,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         var cam = Camera.main;
         if (cam == null) return;
         cam.orthographic = false;
-        cam.fieldOfView = 60f;
-        cam.transform.position = new Vector3(1f, 18f, -14f);
-        cam.transform.rotation = Quaternion.Euler(52f, 0f, 0f);
+        cam.fieldOfView = 58f;
+        cam.transform.position = new Vector3(0f, 15f, -11f);
+        cam.transform.rotation = Quaternion.Euler(50f, 0f, 0f);
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = new Color(0.08f, 0.07f, 0.06f);
         cam.nearClipPlane = 0.3f;
@@ -164,10 +164,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Txt("Room2Lbl", "ROOM 2", new Vector3(9f, 3.6f, 7.9f), 26, 0.12f, new Color(1f, 0.85f, 0.55f), FontStyle.Bold);
 
         // Dispatch zone (left)
-        Cube("DispatchDesk", new Vector3(-9f, 0.45f, 2f), new Vector3(1.8f, 0.9f, 1.1f), Mat(new Color(0.6f, 0.4f, 0.2f), 0.12f));
-        Cube("DispatchTerminal", new Vector3(-9f, 1.15f, 1.7f), new Vector3(0.7f, 0.45f, 0.08f), Mat(new Color(0.10f, 0.12f, 0.14f), 0.1f));
-        Cube("DispatchScreen", new Vector3(-9f, 1.15f, 1.65f), new Vector3(0.58f, 0.32f, 0.02f), Emissive(new Color(0.22f, 0.16f, 0.06f), new Color(1f, 0.60f, 0.10f), 2.2f));
-        Txt("DispatchLbl", "DISPATCH", new Vector3(-5.5f, 1.50f, 1.4f), 24, 0.10f, new Color(1f, 0.92f, 0.75f), FontStyle.Bold);
+        Cube("DispatchDesk", new Vector3(-5f, 0.25f, 4f), new Vector3(1.0f, 0.5f, 0.8f), Mat(new Color(0.56f, 0.36f, 0.18f), 0.12f));
+        Cube("DispatchTerminal", new Vector3(-5f, 0.57f, 3.95f), new Vector3(0.36f, 0.12f, 0.20f), Mat(new Color(0.42f, 0.42f, 0.44f), 0.1f));
+        Txt("DispatchLbl", "DISPATCH", new Vector3(-5f, 1.10f, 3.55f), 22, 0.10f, new Color(1f, 0.92f, 0.75f), FontStyle.Bold);
 
         // Central desk (rounded)
         var desk = Cyl("CentralDesk", new Vector3(0f, 0.35f, 1f), new Vector3(1.5f, 0.35f, 1.0f), Mat(new Color(0.55f, 0.35f, 0.15f), 0.18f));
@@ -176,14 +175,15 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("DeskPaperB", new Vector3(0.45f, 0.72f, 1.2f), new Vector3(0.9f, 0.02f, 0.6f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
 
         // Monitoring zone (right, L-shape monitors)
-        Cube("MonitoringDesk", new Vector3(9f, 0.45f, 2f), new Vector3(2.4f, 0.9f, 1.2f), Mat(new Color(0.36f, 0.32f, 0.28f), 0.1f));
-        Vector3[] monPos = { new Vector3(8.4f,1.1f,1.5f), new Vector3(9f,1.1f,1.5f), new Vector3(9.6f,1.1f,2.1f) };
-        for (int i = 0; i < monPos.Length; i++)
+        Vector3[] monPos =
         {
-            Cube($"MonFrame{i}", monPos[i], new Vector3(0.58f, 0.38f, 0.06f), Mat(new Color(0.08f, 0.09f, 0.11f), 0.2f));
-            Cube($"MonScreen{i}", monPos[i] + new Vector3(0f,0f,-0.03f), new Vector3(0.50f, 0.30f, 0.02f), Emissive(new Color(0.12f, 0.30f, 0.16f), new Color(0.20f, 1.0f, 0.50f), 2.8f));
-        }
-        Txt("MonitoringLbl", "MONITORING", new Vector3(9f, 1.5f, 1.1f), 24, 0.10f, new Color(0.85f, 1f, 0.85f), FontStyle.Bold);
+            new Vector3(5f, 1.0f, 4f),
+            new Vector3(5.9f, 1.0f, 4f),
+            new Vector3(5.9f, 1.0f, 4.9f)
+        };
+        for (int i = 0; i < monPos.Length; i++)
+            Cube($"Mon{i}", monPos[i], new Vector3(0.8f, 0.6f, 0.1f), Mat(new Color(0.08f, 0.09f, 0.11f), 0.2f));
+        Txt("MonitoringLbl", "MONITORING", new Vector3(5.5f, 1.5f, 3.5f), 22, 0.10f, new Color(0.85f, 1f, 0.85f), FontStyle.Bold);
 
         // Zone decorations
         Cube("CenterRug", new Vector3(0f, -0.01f, 1.0f), new Vector3(5.8f, 0.01f, 3.0f), Mat(new Color(0.58f, 0.50f, 0.42f), 0.02f));
@@ -205,7 +205,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     {
         BuildAgent(new Vector3(0f, 0f, 3f), "CHIEF", new Color(1.00f, 0.85f, 0.35f), 0f);
         BuildAgent(new Vector3(-2f, 0f, 3f), "PLANNER", new Color(0.35f, 0.65f, 1.00f), 20f);
-        BuildAgent(new Vector3(-4f, 0f, 4f), "WORKER", new Color(0.20f, 0.95f, 0.72f), 45f);
+        BuildAgent(new Vector3(-3.5f, 0f, 4f), "WORKER", new Color(0.20f, 0.95f, 0.72f), 45f);
         BuildAgent(new Vector3(5f, 0f, 4f), "TESTER", new Color(0.45f, 1.00f, 0.65f), -45f);
     }
 
