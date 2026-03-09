@@ -84,7 +84,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildRoom()
     {
-        var floor = Mat(new Color(0.56f, 0.46f, 0.34f), 0.08f);
+        var floor = Mat(new Color(0.65f, 0.50f, 0.30f), 0.08f);
         Cube("Floor", new Vector3(0f, -0.05f, 3f), new Vector3(24f, 0.1f, 18f), floor);
 
         var nav = Mat(new Color(0.46f, 0.40f, 0.34f), 0.06f);
@@ -203,10 +203,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildAgents()
     {
-        BuildAgent(new Vector3(0f, 0f, 3f), "CHIEF", new Color(1.00f, 0.85f, 0.35f), 0f);
-        BuildAgent(new Vector3(-2f, 0f, 3f), "PLANNER", new Color(0.35f, 0.65f, 1.00f), 20f);
-        BuildAgent(new Vector3(-3.5f, 0f, 4f), "WORKER", new Color(0.20f, 0.95f, 0.72f), 45f);
-        BuildAgent(new Vector3(5f, 0f, 4f), "TESTER", new Color(0.45f, 1.00f, 0.65f), -45f);
+        BuildAgent(new Vector3(0f, 0f, 2f), "CHIEF", new Color(1.00f, 0.85f, 0.35f), 0f);
+        BuildAgent(new Vector3(-2.5f, 0f, 2.5f), "PLANNER", new Color(0.35f, 0.65f, 1.00f), 20f);
+        BuildAgent(new Vector3(-4f, 0f, 3.5f), "WORKER", new Color(0.20f, 0.95f, 0.72f), 45f);
+        BuildAgent(new Vector3(4.5f, 0f, 3f), "TESTER", new Color(0.45f, 1.00f, 0.65f), -45f);
     }
 
     private void BuildAgent(Vector3 pos, string role, Color eyeCol, float rotY)
@@ -274,7 +274,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private static void BuildLighting()
     {
         RenderSettings.ambientMode = AmbientMode.Flat;
-        RenderSettings.ambientIntensity = 0.65f;
+        RenderSettings.ambientIntensity = 0.8f;
         RenderSettings.ambientLight = new Color(0.68f, 0.54f, 0.40f);
 
         var def = GameObject.Find("Directional Light");
