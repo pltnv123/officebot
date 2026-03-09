@@ -73,9 +73,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         var cam = Camera.main;
         if (cam == null) return;
         cam.orthographic = false;
-        cam.fieldOfView = 58f;
-        cam.transform.position = new Vector3(0f, 16f, -12f);
-        cam.transform.rotation = Quaternion.Euler(50f, 0f, 0f);
+        cam.fieldOfView = 62f;
+        cam.transform.position = new Vector3(0f, 12f, -8f);
+        cam.transform.rotation = Quaternion.Euler(45f, 0f, 0f);
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = new Color(0.08f, 0.07f, 0.06f);
         cam.nearClipPlane = 0.3f;
@@ -203,10 +203,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildAgents()
     {
-        BuildAgent(new Vector3(0f, 0f, 1.5f), "CHIEF", new Color(1.00f, 0.85f, 0.35f), 0f);
-        BuildAgent(new Vector3(-2f, 0f, 1.5f), "PLANNER", new Color(0.35f, 0.65f, 1.00f), 20f);
-        BuildAgent(new Vector3(-5f, 0f, 3.5f), "WORKER", new Color(0.20f, 0.95f, 0.72f), 45f);
-        BuildAgent(new Vector3(5f, 0f, 3.5f), "TESTER", new Color(0.45f, 1.00f, 0.65f), -45f);
+        BuildAgent(new Vector3(0f, 0f, 2f), "CHIEF", new Color(1.00f, 0.85f, 0.35f), 0f);
+        BuildAgent(new Vector3(-2f, 0f, 2f), "PLANNER", new Color(0.35f, 0.65f, 1.00f), 20f);
+        BuildAgent(new Vector3(-5f, 0f, 5f), "WORKER", new Color(0.20f, 0.95f, 0.72f), 45f);
+        BuildAgent(new Vector3(5f, 0f, 5f), "TESTER", new Color(0.45f, 1.00f, 0.65f), -45f);
     }
 
     private void BuildAgent(Vector3 pos, string role, Color eyeCol, float rotY)
