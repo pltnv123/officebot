@@ -84,7 +84,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildRoom()
     {
-        var floor = Mat(new Color(0.35f, 0.30f, 0.25f), 0.08f);
+        var floor = Mat(new Color(0.56f, 0.46f, 0.34f), 0.08f);
         Cube("Floor", new Vector3(0f, -0.05f, 3f), new Vector3(24f, 0.1f, 18f), floor);
 
         var nav = Mat(new Color(0.46f, 0.40f, 0.34f), 0.06f);
@@ -93,7 +93,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("PathDeskMonitoring", new Vector3(3.5f, -0.02f, 1.5f), new Vector3(7f, 0.02f, 2f), nav); // X=0..7
         Cube("PathMonitoringRoom2", new Vector3(9f, -0.02f, 5f), new Vector3(2f, 0.02f, 6f), nav); // right side strip
 
-        var wall = Mat(new Color(0.25f, 0.22f, 0.18f), 0.14f);
+        var wall = Mat(new Color(0.34f, 0.25f, 0.18f), 0.14f);
         Cube("BackWall", new Vector3(0f, 2.5f, 10f), new Vector3(24f, 5f, 0.25f), wall);
         Cube("LeftWall", new Vector3(-12f, 2.5f, 3f), new Vector3(0.25f, 5f, 18f), wall);
         Cube("RightWall", new Vector3(12f, 2.5f, 3f), new Vector3(0.25f, 5f, 18f), wall);
@@ -274,18 +274,18 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private static void BuildLighting()
     {
         RenderSettings.ambientMode = AmbientMode.Flat;
-        RenderSettings.ambientIntensity = 0.4f;
-        RenderSettings.ambientLight = new Color(0.40f, 0.34f, 0.28f);
+        RenderSettings.ambientIntensity = 0.65f;
+        RenderSettings.ambientLight = new Color(0.68f, 0.54f, 0.40f);
 
         var def = GameObject.Find("Directional Light");
         if (def != null) Object.DestroyImmediate(def);
 
-        L("DeskSpot", LightType.Spot, new Color(1.0f, 0.92f, 0.78f), 2.0f, 10f,
+        L("DeskSpot", LightType.Spot, new Color(1.0f, 0.84f, 0.62f), 3.0f, 13f,
             LightShadows.Soft, new Vector3(0f, 5f, 1f), Quaternion.Euler(65f, 0f, 0f));
-        L("DispatchAmber", LightType.Point, new Color(1.0f, 0.60f, 0.10f), 2.2f, 6f,
-            LightShadows.None, new Vector3(-9f, 2.1f, 2f), Quaternion.identity);
-        L("MonitoringAmber", LightType.Point, new Color(1.0f, 0.60f, 0.10f), 2.0f, 6f,
-            LightShadows.None, new Vector3(9f, 2.1f, 2f), Quaternion.identity);
+        L("DispatchAmber", LightType.Point, new Color(1.0f, 0.55f, 0.08f), 3.0f, 7f,
+            LightShadows.None, new Vector3(-5f, 2.0f, 4f), Quaternion.identity);
+        L("MonitoringGreen", LightType.Point, new Color(0.20f, 1.0f, 0.55f), 2.8f, 7f,
+            LightShadows.None, new Vector3(5.5f, 2.0f, 4.2f), Quaternion.identity);
         L("BoardBlueAccent", LightType.Point, new Color(0.30f, 0.55f, 1.0f), 1.6f, 7f,
             LightShadows.None, new Vector3(0f, 3.8f, 8f), Quaternion.identity);
         L("DeskLampWarm", LightType.Point, new Color(1.0f, 0.78f, 0.45f), 1.8f, 4.5f,
