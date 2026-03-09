@@ -11,8 +11,24 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private readonly List<Vector3> _agentIdle = new();
     private readonly List<Transform> _labelXforms = new();
     private readonly List<TextMesh> _liveTaskLabels = new();
+    private readonly List<Renderer> _boardCardRenderers = new();
+    private readonly List<int> _boardCardColumns = new();
+    private readonly Color[] _columnHighlightColors = new Color[6];
     private TextMesh _wipText, _queueText, _blockersText, _throughputText;
     private float _t;
+    private static readonly Color _boardCardBaseColor = new Color(0.28f, 0.28f, 0.28f);
+    private static readonly Dictionary<string, int> StatusToColumn = new(System.StringComparer.OrdinalIgnoreCase)
+    {
+        ["inbox"] = 0,
+        ["queue"] = 1,
+        ["plan"] = 2,
+        ["planning"] = 2,
+        ["work"] = 3,
+        ["doing"] = 3,
+        ["review"] = 4,
+        ["rework"] = 4,
+        ["done"] = 5
+    };
 
     [SerializeField] private string taskStateUrl = "/api/state";
 
@@ -103,6 +119,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             new Color(0.40f,0.76f,0.40f)
         };
 
+        for (int hi = 0; hi < headerCols.Length && hi < _columnHighlightColors.Length; hi++)
+            _columnHighlightColors[hi] = headerCols[hi];
+
         float startX = -5.8f;
         float dx = 2.32f;
         float tz = z - 0.12f;
@@ -118,7 +137,13 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             for (int r = 0; r < 3; r++)
             {
                 float y = 3.45f - r * 0.85f;
-                Cube($"Card_{c}_{r}", new Vector3(x, y, tz + 0.03f), new Vector3(2.3f, 0.55f, 0.03f), Mat(new Color(0.28f, 0.28f, 0.28f), 0.04f));
+                var card = Cube($"Card_{c}_{r}", new Vector3(x, y, tz + 0.03f), new Vector3(2.3f, 0.55f, 0.03f), Mat(_boardCardBaseColor, 0.04f));
+                var renderer = card.GetComponent<Renderer>();
+                if (renderer != null)
+                {
+                    _boardCardRenderers.Add(renderer);
+                    _boardCardColumns.Add(c);
+                }
                 _liveTaskLabels.Add(Txt($"Task_{c}_{r}", $"{headers[c]} {r + 1}", new Vector3(x, y, tz - 0.04f), 10, 0.08f, Color.white));
             }
         }
@@ -163,10 +188,14 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         // Zone decorations
         Cube("CenterRug", new Vector3(0f, -0.01f, 1.0f), new Vector3(5.8f, 0.01f, 3.0f), Mat(new Color(0.58f, 0.50f, 0.42f), 0.02f));
         Cube("DispatchPlantPot", new Vector3(-10.2f, 0.30f, 3.7f), new Vector3(0.45f, 0.60f, 0.45f), Mat(new Color(0.42f, 0.28f, 0.16f), 0.10f));
-        Go(new GameObject("DispatchPlant"), PrimitiveType.Sphere, "Leaf", new Vector3(-10.2f, 0.95f, 3.7f), new Vector3(0.95f, 1.10f, 0.95f), Mat(new Color(0.22f, 0.52f, 0.24f), 0.05f));
+        var dispatchPlant = new GameObject("DispatchPlant");
+        dispatchPlant.transform.position = new Vector3(-10.2f, 0.30f, 3.7f);
+        Go(dispatchPlant, PrimitiveType.Sphere, "Leaves", new Vector3(0f, 0.65f, 0f), new Vector3(0.95f, 1.10f, 0.95f), Mat(new Color(0.22f, 0.52f, 0.24f), 0.05f));
 
         Cube("MonitoringPlantPot", new Vector3(10.4f, 0.30f, 3.9f), new Vector3(0.45f, 0.60f, 0.45f), Mat(new Color(0.42f, 0.28f, 0.16f), 0.10f));
-        Go(new GameObject("MonitoringPlant"), PrimitiveType.Sphere, "Leaf", new Vector3(10.4f, 0.95f, 3.9f), new Vector3(0.95f, 1.10f, 0.95f), Mat(new Color(0.24f, 0.55f, 0.28f), 0.05f));
+        var monitoringPlant = new GameObject("MonitoringPlant");
+        monitoringPlant.transform.position = new Vector3(10.4f, 0.30f, 3.9f);
+        Go(monitoringPlant, PrimitiveType.Sphere, "Leaves", new Vector3(0f, 0.65f, 0f), new Vector3(0.95f, 1.10f, 0.95f), Mat(new Color(0.24f, 0.55f, 0.28f), 0.05f));
 
         Cube("DeskLampStem", new Vector3(1.3f, 1.00f, 1.3f), new Vector3(0.07f, 0.55f, 0.07f), Mat(new Color(0.18f, 0.18f, 0.20f), 0.2f));
         Cube("DeskLampHead", new Vector3(1.3f, 1.30f, 1.3f), new Vector3(0.22f, 0.14f, 0.22f), Emissive(new Color(0.25f, 0.18f, 0.10f), new Color(1f, 0.72f, 0.35f), 2.2f));
@@ -396,10 +425,14 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 if (tasks != null)
                 {
                     int doing = 0, done = 0;
+                    var columnCounts = new int[6];
                     foreach (var tk in tasks)
                     {
                         var s = (tk.status ?? "").ToLower();
                         if (s == "done") done++; else doing++;
+                        if (!StatusToColumn.TryGetValue(s, out var col)) col = 1;
+                        if (col >= 0 && col < columnCounts.Length)
+                            columnCounts[col]++;
                     }
 
                     for (int i = 0; i < _liveTaskLabels.Count; i++)
@@ -408,6 +441,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                         if (tm == null) continue;
                         tm.text = i < tasks.Count ? (tasks[i].title ?? $"Task {i + 1}") : "";
                     }
+
+                    UpdateBoardCardColors(columnCounts);
 
                     if (_wipText != null) _wipText.text = $"WIP {doing:00}";
                     if (_queueText != null) _queueText.text = $"QUEUE {tasks.Count:00}";
@@ -418,6 +453,20 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
             req.Dispose();
             yield return new WaitForSeconds(3f);
+        }
+    }
+
+    private void UpdateBoardCardColors(int[] columnCounts)
+    {
+        if (columnCounts == null || columnCounts.Length == 0) return;
+        for (int i = 0; i < _boardCardRenderers.Count; i++)
+        {
+            var renderer = _boardCardRenderers[i];
+            if (renderer == null) continue;
+            var column = i < _boardCardColumns.Count ? _boardCardColumns[i] : 0;
+            float intensity = Mathf.Clamp01(columnCounts[column] / 4f);
+            var targetColor = Color.Lerp(_boardCardBaseColor, _columnHighlightColors[column], intensity);
+            renderer.material.color = targetColor;
         }
     }
 }
