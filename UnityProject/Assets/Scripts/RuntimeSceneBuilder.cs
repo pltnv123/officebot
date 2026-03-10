@@ -10,6 +10,11 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private readonly List<GameObject> _agents = new();
     private readonly List<Vector3> _agentIdle = new();
     private readonly List<Transform> _labelXforms = new();
+    private readonly List<Transform> _agentHeads = new();
+    private readonly List<Renderer> _agentEyeRenderers = new();
+    private readonly List<Color> _agentEyeBaseColors = new();
+    private readonly List<float> _agentWorkBlend = new();
+    private readonly List<bool> _agentWorkingTarget = new();
     private readonly List<TextMesh> _liveTaskLabels = new();
     private readonly List<Renderer> _assigneeDotRenderers = new();
     private readonly List<Renderer> _boardCardRenderers = new();
@@ -17,6 +22,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private readonly Color[] _columnHighlightColors = new Color[6];
     private TextMesh _wipText, _queueText, _blockersText, _throughputText;
     private float _t;
+    private readonly string[] _agentRoles = { "chief", "planner", "worker", "tester" };
     private static readonly Color _boardCardBaseColor = new Color(0.28f, 0.28f, 0.28f);
     private static readonly Dictionary<string, int> StatusToColumn = new(System.StringComparer.OrdinalIgnoreCase)
     {
@@ -54,9 +60,41 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         {
             var go = _agents[i];
             if (go == null) continue;
+
             var p = i < _agentIdle.Count ? _agentIdle[i] : go.transform.position;
-            float bob = Mathf.Sin(_t * 1.6f + i * 0.9f) * 0.05f;
+            var targetWorking = i < _agentWorkingTarget.Count && _agentWorkingTarget[i];
+            var currentBlend = i < _agentWorkBlend.Count ? _agentWorkBlend[i] : 0f;
+            currentBlend = Mathf.MoveTowards(currentBlend, targetWorking ? 1f : 0f, Time.deltaTime * 2.2f);
+            if (i < _agentWorkBlend.Count) _agentWorkBlend[i] = currentBlend;
+
+            float baseFreq = 1.6f;
+            float workFreq = baseFreq * 2f;
+            float bobFreq = Mathf.Lerp(baseFreq, workFreq, currentBlend);
+            float bobAmp = 0.05f;
+            float bob = Mathf.Sin(_t * bobFreq + i * 0.9f) * bobAmp;
             go.transform.position = new Vector3(p.x, p.y + bob, p.z);
+
+            var head = i < _agentHeads.Count ? _agentHeads[i] : null;
+            if (head != null)
+            {
+                float headYaw = Mathf.Sin(_t * (Mathf.PI * 2f / 3f) + i * 0.6f) * 5f;
+                var targetHeadRot = Quaternion.Euler(0f, headYaw, 0f);
+                head.localRotation = Quaternion.Slerp(head.localRotation, targetHeadRot, Time.deltaTime * 4f);
+            }
+
+            var eyeRenderer = i < _agentEyeRenderers.Count ? _agentEyeRenderers[i] : null;
+            if (eyeRenderer != null)
+            {
+                float pulse = 0.8f;
+                if (currentBlend > 0.001f)
+                {
+                    float pulse01 = (Mathf.Sin(_t * (Mathf.PI * 2f / 0.5f) + i * 0.8f) + 1f) * 0.5f;
+                    float workingPulse = Mathf.Lerp(0.8f, 1.5f, pulse01);
+                    pulse = Mathf.Lerp(0.8f, workingPulse, currentBlend);
+                }
+                var baseColor = i < _agentEyeBaseColors.Count ? _agentEyeBaseColors[i] : Color.white;
+                eyeRenderer.material.color = baseColor * pulse;
+            }
         }
 
         if (cam == null) return;
@@ -244,11 +282,11 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         Go(root, PrimitiveType.Cylinder, "Base", new Vector3(0f, 0.16f, 0f), new Vector3(0.6f, 0.10f, 0.6f), Mat(dark));
         Go(root, PrimitiveType.Cube, "Body", new Vector3(0f, 0.72f, 0f), new Vector3(0.76f, 0.66f, 0.56f), Mat(body));
-        Go(root, PrimitiveType.Sphere, "Head", new Vector3(0f, 1.54f, 0f), new Vector3(0.65f, 0.60f, 0.58f), Mat(body));
+        var head = Go(root, PrimitiveType.Sphere, "Head", new Vector3(0f, 1.54f, 0f), new Vector3(0.65f, 0.60f, 0.58f), Mat(body));
         Go(root, PrimitiveType.Cube, "Face", new Vector3(0f, 1.54f, 0.30f), new Vector3(0.55f, 0.42f, 0.06f), Mat(dark));
 
         var eyeMat = Emissive(eyeCol * 0.2f, eyeCol, 6f);
-        Go(root, PrimitiveType.Sphere, "EyeL", new Vector3(-0.15f, 1.54f, 0.34f), new Vector3(0.26f, 0.26f, 0.12f), eyeMat);
+        var eyeL = Go(root, PrimitiveType.Sphere, "EyeL", new Vector3(-0.15f, 1.54f, 0.34f), new Vector3(0.26f, 0.26f, 0.12f), eyeMat);
         Go(root, PrimitiveType.Sphere, "EyeR", new Vector3(0.15f, 1.54f, 0.34f), new Vector3(0.26f, 0.26f, 0.12f), eyeMat);
 
         var labelRoot = new GameObject("Label");
@@ -277,6 +315,12 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         tm.alignment = TextAlignment.Center;
 
         _labelXforms.Add(labelRoot.transform);
+        _agentHeads.Add(head.transform);
+        var eyeRenderer = eyeL.GetComponent<Renderer>();
+        _agentEyeRenderers.Add(eyeRenderer);
+        _agentEyeBaseColors.Add(eyeCol);
+        _agentWorkBlend.Add(0f);
+        _agentWorkingTarget.Add(false);
         _agents.Add(root);
         _agentIdle.Add(pos);
     }
@@ -455,6 +499,24 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                         if (!StatusToColumn.TryGetValue(s, out var col)) col = 1;
                         if (col >= 0 && col < columnCounts.Length)
                             columnCounts[col]++;
+                    }
+
+                    for (int ai = 0; ai < _agentWorkingTarget.Count; ai++) _agentWorkingTarget[ai] = false;
+                    foreach (var tk in tasks)
+                    {
+                        var assignee = (tk?.assignee ?? "").Trim().ToLower();
+                        var status = (tk?.status ?? "").Trim().ToLower();
+                        if (string.IsNullOrEmpty(assignee)) continue;
+                        if (status == "done") continue;
+
+                        for (int ai = 0; ai < _agentRoles.Length && ai < _agentWorkingTarget.Count; ai++)
+                        {
+                            if (_agentRoles[ai] == assignee)
+                            {
+                                _agentWorkingTarget[ai] = true;
+                                break;
+                            }
+                        }
                     }
 
                     var columnTasks = new List<RT>[6];
