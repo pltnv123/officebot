@@ -11,6 +11,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private readonly List<Vector3> _agentIdle = new();
     private readonly List<Transform> _labelXforms = new();
     private readonly List<TextMesh> _liveTaskLabels = new();
+    private readonly List<Renderer> _assigneeDotRenderers = new();
     private readonly List<Renderer> _boardCardRenderers = new();
     private readonly List<int> _boardCardColumns = new();
     private readonly Color[] _columnHighlightColors = new Color[6];
@@ -143,7 +144,11 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                     _boardCardRenderers.Add(renderer);
                     _boardCardColumns.Add(c);
                 }
-                _liveTaskLabels.Add(Txt($"Task_{c}_{r}", $"{headers[c]} {r + 1}", new Vector3(x, ys[r], 8.87f), 10, 0.08f, Color.white));
+                _liveTaskLabels.Add(Txt($"Task_{c}_{r}", "", new Vector3(x + 0.12f, ys[r], 8.87f), 9, 0.07f, Color.white));
+
+                var dot = Cube($"AssigneeDot_{c}_{r}", new Vector3(x - 0.72f, ys[r], 8.88f), new Vector3(0.12f, 0.12f, 0.03f), Mat(new Color(0.35f, 0.35f, 0.35f), 0.02f));
+                var dotRenderer = dot.GetComponent<Renderer>();
+                if (dotRenderer != null) _assigneeDotRenderers.Add(dotRenderer);
             }
         }
 
@@ -423,7 +428,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         return tm;
     }
 
-    [System.Serializable] private sealed class RT { public string title, status; }
+    [System.Serializable] private sealed class RT { public string id, title, status, assignee; }
     [System.Serializable] private sealed class RS { public List<RT> tasks; }
     [System.Serializable] private sealed class RSE { public List<RT> tasks; public RS taskState; }
 
@@ -452,11 +457,42 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                             columnCounts[col]++;
                     }
 
+                    var columnTasks = new List<RT>[6];
+                    for (int c = 0; c < columnTasks.Length; c++) columnTasks[c] = new List<RT>();
+
+                    foreach (var task in tasks)
+                    {
+                        var st = (task?.status ?? "").ToLower();
+                        if (!StatusToColumn.TryGetValue(st, out var column)) column = 1;
+                        column = Mathf.Clamp(column, 0, columnTasks.Length - 1);
+                        columnTasks[column].Add(task);
+                    }
+
                     for (int i = 0; i < _liveTaskLabels.Count; i++)
                     {
                         var tm = _liveTaskLabels[i];
                         if (tm == null) continue;
-                        tm.text = i < tasks.Count ? (tasks[i].title ?? $"Task {i + 1}") : "";
+
+                        int column = i < _boardCardColumns.Count ? _boardCardColumns[i] : 0;
+                        int row = i % 4;
+                        var hasTask = column >= 0 && column < columnTasks.Length && row < columnTasks[column].Count;
+                        var task = hasTask ? columnTasks[column][row] : null;
+
+                        if (task == null)
+                        {
+                            tm.text = "";
+                            if (i < _assigneeDotRenderers.Count && _assigneeDotRenderers[i] != null)
+                                _assigneeDotRenderers[i].material.color = new Color(0.35f, 0.35f, 0.35f);
+                            continue;
+                        }
+
+                        var id = string.IsNullOrWhiteSpace(task.id) ? "TASK" : task.id;
+                        var title = string.IsNullOrWhiteSpace(task.title) ? "Без названия" : task.title;
+                        var text = $"{id} {title}";
+                        tm.text = text.Length > 28 ? text.Substring(0, 27) + "…" : text;
+
+                        if (i < _assigneeDotRenderers.Count && _assigneeDotRenderers[i] != null)
+                            _assigneeDotRenderers[i].material.color = GetAssigneeColor(task.assignee);
                     }
 
                     UpdateBoardCardColors(columnCounts);
@@ -469,10 +505,20 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             }
 
             req.Dispose();
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSeconds(5f);
         }
     }
 
+
+    private static Color GetAssigneeColor(string assignee)
+    {
+        var key = (assignee ?? "").Trim().ToLower();
+        if (key == "chief") return new Color(1.00f, 0.85f, 0.35f);
+        if (key == "planner") return new Color(0.35f, 0.65f, 1.00f);
+        if (key == "worker") return new Color(0.20f, 0.95f, 0.72f);
+        if (key == "tester") return new Color(0.45f, 1.00f, 0.65f);
+        return new Color(0.75f, 0.75f, 0.78f);
+    }
     private void UpdateBoardCardColors(int[] columnCounts)
     {
         if (columnCounts == null || columnCounts.Length == 0) return;

@@ -40,10 +40,30 @@ function mkTaskId() {
   return 'TASK-' + Date.now();
 }
 
-function taskTemplate(title) {
+const ASSIGNEES = ['chief', 'planner', 'worker', 'tester'];
+
+function normalizeAssignee(value) {
+  const v = String(value || '').trim().toLowerCase();
+  return ASSIGNEES.includes(v) ? v : '';
+}
+
+function inferAssignee(task, idx = 0) {
+  const explicit = normalizeAssignee(task?.assignee);
+  if (explicit) return explicit;
+
+  const title = String(task?.title || '').toLowerCase();
+  if (title.includes('review') || title.includes('тест')) return 'tester';
+  if (title.includes('plan') || title.includes('план')) return 'planner';
+  if (title.includes('work') || title.includes('реал')) return 'worker';
+
+  return ASSIGNEES[Math.abs(Number(idx) || 0) % ASSIGNEES.length];
+}
+
+function taskTemplate(title, assignee = 'planner') {
   return {
     id: mkTaskId(),
     title,
+    assignee,
     status: 'doing',
     estimate: 60,
     actual: 0,
@@ -71,7 +91,24 @@ app.get('/health', async (_req, res) => {
 app.get('/api/state', async (_req, res) => {
   const state = await readJsonSafe(STATE_PATH, { tasks: [], bots: [], world: { toggles: {}, metrics: {} } });
   const world = await readJsonSafe(WORLD_PATH, { toggles: {}, metrics: {} });
-  res.json({ ...state, world: state.world || world });
+
+  const enriched = { ...state, world: state.world || world };
+  const tasks = Array.isArray(enriched?.taskState?.tasks)
+    ? enriched.taskState.tasks
+    : (Array.isArray(enriched?.tasks) ? enriched.tasks : []);
+
+  const normalizedTasks = tasks.map((task, idx) => ({
+    ...task,
+    assignee: inferAssignee(task, idx),
+  }));
+
+  if (Array.isArray(enriched?.taskState?.tasks)) {
+    enriched.taskState = { ...enriched.taskState, tasks: normalizedTasks };
+  } else if (Array.isArray(enriched?.tasks)) {
+    enriched.tasks = normalizedTasks;
+  }
+
+  res.json(enriched);
 });
 
 app.get('/api/ops/health', async (_req, res) => {
@@ -116,7 +153,7 @@ app.post('/api/tasks', async (req, res) => {
 
   const payload = await readJsonSafe(TASKS_PATH, { tasks: [] });
   payload.tasks = Array.isArray(payload.tasks) ? payload.tasks : [];
-  const task = taskTemplate(title);
+  const task = taskTemplate(title, inferAssignee({ title }, payload.tasks.length));
   payload.tasks.unshift(task);
   const normalized = runOrchestrator(payload);
   await writeJson(TASKS_PATH, normalized);
@@ -163,7 +200,7 @@ app.post('/telegram/webhook', async (req, res) => {
     return res.json({ ok: true, command: low, changed: result.changed, taskId: result.taskId || null });
   }
 
-  const task = taskTemplate(title);
+  const task = taskTemplate(title, inferAssignee({ title }, payload.tasks.length));
   payload.tasks.unshift(task);
   const normalized = runOrchestrator(payload);
   await writeJson(TASKS_PATH, normalized);

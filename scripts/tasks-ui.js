@@ -66,12 +66,24 @@
     return row;
   }
 
+
+  function assigneeColor(assignee) {
+    switch (String(assignee || '').toLowerCase()) {
+      case 'chief': return '#ffd27f';
+      case 'planner': return '#77b8ff';
+      case 'worker': return '#55f5b8';
+      case 'tester': return '#9dffb1';
+      default: return '#c7c7c7';
+    }
+  }
+
   function renderTaskCard(task) {
     const card = document.createElement('div');
     card.className = 'task';
     const progress = nodeProgress(task);
 
-    card.innerHTML = `<div><b>🟡 ${task.id || ''}</b> — ${task.title || 'task'}</div>
+    const dot = `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${assigneeColor(task.assignee)};margin-right:6px;vertical-align:middle"></span>`;
+    card.innerHTML = `<div>${dot}<b>🟡 ${task.id || ''}</b> — ${task.title || 'task'}</div>
       <div class="task-progress"><div class="task-progress-fill" style="width:${progress}%"></div></div>
       <div class="task-progress-label">${progress}%</div>`;
 
@@ -124,7 +136,8 @@
     done.slice(0, 20).forEach((task) => {
       const row = document.createElement('div');
       row.className = 'task';
-      row.innerHTML = `<div><b style="color:#61d38a">✅ ${task.id || ''}</b> — ${task.title || 'task'}</div>`;
+      const dot = `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${assigneeColor(task.assignee)};margin-right:6px;vertical-align:middle"></span>`;
+      row.innerHTML = `<div>${dot}<b style="color:#61d38a">✅ ${task.id || ''}</b> — ${task.title || 'task'}</div>`;
       tasksDoneEl.appendChild(row);
     });
 
@@ -274,6 +287,6 @@
 
   pollTasks();
   pollCpuLoad();
-  setInterval(pollTasks, 3000);
+  setInterval(pollTasks, 5000);
   setInterval(pollCpuLoad, 30000);
 })();
