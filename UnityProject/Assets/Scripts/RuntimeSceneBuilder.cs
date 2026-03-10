@@ -206,14 +206,14 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void BuildZones()
     {
         var roomGlow = Emissive(new Color(0.35f, 0.22f, 0.06f), new Color(1.0f, 0.7f, 0.1f), 3.0f);
-        Cube("Room2FrameOuter", new Vector3(6.6f, 2.0f, 9.0f), new Vector3(2.8f, 4.3f, 0.2f), roomGlow);
-        Cube("Room2Inner", new Vector3(6.6f, 2.0f, 9.05f), new Vector3(2.1f, 3.7f, 0.15f), Mat(new Color(0.15f, 0.12f, 0.08f), 0.08f));
-        Cube("Room2TopGlow", new Vector3(6.6f, 4.1f, 8.95f), new Vector3(2.8f, 0.15f, 0.1f), roomGlow);
-        Cube("Room2LeftGlow", new Vector3(5.25f, 2.0f, 8.95f), new Vector3(0.15f, 3.7f, 0.1f), roomGlow);
-        Cube("Room2RightGlow", new Vector3(7.95f, 2.0f, 8.95f), new Vector3(0.15f, 3.7f, 0.1f), roomGlow);
+        Cube("Room2FrameOuter", new Vector3(6.6f, 2.0f, 8.7f), new Vector3(2.8f, 4.3f, 0.2f), roomGlow);
+        Cube("Room2Inner", new Vector3(6.6f, 2.0f, 8.75f), new Vector3(2.1f, 3.7f, 0.15f), Mat(new Color(0.15f, 0.12f, 0.08f), 0.08f));
+        Cube("Room2TopGlow", new Vector3(6.6f, 4.1f, 8.65f), new Vector3(2.8f, 0.15f, 0.1f), roomGlow);
+        Cube("Room2LeftGlow", new Vector3(5.25f, 2.0f, 8.65f), new Vector3(0.15f, 3.7f, 0.1f), roomGlow);
+        Cube("Room2RightGlow", new Vector3(7.95f, 2.0f, 8.65f), new Vector3(0.15f, 3.7f, 0.1f), roomGlow);
 
-        Cube("Room2Arrow", new Vector3(6.6f, 4.95f, 8.88f), new Vector3(0.9f, 0.08f, 0.9f), Emissive(new Color(0.4f, 0.2f, 0.05f), new Color(1.0f, 0.7f, 0.1f), 2.8f)).transform.rotation = Quaternion.Euler(0f, 45f, 0f);
-        var roomLbl = Txt("Room2Lbl", "ROOM 2", new Vector3(6.6f, 5.35f, 8.88f), 20, 0.12f, new Color(1.0f, 0.7f, 0.1f), FontStyle.Bold);
+        Cube("Room2Arrow", new Vector3(6.6f, 4.95f, 8.6f), new Vector3(0.9f, 0.08f, 0.9f), Emissive(new Color(0.4f, 0.2f, 0.05f), new Color(1.0f, 0.7f, 0.1f), 2.8f)).transform.rotation = Quaternion.Euler(0f, 45f, 0f);
+        var roomLbl = Txt("Room2Lbl", "ROOM 2", new Vector3(6.6f, 5.35f, 8.6f), 20, 0.12f, new Color(1.0f, 0.7f, 0.1f), FontStyle.Bold);
         _labelXforms.Add(roomLbl.transform);
 
         // Room 2 interior behind the doorway
