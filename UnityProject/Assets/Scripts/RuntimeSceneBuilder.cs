@@ -138,7 +138,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("BackWallRight", new Vector3(10.2f, 2.5f, 10f), new Vector3(3.6f, 5f, 0.25f), wall);
         Cube("BackWallTopLintel", new Vector3(8.0f, 4.35f, 10f), new Vector3(2.8f, 1.3f, 0.25f), wall);
 
-        Cube("DepthBackWall", new Vector3(0f, 3f, 9f), new Vector3(20f, 6f, 0.3f), Mat(new Color(0.15f, 0.12f, 0.08f), 0.12f));
+        var depthWallMat = Mat(new Color(0.15f, 0.12f, 0.08f), 0.12f);
+        Cube("DepthBackWallLeft", new Vector3(-3.4f, 3f, 9f), new Vector3(17.2f, 6f, 0.3f), depthWallMat);
+        Cube("DepthBackWallRight", new Vector3(10.2f, 3f, 9f), new Vector3(3.6f, 6f, 0.3f), depthWallMat);
+        Cube("DepthBackWallTopLintel", new Vector3(8.0f, 4.8f, 9f), new Vector3(2.8f, 2.4f, 0.3f), depthWallMat);
         Cube("LeftWall", new Vector3(-10.8f, 2.5f, 3f), new Vector3(0.55f, 5f, 18f), wall);
         Cube("RightWall", new Vector3(10.8f, 2.5f, 3f), new Vector3(0.55f, 5f, 18f), wall);
 
@@ -203,28 +206,28 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void BuildZones()
     {
         var roomGlow = Emissive(new Color(0.35f, 0.22f, 0.06f), new Color(1.0f, 0.7f, 0.1f), 3.0f);
-        Cube("Room2FrameOuter", new Vector3(8f, 2.0f, 9.0f), new Vector3(3.0f, 4.3f, 0.2f), roomGlow);
-        Cube("Room2Inner", new Vector3(8f, 2.0f, 9.05f), new Vector3(2.35f, 3.7f, 0.15f), Mat(new Color(0.15f, 0.12f, 0.08f), 0.08f));
-        Cube("Room2TopGlow", new Vector3(8f, 4.1f, 8.95f), new Vector3(3.0f, 0.15f, 0.1f), roomGlow);
-        Cube("Room2LeftGlow", new Vector3(6.55f, 2.0f, 8.95f), new Vector3(0.15f, 3.7f, 0.1f), roomGlow);
-        Cube("Room2RightGlow", new Vector3(9.45f, 2.0f, 8.95f), new Vector3(0.15f, 3.7f, 0.1f), roomGlow);
+        Cube("Room2FrameOuter", new Vector3(6.6f, 2.0f, 9.0f), new Vector3(2.8f, 4.3f, 0.2f), roomGlow);
+        Cube("Room2Inner", new Vector3(6.6f, 2.0f, 9.05f), new Vector3(2.1f, 3.7f, 0.15f), Mat(new Color(0.15f, 0.12f, 0.08f), 0.08f));
+        Cube("Room2TopGlow", new Vector3(6.6f, 4.1f, 8.95f), new Vector3(2.8f, 0.15f, 0.1f), roomGlow);
+        Cube("Room2LeftGlow", new Vector3(5.25f, 2.0f, 8.95f), new Vector3(0.15f, 3.7f, 0.1f), roomGlow);
+        Cube("Room2RightGlow", new Vector3(7.95f, 2.0f, 8.95f), new Vector3(0.15f, 3.7f, 0.1f), roomGlow);
 
-        Cube("Room2Arrow", new Vector3(8.0f, 4.95f, 8.88f), new Vector3(0.9f, 0.08f, 0.9f), Emissive(new Color(0.4f, 0.2f, 0.05f), new Color(1.0f, 0.7f, 0.1f), 2.8f)).transform.rotation = Quaternion.Euler(0f, 45f, 0f);
-        var roomLbl = Txt("Room2Lbl", "ROOM 2", new Vector3(8f, 5.35f, 8.88f), 20, 0.12f, new Color(1.0f, 0.7f, 0.1f), FontStyle.Bold);
+        Cube("Room2Arrow", new Vector3(6.6f, 4.95f, 8.88f), new Vector3(0.9f, 0.08f, 0.9f), Emissive(new Color(0.4f, 0.2f, 0.05f), new Color(1.0f, 0.7f, 0.1f), 2.8f)).transform.rotation = Quaternion.Euler(0f, 45f, 0f);
+        var roomLbl = Txt("Room2Lbl", "ROOM 2", new Vector3(6.6f, 5.35f, 8.88f), 20, 0.12f, new Color(1.0f, 0.7f, 0.1f), FontStyle.Bold);
         _labelXforms.Add(roomLbl.transform);
 
         // Room 2 interior behind the doorway
         var room2Floor = Mat(new Color(0.58f, 0.42f, 0.22f), 0.08f);
-        Cube("Room2Floor", new Vector3(8.0f, -0.05f, 12.2f), new Vector3(5.2f, 0.1f, 5.8f), room2Floor);
-        Cube("Room2BackWall", new Vector3(8.0f, 2.2f, 14.9f), new Vector3(5.2f, 4.4f, 0.25f), Mat(new Color(0.26f, 0.19f, 0.13f), 0.12f));
-        Cube("Room2LeftWall", new Vector3(5.45f, 2.2f, 12.2f), new Vector3(0.25f, 4.4f, 5.8f), Mat(new Color(0.22f, 0.16f, 0.11f), 0.10f));
-        Cube("Room2RightWall", new Vector3(10.55f, 2.2f, 12.2f), new Vector3(0.25f, 4.4f, 5.8f), Mat(new Color(0.22f, 0.16f, 0.11f), 0.10f));
-        Cube("Room2Ceiling", new Vector3(8.0f, 4.35f, 12.2f), new Vector3(5.2f, 0.12f, 5.8f), Mat(new Color(0.18f, 0.13f, 0.09f), 0.06f));
+        Cube("Room2Floor", new Vector3(6.6f, -0.05f, 10.9f), new Vector3(2.8f, 0.1f, 2.2f), room2Floor);
+        Cube("Room2BackWall", new Vector3(6.6f, 2.2f, 12.0f), new Vector3(2.8f, 4.4f, 0.25f), Mat(new Color(0.26f, 0.19f, 0.13f), 0.12f));
+        Cube("Room2LeftWall", new Vector3(5.2f, 2.2f, 10.9f), new Vector3(0.25f, 4.4f, 2.2f), Mat(new Color(0.22f, 0.16f, 0.11f), 0.10f));
+        Cube("Room2RightWall", new Vector3(8.0f, 2.2f, 10.9f), new Vector3(0.25f, 4.4f, 2.2f), Mat(new Color(0.22f, 0.16f, 0.11f), 0.10f));
+        Cube("Room2Ceiling", new Vector3(6.6f, 4.35f, 10.9f), new Vector3(2.8f, 0.12f, 2.2f), Mat(new Color(0.18f, 0.13f, 0.09f), 0.06f));
 
         // Interior props + two gray sub agents
-        Cube("Room2Desk", new Vector3(8.0f, 0.42f, 12.9f), new Vector3(2.8f, 0.84f, 1.3f), Mat(new Color(0.45f, 0.33f, 0.20f), 0.12f));
-        BuildStaticSubAgent(new Vector3(7.0f, 0f, 12.0f), "SUB-AGENT-1");
-        BuildStaticSubAgent(new Vector3(9.0f, 0f, 12.0f), "SUB-AGENT-2");
+        Cube("Room2Desk", new Vector3(6.6f, 0.42f, 11.4f), new Vector3(1.6f, 0.84f, 0.9f), Mat(new Color(0.45f, 0.33f, 0.20f), 0.12f));
+        BuildStaticSubAgent(new Vector3(6.1f, 0f, 10.5f), "SUB-AGENT-1");
+        BuildStaticSubAgent(new Vector3(7.1f, 0f, 10.5f), "SUB-AGENT-2");
 
         Cube("DispatchDesk", new Vector3(-6.5f, 0.45f, 5f), new Vector3(2.5f, 0.9f, 1.2f), Mat(new Color(0.45f, 0.28f, 0.10f), 0.12f));
         Cube("DispatchPanel", new Vector3(-7.3f, 0.8f, 5f), new Vector3(0.3f, 1.6f, 1.2f), Mat(new Color(0.3f, 0.18f, 0.06f), 0.12f));
@@ -399,7 +402,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         L("BoardPoint", LightType.Point, new Color(0.9f, 0.95f, 1.0f), 1.5f, 12f,
             LightShadows.None, new Vector3(0f, 5f, 9f), Quaternion.identity);
         L("Room2InteriorPoint", LightType.Point, new Color(1.0f, 0.62f, 0.20f), 2.6f, 9f,
-            LightShadows.None, new Vector3(8f, 2.6f, 12.4f), Quaternion.identity);
+            LightShadows.None, new Vector3(6.6f, 2.5f, 10.9f), Quaternion.identity);
     }
 
     private static void L(string n, LightType t, Color c, float intensity, float range, LightShadows sh, Vector3 pos, Quaternion rot)
