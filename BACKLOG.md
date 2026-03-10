@@ -1,41 +1,40 @@
-# Project Backlog
+# BACKLOG.md — Project Backlog
+Last updated: 2026-03-10
 
-## PHASE 1 — Visual Scene Match (CURRENT PHASE, nothing else allowed)
+## PHASE 1 — Visual Scene Match [COMPLETE ✅]
+All tasks done as of commit d200c44, WASM 2026-03-10 09:18:46 UTC
 
-### VIZ-001 [DONE] — 3 robots visible simultaneously
-- Completed: 2026-03-08
-- Commit: 81b949b
-- Verified: screenshot + CI green + wasm updated
+- VIZ-001 [DONE] 3 robots visible — commit 81b949b
+- VIZ-002 [DONE] Pixar warm lighting — commit 85b1c19
+- VIZ-003 [DONE] Robot rotations + face camera
+- VIZ-004 [DONE] Pixar robot models — commits 02ed198, adc7532
+- VIZ-005 [DONE] Robot name labels billboard
+- Scene rebuild [DONE] Zones, board, dispatch, monitoring, room2, plants, paths — commit d200c44
 
-### VIZ-002 [DONE] — Bright warm Pixar lighting
-- Completed: 2026-03-08
-- Commit: 85b1c19
-- ambient Color(1.0, 0.95, 0.85) + directional + dual rim lights
-- Verified: CI green + wasm 2026-03-08 07:12:17 UTC
+## PHASE 2 — Functionality [CURRENT PHASE]
 
-### VIZ-003 [DONE] — Robot face camera + Pixar robot models
-- Fix robot rotations: worker Y=35, planner Y=0, reviewer Y=-40
-- Verify: robots face toward camera in screenshot
+### FUNC-001 [DONE] — Live task cards on board
+- Connect board cards to backend API
+- Cards update without page reload
+- Each card: task ID, title, assignee color dot
+- No hardcoded data — real backend only
 
-### VIZ-004 [DONE] — Pixar robot models
-- Completed: 2026-03-08
-- Commits: 02ed198, adc7532
-- Big round head (0.65x0.60x0.58), glowing eyes radius=0.13
-- Light gray body Color(0.85, 0.85, 0.88)
-- Verify: screenshot + CI green + wasm updated
+### FUNC-002 [DONE] — Robot animations enhanced
+- Idle: existing bob + subtle rotation ✓ partial
+- Working state: faster bob + eye glow pulse
+- Moving state: smooth lerp to target position
 
-### VIZ-005 [ACTIVE] — Robot name labels
-- TextMesh WORKER/PLANNER/REVIEWER above each robot
-- Billboard toward camera
-- Verify: names readable in screenshot
+### FUNC-003 [DONE] — Room 2 implementation
+- Accessible via door top-right
+- Contains: secondary workspace, 2 agents
+- Orange glow frame matches reference image
 
-## PHASE 2 — Functionality (only after ALL Phase 1 done)
-- FUNC-001: Task cards on board update from backend live
-- FUNC-002: Robot idle animation (gentle bobbing)
-- FUNC-003: Room 2 implementation
-- FUNC-004: NavMesh robot pathfinding
+### FUNC-004 [TODO] — NavMesh robot pathfinding
+- Agents move to task zone when assigned work
+- Smooth path following, no clipping
+- Return to idle position when task complete
 
-## PHASE 3 — Polish & Ops (only after Phase 2 done)
+## PHASE 3 — Polish & Ops [LOCKED until Phase 2 done]
 - OPS-001: Healthcheck improvements
 - OPS-002: CI pipeline optimization
 - OPS-003: Performance monitoring
