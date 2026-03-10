@@ -106,65 +106,65 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildBoard()
     {
-        float z = 8f;
-        Cube("TaskBoard", new Vector3(0f, 2.5f, z), new Vector3(11f, 4f, 0.2f), Mat(new Color(0.12f, 0.12f, 0.12f), 0.08f));
+        float boardZ = 9.1f;
+        Cube("TaskBoardFrame", new Vector3(0f, 3.5f, 9.0f), new Vector3(16.4f, 5.4f, 0.15f), Mat(new Color(0.25f, 0.22f, 0.15f), 0.10f));
+        Cube("TaskBoard", new Vector3(0f, 3.5f, boardZ), new Vector3(16f, 5f, 0.25f), Mat(new Color(0.08f, 0.08f, 0.12f), 0.08f));
 
         string[] headers = { "INBOX", "QUEUE", "PLAN", "WORK", "REVIEW", "DONE" };
+        float[] xs = { -5.5f, -3.3f, -1.1f, 1.1f, 3.3f, 5.5f };
+        float[] ys = { 4.8f, 4.1f, 3.4f, 2.7f };
         Color[] headerCols =
         {
-            new Color(0.60f,0.60f,0.60f),
-            new Color(0.90f,0.78f,0.33f),
-            new Color(0.43f,0.62f,0.92f),
-            new Color(0.92f,0.55f,0.28f),
-            new Color(0.66f,0.45f,0.88f),
-            new Color(0.40f,0.76f,0.40f)
+            new Color(0.5f, 0.5f, 0.55f),
+            new Color(0.95f, 0.75f, 0.0f),
+            new Color(0.2f, 0.45f, 0.95f),
+            new Color(0.95f, 0.45f, 0.05f),
+            new Color(0.65f, 0.15f, 0.85f),
+            new Color(0.1f, 0.75f, 0.2f)
         };
 
         for (int hi = 0; hi < headerCols.Length && hi < _columnHighlightColors.Length; hi++)
             _columnHighlightColors[hi] = headerCols[hi];
 
-        float startX = -4.58f;
-        float dx = 1.83f;
-        float tz = z - 0.12f;
-
         for (int c = 0; c < headers.Length; c++)
         {
-            float x = startX + c * dx;
-            var colBody = (c % 2 == 0) ? new Color(0.16f, 0.16f, 0.16f) : new Color(0.20f, 0.20f, 0.20f);
-            Cube($"BoardCol_{c}", new Vector3(x, 2.5f, tz + 0.02f), new Vector3(1.72f, 3.5f, 0.03f), Mat(colBody, 0.05f));
-            Cube($"HdrStrip_{c}", new Vector3(x, 4.15f, tz + 0.03f), new Vector3(1.72f, 0.38f, 0.03f), Mat(headerCols[c], 0.04f));
-            Txt($"Hdr{c}", headers[c], new Vector3(x, 4.15f, tz - 0.04f), 24, 0.12f, Color.white, FontStyle.Bold);
+            float x = xs[c];
+            Cube($"BoardDivider_{c}", new Vector3(x - 1.1f, 3.5f, 8.98f), new Vector3(0.08f, 4.5f, 0.1f), Mat(new Color(0.2f, 0.2f, 0.24f), 0.05f));
+            Txt($"Hdr{c}", headers[c], new Vector3(x, 5.5f, 8.88f), 24, 0.12f, headerCols[c], FontStyle.Bold);
 
-            for (int r = 0; r < 3; r++)
+            for (int r = 0; r < ys.Length; r++)
             {
-                float y = 3.45f - r * 0.85f;
-                var card = Cube($"Card_{c}_{r}", new Vector3(x, y, tz + 0.03f), new Vector3(1.45f, 0.55f, 0.03f), Mat(_boardCardBaseColor, 0.04f));
+                float shade = (r % 2 == 0) ? 0.60f : 0.42f;
+                Color cardColor = Color.Lerp(Color.black, headerCols[c], shade);
+                var card = Cube($"Card_{c}_{r}", new Vector3(x, ys[r], 8.96f), new Vector3(1.7f, 0.55f, 0.06f), Mat(cardColor, 0.04f));
                 var renderer = card.GetComponent<Renderer>();
                 if (renderer != null)
                 {
                     _boardCardRenderers.Add(renderer);
                     _boardCardColumns.Add(c);
                 }
-                _liveTaskLabels.Add(Txt($"Task_{c}_{r}", $"{headers[c]} {r + 1}", new Vector3(x, y, tz - 0.04f), 10, 0.08f, Color.white));
+                _liveTaskLabels.Add(Txt($"Task_{c}_{r}", $"{headers[c]} {r + 1}", new Vector3(x, ys[r], 8.87f), 10, 0.08f, Color.white));
             }
         }
 
-        _wipText = Txt("WIP", "WIP 00", new Vector3(-2.0f, 0.95f, tz), 10, 0.08f, new Color(1f, 0.93f, 0.72f), FontStyle.Bold);
-        _queueText = Txt("QUEUE", "QUEUE 00", new Vector3(-6.3f, 0.95f, tz), 9, 0.08f, new Color(0.92f, 0.86f, 0.68f));
-        _blockersText = Txt("BLK", "BLOCKERS 0", new Vector3(1.5f, 0.95f, tz), 9, 0.08f, new Color(1f, 0.74f, 0.66f));
-        _throughputText = Txt("THRU", "THROUGHPUT 0", new Vector3(6.0f, 0.95f, tz), 9, 0.08f, new Color(0.74f, 0.90f, 1f));
+        _wipText = Txt("WIP", "WIP 00", new Vector3(-2.0f, 1.0f, 8.9f), 10, 0.08f, new Color(1f, 0.93f, 0.72f), FontStyle.Bold);
+        _queueText = Txt("QUEUE", "QUEUE 00", new Vector3(-6.7f, 1.0f, 8.9f), 9, 0.08f, new Color(0.92f, 0.86f, 0.68f));
+        _blockersText = Txt("BLK", "BLOCKERS 0", new Vector3(2.0f, 1.0f, 8.9f), 9, 0.08f, new Color(1f, 0.74f, 0.66f));
+        _throughputText = Txt("THRU", "THROUGHPUT 0", new Vector3(6.8f, 1.0f, 8.9f), 9, 0.08f, new Color(0.74f, 0.90f, 1f));
     }
 
     private void BuildZones()
     {
-        // ROOM 2 door (top-right)
-        var frame = Emissive(new Color(0.30f, 0.18f, 0.06f), new Color(1.0f, 0.55f, 0.08f), 3.0f);
-        Cube("Room2L", new Vector3(6.3f, 2f, 8.5f), new Vector3(0.2f, 2f, 0.2f), frame);
-        Cube("Room2R", new Vector3(7.7f, 2f, 8.5f), new Vector3(0.2f, 2f, 0.2f), frame);
-        Cube("Room2Top", new Vector3(7f, 3f, 8.5f), new Vector3(1.6f, 0.2f, 0.2f), frame);
-        Txt("Room2Lbl", "ROOM 2", new Vector3(7f, 3.5f, 8.3f), 26, 0.12f, new Color(1f, 0.85f, 0.55f), FontStyle.Bold);
+        var roomGlow = Emissive(new Color(0.35f, 0.22f, 0.06f), new Color(1.0f, 0.7f, 0.1f), 3.0f);
+        Cube("Room2FrameOuter", new Vector3(8f, 2.0f, 9.0f), new Vector3(2.8f, 4.2f, 0.2f), roomGlow);
+        Cube("Room2Inner", new Vector3(8f, 2.0f, 9.05f), new Vector3(2.2f, 3.6f, 0.15f), Mat(new Color(0.15f, 0.12f, 0.08f), 0.08f));
+        Cube("Room2TopGlow", new Vector3(8f, 4.1f, 8.95f), new Vector3(2.8f, 0.15f, 0.1f), roomGlow);
+        Cube("Room2LeftGlow", new Vector3(6.65f, 2.0f, 8.95f), new Vector3(0.15f, 3.6f, 0.1f), roomGlow);
+        Cube("Room2RightGlow", new Vector3(9.35f, 2.0f, 8.95f), new Vector3(0.15f, 3.6f, 0.1f), roomGlow);
+        Cube("Room2Arrow", new Vector3(7f, 1.5f, 7.5f), new Vector3(0.8f, 0.08f, 0.8f), Mat(new Color(1.0f, 0.65f, 0.05f), 0.03f)).transform.rotation = Quaternion.Euler(0f, 45f, 0f);
+        var roomLbl = Txt("Room2Lbl", "ROOM 2", new Vector3(8f, 4.8f, 8.9f), 20, 0.12f, new Color(1.0f, 0.7f, 0.1f), FontStyle.Bold);
+        _labelXforms.Add(roomLbl.transform);
 
-        // Dispatch zone (left, detailed)
         Cube("DispatchDesk", new Vector3(-6.5f, 0.45f, 5f), new Vector3(2.5f, 0.9f, 1.2f), Mat(new Color(0.45f, 0.28f, 0.10f), 0.12f));
         Cube("DispatchPanel", new Vector3(-7.3f, 0.8f, 5f), new Vector3(0.3f, 1.6f, 1.2f), Mat(new Color(0.3f, 0.18f, 0.06f), 0.12f));
         Cube("DispatchTerminal", new Vector3(-6.5f, 1.2f, 4.5f), new Vector3(0.8f, 0.55f, 0.06f), Mat(new Color(0.05f, 0.05f, 0.12f), 0.1f));
@@ -176,33 +176,45 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         var dispatchLbl = Txt("DispatchLbl", "DISPATCH", new Vector3(-6.5f, 2.5f, 5f), 16, 0.10f, new Color(1.0f, 0.55f, 0.0f), FontStyle.Bold);
         _labelXforms.Add(dispatchLbl.transform);
 
-        // Central desk (bigger)
         Cube("CentralDesk", new Vector3(0f, 0.40f, 1f), new Vector3(4f, 0.8f, 2.5f), Mat(new Color(0.55f, 0.35f, 0.15f), 0.18f));
         Cube("DeskPaperA", new Vector3(-0.55f, 0.72f, 0.75f), new Vector3(0.8f, 0.02f, 0.6f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
         Cube("DeskPaperB", new Vector3(0.45f, 0.72f, 1.2f), new Vector3(0.9f, 0.02f, 0.6f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
 
-        // Monitoring zone (right)
-        Vector3[] monPos =
+        Cube("MonitoringWall", new Vector3(8.2f, 2.0f, 5f), new Vector3(0.2f, 4f, 3.5f), Mat(new Color(0.12f, 0.12f, 0.18f), 0.12f));
+        Cube("Mon1", new Vector3(7.9f, 2.8f, 4.2f), new Vector3(1.4f, 0.9f, 0.1f), Mat(new Color(0.06f, 0.06f, 0.10f), 0.2f));
+        Cube("Mon1Screen", new Vector3(7.85f, 2.8f, 4.15f), new Vector3(1.2f, 0.75f, 0.02f), Emissive(new Color(0.0f, 0.2f, 0.1f), new Color(0.0f, 0.8f, 0.35f), 2.0f));
+        Cube("Mon2", new Vector3(7.9f, 1.7f, 4.2f), new Vector3(1.4f, 0.9f, 0.1f), Mat(new Color(0.06f, 0.06f, 0.10f), 0.2f));
+        Cube("Mon2Screen", new Vector3(7.85f, 1.7f, 4.15f), new Vector3(1.2f, 0.75f, 0.02f), Emissive(new Color(0.0f, 0.2f, 0.25f), new Color(0.0f, 0.75f, 0.9f), 2.0f));
+        Cube("Mon3", new Vector3(7.9f, 2.25f, 5.2f), new Vector3(1.4f, 0.9f, 0.1f), Mat(new Color(0.06f, 0.06f, 0.10f), 0.2f));
+        Cube("Mon3Screen", new Vector3(7.85f, 2.25f, 5.15f), new Vector3(1.2f, 0.75f, 0.02f), Emissive(new Color(0.02f, 0.25f, 0.1f), new Color(0.1f, 0.9f, 0.4f), 2.0f));
+        Cube("MonitoringDesk", new Vector3(7.5f, 0.5f, 5f), new Vector3(2.0f, 1.0f, 1.5f), Mat(new Color(0.25f, 0.25f, 0.32f), 0.1f));
+        Cube("MonitoringZoneGlow", new Vector3(6.5f, 0.02f, 5f), new Vector3(3.5f, 0.03f, 3.5f), Mat(new Color(0.0f, 0.16f, 0.06f), 0.02f));
+        var monitoringLbl = Txt("MonitoringLbl", "MONITORING", new Vector3(7f, 3.8f, 5f), 14, 0.10f, new Color(0.15f, 1.0f, 0.45f), FontStyle.Bold);
+        _labelXforms.Add(monitoringLbl.transform);
+
+        Vector3[] plantBases =
         {
-            new Vector3(6f, 1.2f, 5f),
-            new Vector3(6.8f, 1.2f, 5f),
-            new Vector3(7f, 1.2f, 4.2f)
+            new Vector3(-8.5f, 0f, 7.5f),
+            new Vector3(6.5f, 0f, 7.5f),
+            new Vector3(-8.5f, 0f, 1f),
+            new Vector3(-1.5f, 0f, 7f)
         };
-        for (int i = 0; i < monPos.Length; i++)
-            Cube($"Mon{i}", monPos[i], new Vector3(0.8f, 0.6f, 0.1f), Mat(new Color(0.08f, 0.09f, 0.11f), 0.2f));
-        Txt("MonitoringLbl", "MONITORING", new Vector3(5.5f, 1.5f, 3.5f), 22, 0.10f, new Color(0.85f, 1f, 0.85f), FontStyle.Bold);
+        for (int i = 0; i < plantBases.Length; i++)
+        {
+            Cyl($"PlantPot_{i}", new Vector3(plantBases[i].x, 0.25f, plantBases[i].z), new Vector3(0.35f, 0.5f, 0.35f), Mat(new Color(0.55f, 0.32f, 0.12f), 0.08f));
+            Cube($"PlantLeaves_{i}", new Vector3(plantBases[i].x, 0.65f, plantBases[i].z), new Vector3(0.7f, 0.8f, 0.7f), Mat(new Color(0.15f, 0.55f, 0.12f), 0.05f));
+        }
 
-        // Zone decorations
-        Cube("CenterRug", new Vector3(0f, -0.01f, 1.0f), new Vector3(5.8f, 0.01f, 3.0f), Mat(new Color(0.58f, 0.50f, 0.42f), 0.02f));
-        Cube("DispatchPlantPot", new Vector3(-10.2f, 0.30f, 3.7f), new Vector3(0.45f, 0.60f, 0.45f), Mat(new Color(0.42f, 0.28f, 0.16f), 0.10f));
-        var dispatchPlant = new GameObject("DispatchPlant");
-        dispatchPlant.transform.position = new Vector3(-10.2f, 0.30f, 3.7f);
-        Go(dispatchPlant, PrimitiveType.Sphere, "Leaves", new Vector3(0f, 0.65f, 0f), new Vector3(0.95f, 1.10f, 0.95f), Mat(new Color(0.22f, 0.52f, 0.24f), 0.05f));
+        Vector3[] dispatchDots = { new Vector3(-4f, 0.02f, 3f), new Vector3(-4.7f, 0.02f, 3.7f), new Vector3(-5.3f, 0.02f, 4.3f), new Vector3(-6f, 0.02f, 5f) };
+        Vector3[] boardDots = { new Vector3(-1f, 0.02f, 3f), new Vector3(-0.7f, 0.02f, 4.6f), new Vector3(-0.3f, 0.02f, 6.2f), new Vector3(0f, 0.02f, 7.8f) };
+        Vector3[] monDots = { new Vector3(3f, 0.02f, 3f), new Vector3(4f, 0.02f, 3.7f), new Vector3(5f, 0.02f, 4.3f), new Vector3(6f, 0.02f, 5f) };
 
-        Cube("MonitoringPlantPot", new Vector3(10.4f, 0.30f, 3.9f), new Vector3(0.45f, 0.60f, 0.45f), Mat(new Color(0.42f, 0.28f, 0.16f), 0.10f));
-        var monitoringPlant = new GameObject("MonitoringPlant");
-        monitoringPlant.transform.position = new Vector3(10.4f, 0.30f, 3.9f);
-        Go(monitoringPlant, PrimitiveType.Sphere, "Leaves", new Vector3(0f, 0.65f, 0f), new Vector3(0.95f, 1.10f, 0.95f), Mat(new Color(0.24f, 0.55f, 0.28f), 0.05f));
+        foreach (var p in dispatchDots)
+            Cube("DotDispatch", p, new Vector3(0.3f, 0.02f, 0.3f), Mat(new Color(1.0f, 0.5f, 0.0f), 0.02f)).transform.rotation = Quaternion.Euler(0f, 45f, 0f);
+        foreach (var p in boardDots)
+            Cube("DotBoard", p, new Vector3(0.3f, 0.02f, 0.3f), Mat(new Color(0.2f, 0.5f, 1.0f), 0.02f)).transform.rotation = Quaternion.Euler(0f, 45f, 0f);
+        foreach (var p in monDots)
+            Cube("DotMonitoring", p, new Vector3(0.3f, 0.02f, 0.3f), Mat(new Color(0.1f, 0.9f, 0.4f), 0.02f)).transform.rotation = Quaternion.Euler(0f, 45f, 0f);
 
         Cube("DeskLampStem", new Vector3(1.3f, 1.00f, 1.3f), new Vector3(0.07f, 0.55f, 0.07f), Mat(new Color(0.18f, 0.18f, 0.20f), 0.2f));
         Cube("DeskLampHead", new Vector3(1.3f, 1.30f, 1.3f), new Vector3(0.22f, 0.14f, 0.22f), Emissive(new Color(0.25f, 0.18f, 0.10f), new Color(1f, 0.72f, 0.35f), 2.2f));
