@@ -309,6 +309,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildAgents()
     {
+        // FUNC-004: NavMesh pathfinding placeholder
         BuildAgent(new Vector3(0.5f, 0f, 2.5f), "CHIEF", new Color(1.00f, 0.85f, 0.35f), 0f);
         BuildAgent(new Vector3(-1.5f, 0f, 2.5f), "PLANNER", new Color(0.35f, 0.65f, 1.00f), 20f);
         BuildAgent(new Vector3(-4f, 0f, 4f), "WORKER", new Color(0.20f, 0.95f, 0.72f), 45f);
