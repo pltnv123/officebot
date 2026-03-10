@@ -391,24 +391,33 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private static void BuildLighting()
     {
         RenderSettings.ambientMode = AmbientMode.Flat;
-        RenderSettings.ambientIntensity = 1.2f;
+        RenderSettings.ambientIntensity = 1.30f;
         RenderSettings.ambientLight = new Color(1.0f, 0.88f, 0.65f);
 
         var def = GameObject.Find("Directional Light");
         if (def != null) Object.DestroyImmediate(def);
 
-        L("MainDirectional", LightType.Directional, new Color(1.0f, 0.92f, 0.75f), 1.8f, 100f,
+        L("MainDirectional", LightType.Directional, new Color(1.0f, 0.92f, 0.78f), 1.2f, 100f,
             LightShadows.Soft, Vector3.zero, Quaternion.Euler(40f, -20f, 0f));
-        L("DispatchPoint", LightType.Point, new Color(1.0f, 0.55f, 0.05f), 3.0f, 10f,
+
+        L("DispatchPoint", LightType.Point, new Color(1.0f, 0.62f, 0.24f), 2.8f, 11f,
             LightShadows.None, new Vector3(-7f, 3f, 5f), Quaternion.identity);
-        L("MonitoringPoint", LightType.Point, new Color(0.15f, 1.0f, 0.45f), 2.5f, 10f,
+        L("MonitoringPoint", LightType.Point, new Color(1.0f, 0.82f, 0.52f), 2.4f, 11f,
             LightShadows.None, new Vector3(7f, 3f, 5f), Quaternion.identity);
-        L("DeskPoint", LightType.Point, new Color(1.0f, 0.95f, 0.7f), 2.0f, 8f,
+        L("DeskPoint", LightType.Point, new Color(1.0f, 0.95f, 0.75f), 2.0f, 9f,
             LightShadows.None, new Vector3(0f, 4f, 3f), Quaternion.identity);
-        L("BoardPoint", LightType.Point, new Color(0.9f, 0.95f, 1.0f), 1.5f, 12f,
+        L("BoardPoint", LightType.Point, new Color(1.0f, 0.92f, 0.72f), 1.9f, 13f,
             LightShadows.None, new Vector3(0f, 5f, 9f), Quaternion.identity);
-        L("Room2InteriorPoint", LightType.Point, new Color(1.0f, 0.62f, 0.20f), 2.6f, 9f,
+        L("Room2InteriorPoint", LightType.Point, new Color(1.0f, 0.68f, 0.30f), 2.6f, 10f,
             LightShadows.None, new Vector3(6.6f, 2.5f, 10.9f), Quaternion.identity);
+
+        // Fill lights to avoid dark corners.
+        L("FillBackLeft", LightType.Point, new Color(1.0f, 0.86f, 0.62f), 1.0f, 12f,
+            LightShadows.None, new Vector3(-8.4f, 2.7f, 8.2f), Quaternion.identity);
+        L("FillBackRightRoom2", LightType.Point, new Color(1.0f, 0.84f, 0.60f), 1.0f, 12f,
+            LightShadows.None, new Vector3(8.8f, 2.7f, 8.8f), Quaternion.identity);
+        L("FillBoardLower", LightType.Point, new Color(1.0f, 0.82f, 0.58f), 0.9f, 10f,
+            LightShadows.None, new Vector3(0f, 1.8f, 8.7f), Quaternion.identity);
     }
 
     private static void L(string n, LightType t, Color c, float intensity, float range, LightShadows sh, Vector3 pos, Quaternion rot)

@@ -75,3 +75,18 @@ bash scripts/ops/office_healthcheck.sh
 6. Негативный кейс: передай недостижимую цель (вне навмеша).
    - Expected: в лог пишется warning, бот делает fallback и не зависает навсегда.
 7. Визуально проверь плавность: нет телепортов, клиппинга, резких рывков.
+
+## Lighting smoke-check (яркая тёплая сцена)
+1. Проверить, что в `BuildLighting()` выставлено:
+   - `RenderSettings.ambientMode = AmbientMode.Flat`
+   - `RenderSettings.ambientIntensity` в диапазоне `1.25–1.40`
+   - `RenderSettings.ambientLight = new Color(1.0f, 0.88f, 0.65f)`
+2. Проверить `MainDirectional`:
+   - тёплый цвет
+   - `intensity = 1.2f`
+3. В Play Mode проверить отсутствие тёмных углов в зонах:
+   - board
+   - dispatch
+   - monitoring
+   - room2 corridor
+4. Убедиться, что общая палитра остаётся тёплой (без сине-серого доминирования).
