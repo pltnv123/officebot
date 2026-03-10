@@ -133,7 +133,11 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("PathMonitoringRoom2", new Vector3(9f, -0.01f, 5f), new Vector3(2f, 0.02f, 6f), nav); // room2 corridor
 
         var wall = Mat(new Color(0.24f, 0.18f, 0.14f), 0.14f);
-        Cube("BackWall", new Vector3(0f, 2.5f, 10f), new Vector3(24f, 5f, 0.25f), wall);
+        // Back wall with a real doorway opening to Room 2 (right-rear)
+        Cube("BackWallLeft", new Vector3(-3.4f, 2.5f, 10f), new Vector3(17.2f, 5f, 0.25f), wall);
+        Cube("BackWallRight", new Vector3(10.2f, 2.5f, 10f), new Vector3(3.6f, 5f, 0.25f), wall);
+        Cube("BackWallTopLintel", new Vector3(8.0f, 4.35f, 10f), new Vector3(2.8f, 1.3f, 0.25f), wall);
+
         Cube("DepthBackWall", new Vector3(0f, 3f, 9f), new Vector3(20f, 6f, 0.3f), Mat(new Color(0.15f, 0.12f, 0.08f), 0.12f));
         Cube("LeftWall", new Vector3(-10.8f, 2.5f, 3f), new Vector3(0.55f, 5f, 18f), wall);
         Cube("RightWall", new Vector3(10.8f, 2.5f, 3f), new Vector3(0.55f, 5f, 18f), wall);
@@ -394,6 +398,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             LightShadows.None, new Vector3(0f, 4f, 3f), Quaternion.identity);
         L("BoardPoint", LightType.Point, new Color(0.9f, 0.95f, 1.0f), 1.5f, 12f,
             LightShadows.None, new Vector3(0f, 5f, 9f), Quaternion.identity);
+        L("Room2InteriorPoint", LightType.Point, new Color(1.0f, 0.62f, 0.20f), 2.6f, 9f,
+            LightShadows.None, new Vector3(8f, 2.6f, 12.4f), Quaternion.identity);
     }
 
     private static void L(string n, LightType t, Color c, float intensity, float range, LightShadows sh, Vector3 pos, Quaternion rot)
