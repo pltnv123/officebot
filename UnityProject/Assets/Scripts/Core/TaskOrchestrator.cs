@@ -1,53 +1,83 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 public class TaskOrchestrator : MonoBehaviour
 {
- // Filled by RuntimeSceneBuilder
- [HideInInspector] public BotMover plannerBot;
- [HideInInspector] public BotMover workerBot;
- [HideInInspector] public BotMover testerBot;
+    // Filled by RuntimeSceneBuilder
+    [HideInInspector] public BotMover plannerBot;
+    [HideInInspector] public BotMover workerBot;
+    [HideInInspector] public BotMover testerBot;
 
- private readonly HashSet<string> _inProgress =
- new HashSet<string>();
+    private readonly HashSet<string> _inProgress = new HashSet<string>();
+    private StateRoot _lastState;
 
- private StateRoot _lastState;
+    public void ApplyState(StateRoot state)
+    {
+        _lastState = state;
+        if (state?.tasks == null) return;
+        Tick(state.tasks);
+    }
 
- public void ApplyState(StateRoot state)
- {
- _lastState = state;
- if (state?.tasks == null) return;
- Tick(state.tasks);
- }
+    private void Tick(List<TaskItem> tasks)
+    {
+        CleanupInProgress(tasks);
 
- private void Tick(List<TaskItem> tasks)
- {
- TryAssign(tasks, "INBOX", plannerBot, "planner");
- TryAssign(tasks, "PLANNING", workerBot, "worker");
- TryAssign(tasks, "DOING", testerBot, "tester");
- }
+        TryAssign(tasks, "INBOX", plannerBot, "planner");
+        TryAssign(tasks, "PLANNING", workerBot, "worker");
+        TryAssign(tasks, "DOING", testerBot, "tester");
+    }
 
- private void TryAssign(List<TaskItem> tasks,
- string status, BotMover bot, string role)
- {
- if (bot == null || bot.IsBusy) return;
+    private void CleanupInProgress(List<TaskItem> tasks)
+    {
+        var existing = new HashSet<string>(tasks.Select(t => t.id));
 
- var task = tasks.FirstOrDefault(t =>
- t.status == status &&
- !_inProgress.Contains(t.id));
+        // remove deleted tasks
+        _inProgress.RemoveWhere(id => !existing.Contains(id));
 
- if (task == null) return;
+        // remove completed/returned tasks
+        foreach (var t in tasks)
+        {
+            if (t == null) continue;
+            if (t.status == "DONE" || t.status == "REWORK")
+                _inProgress.Remove(t.id);
+        }
 
- _inProgress.Add(task.id);
- bot.SetRole(role);
- bot.AssignTask(task);
+        // if bot is idle again, unlock tasks in its stage
+        UnlockByBotState(tasks, plannerBot, "PLANNING");
+        UnlockByBotState(tasks, workerBot, "DOING");
+        UnlockByBotState(tasks, testerBot, "DONE", "REWORK");
+    }
 
- // Clean finished tasks from tracking
- var done = tasks
- .Where(t => t.status == "DONE" || t.status == "REWORK")
- .Select(t => t.id).ToList();
- foreach (var id in done) _inProgress.Remove(id);
- }
+    private void UnlockByBotState(List<TaskItem> tasks, BotMover bot, params string[] statuses)
+    {
+        if (bot == null || !bot.IsIdleState) return;
+        foreach (var t in tasks)
+        {
+            if (t == null) continue;
+            for (int i = 0; i < statuses.Length; i++)
+            {
+                if (t.status == statuses[i])
+                {
+                    _inProgress.Remove(t.id);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void TryAssign(List<TaskItem> tasks, string status, BotMover bot, string role)
+    {
+        if (bot == null || !bot.IsIdleState) return;
+
+        var task = tasks.FirstOrDefault(t =>
+            t.status == status &&
+            !_inProgress.Contains(t.id));
+
+        if (task == null) return;
+
+        _inProgress.Add(task.id);
+        bot.SetRole(role);
+        bot.AssignTask(task);
+    }
 }

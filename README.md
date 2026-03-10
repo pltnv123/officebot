@@ -62,3 +62,16 @@ bash scripts/ops/ci_wait_green.sh <sha-prefix>
 ```bash
 bash scripts/ops/office_healthcheck.sh
 ```
+
+## FUNC-004: NavMesh pathfinding smoke-test
+1. Запусти сцену OfficeHub в Play Mode.
+2. Добавь задачу в `INBOX` через UI/API.
+   - Expected: planner идёт к board, затем к desk по навигации (без прохода сквозь стены).
+3. Дождись статуса `PLANNING`.
+   - Expected: worker получает задачу и идёт по коридору к desk.
+4. Дождись `DOING`.
+   - Expected: tester выполняет цикл, затем переводит в `DONE`/`REWORK` и возвращается в idle.
+5. Проверь возврат в idle после завершения цикла у каждого бота.
+6. Негативный кейс: передай недостижимую цель (вне навмеша).
+   - Expected: в лог пишется warning, бот делает fallback и не зависает навсегда.
+7. Визуально проверь плавность: нет телепортов, клиппинга, резких рывков.

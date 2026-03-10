@@ -1,194 +1,294 @@
 using UnityEngine;
+using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
 
 public class BotMover : MonoBehaviour
 {
- [Header("Movement")]
- public float moveSpeed = 2.5f;
- public float rotateSpeed = 8.0f;
- public float arrivalDist = 0.25f;
+    private enum BotPhase { Idle, Moving, Working }
 
- [Header("Idle bob")]
- public float bobAmplitude = 0.04f;
- public float bobFrequency = 1.4f;
- public float idleYawAmplitude = 5f;
- public float idleYawFrequency = 0.65f;
+    [Header("Movement")]
+    public float moveSpeed = 2.5f;
+    public float rotateSpeed = 8.0f;
+    public float arrivalDist = 0.25f;
+    public float repathTimeout = 2.5f;
+    public float walkTimeout = 20f;
 
- [Header("Eye lights")]
- public List<Light> eyeLights = new List<Light>();
+    [Header("Idle bob")]
+    public float bobAmplitude = 0.04f;
+    public float bobFrequency = 1.4f;
+    public float idleYawAmplitude = 5f;
+    public float idleYawFrequency = 0.65f;
 
- // State
- public bool IsMoving { get; private set; }
- public bool IsBusy { get; private set; }
+    [Header("Eye lights")]
+    public List<Light> eyeLights = new List<Light>();
 
- private Vector3 _basePos;
- private Quaternion _baseRot;
- private float _time;
- private ApiClient _api;
+    // State
+    public bool IsMoving { get; private set; }
+    public bool IsBusy { get; private set; }
+    public bool IsIdleState => _phase == BotPhase.Idle && !IsBusy && !IsMoving;
 
- // Task pipeline state
- private TaskItem _currentTask;
- private string _botRole; // "planner","worker","tester"
+    private BotPhase _phase = BotPhase.Idle;
+    private Vector3 _basePos;
+    private Quaternion _baseRot;
+    private float _time;
+    private ApiClient _api;
+    private NavMeshAgent _agent;
 
- // Anchor positions — set from RuntimeSceneBuilder
- [HideInInspector] public Vector3 idlePos;
- [HideInInspector] public Vector3 boardPos;
- [HideInInspector] public Vector3 deskPos;
- [HideInInspector] public Vector3 donePos;
+    // Task pipeline state
+    private TaskItem _currentTask;
+    private string _botRole; // "planner","worker","tester"
 
- // Roam targets
- private static readonly Vector3[] RoamGrid = {
- new Vector3(-3.5f,0,-1.5f), new Vector3(-1.5f,0,-1.5f),
- new Vector3( 0.0f,0,-1.5f), new Vector3( 1.5f,0,-1.5f),
- new Vector3( 3.5f,0,-1.5f), new Vector3(-3.5f,0, 0.5f),
- new Vector3(-1.5f,0, 0.5f), new Vector3( 0.0f,0, 0.5f),
- new Vector3( 1.5f,0, 0.5f), new Vector3( 3.5f,0, 0.5f),
- new Vector3(-2.0f,0, 2.0f), new Vector3( 2.0f,0, 2.0f)
- };
+    // Anchor positions — set from RuntimeSceneBuilder
+    [HideInInspector] public Vector3 idlePos;
+    [HideInInspector] public Vector3 boardPos;
+    [HideInInspector] public Vector3 deskPos;
+    [HideInInspector] public Vector3 donePos;
 
- void Start()
- {
- _basePos = transform.position;
- _baseRot = transform.rotation;
- idlePos = transform.position;
- _api = FindObjectOfType<ApiClient>();
- StartCoroutine(IdleRoam());
- }
+    // Roam targets
+    private static readonly Vector3[] RoamGrid = {
+        new Vector3(-3.5f,0,-1.5f), new Vector3(-1.5f,0,-1.5f),
+        new Vector3( 0.0f,0,-1.5f), new Vector3( 1.5f,0,-1.5f),
+        new Vector3( 3.5f,0,-1.5f), new Vector3(-3.5f,0, 0.5f),
+        new Vector3(-1.5f,0, 0.5f), new Vector3( 0.0f,0, 0.5f),
+        new Vector3( 1.5f,0, 0.5f), new Vector3( 3.5f,0, 0.5f),
+        new Vector3(-2.0f,0, 2.0f), new Vector3( 2.0f,0, 2.0f)
+    };
 
- void Update()
- {
- _time += Time.deltaTime;
+    void Start()
+    {
+        _basePos = transform.position;
+        _baseRot = transform.rotation;
+        idlePos = transform.position;
+        _api = FindObjectOfType<ApiClient>();
 
- // Eye pulse
- foreach (var lt in eyeLights)
- {
- if (lt == null) continue;
- lt.intensity = 2.0f +
- Mathf.Sin(_time * 2.2f + GetInstanceID() * 0.9f) * 0.8f;
- }
+        _agent = GetComponent<NavMeshAgent>() ?? gameObject.AddComponent<NavMeshAgent>();
+        _agent.speed = moveSpeed;
+        _agent.angularSpeed = 360f * rotateSpeed;
+        _agent.acceleration = Mathf.Max(8f, moveSpeed * 4f);
+        _agent.stoppingDistance = Mathf.Max(0.05f, arrivalDist);
+        _agent.updateRotation = true;
+        _agent.autoBraking = true;
 
- // Idle body bob + micro sway (only when not moving)
- if (!IsMoving && !IsBusy)
- {
- float phase = GetInstanceID() * 1.1f;
- float bob = Mathf.Sin(_time * bobFrequency + phase) * bobAmplitude;
- float yaw = Mathf.Sin(_time * idleYawFrequency + phase * 0.7f) * idleYawAmplitude;
+        if (!TrySampleOnNavMesh(transform.position, out var snappedStart))
+            snappedStart = transform.position;
+        transform.position = snappedStart;
+        _agent.Warp(snappedStart);
+        _basePos = snappedStart;
 
- var p = transform.position;
- p.y = _basePos.y + bob;
- transform.position = p;
- transform.rotation = _baseRot * Quaternion.Euler(0f, yaw, 0f);
- }
- }
+        StartCoroutine(IdleRoam());
+    }
 
- // ── Public API ────────────────────────────────────────────
+    void Update()
+    {
+        _time += Time.deltaTime;
 
- public void SetRole(string role) => _botRole = role;
+        // Eye pulse
+        foreach (var lt in eyeLights)
+        {
+            if (lt == null) continue;
+            float pulseFreq = _phase == BotPhase.Working ? 6f : 2.2f;
+            float pulseAmp = _phase == BotPhase.Working ? 1.15f : 0.8f;
+            lt.intensity = 2.0f + Mathf.Sin(_time * pulseFreq + GetInstanceID() * 0.9f) * pulseAmp;
+        }
 
- public void AssignTask(TaskItem task)
- {
- if (IsBusy) return;
- _currentTask = task;
- IsBusy = true;
- StopCoroutine("IdleRoam");
- StartCoroutine(TaskRoutine());
- }
+        // Idle body bob + micro sway
+        if (_phase == BotPhase.Idle && !IsMoving && !IsBusy)
+        {
+            float phase = GetInstanceID() * 1.1f;
+            float bob = Mathf.Sin(_time * bobFrequency + phase) * bobAmplitude;
+            float yaw = Mathf.Sin(_time * idleYawFrequency + phase * 0.7f) * idleYawAmplitude;
 
- // ── Coroutines ────────────────────────────────────────────
+            var p = transform.position;
+            p.y = _basePos.y + bob;
+            transform.position = p;
+            transform.rotation = _baseRot * Quaternion.Euler(0f, yaw, 0f);
+        }
+    }
 
- private IEnumerator TaskRoutine()
- {
- // 1. Walk to board
- yield return WalkTo(boardPos);
- yield return new WaitForSeconds(0.7f);
+    public void SetRole(string role) => _botRole = role;
 
- // 2. Walk to desk
- yield return WalkTo(deskPos);
+    public void AssignTask(TaskItem task)
+    {
+        if (IsBusy || task == null) return;
+        _currentTask = task;
+        IsBusy = true;
+        _phase = BotPhase.Moving;
+        StopCoroutine("IdleRoam");
+        StartCoroutine(TaskRoutine());
+    }
 
- // 3. Work animation (bob faster)
- float workTime = 2.5f;
- float t = 0;
- while (t < workTime)
- {
- t += Time.deltaTime;
- float bob = Mathf.Sin(t * 6f) * 0.06f;
- var p = transform.position;
- p.y = _basePos.y + bob;
- transform.position = p;
- yield return null;
- }
+    private IEnumerator TaskRoutine()
+    {
+        yield return WalkTo(boardPos);
+        yield return new WaitForSeconds(0.7f);
 
- // 4. Advance task status
- string next = NextStatus(_botRole, _currentTask.status);
- _currentTask.status = next;
- if (_api != null)
- yield return _api.PatchTask(_currentTask.id, next);
+        yield return WalkTo(deskPos);
 
- // 5. If DONE — walk to done position
- if (next == "DONE" || next == "REVIEW")
- yield return WalkTo(donePos);
+        _phase = BotPhase.Working;
+        IsMoving = false;
 
- // 6. Return to idle position
- yield return WalkTo(idlePos);
+        float workTime = 2.5f;
+        float t = 0f;
+        while (t < workTime)
+        {
+            t += Time.deltaTime;
+            float bob = Mathf.Sin(t * 6f) * 0.06f;
+            var p = transform.position;
+            p.y = _basePos.y + bob;
+            transform.position = p;
+            yield return null;
+        }
 
- _currentTask = null;
- IsBusy = false;
- StartCoroutine(IdleRoam());
- }
+        string next = NextStatus(_botRole, _currentTask.status);
+        _currentTask.status = next;
+        if (_api != null)
+            yield return _api.PatchTask(_currentTask.id, next);
 
- private IEnumerator IdleRoam()
- {
- yield return new WaitForSeconds(Random.Range(2f, 5f));
- while (!IsBusy)
- {
- // Pick random roam point
- var target = RoamGrid[Random.Range(0, RoamGrid.Length)];
- yield return WalkTo(target);
- // Wait at point
- yield return new WaitForSeconds(Random.Range(3f, 8f));
- // Occasionally look at camera (rotate toward Z-)
- if (Random.value < 0.3f)
- {
- transform.rotation = Quaternion.Euler(0, 180f, 0);
- yield return new WaitForSeconds(1.5f);
- }
- }
- }
+        _phase = BotPhase.Moving;
 
- private IEnumerator WalkTo(Vector3 target)
- {
- target.y = _basePos.y;
- IsMoving = true;
- while (Vector3.Distance(transform.position, target) > arrivalDist)
- {
- // Rotate toward target
- var dir = (target - transform.position).normalized;
- if (dir != Vector3.zero)
- {
- var look = Quaternion.LookRotation(dir);
- transform.rotation = Quaternion.Slerp(
- transform.rotation, look,
- Time.deltaTime * rotateSpeed);
- }
- // Move
- transform.position = Vector3.MoveTowards(
- transform.position, target,
- moveSpeed * Time.deltaTime);
- yield return null;
- }
- IsMoving = false;
- }
+        if (next == "DONE" || next == "REVIEW")
+            yield return WalkTo(donePos);
 
- private static string NextStatus(string role, string current)
- {
- switch (role)
- {
- case "planner": return "PLANNING";
- case "worker": return "DOING";
- case "tester":
- return (Random.value < 0.15f) ? "REWORK" : "DONE";
- default: return "DONE";
- }
- }
+        yield return WalkTo(idlePos);
+
+        _currentTask = null;
+        IsBusy = false;
+        IsMoving = false;
+        _phase = BotPhase.Idle;
+        _baseRot = transform.rotation;
+        StartCoroutine(IdleRoam());
+    }
+
+    private IEnumerator IdleRoam()
+    {
+        yield return new WaitForSeconds(Random.Range(2f, 5f));
+        while (!IsBusy)
+        {
+            _phase = BotPhase.Moving;
+            var target = RoamGrid[Random.Range(0, RoamGrid.Length)];
+            yield return WalkTo(target);
+
+            _phase = BotPhase.Idle;
+            yield return new WaitForSeconds(Random.Range(3f, 8f));
+
+            if (Random.value < 0.3f)
+            {
+                transform.rotation = Quaternion.Euler(0, 180f, 0);
+                _baseRot = transform.rotation;
+                yield return new WaitForSeconds(1.5f);
+            }
+        }
+    }
+
+    private IEnumerator WalkTo(Vector3 target)
+    {
+        if (_agent == null)
+        {
+            Debug.LogWarning($"[BotMover:{name}] NavMeshAgent missing, fallback to direct move.");
+            yield break;
+        }
+
+        IsMoving = true;
+        _phase = IsBusy ? BotPhase.Moving : _phase;
+
+        if (!TrySampleOnNavMesh(target, out var snappedTarget))
+        {
+            Debug.LogWarning($"[BotMover:{name}] Target {target} unreachable on NavMesh, fallback to idlePos.");
+            TrySampleOnNavMesh(idlePos, out snappedTarget);
+        }
+
+        var path = new NavMeshPath();
+        if (!_agent.CalculatePath(snappedTarget, path) || path.status != NavMeshPathStatus.PathComplete)
+        {
+            Debug.LogWarning($"[BotMover:{name}] Path to {snappedTarget} is incomplete, fallback to idlePos.");
+            if (!TrySampleOnNavMesh(idlePos, out snappedTarget) || !_agent.CalculatePath(snappedTarget, path) || path.status != NavMeshPathStatus.PathComplete)
+            {
+                IsMoving = false;
+                _phase = IsBusy ? BotPhase.Working : BotPhase.Idle;
+                yield break;
+            }
+        }
+
+        _agent.isStopped = false;
+        _agent.SetPath(path);
+
+        float elapsed = 0f;
+        float stuckElapsed = 0f;
+        float lastRemaining = Mathf.Infinity;
+        bool repathTried = false;
+
+        while (elapsed < walkTimeout)
+        {
+            elapsed += Time.deltaTime;
+
+            if (!_agent.pathPending)
+            {
+                float remaining = _agent.remainingDistance;
+                if (remaining <= _agent.stoppingDistance + 0.02f)
+                {
+                    if (!_agent.hasPath || _agent.velocity.sqrMagnitude < 0.01f)
+                        break;
+                }
+
+                if (remaining >= lastRemaining - 0.01f)
+                {
+                    stuckElapsed += Time.deltaTime;
+                    if (stuckElapsed > repathTimeout)
+                    {
+                        if (!repathTried)
+                        {
+                            repathTried = true;
+                            stuckElapsed = 0f;
+                            _agent.ResetPath();
+                            _agent.SetDestination(snappedTarget);
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"[BotMover:{name}] Stuck while moving to {snappedTarget}. Aborting move.");
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    stuckElapsed = 0f;
+                    lastRemaining = remaining;
+                }
+            }
+
+            yield return null;
+        }
+
+        _agent.isStopped = true;
+        _agent.ResetPath();
+
+        var pos = transform.position;
+        _basePos = new Vector3(pos.x, pos.y, pos.z);
+        _baseRot = transform.rotation;
+        IsMoving = false;
+    }
+
+    private static bool TrySampleOnNavMesh(Vector3 point, out Vector3 snapped)
+    {
+        if (NavMesh.SamplePosition(point, out var hit, 1.8f, NavMesh.AllAreas))
+        {
+            snapped = hit.position;
+            return true;
+        }
+        snapped = point;
+        return false;
+    }
+
+    private static string NextStatus(string role, string current)
+    {
+        switch (role)
+        {
+            case "planner": return "PLANNING";
+            case "worker": return "DOING";
+            case "tester":
+                return (Random.value < 0.15f) ? "REWORK" : "DONE";
+            default: return "DONE";
+        }
+    }
 }

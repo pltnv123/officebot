@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Rendering;
+using UnityEngine.AI;
 
 namespace OfficeHub
 {
@@ -39,6 +40,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     };
 
     [SerializeField] private string taskStateUrl = "/api/state";
+    private NavMeshData _runtimeNavMeshData;
+    private readonly List<NavMeshBuildSource> _navSources = new();
 
     private void Start()
     {
@@ -47,6 +50,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         BuildBoard();
         BuildZones();
         BuildAgents();
+        BuildRuntimeNavMesh();
         BuildLighting();
         WireBackend();
         StartCoroutine(PollTaskState());
@@ -420,28 +424,64 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         go.transform.rotation = rot;
     }
 
+    private void BuildRuntimeNavMesh()
+    {
+        _navSources.Clear();
+        var marks = new List<NavMeshBuildMarkup>();
+        var world = new Bounds(new Vector3(0f, 2f, 6f), new Vector3(32f, 8f, 24f));
+
+        NavMeshBuilder.CollectSources(
+            world,
+            LayerMask.GetMask("Default"),
+            NavMeshCollectGeometry.RenderMeshes,
+            0,
+            marks,
+            _navSources);
+
+        var settings = NavMesh.GetSettingsByID(0);
+        if (settings.agentTypeID == -1)
+        {
+            Debug.LogWarning("[RuntimeSceneBuilder] NavMesh agent settings not found.");
+            return;
+        }
+
+        var navRoot = GameObject.Find("NavigationRoot") ?? new GameObject("NavigationRoot");
+        navRoot.transform.position = Vector3.zero;
+
+        _runtimeNavMeshData = NavMeshBuilder.BuildNavMeshData(settings, _navSources, world, Vector3.zero, Quaternion.identity);
+        if (_runtimeNavMeshData != null)
+            NavMesh.AddNavMeshData(_runtimeNavMeshData);
+    }
+
+    private static Vector3 SnapToNavMesh(Vector3 point, float maxDistance = 2f)
+    {
+        if (NavMesh.SamplePosition(point, out var hit, maxDistance, NavMesh.AllAreas))
+            return hit.position;
+        return point;
+    }
+
     private void WireBackend()
     {
         var mgr = GameObject.Find("SceneManager") ?? new GameObject("SceneManager");
         if (mgr.GetComponent<ApiClient>() == null) mgr.AddComponent<ApiClient>();
 
-        BotMover Mv(int idx, string role, Vector3 idle, Vector3 desk, Vector3 done)
+        BotMover Mv(int idx, string role, Vector3 idle, Vector3 board, Vector3 desk, Vector3 done)
         {
             if (idx >= _agents.Count) return null;
             var go = _agents[idx];
             var mv = go.GetComponent<BotMover>() ?? go.AddComponent<BotMover>();
             mv.SetRole(role);
-            mv.idlePos = idle;
-            mv.boardPos = new Vector3(0f, 0f, 8f);
-            mv.deskPos = desk;
-            mv.donePos = done;
+            mv.idlePos = SnapToNavMesh(idle);
+            mv.boardPos = SnapToNavMesh(board);
+            mv.deskPos = SnapToNavMesh(desk);
+            mv.donePos = SnapToNavMesh(done);
             return mv;
         }
 
         // Map existing orchestrator roles to planner/worker/tester.
-        var plannerM = Mv(1, "planner", new Vector3(-1.8f, 0f, 0.5f), new Vector3(-1.3f, 0f, 1.2f), new Vector3(5.2f, 0f, 8.6f));
-        var workerM = Mv(2, "worker", new Vector3(-6.5f, 0f, 2.5f), new Vector3(-0.3f, 0f, 1.0f), new Vector3(5.6f, 0f, 8.6f));
-        var testerM = Mv(3, "tester", new Vector3(6.5f, 0f, 2.5f), new Vector3(0.8f, 0f, 1.0f), new Vector3(6.0f, 0f, 8.6f));
+        var plannerM = Mv(1, "planner", new Vector3(-1.8f, 0f, 0.5f), new Vector3(0f, 0f, 8f), new Vector3(-1.3f, 0f, 1.2f), new Vector3(5.2f, 0f, 8.6f));
+        var workerM = Mv(2, "worker", new Vector3(-6.5f, 0f, 2.5f), new Vector3(0f, 0f, 8f), new Vector3(-0.3f, 0f, 1.0f), new Vector3(5.6f, 0f, 8.6f));
+        var testerM = Mv(3, "tester", new Vector3(6.5f, 0f, 2.5f), new Vector3(0f, 0f, 8f), new Vector3(0.8f, 0f, 1.0f), new Vector3(6.0f, 0f, 8.6f));
 
         var orch = mgr.GetComponent<TaskOrchestrator>() ?? mgr.AddComponent<TaskOrchestrator>();
         orch.plannerBot = plannerM;
