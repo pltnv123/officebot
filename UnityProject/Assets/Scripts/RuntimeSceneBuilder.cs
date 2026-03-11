@@ -129,18 +129,18 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void BuildRoom()
     {
         RenderSettings.ambientMode = AmbientMode.Flat;
-        RenderSettings.ambientLight = new Color(1.00f, 0.81f, 0.58f, 1f);
+        RenderSettings.ambientLight = new Color(1.00f, 0.82f, 0.58f, 1f);
 
-        CreatePointLight("KeyWarm", new Vector3(0f, 4.8f, 1.0f), new Color(1.00f, 0.62f, 0.30f, 1f), 4.6f, 22f);
-        CreatePointLight("FillLeft", new Vector3(-6.6f, 3.6f, 2.8f), new Color(1.00f, 0.68f, 0.38f, 1f), 2.5f, 14f);
-        CreatePointLight("FillRight", new Vector3(6.6f, 3.6f, 2.8f), new Color(1.00f, 0.68f, 0.38f, 1f), 2.5f, 14f);
+        CreatePointLight("KeyWarm", new Vector3(0f, 4.9f, 1.1f), new Color(1.00f, 0.62f, 0.30f, 1f), 4.8f, 22f);
+        CreatePointLight("FillL", new Vector3(-6.7f, 3.5f, 2.9f), new Color(1.00f, 0.68f, 0.38f, 1f), 2.6f, 14f);
+        CreatePointLight("FillR", new Vector3(6.7f, 3.5f, 2.9f), new Color(1.00f, 0.68f, 0.38f, 1f), 2.6f, 14f);
 
         var floor = Mat(new Color(0.62f, 0.47f, 0.28f), 0.30f);
         Cube("Floor", new Vector3(0f, -0.05f, 3f), new Vector3(24f, 0.1f, 18f), floor);
         Cube("FloorCenterPanel", new Vector3(0f, -0.045f, 3f), new Vector3(18f, 0.02f, 13f), Mat(new Color(0.52f, 0.39f, 0.22f), 0.30f));
 
         var pathAmber = Emissive(new Color(0.38f, 0.2f, 0.04f), new Color(1.00f, 0.56f, 0.10f, 1f), 2.2f);
-        var pathBlue = Emissive(new Color(0.12f, 0.20f, 0.35f), new Color(0.30f, 0.74f, 1.00f, 1f), 2.2f);
+        var pathBlue = Emissive(new Color(0.12f, 0.20f, 0.35f), new Color(0.31f, 0.75f, 1.00f, 1f), 2.2f);
         var pathGreen = Emissive(new Color(0.08f, 0.25f, 0.14f), new Color(0.20f, 1.00f, 0.74f, 1f), 2.2f);
 
         void PathDots(string prefix, Vector3 from, Vector3 to, Material mat)
@@ -148,7 +148,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             var delta = to - from;
             var length = delta.magnitude;
             var dir = length > 0.001f ? delta.normalized : Vector3.forward;
-            int count = Mathf.Max(2, Mathf.CeilToInt(length / 0.52f));
+            int count = Mathf.Max(2, Mathf.CeilToInt(length / 0.50f));
             for (int i = 0; i <= count; i++)
             {
                 float t = i / (float)count;
@@ -192,9 +192,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildBoard()
     {
-        float boardZ = 8.75f;
-        Cube("TaskBoardFrame", new Vector3(0f, 2.45f, 8.7f), new Vector3(10.4f, 3.3f, 0.15f), Mat(new Color(0.36f, 0.26f, 0.14f), 0.10f));
-        Cube("TaskBoard", new Vector3(0f, 2.45f, boardZ), new Vector3(10.0f, 3.0f, 0.22f), Mat(new Color(0.08f, 0.08f, 0.12f), 0.08f));
+        float boardZ = 8.80f;
+        Cube("TaskBoardFrame", new Vector3(0f, 2.50f, 8.75f), new Vector3(10.6f, 3.3f, 0.15f), Mat(new Color(0.36f, 0.26f, 0.14f), 0.10f));
+        Cube("TaskBoard", new Vector3(0f, 2.50f, boardZ), new Vector3(10.2f, 3.1f, 0.22f), Mat(new Color(0.08f, 0.08f, 0.12f), 0.08f));
 
         string[] headers = { "INBOX", "QUEUE", "PLAN", "WORK", "REVIEW", "DONE" };
         float[] xs = { -3.8f, -2.3f, -0.8f, 0.8f, 2.3f, 3.8f };
