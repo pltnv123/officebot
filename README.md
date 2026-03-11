@@ -63,18 +63,20 @@ bash scripts/ops/ci_wait_green.sh <sha-prefix>
 bash scripts/ops/office_healthcheck.sh
 ```
 
-## FUNC-004: NavMesh pathfinding smoke-test
+## FUNC-004 acceptance checklist
 1. Запусти сцену OfficeHub в Play Mode.
 2. Добавь задачу в `INBOX` через UI/API.
-   - Expected: planner идёт к board, затем к desk по навигации (без прохода сквозь стены).
+   - PASS: planner идёт к board, затем к desk по NavMesh без прохода сквозь стены.
 3. Дождись статуса `PLANNING`.
-   - Expected: worker получает задачу и идёт по коридору к desk.
+   - PASS: worker получает задачу и проходит маршрут к desk без телепорта.
 4. Дождись `DOING`.
-   - Expected: tester выполняет цикл, затем переводит в `DONE`/`REWORK` и возвращается в idle.
-5. Проверь возврат в idle после завершения цикла у каждого бота.
-6. Негативный кейс: передай недостижимую цель (вне навмеша).
-   - Expected: в лог пишется warning, бот делает fallback и не зависает навсегда.
-7. Визуально проверь плавность: нет телепортов, клиппинга, резких рывков.
+   - PASS: tester завершает цикл, переводит задачу в `DONE/REWORK`, затем идёт в done-zone и возвращается в idle.
+5. Повтори минимум 3 последовательных цикла задач.
+   - PASS: нет вечного зависания и дублей назначения.
+6. Негативный кейс: передай недостижимую цель (вне NavMesh).
+   - PASS: появляется warning + fallback в idle, система продолжает следующий цикл.
+7. Визуально проверь плавность.
+   - PASS: нет клиппинга, резких рывков и ручного MoveTowards-перемещения.
 
 ## Lighting smoke-check (яркая тёплая сцена)
 1. Проверить, что в `BuildLighting()` выставлено:

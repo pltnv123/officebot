@@ -54,6 +54,7 @@ public class BotMover : MonoBehaviour
         new Vector3( 1.5f,0, 0.5f), new Vector3( 3.5f,0, 0.5f),
         new Vector3(-2.0f,0, 2.0f), new Vector3( 2.0f,0, 2.0f)
     };
+    private readonly List<Vector3> _roamTargets = new List<Vector3>();
 
     void Start()
     {
@@ -76,6 +77,7 @@ public class BotMover : MonoBehaviour
         _agent.Warp(snappedStart);
         _basePos = snappedStart;
 
+        BuildRoamTargets();
         StartCoroutine(IdleRoam());
     }
 
@@ -166,8 +168,10 @@ public class BotMover : MonoBehaviour
         while (!IsBusy)
         {
             _phase = BotPhase.Moving;
-            var target = RoamGrid[Random.Range(0, RoamGrid.Length)];
-            yield return WalkTo(target);
+            var target = _roamTargets.Count > 0
+                ? _roamTargets[Random.Range(0, _roamTargets.Count)]
+                : idlePos;
+            yield return WalkTo(target, false);
 
             _phase = BotPhase.Idle;
             yield return new WaitForSeconds(Random.Range(3f, 8f));
@@ -181,11 +185,12 @@ public class BotMover : MonoBehaviour
         }
     }
 
-    private IEnumerator WalkTo(Vector3 target)
+    private IEnumerator WalkTo(Vector3 target, bool verboseWarnings = true)
     {
         if (_agent == null)
         {
-            Debug.LogWarning($"[BotMover:{name}] NavMeshAgent missing, fallback to direct move.");
+            if (verboseWarnings)
+                Debug.LogWarning($"[BotMover:{name}] NavMeshAgent missing, fallback to direct move.");
             yield break;
         }
 
@@ -194,14 +199,16 @@ public class BotMover : MonoBehaviour
 
         if (!TrySampleOnNavMesh(target, out var snappedTarget))
         {
-            Debug.LogWarning($"[BotMover:{name}] Target {target} unreachable on NavMesh, fallback to idlePos.");
+            if (verboseWarnings)
+                Debug.LogWarning($"[BotMover:{name}] Target {target} unreachable on NavMesh, fallback to idlePos.");
             TrySampleOnNavMesh(idlePos, out snappedTarget);
         }
 
         var path = new NavMeshPath();
         if (!_agent.CalculatePath(snappedTarget, path) || path.status != NavMeshPathStatus.PathComplete)
         {
-            Debug.LogWarning($"[BotMover:{name}] Path to {snappedTarget} is incomplete, fallback to idlePos.");
+            if (verboseWarnings)
+                Debug.LogWarning($"[BotMover:{name}] Path to {snappedTarget} is incomplete, fallback to idlePos.");
             if (!TrySampleOnNavMesh(idlePos, out snappedTarget) || !_agent.CalculatePath(snappedTarget, path) || path.status != NavMeshPathStatus.PathComplete)
             {
                 IsMoving = false;
@@ -245,7 +252,17 @@ public class BotMover : MonoBehaviour
                         }
                         else
                         {
-                            Debug.LogWarning($"[BotMover:{name}] Stuck while moving to {snappedTarget}. Aborting move.");
+                            if (verboseWarnings)
+                                Debug.LogWarning($"[BotMover:{name}] Stuck while moving to {snappedTarget}. Fallback to idle.");
+                            if (TrySampleOnNavMesh(idlePos, out var fallbackPos) && _agent.CalculatePath(fallbackPos, path) && path.status == NavMeshPathStatus.PathComplete)
+                            {
+                                _agent.ResetPath();
+                                _agent.SetPath(path);
+                                repathTried = false;
+                                stuckElapsed = 0f;
+                                snappedTarget = fallbackPos;
+                                continue;
+                            }
                             break;
                         }
                     }
@@ -267,6 +284,21 @@ public class BotMover : MonoBehaviour
         _basePos = new Vector3(pos.x, pos.y, pos.z);
         _baseRot = transform.rotation;
         IsMoving = false;
+    }
+
+    private void BuildRoamTargets()
+    {
+        _roamTargets.Clear();
+        for (int i = 0; i < RoamGrid.Length; i++)
+        {
+            if (!TrySampleOnNavMesh(RoamGrid[i], out var snapped)) continue;
+            var path = new NavMeshPath();
+            if (_agent != null && _agent.CalculatePath(snapped, path) && path.status == NavMeshPathStatus.PathComplete)
+                _roamTargets.Add(snapped);
+        }
+
+        if (_roamTargets.Count == 0 && TrySampleOnNavMesh(idlePos, out var idleSnapped))
+            _roamTargets.Add(idleSnapped);
     }
 
     private static bool TrySampleOnNavMesh(Vector3 point, out Vector3 snapped)
