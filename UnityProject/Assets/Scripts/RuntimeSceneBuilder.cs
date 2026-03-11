@@ -176,8 +176,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void BuildBoard()
     {
         float boardZ = 9.1f;
-        Cube("TaskBoardFrame", new Vector3(0f, 3.5f, 9.0f), new Vector3(18.4f, 6.2f, 0.15f), Mat(new Color(0.34f, 0.25f, 0.14f), 0.10f));
-        Cube("TaskBoard", new Vector3(0f, 3.5f, boardZ), new Vector3(18.0f, 5.7f, 0.25f), Mat(new Color(0.08f, 0.08f, 0.12f), 0.08f));
+        Cube("TaskBoardFrame", new Vector3(0f, 3.5f, 9.0f), new Vector3(19.0f, 6.4f, 0.15f), Mat(new Color(0.36f, 0.26f, 0.14f), 0.10f));
+        Cube("TaskBoard", new Vector3(0f, 3.5f, boardZ), new Vector3(18.6f, 5.9f, 0.25f), Mat(new Color(0.08f, 0.08f, 0.12f), 0.08f));
 
         string[] headers = { "INBOX", "QUEUE", "PLAN", "WORK", "REVIEW", "DONE" };
         float[] xs = { -5.5f, -3.3f, -1.1f, 1.1f, 3.3f, 5.5f };
@@ -452,7 +452,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private static void BuildLighting()
     {
         RenderSettings.ambientMode = AmbientMode.Flat;
-        RenderSettings.ambientIntensity = 1.75f;
+        RenderSettings.ambientIntensity = 1.90f;
         RenderSettings.ambientLight = new Color(1.0f, 0.88f, 0.65f);
 
         var def = GameObject.Find("Directional Light");
@@ -493,6 +493,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             LightShadows.None, new Vector3(-0.4f, 3.6f, 8.8f), Quaternion.identity);
         L("NeonMonitoringAccent", LightType.Point, new Color(0.18f, 1.0f, 0.5f), 1.0f, 8f,
             LightShadows.None, new Vector3(7.4f, 3.0f, 5.0f), Quaternion.identity);
+        L("TopCornerWarmL", LightType.Point, new Color(1.0f, 0.76f, 0.42f), 1.4f, 12f,
+            LightShadows.None, new Vector3(-10.0f, 4.6f, 2.0f), Quaternion.identity);
+        L("TopCornerWarmR", LightType.Point, new Color(1.0f, 0.76f, 0.42f), 1.4f, 12f,
+            LightShadows.None, new Vector3(10.0f, 4.6f, 2.0f), Quaternion.identity);
     }
 
     private static void L(string n, LightType t, Color c, float intensity, float range, LightShadows sh, Vector3 pos, Quaternion rot)
