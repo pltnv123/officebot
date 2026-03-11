@@ -4,11 +4,19 @@ using System.Collections;
 
 public class ApiClient : MonoBehaviour
 {
- private const string API = "http://5.45.115.12:8787";
+ [SerializeField] private string apiBasePath = "/api";
+
+ private string ApiBaseUrl()
+ {
+ if (string.IsNullOrWhiteSpace(apiBasePath)) return "/api";
+ if (apiBasePath.StartsWith("http://") || apiBasePath.StartsWith("https://"))
+ return apiBasePath.TrimEnd('/');
+ return apiBasePath.StartsWith("/") ? apiBasePath.TrimEnd('/') : "/" + apiBasePath.TrimEnd('/');
+ }
 
  public IEnumerator FetchState(System.Action<StateRoot> cb)
  {
- var req = UnityWebRequest.Get(API + "/api/state");
+ var req = UnityWebRequest.Get(ApiBaseUrl() + "/state");
  req.timeout = 5;
  yield return req.SendWebRequest();
  if (req.result == UnityWebRequest.Result.Success)
@@ -26,7 +34,7 @@ public class ApiClient : MonoBehaviour
  public IEnumerator PatchTask(string id, string status)
  {
  if (string.IsNullOrEmpty(id)) yield break;
- var req = new UnityWebRequest(API + "/api/tasks/" + id, "POST");
+ var req = new UnityWebRequest(ApiBaseUrl() + "/tasks/" + id, "POST");
  var body = System.Text.Encoding.UTF8.GetBytes(
  "{\"status\":\"" + status + "\"}");
  req.uploadHandler = new UploadHandlerRaw(body);

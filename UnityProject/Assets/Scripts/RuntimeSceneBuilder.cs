@@ -452,16 +452,21 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void BuildRuntimeNavMesh()
     {
         _navSources.Clear();
-        var marks = new List<NavMeshBuildMarkup>();
         var world = new Bounds(new Vector3(0f, 2f, 6f), new Vector3(32f, 8f, 24f));
 
-        NavMeshBuilder.CollectSources(
-            world,
-            LayerMask.GetMask("Default"),
-            NavMeshCollectGeometry.RenderMeshes,
-            0,
-            marks,
-            _navSources);
+        // Explicit navigation geometry to avoid invalid mesh sources from labels/FX objects.
+        AddNavMeshSource("Floor");
+        AddNavMeshSource("PathBoardDesk");
+        AddNavMeshSource("PathDeskWorker");
+        AddNavMeshSource("PathDeskMonitoring");
+        AddNavMeshSource("PathMonitoringRoom2");
+        AddNavMeshSource("Room2Floor");
+
+        if (_navSources.Count == 0)
+        {
+            Debug.LogWarning("[RuntimeSceneBuilder] NavMesh sources are empty.");
+            return;
+        }
 
         var settings = NavMesh.GetSettingsByID(0);
         if (settings.agentTypeID == -1)
@@ -476,6 +481,22 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         _runtimeNavMeshData = NavMeshBuilder.BuildNavMeshData(settings, _navSources, world, Vector3.zero, Quaternion.identity);
         if (_runtimeNavMeshData != null)
             NavMesh.AddNavMeshData(_runtimeNavMeshData);
+    }
+
+    private void AddNavMeshSource(string objectName)
+    {
+        var go = GameObject.Find(objectName);
+        if (go == null) return;
+        var mf = go.GetComponent<MeshFilter>();
+        if (mf == null || mf.sharedMesh == null) return;
+
+        _navSources.Add(new NavMeshBuildSource
+        {
+            shape = NavMeshBuildSourceShape.Mesh,
+            sourceObject = mf.sharedMesh,
+            transform = go.transform.localToWorldMatrix,
+            area = 0
+        });
     }
 
     private static Vector3 SnapToNavMesh(Vector3 point, float maxDistance = 2f)
