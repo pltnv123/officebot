@@ -10,9 +10,9 @@
   const stateTsEl = document.getElementById('state-ts');
   const opsTasksEl = document.getElementById('ops-tasks');
 
-  const API_BASE = 'http://5.45.115.12:8787';
-  const API_ENDPOINT = API_BASE + '/api/state';
-  const OPS_HEALTH_ENDPOINT = API_BASE + '/api/ops/health';
+  const API_BASE = '/api';
+  const API_ENDPOINT = API_BASE + '/state';
+  const OPS_HEALTH_ENDPOINT = API_BASE + '/ops/health';
 
   const newTaskInput = document.getElementById('new-task-title');
   const newTaskBtn = document.getElementById('new-task-btn');
@@ -161,7 +161,9 @@
     try {
       const response = await fetch(OPS_HEALTH_ENDPOINT + '?ts=' + Date.now(), { cache: 'no-store' });
       if (!response.ok) throw new Error('api status ' + response.status);
-      const payload = await response.json();
+      const raw = await response.text();
+      let payload = {};
+      try { payload = JSON.parse(raw); } catch { throw new Error('invalid JSON from ops health'); }
       const cpu = Number(payload.cpu || 0).toFixed(2) + '%';
       const load = Number(payload.load1 || 0).toFixed(2);
       lastCpuLoad = { cpu, load };
@@ -226,7 +228,11 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body || {}),
     });
-    const json = await response.json().catch(() => ({}));
+    const raw = await response.text();
+    let json = {};
+    try { json = raw ? JSON.parse(raw) : {}; } catch {
+      throw new Error('JSON parse error');
+    }
     if (!response.ok) {
       throw new Error(json?.error || ('HTTP ' + response.status));
     }
@@ -238,7 +244,7 @@
     if (!title) return setApiStatus('API: введите заголовок задачи', true);
     try {
       setApiStatus('API: создаю задачу…');
-      const out = await postJson(API_BASE + '/api/tasks', { title });
+      const out = await postJson(API_BASE + '/tasks', { title });
       newTaskInput.value = '';
       setApiStatus('API: задача создана');
       emitUnityEvent('task-created', { title, taskId: out?.task?.id || null });
@@ -252,7 +258,7 @@
     const id = String(toggleInput?.value || '').trim() || 'lights';
     try {
       setApiStatus('API: переключаю ' + id + '…');
-      const out = await postJson(API_BASE + '/api/toggles/' + encodeURIComponent(id), {});
+      const out = await postJson(API_BASE + '/toggles/' + encodeURIComponent(id), {});
       setApiStatus('API: toggle ' + id + ' обновлён');
       emitUnityEvent('toggle-updated', { id, value: out?.value });
       await pollCpuLoad();
@@ -264,7 +270,7 @@
   async function handleTick() {
     try {
       setApiStatus('API: закрываю текущий шаг…');
-      const out = await postJson(API_BASE + '/api/orchestrator/tick', {});
+      const out = await postJson(API_BASE + '/orchestrator/tick', {});
       if (out.changed) {
         setApiStatus('API: шаг закрыт, FSM сдвинут');
         emitUnityEvent('fsm-tick', { changed: true, taskId: out.taskId || null });
