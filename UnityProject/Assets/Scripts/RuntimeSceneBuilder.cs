@@ -168,7 +168,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             }
         }
 
-        PathDots("PathDispatchDot_", new Vector3(-7.4f, 0.03f, 0.0f), new Vector3(-1.8f, 0.03f, 0.7f), pathAmber);
+        PathDots("PathDispatchDot_", new Vector3(-7.4f, 0.03f, 0.1f), new Vector3(-1.8f, 0.03f, 0.7f), pathAmber);
         PathDots("PathBoardDot_", new Vector3(0.0f, 0.03f, -2.4f), new Vector3(0.0f, 0.03f, 2.8f), pathBlue);
         PathDots("PathMonitoringDot_", new Vector3(1.8f, 0.03f, 0.6f), new Vector3(7.2f, 0.03f, 0.3f), pathGreen);
 
