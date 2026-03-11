@@ -146,10 +146,14 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             }
         }
 
-        PathDots("PathBoardDeskDot_", new Vector3(0f, 0f, 1f), new Vector3(0f, 0f, 9f), 41, pathAmber);
-        PathDots("PathDeskWorkerDot_", new Vector3(-0.3f, 0f, 1.5f), new Vector3(-6.8f, 0f, 1.5f), 34, pathBlue);
+        PathDots("PathBoardDeskDot_", new Vector3(0f, 0f, 1f), new Vector3(0f, 0f, 9f), 41, pathBlue);
+        PathDots("PathDeskWorkerDot_", new Vector3(-0.3f, 0f, 1.5f), new Vector3(-6.8f, 0f, 1.5f), 34, pathAmber);
         PathDots("PathDeskMonitoringDot_", new Vector3(0.8f, 0f, 1.5f), new Vector3(6.8f, 0f, 1.5f), 31, pathGreen);
         PathDots("PathMonitoringRoom2Dot_", new Vector3(8.9f, 0f, 5f), new Vector3(8.9f, 0f, 10.8f), 30, pathAmber);
+
+        Cube("PathArrowDispatch", new Vector3(-4.6f, 0.02f, 1.5f), new Vector3(0.55f, 0.03f, 0.55f), pathAmber).transform.rotation = Quaternion.Euler(0f, 45f, 0f);
+        Cube("PathArrowBoard", new Vector3(0f, 0.02f, 5.6f), new Vector3(0.55f, 0.03f, 0.55f), pathBlue).transform.rotation = Quaternion.Euler(0f, 45f, 0f);
+        Cube("PathArrowMonitoring", new Vector3(4.8f, 0.02f, 1.5f), new Vector3(0.55f, 0.03f, 0.55f), pathGreen).transform.rotation = Quaternion.Euler(0f, 45f, 0f);
 
         var wall = Mat(new Color(0.24f, 0.18f, 0.14f), 0.14f);
         // Back wall with a real doorway opening to Room 2 (right-rear)
@@ -172,8 +176,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void BuildBoard()
     {
         float boardZ = 9.1f;
-        Cube("TaskBoardFrame", new Vector3(0f, 3.5f, 9.0f), new Vector3(17.6f, 5.8f, 0.15f), Mat(new Color(0.30f, 0.24f, 0.15f), 0.10f));
-        Cube("TaskBoard", new Vector3(0f, 3.5f, boardZ), new Vector3(17.2f, 5.3f, 0.25f), Mat(new Color(0.08f, 0.08f, 0.12f), 0.08f));
+        Cube("TaskBoardFrame", new Vector3(0f, 3.5f, 9.0f), new Vector3(18.4f, 6.2f, 0.15f), Mat(new Color(0.34f, 0.25f, 0.14f), 0.10f));
+        Cube("TaskBoard", new Vector3(0f, 3.5f, boardZ), new Vector3(18.0f, 5.7f, 0.25f), Mat(new Color(0.08f, 0.08f, 0.12f), 0.08f));
 
         string[] headers = { "INBOX", "QUEUE", "PLAN", "WORK", "REVIEW", "DONE" };
         float[] xs = { -5.5f, -3.3f, -1.1f, 1.1f, 3.3f, 5.5f };
@@ -220,6 +224,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             Cube($"StickyB_{c}", new Vector3(x + 0.35f, 2.1f, 8.95f), new Vector3(0.58f, 0.22f, 0.03f), Mat(Color.Lerp(headerCols[c], Color.white, 0.4f), 0.03f));
             Cube($"DenseCardA_{c}", new Vector3(x - 0.55f, 2.45f, 8.95f), new Vector3(0.78f, 0.20f, 0.03f), Mat(Color.Lerp(headerCols[c], Color.white, 0.55f), 0.03f));
             Cube($"DenseCardB_{c}", new Vector3(x + 0.48f, 2.45f, 8.95f), new Vector3(0.72f, 0.20f, 0.03f), Mat(Color.Lerp(headerCols[c], Color.white, 0.35f), 0.03f));
+            Cube($"DenseCardC_{c}", new Vector3(x - 0.02f, 1.78f, 8.95f), new Vector3(1.32f, 0.22f, 0.03f), Mat(Color.Lerp(headerCols[c], Color.white, 0.62f), 0.03f));
         }
 
         _wipText = Txt("WIP", "WIP 00", new Vector3(-2.0f, 1.0f, 8.9f), 10, 0.08f, new Color(1f, 0.93f, 0.72f), FontStyle.Bold);
@@ -238,6 +243,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("Room2LeftGlow", new Vector3(5.25f, 2.0f, 8.65f), new Vector3(0.15f, 3.7f, 0.1f), roomGlow);
         Cube("Room2RightGlow", new Vector3(7.95f, 2.0f, 8.65f), new Vector3(0.15f, 3.7f, 0.1f), roomGlow);
         Cube("Room2DoorFloorGlow", new Vector3(6.6f, -0.01f, 8.9f), new Vector3(2.6f, 0.03f, 1.2f), Emissive(new Color(0.4f, 0.2f, 0.05f), new Color(1.0f, 0.55f, 0.06f), 2.5f));
+        Cube("Room2PillarL", new Vector3(5.35f, 1.9f, 8.62f), new Vector3(0.22f, 3.9f, 0.22f), Emissive(new Color(0.45f, 0.24f, 0.05f), new Color(1.0f, 0.58f, 0.08f), 2.4f));
+        Cube("Room2PillarR", new Vector3(7.85f, 1.9f, 8.62f), new Vector3(0.22f, 3.9f, 0.22f), Emissive(new Color(0.45f, 0.24f, 0.05f), new Color(1.0f, 0.58f, 0.08f), 2.4f));
 
         Cube("Room2Arrow", new Vector3(6.6f, 4.95f, 8.6f), new Vector3(0.9f, 0.08f, 0.9f), Emissive(new Color(0.4f, 0.2f, 0.05f), new Color(1.0f, 0.7f, 0.1f), 2.8f)).transform.rotation = Quaternion.Euler(0f, 45f, 0f);
         var roomLbl = Txt("Room2Lbl", "ROOM 2", new Vector3(6.6f, 5.35f, 8.6f), 20, 0.12f, new Color(1.0f, 0.7f, 0.1f), FontStyle.Bold);
@@ -265,20 +272,33 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("DispatchBox3", new Vector3(-5.2f, 0.3f, 4.8f), new Vector3(0.55f, 0.55f, 0.5f), Mat(new Color(0.72f, 0.58f, 0.28f), 0.05f));
         Cube("DispatchBox4", new Vector3(-6.1f, 0.35f, 5.7f), new Vector3(0.62f, 0.70f, 0.58f), Mat(new Color(0.68f, 0.50f, 0.22f), 0.05f));
         Cube("DispatchBox5", new Vector3(-6.8f, 0.32f, 4.2f), new Vector3(0.46f, 0.62f, 0.50f), Mat(new Color(0.76f, 0.58f, 0.30f), 0.05f));
-        Cube("DispatchZoneGlow", new Vector3(-6.5f, 0.02f, 5f), new Vector3(3.8f, 0.03f, 3.8f), Emissive(new Color(0.35f, 0.18f, 0.03f), new Color(1.0f, 0.50f, 0.04f), 2.6f));
+        Cube("DispatchRack", new Vector3(-7.8f, 1.6f, 5.8f), new Vector3(0.22f, 2.6f, 1.6f), Mat(new Color(0.30f, 0.20f, 0.10f), 0.08f));
+        Cube("DispatchHolo", new Vector3(-6.5f, 1.55f, 5.15f), new Vector3(1.0f, 0.05f, 0.8f), Emissive(new Color(0.5f, 0.22f, 0.05f), new Color(1.0f, 0.60f, 0.12f), 2.4f));
+        Cube("DispatchZoneGlow", new Vector3(-6.5f, 0.02f, 5f), new Vector3(4.2f, 0.03f, 4.2f), Emissive(new Color(0.35f, 0.18f, 0.03f), new Color(1.0f, 0.50f, 0.04f), 2.6f));
         var dispatchLbl = Txt("DispatchLbl", "DISPATCH", new Vector3(-6.5f, 2.5f, 5f), 16, 0.10f, new Color(1.0f, 0.55f, 0.0f), FontStyle.Bold);
         _labelXforms.Add(dispatchLbl.transform);
 
-        Cube("CentralDesk", new Vector3(0f, 0.40f, 1f), new Vector3(4f, 0.8f, 2.5f), Mat(new Color(0.55f, 0.35f, 0.15f), 0.18f));
-        Cube("DeskPaperA", new Vector3(-0.55f, 0.72f, 0.75f), new Vector3(0.8f, 0.02f, 0.6f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
-        Cube("DeskPaperB", new Vector3(0.45f, 0.72f, 1.2f), new Vector3(0.9f, 0.02f, 0.6f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
-        Cube("DeskMug", new Vector3(-1.2f, 0.82f, 1.28f), new Vector3(0.22f, 0.24f, 0.22f), Mat(new Color(0.85f, 0.42f, 0.18f), 0.04f));
-        Cube("DeskTablet", new Vector3(1.0f, 0.80f, 0.82f), new Vector3(0.72f, 0.04f, 0.52f), Mat(new Color(0.08f, 0.08f, 0.12f), 0.2f));
-        Cube("DeskStickyA", new Vector3(-0.10f, 0.82f, 1.32f), new Vector3(0.28f, 0.02f, 0.22f), Mat(new Color(1.0f, 0.88f, 0.35f), 0.02f));
-        Cube("DeskStickyB", new Vector3(0.22f, 0.82f, 0.68f), new Vector3(0.24f, 0.02f, 0.20f), Mat(new Color(0.95f, 0.65f, 0.28f), 0.02f));
-        Cube("DeskCrateA", new Vector3(-1.6f, 0.55f, 0.3f), new Vector3(0.52f, 0.30f, 0.42f), Mat(new Color(0.65f, 0.48f, 0.25f), 0.05f));
-        Cube("DeskCrateB", new Vector3(1.55f, 0.56f, 1.72f), new Vector3(0.48f, 0.32f, 0.38f), Mat(new Color(0.60f, 0.44f, 0.22f), 0.05f));
-        Cube("DeskLampWire", new Vector3(1.05f, 0.83f, 1.25f), new Vector3(0.55f, 0.02f, 0.02f), Mat(new Color(0.1f, 0.1f, 0.1f), 0.02f));
+        // Premium rounded main desk cluster
+        Cube("CentralDeskBase", new Vector3(0f, 0.36f, 1f), new Vector3(4.8f, 0.72f, 2.9f), Mat(new Color(0.46f, 0.30f, 0.14f), 0.18f));
+        Cyl("CentralDeskEdgeL", new Vector3(-2.35f, 0.62f, 1f), new Vector3(0.34f, 0.56f, 0.34f), Mat(new Color(0.42f, 0.28f, 0.14f), 0.15f));
+        Cyl("CentralDeskEdgeR", new Vector3(2.35f, 0.62f, 1f), new Vector3(0.34f, 0.56f, 0.34f), Mat(new Color(0.42f, 0.28f, 0.14f), 0.15f));
+        Cube("CentralDeskTop", new Vector3(0f, 0.78f, 1f), new Vector3(4.9f, 0.08f, 2.95f), Mat(new Color(0.64f, 0.46f, 0.25f), 0.20f));
+        Cube("DeskPaperA", new Vector3(-0.65f, 0.84f, 0.75f), new Vector3(0.95f, 0.02f, 0.65f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
+        Cube("DeskPaperB", new Vector3(0.55f, 0.84f, 1.2f), new Vector3(1.0f, 0.02f, 0.65f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
+        Cube("DeskPaperC", new Vector3(-0.05f, 0.84f, 1.7f), new Vector3(0.82f, 0.02f, 0.52f), Mat(new Color(0.90f, 0.88f, 0.80f), 0.03f));
+        Cube("DeskMonitor", new Vector3(0.85f, 1.15f, 0.82f), new Vector3(1.05f, 0.62f, 0.08f), Mat(new Color(0.06f, 0.06f, 0.10f), 0.2f));
+        Cube("DeskMonitorGlow", new Vector3(0.80f, 1.15f, 0.78f), new Vector3(0.9f, 0.48f, 0.02f), Emissive(new Color(0.20f, 0.25f, 0.35f), new Color(0.50f, 0.72f, 1.0f), 1.8f));
+        Cube("DeskLaptop", new Vector3(-0.95f, 0.86f, 1.25f), new Vector3(0.95f, 0.04f, 0.60f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.2f));
+        Cube("DeskMug", new Vector3(-1.45f, 0.90f, 1.30f), new Vector3(0.22f, 0.24f, 0.22f), Mat(new Color(0.85f, 0.42f, 0.18f), 0.04f));
+        Cube("DeskStickyA", new Vector3(-0.10f, 0.84f, 1.35f), new Vector3(0.28f, 0.02f, 0.22f), Mat(new Color(1.0f, 0.88f, 0.35f), 0.02f));
+        Cube("DeskStickyB", new Vector3(0.32f, 0.84f, 0.68f), new Vector3(0.24f, 0.02f, 0.20f), Mat(new Color(0.95f, 0.65f, 0.28f), 0.02f));
+        Cube("DeskCrateA", new Vector3(-1.9f, 0.58f, 0.3f), new Vector3(0.62f, 0.34f, 0.48f), Mat(new Color(0.65f, 0.48f, 0.25f), 0.05f));
+        Cube("DeskCrateB", new Vector3(1.85f, 0.58f, 1.72f), new Vector3(0.58f, 0.36f, 0.45f), Mat(new Color(0.60f, 0.44f, 0.22f), 0.05f));
+        Cube("DeskLampStem", new Vector3(1.58f, 1.05f, 1.46f), new Vector3(0.06f, 0.42f, 0.06f), Mat(new Color(0.14f, 0.14f, 0.16f), 0.2f));
+        Cube("DeskLampHead", new Vector3(1.58f, 1.30f, 1.46f), new Vector3(0.26f, 0.16f, 0.22f), Emissive(new Color(0.30f, 0.20f, 0.10f), new Color(1.0f, 0.70f, 0.28f), 2.0f));
+        Cube("DeskToolbox", new Vector3(-0.95f, 0.89f, 0.40f), new Vector3(0.44f, 0.16f, 0.28f), Mat(new Color(0.78f, 0.36f, 0.12f), 0.05f));
+        Cube("DeskNotebook", new Vector3(0.72f, 0.84f, 1.55f), new Vector3(0.52f, 0.04f, 0.40f), Mat(new Color(0.12f, 0.16f, 0.22f), 0.03f));
+        Cube("DeskCanister", new Vector3(1.45f, 0.94f, 0.55f), new Vector3(0.18f, 0.28f, 0.18f), Mat(new Color(0.80f, 0.55f, 0.20f), 0.05f));
 
         Cube("MonitoringWall", new Vector3(8.25f, 2.1f, 5f), new Vector3(0.28f, 4.2f, 3.8f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.12f));
         Cube("Mon1", new Vector3(7.88f, 2.95f, 4.1f), new Vector3(1.5f, 1.0f, 0.1f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
@@ -290,7 +310,12 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("MonitoringDesk", new Vector3(7.5f, 0.5f, 5f), new Vector3(2.0f, 1.0f, 1.5f), Mat(new Color(0.25f, 0.25f, 0.32f), 0.1f));
         Cube("MonitoringConsoleA", new Vector3(6.7f, 0.92f, 4.5f), new Vector3(0.55f, 0.20f, 0.38f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.1f));
         Cube("MonitoringConsoleB", new Vector3(6.95f, 0.92f, 5.4f), new Vector3(0.50f, 0.20f, 0.34f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.1f));
-        Cube("MonitoringZoneGlow", new Vector3(6.5f, 0.02f, 5f), new Vector3(3.8f, 0.03f, 3.8f), Emissive(new Color(0.02f, 0.18f, 0.08f), new Color(0.14f, 0.85f, 0.40f), 1.8f));
+        Cube("MonitoringRack", new Vector3(6.15f, 1.7f, 5.9f), new Vector3(0.22f, 2.8f, 1.5f), Mat(new Color(0.10f, 0.12f, 0.14f), 0.1f));
+        Cyl("MonitoringChairBase", new Vector3(7.0f, 0.22f, 4.9f), new Vector3(0.28f, 0.16f, 0.28f), Mat(new Color(0.12f, 0.12f, 0.14f), 0.12f));
+        Cube("MonitoringChairSeat", new Vector3(7.0f, 0.56f, 4.9f), new Vector3(0.58f, 0.16f, 0.58f), Mat(new Color(0.18f, 0.22f, 0.26f), 0.12f));
+        Cube("MonitoringChairBack", new Vector3(7.0f, 0.95f, 5.15f), new Vector3(0.58f, 0.56f, 0.10f), Mat(new Color(0.18f, 0.22f, 0.26f), 0.12f));
+        Cube("MonitoringKeypad", new Vector3(7.25f, 0.92f, 5.15f), new Vector3(0.28f, 0.04f, 0.22f), Emissive(new Color(0.08f, 0.18f, 0.10f), new Color(0.18f, 0.9f, 0.45f), 1.6f));
+        Cube("MonitoringZoneGlow", new Vector3(6.5f, 0.02f, 5f), new Vector3(4.2f, 0.03f, 4.0f), Emissive(new Color(0.02f, 0.18f, 0.08f), new Color(0.14f, 0.85f, 0.40f), 1.8f));
         var monitoringLbl = Txt("MonitoringLbl", "MONITORING", new Vector3(7f, 3.8f, 5f), 14, 0.10f, new Color(0.15f, 1.0f, 0.45f), FontStyle.Bold);
         _labelXforms.Add(monitoringLbl.transform);
 
@@ -300,7 +325,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             new Vector3(6.5f, 0f, 7.5f),
             new Vector3(-8.5f, 0f, 1f),
             new Vector3(-1.5f, 0f, 7f),
-            new Vector3(2.8f, 0f, 7.4f)
+            new Vector3(2.8f, 0f, 7.4f),
+            new Vector3(4.2f, 0f, 2.2f),
+            new Vector3(-3.8f, 0f, 6.4f)
         };
         for (int i = 0; i < plantBases.Length; i++)
         {
@@ -347,10 +374,11 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildAgents()
     {
-        BuildAgent(new Vector3(0.5f, 0f, 2.5f), "CHIEF", new Color(1.00f, 0.85f, 0.35f), 0f);
-        BuildAgent(new Vector3(-1.5f, 0f, 2.5f), "PLANNER", new Color(0.35f, 0.65f, 1.00f), 20f);
-        BuildAgent(new Vector3(-4f, 0f, 4f), "WORKER", new Color(0.20f, 0.95f, 0.72f), 45f);
-        BuildAgent(new Vector3(4f, 0f, 4f), "TESTER", new Color(0.45f, 1.00f, 0.65f), -45f);
+        // one agent per zone for clearer staging
+        BuildAgent(new Vector3(6.2f, 0f, 8.9f), "CHIEF", new Color(1.00f, 0.85f, 0.35f), 160f);      // room2 gate
+        BuildAgent(new Vector3(-0.2f, 0f, 6.8f), "PLANNER", new Color(0.35f, 0.65f, 1.00f), 180f);   // board zone
+        BuildAgent(new Vector3(-6.1f, 0f, 4.9f), "WORKER", new Color(0.20f, 0.95f, 0.72f), 30f);     // dispatch zone
+        BuildAgent(new Vector3(6.8f, 0f, 4.9f), "TESTER", new Color(0.45f, 1.00f, 0.65f), -30f);     // monitoring zone
     }
 
     private void BuildAgent(Vector3 pos, string role, Color eyeCol, float rotY)
@@ -424,14 +452,14 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private static void BuildLighting()
     {
         RenderSettings.ambientMode = AmbientMode.Flat;
-        RenderSettings.ambientIntensity = 1.45f;
+        RenderSettings.ambientIntensity = 1.75f;
         RenderSettings.ambientLight = new Color(1.0f, 0.88f, 0.65f);
 
         var def = GameObject.Find("Directional Light");
         if (def != null) Object.DestroyImmediate(def);
 
-        L("MainDirectional", LightType.Directional, new Color(1.0f, 0.9f, 0.7f), 1.5f, 100f,
-            LightShadows.None, Vector3.zero, Quaternion.Euler(40f, -20f, 0f));
+        L("MainDirectional", LightType.Directional, new Color(1.0f, 0.90f, 0.68f), 2.1f, 100f,
+            LightShadows.Soft, Vector3.zero, Quaternion.Euler(40f, -20f, 0f));
 
         L("DispatchPoint", LightType.Point, new Color(1.0f, 0.62f, 0.24f), 2.8f, 11f,
             LightShadows.None, new Vector3(-7f, 3f, 5f), Quaternion.identity);
@@ -441,19 +469,25 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             LightShadows.None, new Vector3(0f, 4f, 3f), Quaternion.identity);
         L("BoardPoint", LightType.Point, new Color(1.0f, 0.92f, 0.72f), 1.9f, 13f,
             LightShadows.None, new Vector3(0f, 5f, 9f), Quaternion.identity);
-        L("Room2InteriorPoint", LightType.Point, new Color(1.0f, 0.68f, 0.30f), 2.6f, 10f,
+        L("Room2InteriorPoint", LightType.Point, new Color(1.0f, 0.68f, 0.30f), 3.2f, 11f,
             LightShadows.None, new Vector3(6.6f, 2.5f, 10.9f), Quaternion.identity);
+        L("DispatchPractical", LightType.Point, new Color(1.0f, 0.58f, 0.16f), 2.0f, 8f,
+            LightShadows.None, new Vector3(-6.5f, 1.7f, 5.1f), Quaternion.identity);
+        L("MainDeskPractical", LightType.Point, new Color(1.0f, 0.72f, 0.30f), 1.8f, 7f,
+            LightShadows.None, new Vector3(1.4f, 1.6f, 1.4f), Quaternion.identity);
+        L("Room2GatePractical", LightType.Point, new Color(1.0f, 0.62f, 0.14f), 2.1f, 8f,
+            LightShadows.None, new Vector3(6.6f, 2.4f, 8.8f), Quaternion.identity);
 
         // Fill lights to avoid dark corners.
-        L("FillBackLeft", LightType.Point, new Color(1.0f, 0.86f, 0.62f), 1.0f, 12f,
+        L("FillBackLeft", LightType.Point, new Color(1.0f, 0.86f, 0.62f), 1.4f, 14f,
             LightShadows.None, new Vector3(-8.4f, 2.7f, 8.2f), Quaternion.identity);
-        L("FillBackRightRoom2", LightType.Point, new Color(1.0f, 0.84f, 0.60f), 1.0f, 12f,
+        L("FillBackRightRoom2", LightType.Point, new Color(1.0f, 0.84f, 0.60f), 1.4f, 14f,
             LightShadows.None, new Vector3(8.8f, 2.7f, 8.8f), Quaternion.identity);
-        L("FillBoardLower", LightType.Point, new Color(1.0f, 0.82f, 0.58f), 0.9f, 10f,
+        L("FillBoardLower", LightType.Point, new Color(1.0f, 0.82f, 0.58f), 1.2f, 12f,
             LightShadows.None, new Vector3(0f, 1.8f, 8.7f), Quaternion.identity);
-        L("FillTopLeft", LightType.Point, new Color(1.0f, 0.84f, 0.62f), 0.9f, 14f,
+        L("FillTopLeft", LightType.Point, new Color(1.0f, 0.84f, 0.62f), 1.2f, 16f,
             LightShadows.None, new Vector3(-9.0f, 4.0f, 7.8f), Quaternion.identity);
-        L("FillTopRight", LightType.Point, new Color(1.0f, 0.84f, 0.62f), 0.9f, 14f,
+        L("FillTopRight", LightType.Point, new Color(1.0f, 0.84f, 0.62f), 1.2f, 16f,
             LightShadows.None, new Vector3(9.0f, 4.0f, 7.8f), Quaternion.identity);
         L("NeonBoardAccent", LightType.Point, new Color(0.30f, 0.58f, 1.0f), 1.0f, 8f,
             LightShadows.None, new Vector3(-0.4f, 3.6f, 8.8f), Quaternion.identity);
