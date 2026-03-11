@@ -129,11 +129,11 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void BuildRoom()
     {
         RenderSettings.ambientMode = AmbientMode.Flat;
-        RenderSettings.ambientLight = new Color(1.00f, 0.80f, 0.56f, 1f);
+        RenderSettings.ambientLight = new Color(1.00f, 0.81f, 0.58f, 1f);
 
-        CreatePointLight("KeyWarm", new Vector3(0f, 4.6f, 1.2f), new Color(1.00f, 0.62f, 0.30f, 1f), 4.4f, 20f);
-        CreatePointLight("FillL", new Vector3(-6.5f, 3.4f, 3.2f), new Color(1.00f, 0.68f, 0.38f, 1f), 2.4f, 14f);
-        CreatePointLight("FillR", new Vector3(6.5f, 3.4f, 3.2f), new Color(1.00f, 0.68f, 0.38f, 1f), 2.4f, 14f);
+        CreatePointLight("KeyWarm", new Vector3(0f, 4.8f, 1.0f), new Color(1.00f, 0.62f, 0.30f, 1f), 4.6f, 22f);
+        CreatePointLight("FillLeft", new Vector3(-6.6f, 3.6f, 2.8f), new Color(1.00f, 0.68f, 0.38f, 1f), 2.5f, 14f);
+        CreatePointLight("FillRight", new Vector3(6.6f, 3.6f, 2.8f), new Color(1.00f, 0.68f, 0.38f, 1f), 2.5f, 14f);
 
         var floor = Mat(new Color(0.62f, 0.47f, 0.28f), 0.30f);
         Cube("Floor", new Vector3(0f, -0.05f, 3f), new Vector3(24f, 0.1f, 18f), floor);
@@ -192,9 +192,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildBoard()
     {
-        float boardZ = 8.7f;
-        Cube("TaskBoardFrame", new Vector3(0f, 2.45f, 8.6f), new Vector3(10.2f, 3.2f, 0.15f), Mat(new Color(0.36f, 0.26f, 0.14f), 0.10f));
-        Cube("TaskBoard", new Vector3(0f, 2.45f, boardZ), new Vector3(9.8f, 2.9f, 0.2f), Mat(new Color(0.08f, 0.08f, 0.12f), 0.08f));
+        float boardZ = 8.75f;
+        Cube("TaskBoardFrame", new Vector3(0f, 2.45f, 8.7f), new Vector3(10.4f, 3.3f, 0.15f), Mat(new Color(0.36f, 0.26f, 0.14f), 0.10f));
+        Cube("TaskBoard", new Vector3(0f, 2.45f, boardZ), new Vector3(10.0f, 3.0f, 0.22f), Mat(new Color(0.08f, 0.08f, 0.12f), 0.08f));
 
         string[] headers = { "INBOX", "QUEUE", "PLAN", "WORK", "REVIEW", "DONE" };
         float[] xs = { -3.8f, -2.3f, -0.8f, 0.8f, 2.3f, 3.8f };
@@ -250,12 +250,12 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 new Color(0.96f,0.58f,0.26f),
                 new Color(0.74f,0.48f,0.96f)
             };
-            for (int s = 0; s < 14; s++)
+            for (int s = 0; s < 15; s++)
             {
-                float sx = x - 0.72f + (s % 4) * 0.46f;
-                float sy = 3.25f - (s / 4) * 0.26f;
+                float sx = x - 0.72f + (s % 5) * 0.36f;
+                float sy = 3.20f - (s / 5) * 0.24f;
                 var sc = stickyPalette[s % stickyPalette.Length];
-                Cube($"StickyDense_{c}_{s}", new Vector3(sx, sy, 8.94f), new Vector3(0.23f, 0.15f, 0.02f), Mat(sc, 0.03f));
+                Cube($"StickyDense_{c}_{s}", new Vector3(sx, sy, 8.94f), new Vector3(0.22f, 0.14f, 0.02f), Mat(sc, 0.03f));
             }
         }
 
@@ -269,7 +269,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     {
         var roomGlow = Emissive(new Color(0.55f, 0.30f, 0.06f), new Color(1.0f, 0.60f, 0.05f), 4.0f);
         Cube("Room2FrameOuter", new Vector3(6.6f, 2.0f, 8.7f), new Vector3(3.1f, 4.5f, 0.24f), roomGlow);
-        Cube("Room2DoorFrameTarget", new Vector3(8.7f, 1.6f, 6.3f), new Vector3(2.8f, 3.2f, 0.22f), Emissive(new Color(0.45f, 0.22f, 0.05f), new Color(1.00f, 0.56f, 0.12f, 1f), 3.4f));
+        Cube("Room2DoorFrameTarget", new Vector3(8.75f, 1.65f, 6.35f), new Vector3(2.9f, 3.3f, 0.24f), Emissive(new Color(0.45f, 0.22f, 0.05f), new Color(1.00f, 0.56f, 0.12f, 1f), 3.5f));
         Cube("Room2FrameInner", new Vector3(6.6f, 2.0f, 8.72f), new Vector3(2.6f, 4.0f, 0.14f), Emissive(new Color(0.45f, 0.24f, 0.04f), new Color(1.0f, 0.55f, 0.02f), 3.2f));
         Cube("Room2Inner", new Vector3(6.6f, 2.0f, 8.75f), new Vector3(2.1f, 3.7f, 0.15f), Mat(new Color(0.15f, 0.12f, 0.08f), 0.08f));
         Cube("Room2TopGlow", new Vector3(6.6f, 4.1f, 8.65f), new Vector3(2.8f, 0.15f, 0.1f), roomGlow);
@@ -279,8 +279,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("Room2PillarL", new Vector3(5.35f, 1.9f, 8.62f), new Vector3(0.22f, 3.9f, 0.22f), Emissive(new Color(0.45f, 0.24f, 0.05f), new Color(1.0f, 0.58f, 0.08f), 2.4f));
         Cube("Room2PillarR", new Vector3(7.85f, 1.9f, 8.62f), new Vector3(0.22f, 3.9f, 0.22f), Emissive(new Color(0.45f, 0.24f, 0.05f), new Color(1.0f, 0.58f, 0.08f), 2.4f));
 
-        Cube("Room2Arrow", new Vector3(8.7f, 1.1f, 6.15f), new Vector3(0.55f, 0.55f, 0.55f), Emissive(new Color(0.4f, 0.2f, 0.05f), new Color(1.0f, 0.7f, 0.1f), 2.8f)).transform.rotation = Quaternion.Euler(0f, 45f, 0f);
-        var roomLbl = Txt("Room2Lbl", "ROOM 2", new Vector3(8.7f, 2.85f, 6.1f), 20, 0.12f, new Color(1.00f, 0.74f, 0.28f, 1f), FontStyle.Bold);
+        Cube("Room2Arrow", new Vector3(8.75f, 1.15f, 6.15f), new Vector3(0.58f, 0.58f, 0.58f), Emissive(new Color(0.4f, 0.2f, 0.05f), new Color(1.0f, 0.7f, 0.1f), 2.8f)).transform.rotation = Quaternion.Euler(0f, 45f, 0f);
+        var roomLbl = Txt("Room2Lbl", "ROOM 2", new Vector3(8.75f, 2.85f, 6.1f), 20, 0.12f, new Color(1.00f, 0.74f, 0.28f, 1f), FontStyle.Bold);
         _labelXforms.Add(roomLbl.transform);
 
         // Room 2 interior behind the doorway
@@ -314,7 +314,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         _labelXforms.Add(dispatchLbl.transform);
 
         // Premium rounded main desk cluster
-        Cube("CentralDeskBase", new Vector3(0f, 0.50f, 0.2f), new Vector3(3.8f, 1.0f, 2.2f), Mat(new Color(0.46f, 0.30f, 0.14f), 0.18f));
+        Cube("CentralDeskBase", new Vector3(0f, 0.50f, 0.2f), new Vector3(3.9f, 1.0f, 2.3f), Mat(new Color(0.46f, 0.30f, 0.14f), 0.18f));
         Cyl("CentralDeskEdgeL", new Vector3(-1.88f, 0.72f, 0.2f), new Vector3(0.30f, 0.56f, 0.30f), Mat(new Color(0.42f, 0.28f, 0.14f), 0.15f));
         Cyl("CentralDeskEdgeR", new Vector3(1.88f, 0.72f, 0.2f), new Vector3(0.30f, 0.56f, 0.30f), Mat(new Color(0.42f, 0.28f, 0.14f), 0.15f));
         Cube("CentralDeskTop", new Vector3(0f, 1.02f, 0.2f), new Vector3(3.9f, 0.08f, 2.25f), Mat(new Color(0.64f, 0.46f, 0.25f), 0.20f));
@@ -339,13 +339,13 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("DeskMugB", new Vector3(-1.25f, 0.90f, 0.62f), new Vector3(0.20f, 0.22f, 0.20f), Mat(new Color(0.78f, 0.42f, 0.20f), 0.04f));
 
         Cube("MonitoringWall", new Vector3(8.25f, 2.1f, 5f), new Vector3(0.28f, 4.2f, 3.8f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.12f));
-        Cube("Mon1", new Vector3(8.0f, 1.9f, 0.6f), new Vector3(1.15f, 0.75f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube("Mon1Screen", new Vector3(7.94f, 1.9f, 0.56f), new Vector3(1.0f, 0.62f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.76f, 1f), 3.2f));
+        Cube("Mon1", new Vector3(8.0f, 1.9f, 0.55f), new Vector3(1.15f, 0.75f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
+        Cube("Mon1Screen", new Vector3(7.94f, 1.9f, 0.51f), new Vector3(1.0f, 0.62f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.2f));
         Cube("Mon2", new Vector3(8.0f, 1.9f, 1.25f), new Vector3(1.15f, 0.75f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube("Mon2Screen", new Vector3(7.94f, 1.9f, 1.21f), new Vector3(1.0f, 0.62f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.76f, 1f), 3.2f));
-        Cube("Mon3", new Vector3(8.0f, 1.9f, 1.9f), new Vector3(1.15f, 0.75f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube("Mon3Screen", new Vector3(7.94f, 1.9f, 1.86f), new Vector3(1.0f, 0.62f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.76f, 1f), 3.2f));
-        Cube("MonitoringDesk", new Vector3(6.9f, 0.45f, 1.1f), new Vector3(2.0f, 0.9f, 1.0f), Mat(new Color(0.25f, 0.25f, 0.32f), 0.1f));
+        Cube("Mon2Screen", new Vector3(7.94f, 1.9f, 1.21f), new Vector3(1.0f, 0.62f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.2f));
+        Cube("Mon3", new Vector3(8.0f, 1.9f, 1.95f), new Vector3(1.15f, 0.75f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
+        Cube("Mon3Screen", new Vector3(7.94f, 1.9f, 1.91f), new Vector3(1.0f, 0.62f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.2f));
+        Cube("MonitoringDesk", new Vector3(6.9f, 0.45f, 1.2f), new Vector3(2.1f, 0.9f, 1.0f), Mat(new Color(0.25f, 0.25f, 0.32f), 0.1f));
         Cube("MonitoringConsoleA", new Vector3(6.7f, 0.92f, 4.5f), new Vector3(0.55f, 0.20f, 0.38f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.1f));
         Cube("MonitoringConsoleB", new Vector3(6.95f, 0.92f, 5.4f), new Vector3(0.50f, 0.20f, 0.34f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.1f));
         Cube("MonitoringRack", new Vector3(6.15f, 1.7f, 5.9f), new Vector3(0.22f, 2.8f, 1.5f), Mat(new Color(0.10f, 0.12f, 0.14f), 0.1f));
@@ -359,10 +359,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         Vector3[] plantBases =
         {
-            new Vector3(-8.3f,0f,6.9f),
-            new Vector3(-3.6f,0f,7.1f),
-            new Vector3(3.9f,0f,7.1f),
-            new Vector3(8.2f,0f,6.8f)
+            new Vector3(-8.5f,0f,7.0f),
+            new Vector3(-3.6f,0f,7.2f),
+            new Vector3(3.9f,0f,7.2f),
+            new Vector3(8.3f,0f,6.9f)
         };
         for (int i = 0; i < plantBases.Length; i++)
         {
