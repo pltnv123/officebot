@@ -489,16 +489,13 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     {
         RenderSettings.ambientMode = AmbientMode.Flat;
         RenderSettings.ambientIntensity = 2.0f;
-        RenderSettings.ambientLight = new Color(1.00f, 0.78f, 0.52f, 1f);
+        RenderSettings.ambientLight = new Color(1.00f, 0.82f, 0.58f, 1f);
 
         var def = GameObject.Find("Directional Light");
         if (def != null) Object.DestroyImmediate(def);
 
         L("MainDirectional", LightType.Directional, new Color(1.0f, 0.90f, 0.68f), 2.4f, 100f,
             LightShadows.Soft, Vector3.zero, Quaternion.Euler(40f, -20f, 0f));
-        CreatePointLight("KeyWarm", new Vector3(0f, 4.2f, 0f), new Color(1.00f, 0.62f, 0.30f, 1f), 3.8f, 18f);
-        CreatePointLight("FillWarmL", new Vector3(-6f, 3f, 4f), new Color(1.00f, 0.62f, 0.30f, 1f), 2.2f, 14f);
-        CreatePointLight("FillWarmR", new Vector3(6f, 3f, 4f), new Color(1.00f, 0.62f, 0.30f, 1f), 2.2f, 14f);
 
         L("DispatchPoint", LightType.Point, new Color(1.0f, 0.62f, 0.24f), 2.8f, 11f,
             LightShadows.None, new Vector3(-7f, 3f, 5f), Quaternion.identity);
