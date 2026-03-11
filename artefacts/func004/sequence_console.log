@@ -1,0 +1,258 @@
+[2026-03-11T04:30:03.455Z] error: Failed to load resource: net::ERR_CONNECTION_REFUSED
+[2026-03-11T04:30:03.456Z] error: cpu/load poll failed TypeError: Failed to fetch
+    at pollCpuLoad (http://5.45.115.12/office/scripts/tasks-ui.js?v=48:137:30)
+    at http://5.45.115.12/office/scripts/tasks-ui.js?v=48:158:3
+    at http://5.45.115.12/office/scripts/tasks-ui.js?v=48:161:3
+[2026-03-11T04:30:03.481Z] log: [UnityCache] Error when initializing cache: Error: Could not connect to cache: Cache API is not supported.
+[2026-03-11T04:30:03.481Z] log: [UnityCache] Failed to load 'http://5.45.115.12/office/Build/WebGL.data.gz' from indexedDB cache due to the error: Error: Could not connect to cache: Cache API is not supported.
+[2026-03-11T04:30:03.586Z] warning: navigator.mediaDevices not supported by this browser. Webcam access will not be available. Try hosting the page over HTTPS, because some browsers disable webcam access when insecure HTTP is being used.
+[2026-03-11T04:30:03.639Z] error: wasm streaming compile failed: TypeError: Failed to execute 'compile' on 'WebAssembly': Incorrect response MIME type. Expected 'application/wasm'.
+[2026-03-11T04:30:03.639Z] warning: HTTP Response Header "Content-Type" configured incorrectly on the server for file ./Build/WebGL.wasm.gz , should be "application/wasm". Startup time performance will suffer.
+[2026-03-11T04:30:03.639Z] error: falling back to ArrayBuffer instantiation
+[2026-03-11T04:30:04.219Z] log: [UnityMemory] Configuration Parameters - Can be set up in boot.config
+
+[2026-03-11T04:30:04.228Z] log:     "memorysetup-allocator-temp-initial-block-size-main=262144"
+
+[2026-03-11T04:30:04.229Z] log:     "memorysetup-allocator-temp-initial-block-size-worker=262144"
+
+[2026-03-11T04:30:04.229Z] log:     "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+
+[2026-03-11T04:30:04.229Z] log:     "memorysetup-temp-allocator-size-audio-worker=65536"
+
+[2026-03-11T04:30:04.229Z] log:     "memorysetup-temp-allocator-size-background-worker=32768"
+
+[2026-03-11T04:30:04.229Z] log:     "memorysetup-bucket-allocator-granularity=16"
+
+[2026-03-11T04:30:04.229Z] log:     "memorysetup-bucket-allocator-bucket-count=8"
+
+[2026-03-11T04:30:04.229Z] log:     "memorysetup-bucket-allocator-block-size=4194304"
+
+[2026-03-11T04:30:04.235Z] log:     "memorysetup-bucket-allocator-block-count=1"
+
+[2026-03-11T04:30:04.235Z] log:     "memorysetup-main-allocator-block-size=16777216"
+
+[2026-03-11T04:30:04.235Z] log:     "memorysetup-thread-allocator-block-size=16777216"
+
+[2026-03-11T04:30:04.235Z] log:     "memorysetup-gfx-main-allocator-block-size=16777216"
+
+[2026-03-11T04:30:04.236Z] log:     "memorysetup-gfx-thread-allocator-block-size=16777216"
+
+[2026-03-11T04:30:04.236Z] log:     "memorysetup-cache-allocator-block-size=4194304"
+
+[2026-03-11T04:30:04.236Z] log:     "memorysetup-typetree-allocator-block-size=2097152"
+
+[2026-03-11T04:30:04.236Z] log:     "memorysetup-profiler-bucket-allocator-granularity=16"
+
+[2026-03-11T04:30:04.236Z] log:     "memorysetup-profiler-bucket-allocator-bucket-count=8"
+
+[2026-03-11T04:30:04.237Z] log:     "memorysetup-profiler-bucket-allocator-block-size=4194304"
+
+[2026-03-11T04:30:04.237Z] log:     "memorysetup-profiler-bucket-allocator-block-count=1"
+
+[2026-03-11T04:30:04.237Z] log:     "memorysetup-profiler-allocator-block-size=16777216"
+
+[2026-03-11T04:30:04.237Z] log:     "memorysetup-profiler-editor-allocator-block-size=1048576"
+
+[2026-03-11T04:30:04.238Z] log:     "memorysetup-temp-allocator-size-main=4194304"
+
+[2026-03-11T04:30:04.238Z] log:     "memorysetup-job-temp-allocator-block-size=2097152"
+
+[2026-03-11T04:30:04.238Z] log:     "memorysetup-job-temp-allocator-block-size-background=1048576"
+
+[2026-03-11T04:30:04.238Z] log:     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+
+[2026-03-11T04:30:04.393Z] log: [PhysX] Initialized SinglethreadedTaskDispatcher.
+
+[2026-03-11T04:30:04.401Z] log: Loading player data from data.unity3d
+
+[2026-03-11T04:30:04.415Z] log: Initialize engine version: 2022.3.62f1 (4af31df58517)
+
+[2026-03-11T04:30:04.419Z] log: Creating WebGL 2.0 context.
+[2026-03-11T04:30:04.468Z] log: Renderer: WebKit WebGL
+
+[2026-03-11T04:30:04.469Z] log: Vendor:   WebKit
+
+[2026-03-11T04:30:04.472Z] log: Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+
+[2026-03-11T04:30:04.472Z] log: GLES:     3
+
+[2026-03-11T04:30:04.472Z] log:  EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_float_blend EXT_polygon_offset_clamp EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_mirror_clamp_to_edge NV_shader_noperspective_interpolation OES_draw_buffers_indexed OES_sample_variables OES_shader_multisample_interpolation OES_texture_float_linear OVR_multiview2 WEBGL_clip_cull_distance WEBGL_compressed_texture_astc WEBGL_compressed_texture_etc WEBGL_compressed_texture_etc1 WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode WEBGL_stencil_texturing GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_float_blend GL_EXT_polygon_offset_clamp GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_mirro
+
+[2026-03-11T04:30:04.472Z] log: r_clamp_to_edge GL_NV_shader_noperspective_interpolation GL_OES_draw_buffers_indexed GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_texture_float_linear GL_OVR_multiview2 GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_astc GL_WEBGL_compressed_texture_etc GL_WEBGL_compressed_texture_etc1 GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode GL_WEBGL_stencil_texturing
+
+[2026-03-11T04:30:04.490Z] log: OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+
+[2026-03-11T04:30:04.902Z] log: Input Manager initialize...
+
+[2026-03-11T04:30:04.936Z] log: [PhysX] Initialized SinglethreadedTaskDispatcher.
+
+[2026-03-11T04:30:04.937Z] log: UnloadTime: 8.500000 ms
+
+[2026-03-11T04:30:05.220Z] warning: [.WebGL-0x3dcc030a9e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[2026-03-11T04:30:05.263Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T04:30:05.264Z] warning: [.WebGL-0x3dcc030a9e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[2026-03-11T04:30:05.340Z] warning: [.WebGL-0x3dcc030a9e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[2026-03-11T04:30:05.374Z] warning: [.WebGL-0x3dcc030a9e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[2026-03-11T04:30:05.581Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T04:30:06.002Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T04:30:06.403Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T04:30:06.773Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T04:30:07.088Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T04:30:07.096Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T04:30:07.097Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T04:30:07.097Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T04:30:07.097Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T04:30:07.097Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T04:30:07.097Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T04:30:07.097Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T04:30:07.108Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T04:30:07.108Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T04:30:07.111Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T04:30:07.113Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T04:30:07.114Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T04:30:07.123Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T04:30:07.123Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T04:30:07.124Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T04:30:07.124Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T04:30:07.134Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T04:30:07.135Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T04:30:07.135Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T04:30:07.135Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T04:30:07.135Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T04:30:07.136Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T04:30:07.136Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T04:30:07.136Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T04:30:07.136Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T04:30:07.137Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T04:30:07.137Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T04:30:07.137Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T04:30:07.155Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.155Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.155Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.155Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.156Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.159Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.159Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.159Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.159Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.159Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.163Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.163Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.163Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.164Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.164Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.164Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.164Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.164Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.164Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.164Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.164Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.165Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.165Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.165Z] error: RuntimeNavMeshBuilder: Source mesh  has invalid vertex data and will be skipped.
+
+[2026-03-11T04:30:07.262Z] warning: Non-secure network connections disabled in Player Settings
+
+[2026-03-11T04:30:07.270Z] error: InvalidOperationException: Insecure connection not allowed
+
+
+
+[2026-03-11T04:30:07.308Z] warning: Non-secure network connections disabled in Player Settings
+
+[2026-03-11T04:30:07.308Z] error: InvalidOperationException: Insecure connection not allowed
+
+
+
+[2026-03-11T04:30:07.930Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T04:30:08.249Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T04:30:08.408Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T04:30:09.028Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T04:30:09.309Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T04:30:09.777Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T04:30:10.641Z] log: Audio context resumed after 5.867 seconds.
+[2026-03-11T04:30:11.062Z] warning: [BotMover:WORKER] Path to (1.50, 0.87, 0.50) is incomplete, fallback to idlePos.
+
+[2026-03-11T04:30:12.516Z] warning: [BotMover:PLANNER] Path to (1.50, 0.87, 0.50) is incomplete, fallback to idlePos.
+
+[2026-03-11T04:30:17.847Z] warning: [BotMover:TESTER] Stuck while moving to (0.00, 0.03, -1.50). Aborting move.
+
+[2026-03-11T04:30:21.260Z] warning: [BotMover:TESTER] Path to (0.00, 0.87, 0.50) is incomplete, fallback to idlePos.
+
+[2026-03-11T04:30:23.856Z] warning: [BotMover:PLANNER] Stuck while moving to (-1.50, 0.03, -1.50). Aborting move.
+
+[2026-03-11T04:30:23.995Z] warning: [BotMover:WORKER] Stuck while moving to (1.50, 0.03, -1.50). Aborting move.
+
+[2026-03-11T04:30:30.536Z] warning: [BotMover:TESTER] Stuck while moving to (-1.50, 0.03, -1.50). Aborting move.
+
+[2026-03-11T04:30:32.011Z] warning: [BotMover:WORKER] Path to (-1.33, 0.87, 0.44) is incomplete, fallback to idlePos.
+
+[2026-03-11T04:30:33.679Z] error: Failed to load resource: net::ERR_CONNECTION_REFUSED
+[2026-03-11T04:30:33.679Z] error: cpu/load poll failed TypeError: Failed to fetch
+    at pollCpuLoad (http://5.45.115.12/office/scripts/tasks-ui.js?v=48:137:30)
+[2026-03-11T04:30:36.885Z] warning: [BotMover:PLANNER] Stuck while moving to (-2.50, 0.03, 2.00). Aborting move.
+
+[2026-03-11T04:30:41.472Z] warning: [BotMover:TESTER] Stuck while moving to (1.50, 0.03, -1.50). Aborting move.
+
+[2026-03-11T04:30:43.614Z] warning: [BotMover:WORKER] Stuck while moving to (2.67, 0.03, 2.00). Aborting move.
+
+[2026-03-11T04:30:48.329Z] warning: [BotMover:PLANNER] Stuck while moving to (-3.50, 0.03, -1.50). Aborting move.
+
+[2026-03-11T04:30:51.047Z] warning: [BotMover:WORKER] Path to (0.00, 0.87, 0.50) is incomplete, fallback to idlePos.
+
+[2026-03-11T04:30:51.198Z] warning: [BotMover:TESTER] Stuck while moving to (-3.50, 0.03, 0.50). Aborting move.
+
+[2026-03-11T04:30:54.936Z] warning: [BotMover:TESTER] Path to (-1.33, 0.87, 0.44) is incomplete, fallback to idlePos.
+
+[2026-03-11T04:30:56.590Z] warning: [BotMover:PLANNER] Path to (1.50, 0.87, 0.50) is incomplete, fallback to idlePos.
