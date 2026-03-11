@@ -131,13 +131,22 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         var floor = Mat(new Color(0.65f, 0.50f, 0.30f), 0.08f);
         Cube("Floor", new Vector3(0f, -0.05f, 3f), new Vector3(24f, 0.1f, 18f), floor);
 
-        var navCenter = Mat(new Color(0.98f, 0.58f, 0.24f), 0.05f);
-        var navLeft = Mat(new Color(0.30f, 0.58f, 1.00f), 0.05f);
-        var navRight = Mat(new Color(0.20f, 0.90f, 0.52f), 0.05f);
-        Cube("PathBoardDesk", new Vector3(0f, -0.01f, 5f), new Vector3(2.2f, 0.02f, 8.2f), navCenter);      // center corridor
-        Cube("PathDeskWorker", new Vector3(-3.5f, -0.01f, 1.5f), new Vector3(7.2f, 0.02f, 2.2f), navLeft); // left corridor
-        Cube("PathDeskMonitoring", new Vector3(3.5f, -0.01f, 1.5f), new Vector3(7.2f, 0.02f, 2.2f), navRight); // right corridor
-        Cube("PathMonitoringRoom2", new Vector3(9f, -0.01f, 5f), new Vector3(2.2f, 0.02f, 6.2f), navCenter); // room2 corridor
+        var pathAmber = Mat(new Color(0.98f, 0.58f, 0.24f), 0.05f);
+
+        void PathDots(string prefix, Vector3 from, Vector3 to, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float t = count <= 1 ? 0f : i / (float)(count - 1);
+                var p = Vector3.Lerp(from, to, t);
+                Cube(prefix + i, new Vector3(p.x, -0.01f, p.z), new Vector3(0.2f, 0.05f, 0.2f), pathAmber);
+            }
+        }
+
+        PathDots("PathBoardDeskDot_", new Vector3(0f, 0f, 1f), new Vector3(0f, 0f, 9f), 41);
+        PathDots("PathDeskWorkerDot_", new Vector3(-0.3f, 0f, 1.5f), new Vector3(-6.8f, 0f, 1.5f), 34);
+        PathDots("PathDeskMonitoringDot_", new Vector3(0.8f, 0f, 1.5f), new Vector3(6.8f, 0f, 1.5f), 31);
+        PathDots("PathMonitoringRoom2Dot_", new Vector3(8.9f, 0f, 5f), new Vector3(8.9f, 0f, 10.8f), 30);
 
         var wall = Mat(new Color(0.24f, 0.18f, 0.14f), 0.14f);
         // Back wall with a real doorway opening to Room 2 (right-rear)
@@ -187,8 +196,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
             for (int r = 0; r < ys.Length; r++)
             {
-                float shade = (r % 2 == 0) ? 0.60f : 0.42f;
-                Color cardColor = Color.Lerp(Color.black, headerCols[c], shade);
+                float shade = (r % 2 == 0) ? 0.88f : 0.76f;
+                Color cardColor = Color.Lerp(headerCols[c], Color.white, 0.18f * (1f - r * 0.12f));
                 var card = Cube($"Card_{c}_{r}", new Vector3(x, ys[r], 8.96f), new Vector3(1.7f, 0.55f, 0.06f), Mat(cardColor, 0.04f));
                 var renderer = card.GetComponent<Renderer>();
                 if (renderer != null)
@@ -216,8 +225,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildZones()
     {
-        var roomGlow = Emissive(new Color(0.50f, 0.28f, 0.08f), new Color(1.0f, 0.62f, 0.08f), 4.0f);
+        var roomGlow = Emissive(new Color(0.55f, 0.30f, 0.06f), new Color(1.0f, 0.60f, 0.05f), 4.0f);
         Cube("Room2FrameOuter", new Vector3(6.6f, 2.0f, 8.7f), new Vector3(3.1f, 4.5f, 0.24f), roomGlow);
+        Cube("Room2FrameInner", new Vector3(6.6f, 2.0f, 8.72f), new Vector3(2.6f, 4.0f, 0.14f), Emissive(new Color(0.45f, 0.24f, 0.04f), new Color(1.0f, 0.55f, 0.02f), 3.2f));
         Cube("Room2Inner", new Vector3(6.6f, 2.0f, 8.75f), new Vector3(2.1f, 3.7f, 0.15f), Mat(new Color(0.15f, 0.12f, 0.08f), 0.08f));
         Cube("Room2TopGlow", new Vector3(6.6f, 4.1f, 8.65f), new Vector3(2.8f, 0.15f, 0.1f), roomGlow);
         Cube("Room2LeftGlow", new Vector3(5.25f, 2.0f, 8.65f), new Vector3(0.15f, 3.7f, 0.1f), roomGlow);
@@ -262,12 +272,12 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("DeskStickyB", new Vector3(0.22f, 0.82f, 0.68f), new Vector3(0.24f, 0.02f, 0.20f), Mat(new Color(0.95f, 0.65f, 0.28f), 0.02f));
 
         Cube("MonitoringWall", new Vector3(8.25f, 2.1f, 5f), new Vector3(0.28f, 4.2f, 3.8f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.12f));
-        Cube("Mon1", new Vector3(7.88f, 2.95f, 4.1f), new Vector3(1.75f, 1.05f, 0.12f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube("Mon1Screen", new Vector3(7.82f, 2.95f, 4.05f), new Vector3(1.48f, 0.86f, 0.03f), Emissive(new Color(0.0f, 0.25f, 0.10f), new Color(0.15f, 0.95f, 0.42f), 3.0f));
-        Cube("Mon2", new Vector3(7.88f, 1.65f, 4.1f), new Vector3(1.75f, 1.05f, 0.12f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube("Mon2Screen", new Vector3(7.82f, 1.65f, 4.05f), new Vector3(1.48f, 0.86f, 0.03f), Emissive(new Color(0.0f, 0.24f, 0.12f), new Color(0.12f, 0.88f, 0.35f), 2.8f));
-        Cube("Mon3", new Vector3(7.88f, 2.30f, 5.35f), new Vector3(1.75f, 1.05f, 0.12f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube("Mon3Screen", new Vector3(7.82f, 2.30f, 5.30f), new Vector3(1.48f, 0.86f, 0.03f), Emissive(new Color(0.0f, 0.24f, 0.12f), new Color(0.10f, 0.90f, 0.40f), 2.9f));
+        Cube("Mon1", new Vector3(7.88f, 2.95f, 4.1f), new Vector3(1.5f, 1.0f, 0.1f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
+        Cube("Mon1Screen", new Vector3(7.82f, 2.95f, 4.05f), new Vector3(1.3f, 0.82f, 0.03f), Emissive(new Color(0.0f, 0.20f, 0.10f), new Color(0.12f, 0.95f, 0.35f), 2.0f));
+        Cube("Mon2", new Vector3(7.88f, 1.65f, 4.1f), new Vector3(1.5f, 1.0f, 0.1f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
+        Cube("Mon2Screen", new Vector3(7.82f, 1.65f, 4.05f), new Vector3(1.3f, 0.82f, 0.03f), Emissive(new Color(0.0f, 0.20f, 0.10f), new Color(0.12f, 0.95f, 0.35f), 2.0f));
+        Cube("Mon3", new Vector3(7.88f, 2.30f, 5.35f), new Vector3(1.5f, 1.0f, 0.1f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
+        Cube("Mon3Screen", new Vector3(7.82f, 2.30f, 5.30f), new Vector3(1.3f, 0.82f, 0.03f), Emissive(new Color(0.0f, 0.20f, 0.10f), new Color(0.12f, 0.95f, 0.35f), 2.0f));
         Cube("MonitoringDesk", new Vector3(7.5f, 0.5f, 5f), new Vector3(2.0f, 1.0f, 1.5f), Mat(new Color(0.25f, 0.25f, 0.32f), 0.1f));
         Cube("MonitoringZoneGlow", new Vector3(6.5f, 0.02f, 5f), new Vector3(3.5f, 0.03f, 3.5f), Mat(new Color(0.0f, 0.16f, 0.06f), 0.02f));
         var monitoringLbl = Txt("MonitoringLbl", "MONITORING", new Vector3(7f, 3.8f, 5f), 14, 0.10f, new Color(0.15f, 1.0f, 0.45f), FontStyle.Bold);
@@ -409,7 +419,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         var def = GameObject.Find("Directional Light");
         if (def != null) Object.DestroyImmediate(def);
 
-        L("MainDirectional", LightType.Directional, new Color(1.0f, 0.92f, 0.78f), 1.2f, 100f,
+        L("MainDirectional", LightType.Directional, new Color(1.0f, 0.9f, 0.7f), 1.5f, 100f,
             LightShadows.None, Vector3.zero, Quaternion.Euler(40f, -20f, 0f));
 
         L("DispatchPoint", LightType.Point, new Color(1.0f, 0.62f, 0.24f), 2.8f, 11f,
@@ -456,10 +466,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         // Explicit navigation geometry to avoid invalid mesh sources from labels/FX objects.
         AddNavMeshSource("Floor");
-        AddNavMeshSource("PathBoardDesk");
-        AddNavMeshSource("PathDeskWorker");
-        AddNavMeshSource("PathDeskMonitoring");
-        AddNavMeshSource("PathMonitoringRoom2");
         AddNavMeshSource("Room2Floor");
 
         if (_navSources.Count == 0)
