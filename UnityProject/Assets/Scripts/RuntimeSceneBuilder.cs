@@ -131,14 +131,17 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         // VREVIEWER lighting target (warm Pixar-like base)
         RenderSettings.ambientMode = AmbientMode.Flat;
         RenderSettings.ambientLight = new Color(1.00f, 0.82f, 0.58f, 1f);
+        RenderSettings.fog = false;
 
         CreatePointLight("KeyWarm", new Vector3(0f, 4.9f, 1.1f), new Color(1.00f, 0.62f, 0.30f, 1f), 4.8f, 22f);
         CreatePointLight("FillL", new Vector3(-6.7f, 3.5f, 2.9f), new Color(1.00f, 0.68f, 0.38f, 1f), 2.6f, 14f);
         CreatePointLight("FillR", new Vector3(6.7f, 3.5f, 2.9f), new Color(1.00f, 0.68f, 0.38f, 1f), 2.6f, 14f);
 
-        var floor = Mat(new Color(0.62f, 0.47f, 0.28f), 0.30f);
+        var floor = Mat(new Color(0.36f, 0.32f, 0.28f, 1f), 0.30f);
         Cube("Floor", new Vector3(0f, -0.05f, 3f), new Vector3(24f, 0.1f, 18f), floor);
-        Cube("FloorCenterPanel", new Vector3(0f, -0.045f, 3f), new Vector3(18f, 0.02f, 13f), Mat(new Color(0.52f, 0.39f, 0.22f), 0.30f));
+        Cube("FloorCenterPanel", new Vector3(0f, -0.045f, 3f), new Vector3(18f, 0.02f, 13f), Mat(new Color(0.42f, 0.38f, 0.34f, 1f), 0.30f));
+        Cube("FloorTileBandA", new Vector3(-4.5f, -0.043f, 3f), new Vector3(3.6f, 0.02f, 13f), Mat(new Color(0.40f, 0.36f, 0.32f, 1f), 0.30f));
+        Cube("FloorTileBandB", new Vector3(4.5f, -0.043f, 3f), new Vector3(3.6f, 0.02f, 13f), Mat(new Color(0.34f, 0.30f, 0.26f, 1f), 0.30f));
 
         var pathAmber = Emissive(new Color(0.38f, 0.2f, 0.04f), new Color(1.00f, 0.56f, 0.10f, 1f), 3.4f);
         var pathBlue = Emissive(new Color(0.12f, 0.20f, 0.35f), new Color(0.31f, 0.75f, 1.00f, 1f), 3.4f);
@@ -227,6 +230,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         {
             float x = xs[c];
             Cube($"BoardDivider_{c}", new Vector3(x - 1.1f, 3.5f, 8.98f), new Vector3(0.08f, 4.5f, 0.1f), Mat(new Color(0.2f, 0.2f, 0.24f), 0.05f));
+            Cube($"HdrBack_{c}", new Vector3(x, 5.52f, 8.93f), new Vector3(1.45f, 0.30f, 0.03f), Emissive(new Color(0.08f, 0.08f, 0.12f), Color.Lerp(headerCols[c], Color.white, 0.35f), 1.8f));
             Txt($"Hdr{c}", headers[c], new Vector3(x, 5.5f, 8.88f), 30, 0.14f, Color.Lerp(headerCols[c], Color.white, 0.60f), FontStyle.Bold);
 
             for (int r = 0; r < ys.Length; r++)
@@ -366,6 +370,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("DeskToolRoll", new Vector3(-1.55f, 0.90f, 1.85f), new Vector3(0.30f, 0.08f, 0.18f), Mat(new Color(0.35f, 0.24f, 0.14f), 0.05f));
         Cube("DeskScrewTray", new Vector3(0.38f, 0.90f, 1.92f), new Vector3(0.34f, 0.06f, 0.22f), Mat(new Color(0.22f, 0.22f, 0.24f), 0.06f));
         Cube("DeskWireCoil", new Vector3(-0.88f, 0.90f, 0.16f), new Vector3(0.22f, 0.08f, 0.22f), Mat(new Color(0.10f, 0.10f, 0.12f), 0.02f));
+        Cube("DeskPanelLight", new Vector3(0.18f, 1.05f, 0.95f), new Vector3(0.36f, 0.06f, 0.18f), Emissive(new Color(0.20f, 0.24f, 0.30f), new Color(0.48f, 0.72f, 1.0f), 2.0f));
+        Cube("DeskNoteStack", new Vector3(-0.22f, 0.90f, 1.62f), new Vector3(0.34f, 0.08f, 0.26f), Mat(new Color(0.90f, 0.86f, 0.76f), 0.04f));
 
         Cube("MonitoringWall", new Vector3(8.25f, 2.1f, 5f), new Vector3(0.28f, 4.2f, 3.8f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.12f));
         Cube("Mon1", new Vector3(8.0f, 1.9f, 0.55f), new Vector3(1.15f, 0.75f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
@@ -590,6 +596,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             LightShadows.None, new Vector3(-10.0f, 4.6f, 2.0f), Quaternion.identity);
         L("TopCornerWarmR", LightType.Point, new Color(1.0f, 0.76f, 0.42f), 2.0f, 14f,
             LightShadows.None, new Vector3(10.0f, 4.6f, 2.0f), Quaternion.identity);
+        L("FrontCornerWarmL", LightType.Point, new Color(1.0f, 0.74f, 0.42f), 1.8f, 12f,
+            LightShadows.None, new Vector3(-9.4f, 3.2f, -2.2f), Quaternion.identity);
+        L("FrontCornerWarmR", LightType.Point, new Color(1.0f, 0.74f, 0.42f), 1.8f, 12f,
+            LightShadows.None, new Vector3(9.4f, 3.2f, -2.2f), Quaternion.identity);
     }
 
     private static void CreatePointLight(string n, Vector3 pos, Color c, float intensity, float range)
