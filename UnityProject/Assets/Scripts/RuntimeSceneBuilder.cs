@@ -288,12 +288,15 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 new Color(0.96f,0.58f,0.26f,1f),
                 new Color(0.74f,0.48f,0.96f,1f)
             };
-            int cardsPerColumn = 348;
+            int cardsPerColumn = 84;
             Vector3 cardScale = new Vector3(0.22f, 0.14f, 0.02f);
+            float boardTopY = taskBoardPos.y + taskBoardScale.y * 0.5f - 0.30f;
+            float boardBottomY = Mathf.Max(0.20f, taskBoardPos.y - taskBoardScale.y * 0.5f + 0.25f);
             for (int s = 0; s < cardsPerColumn; s++)
             {
                 float sx = x - 0.88f + (s % 4) * 0.58f;
-                float sy = 3.95f - (s / 4) * 0.30f;
+                float rawSy = 3.95f - (s / 4) * 0.30f;
+                float sy = Mathf.Clamp(rawSy, boardBottomY, boardTopY);
                 var sc = stickyPalette[s % stickyPalette.Length];
                 Cube($"StickyDense_{c}_{s}", new Vector3(sx, sy, 8.94f), cardScale, Mat(sc, 0.03f));
             }
