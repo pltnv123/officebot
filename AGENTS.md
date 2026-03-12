@@ -1,49 +1,80 @@
+# AGENTS.md — Agent Roles & Scene Conditions
+Last updated: 2026-03-10
 
-## Telegram Reporting Rules
-- Every 30 minutes send a status update in Telegram.
-- Status format is mandatory: 1) Сделано 2) В работе 3) Следующий шаг 4) ETA (база+буфер+итог+дедлайн UTC).
-- If deadline risk appears, warn proactively before deadline.
+## Identity
+Autonomous AI developer for OfficeBot WebGL project.
+Goal: build a premium Pixar-quality functional hub, then implement live features.
+Work independently. Fix own mistakes. Escalate only when truly stuck.
 
-## Agent Usage Rule
-- Use specialized agents/plans for every non-trivial task and keep task ownership visible in the task board.
+## Current Phase: PHASE 2 — Functionality
+Phase 1 (Visual) is COMPLETE as of commit d200c44.
+Do NOT regress visual quality while implementing functionality.
 
-## SYSTEM UPDATE: Task Execution Rules (Mandatory)
+## Agent Roles
 
-### RULE 1 — ONE TASK AT A TIME
-- Never start a new task until current task status = "done".
-- "done" means: code written + tested + deployed + visible result confirmed.
-- If stuck more than 15 min on same task — try alternative approach, do not skip.
+### CHIEF (gold) — pos(0.5, 0, 2.5)
+- Role: orchestrates all agents, owns backlog priority
+- Behavior: stays at main desk, faces camera
 
-### RULE 2 — SELF-HEALING LOOP
-When any step fails:
-1. Read the error message carefully.
-2. Try fix #1 (most obvious solution).
-3. If fails — try fix #2 (alternative approach).
-4. If fails — try fix #3 (simplified/fallback version).
-5. Only after 3 failed attempts — report blocker to Anton.
+### PLANNER (blue) — pos(-1.5, 0, 2.5)
+- Role: breaks tasks into steps, writes plans
+- Behavior: near main desk, faces camera
 
-Never report "done" without verifying the result actually works.
+### WORKER (green) — pos(-4, 0, 4)
+- Role: executes code changes, commits, deploys
+- Behavior: at dispatch zone left side
 
-### RULE 3 — VERIFY BEFORE MARKING DONE
-Before marking any task done:
-- Run the relevant test or check.
-- Open the page and confirm visual result.
-- Check logs for errors.
-- Only then set status = done.
+### TESTER (light green) — pos(4, 0, 4)
+- Role: verifies output, runs quality gates
+- Behavior: at monitoring zone right side
 
-### RULE 4 — ERROR DETECTION
-Every 10 minutes run:
-- Check nginx/server logs for errors.
-- Check if Unity process is running.
-- Check if tasks.json is valid JSON.
-- Check if page loads correctly.
+## Scene Success Conditions (Phase 2)
+Check at start of every cycle:
+1. All 4 agents visible on screen simultaneously
+2. Ambient warm orange Color(1.0, 0.88, 0.65) — no cold/gray lighting
+3. Task board visible with 6 columns (INBOX/QUEUE/PLAN/WORK/REVIEW/DONE)
+4. Dispatch zone visible left side with orange glow
+5. Monitoring zone visible right side with green glow
+6. Room 2 door visible top-right with orange frame
+7. Navigation paths visible on floor
 
-If any check fails — fix immediately and report in next update.
+IF any condition FALSE → fix visual before any functional work.
 
-### RULE 5 — PROGRESS REPORTING
-Every 30 min Telegram report must include:
-- Current task name and % complete.
-- Last action taken.
-- Next action planned.
-- Any errors found and how fixed.
-- Proof of completion (URL, log line, or screenshot description).
+## Scene Architecture (current, do not revert)
+- SetupCamera(): pos(0,13,-9) rot(47,0,0) FOV=63
+- BuildRoom(): floor, walls, ceiling, back wall
+- BuildZones(): dispatch left, monitoring right, main desk center, task board back
+- BuildAgents(): CHIEF, PLANNER, WORKER, TESTER with idle bob animation
+
+## Phase 2 Task Rules
+FUNC-001 (live task cards):
+- Backend API already exists — connect board cards to it
+- Cards update without page reload
+- Each card shows: task ID, title, assignee color dot
+
+FUNC-002 (robot animation):
+- Idle bob already exists — enhance with subtle rotation
+- Working state: faster bob + eye glow pulse
+- Moving state: smooth lerp to target position
+
+FUNC-003 (Room 2):
+- Accessible via door top-right
+- Contains: secondary workspace, 2 agents
+- Orange glow frame matches reference
+
+FUNC-004 (NavMesh pathfinding):
+- Agents move to task zone when assigned work
+- Smooth path following, no clipping through objects
+- Return to idle position when task complete
+
+## Quality Standard: Premium
+Every feature must feel polished:
+- Smooth animations (no snapping)
+- Consistent warm color palette
+- No z-fighting or visual glitches
+- Performance: stable 60fps in WebGL
+
+## Self-Check Before Every Commit
+Ask: "Does this change make the product better and more premium?"
+YES → commit with correct prefix
+NO → rethink approach

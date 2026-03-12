@@ -31,3 +31,21 @@ if [ -n "$ACTIVE" ]; then
   echo "WARNING: task $ACTIVE stuck >45min" >> $LOG
 fi
 echo "OK: watchdog complete" >> $LOG
+
+# Telegram alert function
+send_telegram() {
+  BOT_TOKEN=$(node -e "const d=require('/home/antonbot/.openclaw/openclaw.json');console.log(d.channels.telegram.botToken)" 2>/dev/null)
+  curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+    -d "chat_id=6540715349&text=$1" > /dev/null
+}
+
+# Alert on errors
+if ! systemctl is-active --quiet nginx; then
+  send_telegram "🔴 WATCHDOG: nginx упал, перезапускаю"
+fi
+if [ "$HTTP" != "200" ]; then
+  send_telegram "🔴 WATCHDOG: сайт вернул HTTP $HTTP"
+fi
+if [ -n "$ACTIVE" ]; then
+  send_telegram "⚠️ WATCHDOG: задача $ACTIVE зависла больше 45 минут"
+fi

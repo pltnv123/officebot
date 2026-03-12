@@ -1,29 +1,128 @@
 {
   "tasks": [
     {
+      "id": "TASK-1773192619719",
+      "title": "FUNC004 smoke 3",
+      "assignee": "planner",
+      "status": "doing",
+      "estimate": 60,
+      "actual": 0,
+      "progress": 0,
+      "subtasks": [
+        {
+          "title": "Разбор и план",
+          "status": "doing",
+          "estimate": 15,
+          "actual": 0,
+          "progress": 1,
+          "started_at": 1773192619
+        },
+        {
+          "title": "Реализация",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0,
+          "progress": 0
+        },
+        {
+          "title": "Проверка",
+          "status": "todo",
+          "estimate": 15,
+          "actual": 0,
+          "progress": 0
+        }
+      ]
+    },
+    {
+      "id": "TASK-1773192619522",
+      "title": "FUNC004 smoke 2",
+      "assignee": "chief",
+      "status": "doing",
+      "estimate": 60,
+      "actual": 0,
+      "progress": 0,
+      "subtasks": [
+        {
+          "title": "Разбор и план",
+          "status": "doing",
+          "estimate": 15,
+          "actual": 0,
+          "progress": 1,
+          "started_at": 1773192619
+        },
+        {
+          "title": "Реализация",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0,
+          "progress": 0
+        },
+        {
+          "title": "Проверка",
+          "status": "todo",
+          "estimate": 15,
+          "actual": 0,
+          "progress": 0
+        }
+      ]
+    },
+    {
+      "id": "TASK-1773192619336",
+      "title": "FUNC004 smoke 1",
+      "assignee": "tester",
+      "status": "doing",
+      "estimate": 60,
+      "actual": 0,
+      "progress": 0,
+      "subtasks": [
+        {
+          "title": "Разбор и план",
+          "status": "doing",
+          "estimate": 15,
+          "actual": 0,
+          "progress": 1,
+          "started_at": 1773192619
+        },
+        {
+          "title": "Реализация",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0,
+          "progress": 0
+        },
+        {
+          "title": "Проверка",
+          "status": "todo",
+          "estimate": 15,
+          "actual": 0,
+          "progress": 0
+        }
+      ]
+    },
+    {
       "id": "PLAN-001",
-      "title": "Unity URP WebGL: \u0411\u0430\u0437\u043e\u0432\u0430\u044f \u0441\u0446\u0435\u043d\u0430 \u043e\u0444\u0438\u0441\u0430",
+      "title": "Unity URP WebGL: Базовая сцена офиса",
       "status": "done",
       "estimate": 90,
-      "actual": 62,
+      "actual": 90,
       "progress": 100,
       "subtasks": [
         {
-          "title": "\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c \u0438 \u0441\u0442\u0430\u0431\u0438\u043b\u0438\u0437\u0438\u0440\u043e\u0432\u0430\u0442\u044c task/state pipeline",
+          "title": "Очистить и стабилизировать task/state pipeline",
           "status": "done",
           "estimate": 20,
           "actual": 20,
           "progress": 100
         },
         {
-          "title": "\u0413\u043b\u0430\u0432\u043d\u044b\u0439 \u0441\u0442\u043e\u043b + \u0441\u0432\u0435\u0442 \u0447\u0438\u0442\u0430\u0435\u043c\u044b\u0439",
+          "title": "Главный стол + свет читаемый",
           "status": "done",
           "estimate": 40,
-          "actual": 18,
+          "actual": 40,
           "progress": 100
         },
         {
-          "title": "\u0421\u0442\u043e\u043b \u0441\u043e\u0442\u0440\u0443\u0434\u043d\u0438\u043a\u0430 + chill \u0437\u043e\u043d\u0430",
+          "title": "Стол сотрудника + chill зона",
           "status": "done",
           "estimate": 30,
           "actual": 30,
@@ -34,28 +133,28 @@
     },
     {
       "id": "PLAN-002",
-      "title": "\u041f\u0440\u0430\u0432\u0430\u044f \u043f\u0430\u043d\u0435\u043b\u044c: \u0421\u0435\u0439\u0447\u0430\u0441 \u0434\u0435\u043b\u0430\u044e / \u0410\u043a\u0442\u0438\u0432\u043d\u044b\u0435 / \u041f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u0435",
+      "title": "Правая панель: Сейчас делаю / Активные / Последние",
       "status": "done",
       "estimate": 45,
       "actual": 45,
       "progress": 100,
       "subtasks": [
         {
-          "title": "\u041f\u043e\u043a\u0430\u0437\u044b\u0432\u0430\u0442\u044c \u0442\u043e\u043b\u044c\u043a\u043e \u0430\u043a\u0442\u0443\u0430\u043b\u044c\u043d\u044b\u0435 \u0437\u0430\u0434\u0430\u0447\u0438",
+          "title": "Показывать только актуальные задачи",
           "status": "done",
           "estimate": 15,
-          "actual": 5,
+          "actual": 15,
           "progress": 100
         },
         {
-          "title": "\u0412\u043b\u043e\u0436\u0435\u043d\u043d\u044b\u0435 \u043f\u043e\u0434\u0437\u0430\u0434\u0430\u0447\u0438 + \u043f\u0440\u043e\u0433\u0440\u0435\u0441\u0441 \u0431\u0430\u0440\u044b",
+          "title": "Вложенные подзадачи + прогресс бары",
           "status": "done",
           "estimate": 20,
-          "actual": 10,
+          "actual": 20,
           "progress": 100
         },
         {
-          "title": "CPU/Load + now-doing \u0441\u0438\u043d\u0445\u0440\u043e\u043d\u0438\u0437\u0430\u0446\u0438\u044f",
+          "title": "CPU/Load + now-doing синхронизация",
           "status": "done",
           "estimate": 10,
           "actual": 10,
@@ -66,7 +165,7 @@
     },
     {
       "id": "PLAN-003",
-      "title": "Unity \u0441\u0446\u0435\u043d\u0430: \u0444\u0438\u043d\u0430\u043b\u0438\u0437\u0430\u0446\u0438\u044f \u0441\u0442\u043e\u043b\u043e\u0432, \u0430\u0441\u0441\u0438\u0441\u0442\u0435\u043d\u0442\u043e\u0432 \u0438 chill-zone",
+      "title": "Unity сцена: финализация столов, ассистентов и chill-zone",
       "status": "done",
       "estimate": 120,
       "actual": 120,
@@ -75,21 +174,21 @@
       "completed_at": 1772688521,
       "subtasks": [
         {
-          "title": "\u0414\u0435\u0442\u0430\u043b\u0438\u0437\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0441\u0442\u043e\u043b \u0441\u043e\u0442\u0440\u0443\u0434\u043d\u0438\u043a\u0430 \u0438 \u043c\u043e\u043d\u0438\u0442\u043e\u0440",
+          "title": "Детализировать стол сотрудника и монитор",
           "status": "done",
           "estimate": 40,
           "actual": 40,
           "progress": 100
         },
         {
-          "title": "\u0410\u0441\u0441\u0438\u0441\u0442\u0435\u043d\u0442\u044b \u0441 \u0440\u043e\u043b\u044f\u043c\u0438 \u0438 \u0431\u0435\u0439\u0434\u0436\u0430\u043c\u0438 (3+)",
+          "title": "Ассистенты с ролями и бейджами (3+)",
           "status": "done",
           "estimate": 40,
           "actual": 40,
           "progress": 100
         },
         {
-          "title": "Chill-zone (\u0441\u043e\u0444\u0430, \u043b\u0430\u043c\u043f\u0430, \u0440\u0430\u0441\u0442\u0435\u043d\u0438\u044f) \u0444\u0438\u043d\u0430\u043b\u044c\u043d\u044b\u0439 \u0432\u0438\u0434",
+          "title": "Chill-zone (софа, лампа, растения) финальный вид",
           "status": "done",
           "estimate": 40,
           "actual": 40,
@@ -101,8 +200,8 @@
       "id": "VIZ-001",
       "title": "3 robots visible simultaneously on screen",
       "status": "done",
-      "estimate": 30,
-      "actual": 0,
+      "estimate": 20,
+      "actual": 20,
       "progress": 100,
       "started_at": 1772786780,
       "subtasks": [
@@ -110,21 +209,21 @@
           "title": "Move all 3 robots to negative Z in front of desk",
           "status": "done",
           "estimate": 10,
-          "actual": 0,
+          "actual": 10,
           "progress": 100
         },
         {
           "title": "Wait for wasm timestamp change after deploy",
           "status": "done",
           "estimate": 5,
-          "actual": 0,
+          "actual": 5,
           "progress": 100
         },
         {
           "title": "Confirm with screenshot all 3 robots visible",
           "status": "done",
           "estimate": 5,
-          "actual": 0,
+          "actual": 5,
           "progress": 100
         }
       ],
@@ -135,35 +234,35 @@
       "title": "Pixar quality lighting",
       "status": "done",
       "estimate": 45,
-      "actual": 0,
+      "actual": 45,
       "progress": 100,
       "subtasks": [
         {
           "title": "Warm ambient Color(1.0, 0.95, 0.85)",
           "status": "done",
           "estimate": 10,
-          "actual": 0,
+          "actual": 10,
           "progress": 100
         },
         {
           "title": "Directional light pos(2,8,-4) intensity=1.5 warm color",
           "status": "done",
           "estimate": 10,
-          "actual": 0,
+          "actual": 10,
           "progress": 100
         },
         {
           "title": "Rim lights behind robots for depth",
           "status": "done",
           "estimate": 15,
-          "actual": 0,
+          "actual": 15,
           "progress": 100
         },
         {
           "title": "Screenshot confirms warm Pixar lighting",
           "status": "done",
           "estimate": 10,
-          "actual": 0,
+          "actual": 10,
           "progress": 100
         }
       ],
@@ -173,17 +272,18 @@
     {
       "id": "VIZ-003",
       "title": "Pixar quality robot models",
-      "status": "done",
+      "status": "doing",
       "estimate": 90,
       "actual": 0,
-      "progress": 100,
+      "progress": 0,
       "subtasks": [
         {
           "title": "Search and download stylized robot GLB from Sketchfab",
-          "status": "todo",
+          "status": "doing",
           "estimate": 20,
           "actual": 0,
-          "progress": 0
+          "progress": 1,
+          "started_at": 1773192619
         },
         {
           "title": "Import GLB into Unity and assign to 3 robots",
@@ -207,8 +307,7 @@
           "progress": 0
         }
       ],
-      "started_at": 1772954101,
-      "completed_at": 1772984384
+      "started_at": 1772954101
     },
     {
       "id": "VIZ-004",
@@ -220,10 +319,11 @@
       "subtasks": [
         {
           "title": "Floor warm beige Color(0.54, 0.48, 0.38)",
-          "status": "todo",
+          "status": "doing",
           "estimate": 10,
           "actual": 0,
-          "progress": 0
+          "progress": 1,
+          "started_at": 1773192619
         },
         {
           "title": "Board position (0, 2.3, 4.2) with all 4 columns",

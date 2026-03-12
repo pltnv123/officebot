@@ -492,9 +492,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private static void BuildLighting()
     {
-        RenderSettings.ambientMode = AmbientMode.Flat;
-        RenderSettings.ambientIntensity = 2.0f;
-        RenderSettings.ambientLight = new Color(1.00f, 0.82f, 0.58f, 1f);
 
         var def = GameObject.Find("Directional Light");
         if (def != null) Object.DestroyImmediate(def);
