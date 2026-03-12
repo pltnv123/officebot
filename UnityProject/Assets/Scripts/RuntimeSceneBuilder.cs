@@ -205,10 +205,11 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         // VREVIEWER board target: position/scale + dense 90-note population
         Vector3 taskBoardPos = new Vector3(0f, 2.55f, 8.82f);
         Vector3 taskBoardScale = new Vector3(11.0f, 3.4f, 0.24f);
-        Cube("TaskBoardFrame", taskBoardPos + new Vector3(0f, 0f, -0.05f), new Vector3(12.8f, 4.3f, 0.15f), Mat(new Color(0.46f, 0.31f, 0.14f), 0.10f));
+        Vector3 taskBoardFrameScale = new Vector3(taskBoardScale.x + 1.0f, taskBoardScale.y + 0.9f, 0.15f);
+        Cube("TaskBoardFrame", taskBoardPos + new Vector3(0f, 0f, -0.05f), taskBoardFrameScale, Mat(new Color(0.46f, 0.31f, 0.14f), 0.10f));
         var taskBoard = Cube("TaskBoard", new Vector3(0f, 0f, 0f), Vector3.one, Mat(new Color(0.07f, 0.07f, 0.10f), 0.10f));
-        taskBoard.transform.position = new Vector3(0f, 2.62f, 8.86f);
-        taskBoard.transform.localScale = new Vector3(11.8f, 3.8f, 0.24f);
+        taskBoard.transform.position = taskBoardPos;
+        taskBoard.transform.localScale = taskBoardScale;
 
         string[] headers = { "INBOX", "QUEUE", "PLAN", "WORK", "REVIEW", "DONE" };
         float[] xs = { -3.8f, -2.3f, -0.8f, 0.8f, 2.3f, 3.8f };
