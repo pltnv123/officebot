@@ -347,6 +347,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("DeskGadgetA", new Vector3(-0.35f, 0.90f, 0.45f), new Vector3(0.22f, 0.08f, 0.16f), Mat(new Color(0.15f, 0.16f, 0.20f), 0.08f));
         Cube("DeskGadgetB", new Vector3(0.95f, 0.90f, 1.70f), new Vector3(0.26f, 0.08f, 0.18f), Mat(new Color(0.15f, 0.16f, 0.20f), 0.08f));
         Cube("DeskMugB", new Vector3(-1.25f, 0.90f, 0.62f), new Vector3(0.20f, 0.22f, 0.20f), Mat(new Color(0.78f, 0.42f, 0.20f), 0.04f));
+        Cube("DeskPropsBin", new Vector3(1.55f, 0.92f, 0.95f), new Vector3(0.30f, 0.16f, 0.24f), Mat(new Color(0.55f, 0.36f, 0.16f), 0.06f));
+        Cube("DeskCablePack", new Vector3(-0.55f, 0.90f, 1.95f), new Vector3(0.34f, 0.06f, 0.20f), Mat(new Color(0.10f, 0.10f, 0.12f), 0.02f));
 
         Cube("MonitoringWall", new Vector3(8.25f, 2.1f, 5f), new Vector3(0.28f, 4.2f, 3.8f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.12f));
         Cube("Mon1", new Vector3(8.0f, 1.9f, 0.55f), new Vector3(1.15f, 0.75f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
@@ -364,6 +366,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("MonitoringChairSeat", new Vector3(7.0f, 0.56f, 4.9f), new Vector3(0.58f, 0.16f, 0.58f), Mat(new Color(0.18f, 0.22f, 0.26f), 0.12f));
         Cube("MonitoringChairBack", new Vector3(7.0f, 0.95f, 5.15f), new Vector3(0.58f, 0.56f, 0.10f), Mat(new Color(0.18f, 0.22f, 0.26f), 0.12f));
         Cube("MonitoringKeypad", new Vector3(7.25f, 0.92f, 5.15f), new Vector3(0.28f, 0.04f, 0.22f), Emissive(new Color(0.08f, 0.18f, 0.10f), new Color(0.18f, 0.9f, 0.45f), 1.6f));
+        Cube("MonitoringTablet", new Vector3(6.55f, 0.94f, 1.45f), new Vector3(0.36f, 0.04f, 0.24f), Mat(new Color(0.08f, 0.10f, 0.14f), 0.16f));
+        Cube("MonitoringCableTray", new Vector3(6.25f, 0.35f, 1.95f), new Vector3(0.40f, 0.08f, 0.18f), Mat(new Color(0.12f, 0.12f, 0.14f), 0.04f));
         Cube("MonitoringZoneGlow", new Vector3(7.2f, 0.02f, 1.2f), new Vector3(4.2f, 0.03f, 4.0f), Emissive(new Color(0.02f, 0.18f, 0.08f), new Color(0.14f, 0.85f, 0.40f), 1.8f));
         var monitoringLbl = Txt("MonitoringLbl", "MONITORING", new Vector3(7.2f, 3.0f, 1.2f), 14, 0.10f, new Color(0.15f, 1.0f, 0.45f), FontStyle.Bold);
         _labelXforms.Add(monitoringLbl.transform);
