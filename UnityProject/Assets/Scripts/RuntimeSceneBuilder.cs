@@ -197,9 +197,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void BuildBoard()
     {
         // VREVIEWER board target: position/scale + dense 90-note population
-        Vector3 taskBoardPos = new Vector3(0f, 2.50f, 8.80f);
-        Vector3 taskBoardScale = new Vector3(10.2f, 3.1f, 0.22f);
-        Cube("TaskBoardFrame", taskBoardPos + new Vector3(0f, 0f, -0.05f), new Vector3(10.6f, 3.3f, 0.15f), Mat(new Color(0.36f, 0.26f, 0.14f), 0.10f));
+        Vector3 taskBoardPos = new Vector3(0f, 2.55f, 8.82f);
+        Vector3 taskBoardScale = new Vector3(11.0f, 3.4f, 0.24f);
+        Cube("TaskBoardFrame", taskBoardPos + new Vector3(0f, 0f, -0.05f), new Vector3(11.4f, 3.6f, 0.15f), Mat(new Color(0.36f, 0.26f, 0.14f), 0.10f));
         var taskBoard = Cube("TaskBoard", new Vector3(0f, 0f, 0f), Vector3.one, Mat(new Color(0.08f, 0.08f, 0.12f), 0.08f));
         taskBoard.transform.position = new Vector3(0f, 2.50f, 8.80f);
         taskBoard.transform.localScale = new Vector3(10.2f, 3.1f, 0.22f);
@@ -259,10 +259,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 new Color(0.74f,0.48f,0.96f,1f)
             };
             Vector3 cardScale = new Vector3(0.22f, 0.14f, 0.02f);
-            for (int s = 0; s < 18; s++)
+            for (int s = 0; s < 24; s++)
             {
-                float sx = x - 0.74f + (s % 6) * 0.30f;
-                float sy = 3.26f - (s / 6) * 0.23f;
+                float sx = x - 0.80f + (s % 6) * 0.32f;
+                float sy = 3.34f - (s / 6) * 0.22f;
                 var sc = stickyPalette[s % stickyPalette.Length];
                 Cube($"StickyDense_{c}_{s}", new Vector3(sx, sy, 8.94f), cardScale, Mat(sc, 0.03f));
             }
@@ -290,7 +290,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("Room2PillarR", new Vector3(7.85f, 1.9f, 8.62f), new Vector3(0.22f, 3.9f, 0.22f), Emissive(new Color(0.45f, 0.24f, 0.05f), new Color(1.0f, 0.58f, 0.08f), 2.4f));
 
         Cube("Room2Arrow", new Vector3(8.75f, 1.15f, 6.15f), new Vector3(0.58f, 0.58f, 0.58f), Emissive(new Color(0.4f, 0.2f, 0.05f), new Color(1.0f, 0.7f, 0.1f), 3.2f)).transform.rotation = Quaternion.Euler(0f, 45f, 0f);
-        Cube("Room2ArrowGlow", new Vector3(8.75f, 1.15f, 6.08f), new Vector3(0.86f, 0.12f, 0.86f), Emissive(new Color(0.5f, 0.24f, 0.06f), new Color(1.0f, 0.70f, 0.18f), 2.6f));
+        Cube("Room2ArrowGlow", new Vector3(8.75f, 1.15f, 6.08f), new Vector3(1.10f, 0.16f, 1.10f), Emissive(new Color(0.5f, 0.24f, 0.06f), new Color(1.0f, 0.70f, 0.18f), 3.2f));
         var roomLbl = Txt("Room2Lbl", "ROOM 2", new Vector3(8.75f, 2.85f, 6.1f), 20, 0.12f, new Color(1.00f, 0.74f, 0.28f, 1f), FontStyle.Bold);
         _labelXforms.Add(roomLbl.transform);
 
@@ -323,7 +323,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("DispatchToolB", new Vector3(-7.2f, 0.86f, 1.15f), new Vector3(0.24f, 0.08f, 0.14f), Mat(new Color(0.60f, 0.32f, 0.10f), 0.04f));
         Cube("DispatchPaperB", new Vector3(-7.75f, 0.84f, 1.95f), new Vector3(0.34f, 0.02f, 0.26f), Mat(new Color(0.9f, 0.86f, 0.76f), 0.03f));
         Cube("DispatchWallPanel", new Vector3(-8.25f, 1.95f, 1.45f), new Vector3(0.12f, 1.6f, 1.8f), Emissive(new Color(0.36f, 0.18f, 0.05f), new Color(1.0f, 0.58f, 0.10f), 2.4f));
-        Cube("DispatchZoneGlow", new Vector3(-7.5f, 0.02f, 1.5f), new Vector3(4.4f, 0.03f, 4.4f), Emissive(new Color(0.35f, 0.18f, 0.03f), new Color(1.0f, 0.50f, 0.04f), 3.0f));
+        Cube("DispatchZoneGlow", new Vector3(-7.5f, 0.02f, 1.5f), new Vector3(4.8f, 0.03f, 4.8f), Emissive(new Color(0.35f, 0.18f, 0.03f), new Color(1.0f, 0.50f, 0.04f), 3.6f));
         var dispatchLbl = Txt("DispatchLbl", "DISPATCH", new Vector3(-7.5f, 2.5f, 1.5f), 16, 0.10f, new Color(1.0f, 0.55f, 0.0f), FontStyle.Bold);
         _labelXforms.Add(dispatchLbl.transform);
 
@@ -373,7 +373,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("MonitoringTablet", new Vector3(6.55f, 0.94f, 1.45f), new Vector3(0.36f, 0.04f, 0.24f), Mat(new Color(0.08f, 0.10f, 0.14f), 0.16f));
         Cube("MonitoringCableTray", new Vector3(6.25f, 0.35f, 1.95f), new Vector3(0.40f, 0.08f, 0.18f), Mat(new Color(0.12f, 0.12f, 0.14f), 0.04f));
         Cube("MonitoringPatchPanel", new Vector3(6.05f, 1.85f, 2.05f), new Vector3(0.38f, 0.52f, 0.16f), Emissive(new Color(0.06f, 0.18f, 0.10f), new Color(0.16f, 0.95f, 0.48f), 2.2f));
-        Cube("MonitoringWallGlow", new Vector3(8.15f, 1.95f, 1.25f), new Vector3(0.18f, 2.4f, 2.0f), Emissive(new Color(0.04f, 0.16f, 0.10f), new Color(0.20f, 1.00f, 0.72f), 2.4f));
+        Cube("MonitoringWallGlow", new Vector3(8.15f, 1.95f, 1.25f), new Vector3(0.20f, 2.8f, 2.3f), Emissive(new Color(0.04f, 0.16f, 0.10f), new Color(0.20f, 1.00f, 0.72f), 3.0f));
         Cube("MonitoringZoneGlow", new Vector3(7.2f, 0.02f, 1.2f), new Vector3(4.2f, 0.03f, 4.0f), Emissive(new Color(0.02f, 0.18f, 0.08f), new Color(0.14f, 0.85f, 0.40f), 1.8f));
         var monitoringLbl = Txt("MonitoringLbl", "MONITORING", new Vector3(7.2f, 3.0f, 1.2f), 14, 0.10f, new Color(0.15f, 1.0f, 0.45f), FontStyle.Bold);
         _labelXforms.Add(monitoringLbl.transform);
@@ -390,6 +390,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             Cyl($"PlantPot_{i}", new Vector3(plantBases[i].x, 0.25f, plantBases[i].z), new Vector3(0.38f, 0.55f, 0.38f), Mat(new Color(0.55f, 0.32f, 0.12f), 0.08f));
             Cube($"PlantLeaves_{i}", new Vector3(plantBases[i].x, 0.92f, plantBases[i].z), new Vector3(0.74f, 1.20f, 0.74f), Mat(new Color(0.22f, 0.55f, 0.28f, 1f), 0.05f));
         }
+
+        Cube("WallShelfPropsL", new Vector3(-9.8f, 2.2f, 6.6f), new Vector3(0.20f, 0.16f, 2.6f), Mat(new Color(0.34f, 0.25f, 0.16f), 0.08f));
+        Cube("WallShelfPropsR", new Vector3(9.8f, 2.2f, 6.6f), new Vector3(0.20f, 0.16f, 2.6f), Mat(new Color(0.34f, 0.25f, 0.16f), 0.08f));
 
         Vector3[] dispatchDots = { new Vector3(-4f, 0.02f, 3f), new Vector3(-4.7f, 0.02f, 3.7f), new Vector3(-5.3f, 0.02f, 4.3f), new Vector3(-6f, 0.02f, 5f) };
         Vector3[] boardDots = { new Vector3(-1f, 0.02f, 3f), new Vector3(-0.7f, 0.02f, 4.6f), new Vector3(-0.3f, 0.02f, 6.2f), new Vector3(0f, 0.02f, 7.8f) };
@@ -508,6 +511,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private static void BuildLighting()
     {
+        RenderSettings.ambientMode = AmbientMode.Flat;
+        RenderSettings.ambientIntensity = 2.35f;
+        RenderSettings.ambientLight = new Color(1.00f, 0.82f, 0.58f, 1f);
 
         var def = GameObject.Find("Directional Light");
         if (def != null) Object.DestroyImmediate(def);
