@@ -200,7 +200,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Vector3 taskBoardPos = new Vector3(0f, 2.50f, 8.80f);
         Vector3 taskBoardScale = new Vector3(10.2f, 3.1f, 0.22f);
         Cube("TaskBoardFrame", taskBoardPos + new Vector3(0f, 0f, -0.05f), new Vector3(10.6f, 3.3f, 0.15f), Mat(new Color(0.36f, 0.26f, 0.14f), 0.10f));
-        Cube("TaskBoard", taskBoardPos, taskBoardScale, Mat(new Color(0.08f, 0.08f, 0.12f), 0.08f));
+        var taskBoard = Cube("TaskBoard", new Vector3(0f, 0f, 0f), Vector3.one, Mat(new Color(0.08f, 0.08f, 0.12f), 0.08f));
+        taskBoard.transform.position = new Vector3(0f, 2.50f, 8.80f);
+        taskBoard.transform.localScale = new Vector3(10.2f, 3.1f, 0.22f);
 
         string[] headers = { "INBOX", "QUEUE", "PLAN", "WORK", "REVIEW", "DONE" };
         float[] xs = { -3.8f, -2.3f, -0.8f, 0.8f, 2.3f, 3.8f };
