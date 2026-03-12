@@ -202,9 +202,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Vector3 taskBoardPos = new Vector3(0f, 2.55f, 8.82f);
         Vector3 taskBoardScale = new Vector3(11.0f, 3.4f, 0.24f);
         Cube("TaskBoardFrame", taskBoardPos + new Vector3(0f, 0f, -0.05f), new Vector3(12.0f, 3.9f, 0.15f), Mat(new Color(0.40f, 0.28f, 0.14f), 0.10f));
-        var taskBoard = Cube("TaskBoard", new Vector3(0f, 0f, 0f), Vector3.one, Mat(new Color(0.08f, 0.08f, 0.12f), 0.08f));
-        taskBoard.transform.position = new Vector3(0f, 2.58f, 8.84f);
-        taskBoard.transform.localScale = new Vector3(11.4f, 3.6f, 0.24f);
+        var taskBoard = Cube("TaskBoard", new Vector3(0f, 0f, 0f), Vector3.one, Mat(new Color(0.07f, 0.07f, 0.10f), 0.10f));
+        taskBoard.transform.position = new Vector3(0f, 2.62f, 8.86f);
+        taskBoard.transform.localScale = new Vector3(11.8f, 3.8f, 0.24f);
 
         string[] headers = { "INBOX", "QUEUE", "PLAN", "WORK", "REVIEW", "DONE" };
         float[] xs = { -3.8f, -2.3f, -0.8f, 0.8f, 2.3f, 3.8f };
@@ -328,7 +328,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("DispatchPaperB", new Vector3(-7.75f, 0.84f, 1.95f), new Vector3(0.34f, 0.02f, 0.26f), Mat(new Color(0.9f, 0.86f, 0.76f), 0.03f));
         Cube("DispatchWallPanel", new Vector3(-8.25f, 1.95f, 1.45f), new Vector3(0.12f, 1.6f, 1.8f), Emissive(new Color(0.36f, 0.18f, 0.05f), new Color(1.0f, 0.58f, 0.10f), 2.8f));
         Cube("DispatchToolRack", new Vector3(-8.0f, 1.35f, 2.6f), new Vector3(0.18f, 1.8f, 0.9f), Mat(new Color(0.36f, 0.22f, 0.12f), 0.08f));
-        Cube("DispatchGlowColumn", new Vector3(-7.4f, 1.4f, 0.2f), new Vector3(0.16f, 2.4f, 0.16f), Emissive(new Color(0.45f, 0.20f, 0.05f), new Color(1.0f, 0.56f, 0.08f), 3.2f));
+        Cube("DispatchGlowColumn", new Vector3(-7.4f, 1.4f, 0.2f), new Vector3(0.18f, 2.8f, 0.18f), Emissive(new Color(0.45f, 0.20f, 0.05f), new Color(1.0f, 0.56f, 0.08f), 3.8f));
         Cube("DispatchZoneGlow", new Vector3(-7.5f, 0.02f, 1.5f), new Vector3(5.8f, 0.03f, 5.6f), Emissive(new Color(0.35f, 0.18f, 0.03f), new Color(1.0f, 0.50f, 0.04f), 5.0f));
         var dispatchLbl = Txt("DispatchLbl", "DISPATCH", new Vector3(-7.5f, 2.5f, 1.5f), 16, 0.10f, new Color(1.0f, 0.55f, 0.0f), FontStyle.Bold);
         _labelXforms.Add(dispatchLbl.transform);
@@ -385,7 +385,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("MonitoringPatchPanel", new Vector3(6.05f, 1.85f, 2.05f), new Vector3(0.38f, 0.52f, 0.16f), Emissive(new Color(0.06f, 0.18f, 0.10f), new Color(0.16f, 0.95f, 0.48f), 2.2f));
         Cube("MonitoringWallGlow", new Vector3(8.15f, 1.95f, 1.25f), new Vector3(0.28f, 3.3f, 2.7f), Emissive(new Color(0.04f, 0.16f, 0.10f), new Color(0.20f, 1.00f, 0.72f), 4.2f));
         Cube("MonitoringPropRack", new Vector3(6.15f, 1.15f, 0.45f), new Vector3(0.28f, 1.8f, 0.9f), Mat(new Color(0.12f, 0.14f, 0.16f), 0.12f));
-        Cube("MonitoringChairGlow", new Vector3(7.0f, 0.18f, 4.9f), new Vector3(0.9f, 0.03f, 0.9f), Emissive(new Color(0.05f, 0.16f, 0.10f), new Color(0.16f, 0.95f, 0.50f), 2.0f));
+        Cube("MonitoringChairGlow", new Vector3(7.0f, 0.18f, 4.9f), new Vector3(1.1f, 0.03f, 1.1f), Emissive(new Color(0.05f, 0.16f, 0.10f), new Color(0.16f, 0.95f, 0.50f), 2.6f));
         Cube("MonitoringZoneGlow", new Vector3(7.2f, 0.02f, 1.2f), new Vector3(4.2f, 0.03f, 4.0f), Emissive(new Color(0.02f, 0.18f, 0.08f), new Color(0.14f, 0.85f, 0.40f), 1.8f));
         var monitoringLbl = Txt("MonitoringLbl", "MONITORING", new Vector3(7.2f, 3.0f, 1.2f), 14, 0.10f, new Color(0.15f, 1.0f, 0.45f), FontStyle.Bold);
         _labelXforms.Add(monitoringLbl.transform);
@@ -536,7 +536,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         var def = GameObject.Find("Directional Light");
         if (def != null) Object.DestroyImmediate(def);
 
-        L("MainDirectional", LightType.Directional, new Color(1.0f, 0.90f, 0.68f), 2.4f, 100f,
+        L("MainDirectional", LightType.Directional, new Color(1.0f, 0.90f, 0.68f), 2.8f, 100f,
             LightShadows.Soft, Vector3.zero, Quaternion.Euler(40f, -20f, 0f));
 
         L("DispatchPoint", LightType.Point, new Color(1.0f, 0.62f, 0.24f), 2.8f, 11f,
