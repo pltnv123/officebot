@@ -226,7 +226,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     {
         // VREVIEWER board target: position/scale + dense 90-note population
         Vector3 taskBoardPos = new Vector3(0f, 2.55f, 8.85f);
-        Vector3 taskBoardScale = new Vector3(17.4f, 7.1f, 0.24f);
+        Vector3 taskBoardScale = new Vector3(17.8f, 7.3f, 0.24f);
         Vector3 taskBoardFrameScale = new Vector3(taskBoardScale.x + 1.0f, taskBoardScale.y + 0.9f, 0.15f);
         Cube("TaskBoardFrame", taskBoardPos + new Vector3(0f, 0f, -0.05f), taskBoardFrameScale, Mat(new Color(0.46f, 0.31f, 0.14f), 0.10f));
         var taskBoard = Cube("TaskBoard", new Vector3(0f, 0f, 0f), Vector3.one, Mat(new Color(0.07f, 0.07f, 0.10f), 0.10f));
@@ -288,7 +288,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 new Color(0.96f,0.58f,0.26f,1f),
                 new Color(0.74f,0.48f,0.96f,1f)
             };
-            int cardsPerColumn = 120;
+            int cardsPerColumn = 126;
             Vector3 cardScale = new Vector3(0.22f, 0.14f, 0.02f);
             for (int s = 0; s < cardsPerColumn; s++)
             {
@@ -431,11 +431,11 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         Cube("MonitoringWall", new Vector3(8.25f, 2.1f, 5f), new Vector3(0.28f, 4.2f, 3.8f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.12f));
         Cube("Mon1", new Vector3(8.0f, 1.9f, 0.55f), new Vector3(1.15f, 0.75f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube("Mon1Screen", new Vector3(7.94f, 1.9f, 0.51f), new Vector3(1.0f, 0.62f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 12.0f));
+        Cube("Mon1Screen", new Vector3(7.94f, 1.9f, 0.51f), new Vector3(1.0f, 0.62f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 12.6f));
         Cube("Mon2", new Vector3(8.0f, 1.9f, 1.25f), new Vector3(1.15f, 0.75f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube("Mon2Screen", new Vector3(7.94f, 1.9f, 1.21f), new Vector3(1.0f, 0.62f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 12.0f));
+        Cube("Mon2Screen", new Vector3(7.94f, 1.9f, 1.21f), new Vector3(1.0f, 0.62f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 12.6f));
         Cube("Mon3", new Vector3(8.0f, 1.9f, 1.95f), new Vector3(1.15f, 0.75f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube("Mon3Screen", new Vector3(7.94f, 1.9f, 1.91f), new Vector3(1.0f, 0.62f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 12.0f));
+        Cube("Mon3Screen", new Vector3(7.94f, 1.9f, 1.91f), new Vector3(1.0f, 0.62f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 12.6f));
         Cube("Mon4", new Vector3(8.0f, 2.65f, 1.25f), new Vector3(1.25f, 0.55f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
         Cube("Mon4Screen", new Vector3(7.94f, 2.65f, 1.21f), new Vector3(1.08f, 0.44f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 4.6f));
         // VREVIEWER monitoring target desk anchor/scale
@@ -613,7 +613,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private static void BuildLighting()
     {
         RenderSettings.ambientMode = AmbientMode.Flat;
-        RenderSettings.ambientIntensity = 10.6f;
+        RenderSettings.ambientIntensity = 11.0f;
         RenderSettings.ambientLight = new Color(1.00f, 0.82f, 0.58f, 1f);
 
         var def = GameObject.Find("Directional Light");
