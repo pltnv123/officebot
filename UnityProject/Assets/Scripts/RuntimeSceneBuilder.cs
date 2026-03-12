@@ -262,10 +262,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 new Color(0.74f,0.48f,0.96f,1f)
             };
             Vector3 cardScale = new Vector3(0.22f, 0.14f, 0.02f);
-            for (int s = 0; s < 56; s++)
+            for (int s = 0; s < 64; s++)
             {
-                float sx = x - 1.02f + (s % 8) * 0.29f;
-                float sy = 3.62f - (s / 8) * 0.15f;
+                float sx = x - 1.08f + (s % 8) * 0.30f;
+                float sy = 3.66f - (s / 8) * 0.14f;
                 var sc = stickyPalette[s % stickyPalette.Length];
                 Cube($"StickyDense_{c}_{s}", new Vector3(sx, sy, 8.94f), cardScale, Mat(sc, 0.03f));
             }
@@ -393,6 +393,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("MonitoringServerStack", new Vector3(6.0f, 0.85f, 2.25f), new Vector3(0.34f, 1.4f, 0.48f), Mat(new Color(0.10f, 0.12f, 0.14f), 0.12f));
         Cube("MonitoringServerGlow", new Vector3(6.0f, 0.90f, 2.0f), new Vector3(0.22f, 0.86f, 0.04f), Emissive(new Color(0.06f, 0.16f, 0.10f), new Color(0.18f, 0.95f, 0.50f), 2.2f));
         Cube("MonitoringStatusStrip", new Vector3(8.05f, 0.55f, 2.25f), new Vector3(0.12f, 0.28f, 0.86f), Emissive(new Color(0.06f, 0.16f, 0.10f), new Color(0.18f, 0.95f, 0.50f), 2.6f));
+        Cube("MonitoringCableBundle", new Vector3(6.45f, 0.24f, 2.10f), new Vector3(0.46f, 0.06f, 0.24f), Mat(new Color(0.10f, 0.10f, 0.12f), 0.02f));
         Cube("MonitoringChairGlow", new Vector3(7.0f, 0.18f, 4.9f), new Vector3(1.1f, 0.03f, 1.1f), Emissive(new Color(0.05f, 0.16f, 0.10f), new Color(0.16f, 0.95f, 0.50f), 2.6f));
         Cube("MonitoringZoneGlow", new Vector3(7.2f, 0.02f, 1.2f), new Vector3(4.2f, 0.03f, 4.0f), Emissive(new Color(0.02f, 0.18f, 0.08f), new Color(0.14f, 0.85f, 0.40f), 1.8f));
         var monitoringLbl = Txt("MonitoringLbl", "MONITORING", new Vector3(7.2f, 3.0f, 1.2f), 14, 0.10f, new Color(0.15f, 1.0f, 0.45f), FontStyle.Bold);
@@ -581,8 +582,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             LightShadows.None, new Vector3(-0.4f, 3.6f, 8.8f), Quaternion.identity);
         L("NeonMonitoringAccent", LightType.Point, new Color(0.18f, 1.0f, 0.5f), 1.8f, 10f,
             LightShadows.None, new Vector3(7.4f, 3.0f, 5.0f), Quaternion.identity);
-        L("NeonDispatchAccent", LightType.Point, new Color(1.0f, 0.58f, 0.14f), 1.8f, 10f,
+        L("NeonDispatchAccent", LightType.Point, new Color(1.0f, 0.58f, 0.14f), 2.2f, 12f,
             LightShadows.None, new Vector3(-7.6f, 2.8f, 1.4f), Quaternion.identity);
+        L("Room2PortalAccent", LightType.Point, new Color(1.0f, 0.60f, 0.16f), 2.2f, 10f,
+            LightShadows.None, new Vector3(8.75f, 2.2f, 6.2f), Quaternion.identity);
         L("TopCornerWarmL", LightType.Point, new Color(1.0f, 0.76f, 0.42f), 2.0f, 14f,
             LightShadows.None, new Vector3(-10.0f, 4.6f, 2.0f), Quaternion.identity);
         L("TopCornerWarmR", LightType.Point, new Color(1.0f, 0.76f, 0.42f), 2.0f, 14f,
