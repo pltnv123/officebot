@@ -201,7 +201,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         // VREVIEWER board target: position/scale + dense 90-note population
         Vector3 taskBoardPos = new Vector3(0f, 2.55f, 8.82f);
         Vector3 taskBoardScale = new Vector3(11.0f, 3.4f, 0.24f);
-        Cube("TaskBoardFrame", taskBoardPos + new Vector3(0f, 0f, -0.05f), new Vector3(12.4f, 4.1f, 0.15f), Mat(new Color(0.44f, 0.30f, 0.14f), 0.10f));
+        Cube("TaskBoardFrame", taskBoardPos + new Vector3(0f, 0f, -0.05f), new Vector3(12.8f, 4.3f, 0.15f), Mat(new Color(0.46f, 0.31f, 0.14f), 0.10f));
         var taskBoard = Cube("TaskBoard", new Vector3(0f, 0f, 0f), Vector3.one, Mat(new Color(0.07f, 0.07f, 0.10f), 0.10f));
         taskBoard.transform.position = new Vector3(0f, 2.62f, 8.86f);
         taskBoard.transform.localScale = new Vector3(11.8f, 3.8f, 0.24f);
@@ -226,7 +226,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         {
             float x = xs[c];
             Cube($"BoardDivider_{c}", new Vector3(x - 1.1f, 3.5f, 8.98f), new Vector3(0.08f, 4.5f, 0.1f), Mat(new Color(0.2f, 0.2f, 0.24f), 0.05f));
-            Txt($"Hdr{c}", headers[c], new Vector3(x, 5.5f, 8.88f), 28, 0.13f, Color.Lerp(headerCols[c], Color.white, 0.45f), FontStyle.Bold);
+            Txt($"Hdr{c}", headers[c], new Vector3(x, 5.5f, 8.88f), 30, 0.14f, Color.Lerp(headerCols[c], Color.white, 0.60f), FontStyle.Bold);
 
             for (int r = 0; r < ys.Length; r++)
             {
@@ -261,10 +261,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 new Color(0.74f,0.48f,0.96f,1f)
             };
             Vector3 cardScale = new Vector3(0.22f, 0.14f, 0.02f);
-            for (int s = 0; s < 42; s++)
+            for (int s = 0; s < 48; s++)
             {
-                float sx = x - 0.96f + (s % 7) * 0.31f;
-                float sy = 3.52f - (s / 7) * 0.17f;
+                float sx = x - 0.98f + (s % 8) * 0.27f;
+                float sy = 3.58f - (s / 8) * 0.16f;
                 var sc = stickyPalette[s % stickyPalette.Length];
                 Cube($"StickyDense_{c}_{s}", new Vector3(sx, sy, 8.94f), cardScale, Mat(sc, 0.03f));
             }
@@ -361,6 +361,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("DeskCablePack", new Vector3(-0.55f, 0.90f, 1.95f), new Vector3(0.34f, 0.06f, 0.20f), Mat(new Color(0.10f, 0.10f, 0.12f), 0.02f));
         Cube("DeskInstrumentCase", new Vector3(0.05f, 0.92f, 0.18f), new Vector3(0.42f, 0.14f, 0.24f), Mat(new Color(0.18f, 0.20f, 0.24f), 0.08f));
         Cube("DeskToolRoll", new Vector3(-1.55f, 0.90f, 1.85f), new Vector3(0.30f, 0.08f, 0.18f), Mat(new Color(0.35f, 0.24f, 0.14f), 0.05f));
+        Cube("DeskScrewTray", new Vector3(0.38f, 0.90f, 1.92f), new Vector3(0.34f, 0.06f, 0.22f), Mat(new Color(0.22f, 0.22f, 0.24f), 0.06f));
+        Cube("DeskWireCoil", new Vector3(-0.88f, 0.90f, 0.16f), new Vector3(0.22f, 0.08f, 0.22f), Mat(new Color(0.10f, 0.10f, 0.12f), 0.02f));
 
         Cube("MonitoringWall", new Vector3(8.25f, 2.1f, 5f), new Vector3(0.28f, 4.2f, 3.8f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.12f));
         Cube("Mon1", new Vector3(8.0f, 1.9f, 0.55f), new Vector3(1.15f, 0.75f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
@@ -385,6 +387,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("MonitoringPatchPanel", new Vector3(6.05f, 1.85f, 2.05f), new Vector3(0.38f, 0.52f, 0.16f), Emissive(new Color(0.06f, 0.18f, 0.10f), new Color(0.16f, 0.95f, 0.48f), 2.2f));
         Cube("MonitoringWallGlow", new Vector3(8.15f, 1.95f, 1.25f), new Vector3(0.32f, 3.5f, 2.9f), Emissive(new Color(0.04f, 0.16f, 0.10f), new Color(0.20f, 1.00f, 0.72f), 4.8f));
         Cube("MonitoringPropRack", new Vector3(6.15f, 1.15f, 0.45f), new Vector3(0.28f, 1.8f, 0.9f), Mat(new Color(0.12f, 0.14f, 0.16f), 0.12f));
+        Cube("MonitoringServerStack", new Vector3(6.0f, 0.85f, 2.25f), new Vector3(0.34f, 1.4f, 0.48f), Mat(new Color(0.10f, 0.12f, 0.14f), 0.12f));
+        Cube("MonitoringServerGlow", new Vector3(6.0f, 0.90f, 2.0f), new Vector3(0.22f, 0.86f, 0.04f), Emissive(new Color(0.06f, 0.16f, 0.10f), new Color(0.18f, 0.95f, 0.50f), 2.2f));
         Cube("MonitoringChairGlow", new Vector3(7.0f, 0.18f, 4.9f), new Vector3(1.1f, 0.03f, 1.1f), Emissive(new Color(0.05f, 0.16f, 0.10f), new Color(0.16f, 0.95f, 0.50f), 2.6f));
         Cube("MonitoringZoneGlow", new Vector3(7.2f, 0.02f, 1.2f), new Vector3(4.2f, 0.03f, 4.0f), Emissive(new Color(0.02f, 0.18f, 0.08f), new Color(0.14f, 0.85f, 0.40f), 1.8f));
         var monitoringLbl = Txt("MonitoringLbl", "MONITORING", new Vector3(7.2f, 3.0f, 1.2f), 14, 0.10f, new Color(0.15f, 1.0f, 0.45f), FontStyle.Bold);
@@ -569,10 +573,12 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             LightShadows.None, new Vector3(-9.0f, 4.0f, 7.8f), Quaternion.identity);
         L("FillTopRight", LightType.Point, new Color(1.0f, 0.84f, 0.62f), 1.8f, 18f,
             LightShadows.None, new Vector3(9.0f, 4.0f, 7.8f), Quaternion.identity);
-        L("NeonBoardAccent", LightType.Point, new Color(0.30f, 0.58f, 1.0f), 1.0f, 8f,
+        L("NeonBoardAccent", LightType.Point, new Color(0.30f, 0.58f, 1.0f), 1.6f, 10f,
             LightShadows.None, new Vector3(-0.4f, 3.6f, 8.8f), Quaternion.identity);
-        L("NeonMonitoringAccent", LightType.Point, new Color(0.18f, 1.0f, 0.5f), 1.0f, 8f,
+        L("NeonMonitoringAccent", LightType.Point, new Color(0.18f, 1.0f, 0.5f), 1.8f, 10f,
             LightShadows.None, new Vector3(7.4f, 3.0f, 5.0f), Quaternion.identity);
+        L("NeonDispatchAccent", LightType.Point, new Color(1.0f, 0.58f, 0.14f), 1.8f, 10f,
+            LightShadows.None, new Vector3(-7.6f, 2.8f, 1.4f), Quaternion.identity);
         L("TopCornerWarmL", LightType.Point, new Color(1.0f, 0.76f, 0.42f), 1.4f, 12f,
             LightShadows.None, new Vector3(-10.0f, 4.6f, 2.0f), Quaternion.identity);
         L("TopCornerWarmR", LightType.Point, new Color(1.0f, 0.76f, 0.42f), 1.4f, 12f,
