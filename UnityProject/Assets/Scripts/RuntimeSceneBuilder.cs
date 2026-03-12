@@ -262,10 +262,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 new Color(0.74f,0.48f,0.96f,1f)
             };
             Vector3 cardScale = new Vector3(0.22f, 0.14f, 0.02f);
-            for (int s = 0; s < 64; s++)
+            for (int s = 0; s < 72; s++)
             {
-                float sx = x - 1.08f + (s % 8) * 0.30f;
-                float sy = 3.66f - (s / 8) * 0.14f;
+                float sx = x - 1.12f + (s % 9) * 0.27f;
+                float sy = 3.70f - (s / 9) * 0.13f;
                 var sc = stickyPalette[s % stickyPalette.Length];
                 Cube($"StickyDense_{c}_{s}", new Vector3(sx, sy, 8.94f), cardScale, Mat(sc, 0.03f));
             }
@@ -293,7 +293,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("Room2PillarR", new Vector3(7.85f, 1.9f, 8.62f), new Vector3(0.22f, 3.9f, 0.22f), Emissive(new Color(0.45f, 0.24f, 0.05f), new Color(1.0f, 0.58f, 0.08f), 2.4f));
 
         Cube("Room2Arrow", new Vector3(8.75f, 1.15f, 6.15f), new Vector3(0.58f, 0.58f, 0.58f), Emissive(new Color(0.4f, 0.2f, 0.05f), new Color(1.0f, 0.7f, 0.1f), 3.2f)).transform.rotation = Quaternion.Euler(0f, 45f, 0f);
-        Cube("Room2ArrowGlow", new Vector3(8.75f, 1.15f, 6.08f), new Vector3(1.45f, 0.24f, 1.45f), Emissive(new Color(0.5f, 0.24f, 0.06f), new Color(1.0f, 0.70f, 0.18f), 4.4f));
+        Cube("Room2ArrowGlow", new Vector3(8.75f, 1.15f, 6.08f), new Vector3(1.55f, 0.26f, 1.55f), Emissive(new Color(0.5f, 0.24f, 0.06f), new Color(1.0f, 0.70f, 0.18f), 5.0f));
         Cube("Room2PortalSideGlowL", new Vector3(7.25f, 1.6f, 6.30f), new Vector3(0.18f, 2.8f, 0.18f), Emissive(new Color(0.45f, 0.22f, 0.05f), new Color(1.0f, 0.62f, 0.16f), 3.6f));
         Cube("Room2PortalSideGlowR", new Vector3(10.25f, 1.6f, 6.30f), new Vector3(0.18f, 2.8f, 0.18f), Emissive(new Color(0.45f, 0.22f, 0.05f), new Color(1.0f, 0.62f, 0.16f), 3.6f));
         var roomLbl = Txt("Room2Lbl", "ROOM 2", new Vector3(8.75f, 2.85f, 6.1f), 20, 0.12f, new Color(1.00f, 0.74f, 0.28f, 1f), FontStyle.Bold);
@@ -330,7 +330,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("DispatchWallPanel", new Vector3(-8.25f, 1.95f, 1.45f), new Vector3(0.12f, 1.6f, 1.8f), Emissive(new Color(0.36f, 0.18f, 0.05f), new Color(1.0f, 0.58f, 0.10f), 2.8f));
         Cube("DispatchToolRack", new Vector3(-8.0f, 1.35f, 2.6f), new Vector3(0.18f, 1.8f, 0.9f), Mat(new Color(0.36f, 0.22f, 0.12f), 0.08f));
         Cube("DispatchCableCoil", new Vector3(-7.25f, 0.88f, 2.35f), new Vector3(0.20f, 0.08f, 0.20f), Mat(new Color(0.12f, 0.12f, 0.14f), 0.03f));
-        Cube("DispatchConsoleGlow", new Vector3(-7.55f, 1.42f, 1.85f), new Vector3(0.66f, 0.06f, 0.42f), Emissive(new Color(0.45f, 0.20f, 0.05f), new Color(1.0f, 0.58f, 0.10f), 3.4f));
+        Cube("DispatchConsoleGlow", new Vector3(-7.55f, 1.42f, 1.85f), new Vector3(0.66f, 0.06f, 0.42f), Emissive(new Color(0.45f, 0.20f, 0.05f), new Color(1.0f, 0.58f, 0.10f), 3.8f));
         Cube("DispatchGlowColumn", new Vector3(-7.4f, 1.4f, 0.2f), new Vector3(0.18f, 2.8f, 0.18f), Emissive(new Color(0.45f, 0.20f, 0.05f), new Color(1.0f, 0.56f, 0.08f), 3.8f));
         Cube("DispatchZoneGlow", new Vector3(-7.5f, 0.02f, 1.5f), new Vector3(6.2f, 0.03f, 5.9f), Emissive(new Color(0.35f, 0.18f, 0.03f), new Color(1.0f, 0.50f, 0.04f), 5.6f));
         var dispatchLbl = Txt("DispatchLbl", "DISPATCH", new Vector3(-7.5f, 2.5f, 1.5f), 16, 0.10f, new Color(1.0f, 0.55f, 0.0f), FontStyle.Bold);
@@ -391,8 +391,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("MonitoringWallGlow", new Vector3(8.15f, 1.95f, 1.25f), new Vector3(0.32f, 3.5f, 2.9f), Emissive(new Color(0.04f, 0.16f, 0.10f), new Color(0.20f, 1.00f, 0.72f), 4.8f));
         Cube("MonitoringPropRack", new Vector3(6.15f, 1.15f, 0.45f), new Vector3(0.28f, 1.8f, 0.9f), Mat(new Color(0.12f, 0.14f, 0.16f), 0.12f));
         Cube("MonitoringServerStack", new Vector3(6.0f, 0.85f, 2.25f), new Vector3(0.34f, 1.4f, 0.48f), Mat(new Color(0.10f, 0.12f, 0.14f), 0.12f));
-        Cube("MonitoringServerGlow", new Vector3(6.0f, 0.90f, 2.0f), new Vector3(0.22f, 0.86f, 0.04f), Emissive(new Color(0.06f, 0.16f, 0.10f), new Color(0.18f, 0.95f, 0.50f), 2.2f));
-        Cube("MonitoringStatusStrip", new Vector3(8.05f, 0.55f, 2.25f), new Vector3(0.12f, 0.28f, 0.86f), Emissive(new Color(0.06f, 0.16f, 0.10f), new Color(0.18f, 0.95f, 0.50f), 2.6f));
+        Cube("MonitoringServerGlow", new Vector3(6.0f, 0.90f, 2.0f), new Vector3(0.22f, 0.86f, 0.04f), Emissive(new Color(0.06f, 0.16f, 0.10f), new Color(0.18f, 0.95f, 0.50f), 2.8f));
+        Cube("MonitoringStatusStrip", new Vector3(8.05f, 0.55f, 2.25f), new Vector3(0.12f, 0.28f, 0.86f), Emissive(new Color(0.06f, 0.16f, 0.10f), new Color(0.18f, 0.95f, 0.50f), 3.0f));
         Cube("MonitoringCableBundle", new Vector3(6.45f, 0.24f, 2.10f), new Vector3(0.46f, 0.06f, 0.24f), Mat(new Color(0.10f, 0.10f, 0.12f), 0.02f));
         Cube("MonitoringChairGlow", new Vector3(7.0f, 0.18f, 4.9f), new Vector3(1.1f, 0.03f, 1.1f), Emissive(new Color(0.05f, 0.16f, 0.10f), new Color(0.16f, 0.95f, 0.50f), 2.6f));
         Cube("MonitoringZoneGlow", new Vector3(7.2f, 0.02f, 1.2f), new Vector3(4.2f, 0.03f, 4.0f), Emissive(new Color(0.02f, 0.18f, 0.08f), new Color(0.14f, 0.85f, 0.40f), 1.8f));
@@ -541,7 +541,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private static void BuildLighting()
     {
         RenderSettings.ambientMode = AmbientMode.Flat;
-        RenderSettings.ambientIntensity = 3.45f;
+        RenderSettings.ambientIntensity = 3.65f;
         RenderSettings.ambientLight = new Color(1.00f, 0.82f, 0.58f, 1f);
 
         var def = GameObject.Find("Directional Light");
@@ -584,7 +584,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             LightShadows.None, new Vector3(7.4f, 3.0f, 5.0f), Quaternion.identity);
         L("NeonDispatchAccent", LightType.Point, new Color(1.0f, 0.58f, 0.14f), 2.2f, 12f,
             LightShadows.None, new Vector3(-7.6f, 2.8f, 1.4f), Quaternion.identity);
-        L("Room2PortalAccent", LightType.Point, new Color(1.0f, 0.60f, 0.16f), 2.2f, 10f,
+        L("Room2PortalAccent", LightType.Point, new Color(1.0f, 0.60f, 0.16f), 2.8f, 12f,
             LightShadows.None, new Vector3(8.75f, 2.2f, 6.2f), Quaternion.identity);
         L("TopCornerWarmL", LightType.Point, new Color(1.0f, 0.76f, 0.42f), 2.0f, 14f,
             LightShadows.None, new Vector3(-10.0f, 4.6f, 2.0f), Quaternion.identity);
