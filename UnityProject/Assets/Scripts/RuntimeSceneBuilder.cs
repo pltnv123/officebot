@@ -128,6 +128,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildRoom()
     {
+        // VREVIEWER lighting target (warm Pixar-like base)
         RenderSettings.ambientMode = AmbientMode.Flat;
         RenderSettings.ambientLight = new Color(1.00f, 0.82f, 0.58f, 1f);
 
@@ -195,6 +196,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildBoard()
     {
+        // VREVIEWER board target: position/scale + dense 90-note population
         Vector3 taskBoardPos = new Vector3(0f, 2.50f, 8.80f);
         Vector3 taskBoardScale = new Vector3(10.2f, 3.1f, 0.22f);
         Cube("TaskBoardFrame", taskBoardPos + new Vector3(0f, 0f, -0.05f), new Vector3(10.6f, 3.3f, 0.15f), Mat(new Color(0.36f, 0.26f, 0.14f), 0.10f));
@@ -274,6 +276,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     {
         var roomGlow = Emissive(new Color(0.55f, 0.30f, 0.06f), new Color(1.0f, 0.60f, 0.05f), 4.0f);
         Cube("Room2FrameOuter", new Vector3(6.6f, 2.0f, 8.7f), new Vector3(3.1f, 4.5f, 0.24f), roomGlow);
+        // VREVIEWER room2 doorway accent target
         Cube("Room2DoorFrameTarget", new Vector3(8.75f, 0f, 6.35f), new Vector3(2.9f, 3.3f, 0.24f), Emissive(new Color(0.45f, 0.22f, 0.05f), new Color(1.00f, 0.56f, 0.12f, 1f), 3.5f));
         Cube("Room2FrameInner", new Vector3(6.6f, 2.0f, 8.72f), new Vector3(2.6f, 4.0f, 0.14f), Emissive(new Color(0.45f, 0.24f, 0.04f), new Color(1.0f, 0.55f, 0.02f), 3.2f));
         Cube("Room2Inner", new Vector3(6.6f, 2.0f, 8.75f), new Vector3(2.1f, 3.7f, 0.15f), Mat(new Color(0.15f, 0.12f, 0.08f), 0.08f));
@@ -350,6 +353,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("Mon2Screen", new Vector3(7.94f, 1.9f, 1.21f), new Vector3(1.0f, 0.62f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.2f));
         Cube("Mon3", new Vector3(8.0f, 1.9f, 1.95f), new Vector3(1.15f, 0.75f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
         Cube("Mon3Screen", new Vector3(7.94f, 1.9f, 1.91f), new Vector3(1.0f, 0.62f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.2f));
+        // VREVIEWER monitoring target desk anchor/scale
         Cube("MonitoringDesk", new Vector3(6.9f, 0f, 1.2f), new Vector3(2.1f, 0.9f, 1.0f), Mat(new Color(0.25f, 0.25f, 0.32f), 0.1f));
         Cube("MonitoringConsoleA", new Vector3(6.7f, 0.92f, 4.5f), new Vector3(0.55f, 0.20f, 0.38f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.1f));
         Cube("MonitoringConsoleB", new Vector3(6.95f, 0.92f, 5.4f), new Vector3(0.50f, 0.20f, 0.34f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.1f));
