@@ -184,8 +184,13 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         PathDots("PathBoardToMonitoringDot_", new Vector3(0.0f, 0.03f, 2.8f), new Vector3(6.8f, 0.03f, 2.0f), pathGreen);
         PathDots("PathDispatchToBoardDot_", new Vector3(-1.8f, 0.03f, 0.7f), new Vector3(0.0f, 0.03f, 2.8f), pathBlue);
         PathDots("PathRoom2LinkDot_", new Vector3(6.8f, 0.03f, 2.0f), new Vector3(8.75f, 0.03f, 6.15f), pathAmber);
+        PathDots("PathDeskToDispatchDot_", new Vector3(0.0f, 0.03f, 0.2f), new Vector3(-7.2f, 0.03f, 1.2f), pathAmber);
+        PathDots("PathDeskToBoardDot_", new Vector3(0.0f, 0.03f, 0.2f), new Vector3(0.0f, 0.03f, 3.6f), pathBlue);
+        PathDots("PathDeskToMonitoringDot_", new Vector3(0.0f, 0.03f, 0.2f), new Vector3(6.9f, 0.03f, 1.2f), pathGreen);
 
         var wall = Mat(new Color(0.24f, 0.18f, 0.14f), 0.14f);
+        Cube("WallToneBandL", new Vector3(-9.0f, 2.0f, 6.8f), new Vector3(0.12f, 2.6f, 3.0f), Mat(new Color(0.28f, 0.20f, 0.16f), 0.22f));
+        Cube("WallToneBandR", new Vector3(9.0f, 2.0f, 6.8f), new Vector3(0.12f, 2.6f, 3.0f), Mat(new Color(0.20f, 0.16f, 0.12f), 0.08f));
         // Back wall with a real doorway opening to Room 2 (right-rear)
         Cube("BackWallLeft", new Vector3(-3.4f, 2.5f, 10f), new Vector3(17.2f, 5f, 0.25f), wall);
         Cube("BackWallRight", new Vector3(10.2f, 2.5f, 10f), new Vector3(3.6f, 5f, 0.25f), wall);
@@ -207,7 +212,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     {
         // VREVIEWER board target: position/scale + dense 90-note population
         Vector3 taskBoardPos = new Vector3(0f, 2.55f, 8.85f);
-        Vector3 taskBoardScale = new Vector3(10.4f, 3.2f, 0.24f);
+        Vector3 taskBoardScale = new Vector3(10.8f, 3.7f, 0.24f);
         Vector3 taskBoardFrameScale = new Vector3(taskBoardScale.x + 1.0f, taskBoardScale.y + 0.9f, 0.15f);
         Cube("TaskBoardFrame", taskBoardPos + new Vector3(0f, 0f, -0.05f), taskBoardFrameScale, Mat(new Color(0.46f, 0.31f, 0.14f), 0.10f));
         var taskBoard = Cube("TaskBoard", new Vector3(0f, 0f, 0f), Vector3.one, Mat(new Color(0.07f, 0.07f, 0.10f), 0.10f));
@@ -269,12 +274,12 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 new Color(0.96f,0.58f,0.26f,1f),
                 new Color(0.74f,0.48f,0.96f,1f)
             };
-            int cardsPerColumn = 16;
+            int cardsPerColumn = 24;
             Vector3 cardScale = new Vector3(0.22f, 0.14f, 0.02f);
             for (int s = 0; s < cardsPerColumn; s++)
             {
                 float sx = x - 0.88f + (s % 4) * 0.58f;
-                float sy = 3.68f - (s / 4) * 0.34f;
+                float sy = 3.95f - (s / 4) * 0.30f;
                 var sc = stickyPalette[s % stickyPalette.Length];
                 Cube($"StickyDense_{c}_{s}", new Vector3(sx, sy, 8.94f), cardScale, Mat(sc, 0.03f));
             }
@@ -302,7 +307,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("Room2PillarR", new Vector3(7.85f, 1.9f, 8.62f), new Vector3(0.22f, 3.9f, 0.22f), Emissive(new Color(0.45f, 0.24f, 0.05f), new Color(1.0f, 0.58f, 0.08f), 2.4f));
 
         Cube("Room2Arrow", new Vector3(8.75f, 1.20f, 6.15f), new Vector3(0.60f, 0.60f, 0.60f), Emissive(new Color(0.4f, 0.2f, 0.05f), new Color(1.0f, 0.7f, 0.1f), 3.2f)).transform.rotation = Quaternion.Euler(0f, 45f, 0f);
-        Cube("Room2ArrowGlow", new Vector3(8.75f, 1.15f, 6.08f), new Vector3(1.70f, 0.30f, 1.70f), Emissive(new Color(0.5f, 0.24f, 0.06f), new Color(1.0f, 0.70f, 0.18f), 5.4f));
+        Cube("Room2ArrowGlow", new Vector3(8.75f, 1.20f, 6.08f), new Vector3(2.0f, 0.34f, 2.0f), Emissive(new Color(0.5f, 0.24f, 0.06f), new Color(1.0f, 0.70f, 0.18f), 5.8f));
         Cube("Room2PortalSideGlowL", new Vector3(7.25f, 1.6f, 6.30f), new Vector3(0.18f, 2.8f, 0.18f), Emissive(new Color(0.45f, 0.22f, 0.05f), new Color(1.0f, 0.62f, 0.16f), 3.6f));
         Cube("Room2PortalSideGlowR", new Vector3(10.25f, 1.6f, 6.30f), new Vector3(0.18f, 2.8f, 0.18f), Emissive(new Color(0.45f, 0.22f, 0.05f), new Color(1.0f, 0.62f, 0.16f), 3.6f));
         var roomLbl = Txt("Room2Lbl", "ROOM 2", new Vector3(8.75f, 2.85f, 6.1f), 20, 0.12f, new Color(1.00f, 0.74f, 0.28f, 1f), FontStyle.Bold);
@@ -336,6 +341,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("DispatchToolA", new Vector3(-7.9f, 0.86f, 1.3f), new Vector3(0.26f, 0.08f, 0.12f), Mat(new Color(0.65f, 0.36f, 0.12f), 0.04f));
         Cube("DispatchToolB", new Vector3(-7.2f, 0.86f, 1.15f), new Vector3(0.24f, 0.08f, 0.14f), Mat(new Color(0.60f, 0.32f, 0.10f), 0.04f));
         Cube("DispatchPaperB", new Vector3(-7.75f, 0.84f, 1.95f), new Vector3(0.34f, 0.02f, 0.26f), Mat(new Color(0.9f, 0.86f, 0.76f), 0.03f));
+        Cube("DispatchPaperC", new Vector3(-7.35f, 0.84f, 1.62f), new Vector3(0.30f, 0.02f, 0.20f), Mat(new Color(0.9f, 0.86f, 0.76f), 0.03f));
+        Cube("DispatchToolC", new Vector3(-8.05f, 0.86f, 1.75f), new Vector3(0.22f, 0.07f, 0.10f), Mat(new Color(0.62f, 0.34f, 0.12f), 0.04f));
         Cube("DispatchWallPanel", new Vector3(-8.25f, 1.95f, 1.45f), new Vector3(0.12f, 1.6f, 1.8f), Emissive(new Color(0.36f, 0.18f, 0.05f), new Color(1.0f, 0.58f, 0.10f), 2.8f));
         Cube("DispatchToolRack", new Vector3(-8.0f, 1.35f, 2.6f), new Vector3(0.18f, 1.8f, 0.9f), Mat(new Color(0.36f, 0.22f, 0.12f), 0.08f));
         Cube("DispatchCableCoil", new Vector3(-7.25f, 0.88f, 2.35f), new Vector3(0.20f, 0.08f, 0.20f), Mat(new Color(0.12f, 0.12f, 0.14f), 0.03f));
@@ -386,7 +393,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("Mon3", new Vector3(8.0f, 1.9f, 1.95f), new Vector3(1.15f, 0.75f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
         Cube("Mon3Screen", new Vector3(7.94f, 1.9f, 1.91f), new Vector3(1.0f, 0.62f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.4f));
         Cube("Mon4", new Vector3(8.0f, 2.65f, 1.25f), new Vector3(1.25f, 0.55f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube("Mon4Screen", new Vector3(7.94f, 2.65f, 1.21f), new Vector3(1.08f, 0.44f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.4f));
+        Cube("Mon4Screen", new Vector3(7.94f, 2.65f, 1.21f), new Vector3(1.08f, 0.44f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 4.0f));
         // VREVIEWER monitoring target desk anchor/scale
         Cube("MonitoringDesk", new Vector3(6.9f, 0f, 1.2f), new Vector3(2.1f, 0.9f, 1.0f), Mat(new Color(0.25f, 0.25f, 0.32f), 0.1f));
         Cube("MonitoringConsoleA", new Vector3(6.7f, 0.92f, 4.5f), new Vector3(0.55f, 0.20f, 0.38f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.1f));
@@ -474,10 +481,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void BuildAgents()
     {
         var eyeCol = new Color(0.35f, 0.95f, 1f, 1f);
-        BuildAgent(new Vector3(-5.8f, 0f, -0.8f), "CHIEF", eyeCol, 18f);
-        BuildAgent(new Vector3(-1.6f, 0f, 0.6f), "PLANNER", eyeCol, 8f);
-        BuildAgent(new Vector3(2.2f, 0f, 0.5f), "WORKER", eyeCol, -10f);
-        BuildAgent(new Vector3(6.1f, 0f, -0.7f), "TESTER", eyeCol, -22f);
+        BuildAgent(new Vector3(-7.0f, 0f, 1.1f), "CHIEF", eyeCol, 20f);
+        BuildAgent(new Vector3(-0.2f, 0f, 2.2f), "PLANNER", eyeCol, 0f);
+        BuildAgent(new Vector3(0.8f, 0f, 0.4f), "WORKER", eyeCol, -12f);
+        BuildAgent(new Vector3(6.8f, 0f, 1.1f), "TESTER", eyeCol, -24f);
     }
 
     private void BuildAgent(Vector3 pos, string role, Color eyeCol, float rotY)
@@ -552,7 +559,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private static void BuildLighting()
     {
         RenderSettings.ambientMode = AmbientMode.Flat;
-        RenderSettings.ambientIntensity = 3.65f;
+        RenderSettings.ambientIntensity = 3.9f;
         RenderSettings.ambientLight = new Color(1.00f, 0.82f, 0.58f, 1f);
 
         var def = GameObject.Find("Directional Light");
@@ -601,9 +608,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             LightShadows.None, new Vector3(-10.0f, 4.6f, 2.0f), Quaternion.identity);
         L("TopCornerWarmR", LightType.Point, new Color(1.0f, 0.76f, 0.42f), 2.0f, 14f,
             LightShadows.None, new Vector3(10.0f, 4.6f, 2.0f), Quaternion.identity);
-        L("FrontCornerWarmL", LightType.Point, new Color(1.0f, 0.74f, 0.42f), 1.8f, 12f,
+        L("FrontCornerWarmL", LightType.Point, new Color(1.0f, 0.74f, 0.42f), 2.4f, 14f,
             LightShadows.None, new Vector3(-9.4f, 3.2f, -2.2f), Quaternion.identity);
-        L("FrontCornerWarmR", LightType.Point, new Color(1.0f, 0.74f, 0.42f), 1.8f, 12f,
+        L("FrontCornerWarmR", LightType.Point, new Color(1.0f, 0.74f, 0.42f), 2.4f, 14f,
             LightShadows.None, new Vector3(9.4f, 3.2f, -2.2f), Quaternion.identity);
     }
 
