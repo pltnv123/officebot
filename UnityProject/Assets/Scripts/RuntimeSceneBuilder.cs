@@ -195,9 +195,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildBoard()
     {
-        float boardZ = 8.80f;
-        Cube("TaskBoardFrame", new Vector3(0f, 2.50f, 8.75f), new Vector3(10.6f, 3.3f, 0.15f), Mat(new Color(0.36f, 0.26f, 0.14f), 0.10f));
-        Cube("TaskBoard", new Vector3(0f, 2.50f, boardZ), new Vector3(10.2f, 3.1f, 0.22f), Mat(new Color(0.08f, 0.08f, 0.12f), 0.08f));
+        Vector3 taskBoardPos = new Vector3(0f, 2.50f, 8.80f);
+        Vector3 taskBoardScale = new Vector3(10.2f, 3.1f, 0.22f);
+        Cube("TaskBoardFrame", taskBoardPos + new Vector3(0f, 0f, -0.05f), new Vector3(10.6f, 3.3f, 0.15f), Mat(new Color(0.36f, 0.26f, 0.14f), 0.10f));
+        Cube("TaskBoard", taskBoardPos, taskBoardScale, Mat(new Color(0.08f, 0.08f, 0.12f), 0.08f));
 
         string[] headers = { "INBOX", "QUEUE", "PLAN", "WORK", "REVIEW", "DONE" };
         float[] xs = { -3.8f, -2.3f, -0.8f, 0.8f, 2.3f, 3.8f };
@@ -248,17 +249,18 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
             Color[] stickyPalette =
             {
-                new Color(1.0f,0.86f,0.30f),
-                new Color(0.45f,0.72f,1.0f),
-                new Color(0.96f,0.58f,0.26f),
-                new Color(0.74f,0.48f,0.96f)
+                new Color(1.00f,0.86f,0.30f,1f),
+                new Color(0.45f,0.72f,1.00f,1f),
+                new Color(0.96f,0.58f,0.26f,1f),
+                new Color(0.74f,0.48f,0.96f,1f)
             };
+            Vector3 cardScale = new Vector3(0.22f, 0.14f, 0.02f);
             for (int s = 0; s < 15; s++)
             {
                 float sx = x - 0.72f + (s % 5) * 0.36f;
                 float sy = 3.20f - (s / 5) * 0.24f;
                 var sc = stickyPalette[s % stickyPalette.Length];
-                Cube($"StickyDense_{c}_{s}", new Vector3(sx, sy, 8.94f), new Vector3(0.22f, 0.14f, 0.02f), Mat(sc, 0.03f));
+                Cube($"StickyDense_{c}_{s}", new Vector3(sx, sy, 8.94f), cardScale, Mat(sc, 0.03f));
             }
         }
 
