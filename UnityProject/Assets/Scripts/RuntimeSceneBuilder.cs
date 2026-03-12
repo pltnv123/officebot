@@ -143,12 +143,15 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         var pathBlue = Emissive(new Color(0.12f, 0.20f, 0.35f), new Color(0.31f, 0.75f, 1.00f, 1f), 2.2f);
         var pathGreen = Emissive(new Color(0.08f, 0.25f, 0.14f), new Color(0.20f, 1.00f, 0.74f, 1f), 2.2f);
 
+        float step = 0.50f;
+        Vector3 dotScale = new Vector3(0.10f, 0.02f, 0.10f);
+
         void PathDots(string prefix, Vector3 from, Vector3 to, Material mat)
         {
             var delta = to - from;
             var length = delta.magnitude;
             var dir = length > 0.001f ? delta.normalized : Vector3.forward;
-            int count = Mathf.Max(2, Mathf.CeilToInt(length / 0.50f));
+            int count = Mathf.Max(2, Mathf.CeilToInt(length / step));
             for (int i = 0; i <= count; i++)
             {
                 float t = i / (float)count;
@@ -156,7 +159,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 var dot = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 dot.name = prefix + i;
                 dot.transform.position = p;
-                dot.transform.localScale = new Vector3(0.10f, 0.02f, 0.10f);
+                dot.transform.localScale = dotScale;
                 dot.GetComponent<Renderer>().material = mat;
 
                 float dist = t * length;
