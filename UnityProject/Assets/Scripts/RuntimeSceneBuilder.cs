@@ -226,7 +226,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     {
         // VREVIEWER board target: position/scale + dense 90-note population
         Vector3 taskBoardPos = new Vector3(0f, 2.55f, 8.85f);
-        Vector3 taskBoardScale = new Vector3(31.8f, 14.3f, 0.24f);
+        Vector3 taskBoardScale = new Vector3(32.2f, 14.5f, 0.24f);
         Vector3 taskBoardFrameScale = new Vector3(taskBoardScale.x + 1.0f, taskBoardScale.y + 0.9f, 0.15f);
         Cube("TaskBoardFrame", taskBoardPos + new Vector3(0f, 0f, -0.05f), taskBoardFrameScale, Mat(new Color(0.46f, 0.31f, 0.14f), 0.10f));
         var taskBoard = Cube("TaskBoard", new Vector3(0f, 0f, 0f), Vector3.one, Mat(new Color(0.07f, 0.07f, 0.10f), 0.10f));
@@ -288,7 +288,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 new Color(0.96f,0.58f,0.26f,1f),
                 new Color(0.74f,0.48f,0.96f,1f)
             };
-            int cardsPerColumn = 336;
+            int cardsPerColumn = 342;
             Vector3 cardScale = new Vector3(0.22f, 0.14f, 0.02f);
             for (int s = 0; s < cardsPerColumn; s++)
             {
@@ -613,7 +613,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private static void BuildLighting()
     {
         RenderSettings.ambientMode = AmbientMode.Flat;
-        RenderSettings.ambientIntensity = 25.0f;
+        RenderSettings.ambientIntensity = 25.4f;
         RenderSettings.ambientLight = new Color(1.00f, 0.82f, 0.58f, 1f);
 
         var def = GameObject.Find("Directional Light");
