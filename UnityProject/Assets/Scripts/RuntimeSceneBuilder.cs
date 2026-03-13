@@ -306,8 +306,19 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         for (int c = 0; c < headers.Length; c++)
         {
             float x = xs[c];
-            Cube($"HdrBack_{c}", new Vector3(x, 3.95f, 8.93f), new Vector3(1.55f, 0.30f, 0.03f), Emissive(new Color(0.08f, 0.08f, 0.12f), Color.Lerp(headerCols[c], Color.white, 0.35f), 1.8f));
-            Txt($"Hdr{c}", headers[c], new Vector3(x, 3.95f, 8.88f), 32, 0.15f, Color.Lerp(headerCols[c], Color.white, 0.78f), FontStyle.Bold);
+            Cube(
+                $"HdrBack_{c}",
+                new Vector3(x, 3.95f, 8.93f),
+                new Vector3(1.55f, 0.30f, 0.03f),
+                Emissive(new Color(0.08f, 0.08f, 0.12f), Color.Lerp(headerCols[c], Color.white, 0.35f), 1.8f));
+            Txt(
+                $"Hdr{c}",
+                headers[c],
+                new Vector3(x, 3.95f, 8.88f),
+                32,
+                0.15f,
+                Color.Lerp(headerCols[c], Color.white, 0.78f),
+                FontStyle.Bold);
 
             Color[] stickyPalette =
             {
@@ -718,7 +729,14 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Go(root, PrimitiveType.Sphere, "EyeL", new Vector3(-0.09f, 1.18f, 0.23f), new Vector3(0.12f, 0.12f, 0.06f), eye);
         Go(root, PrimitiveType.Sphere, "EyeR", new Vector3(0.09f, 1.18f, 0.23f), new Vector3(0.12f, 0.12f, 0.06f), eye);
 
-        var lbl = Txt(label + "Lbl", label, pos + new Vector3(0f, 1.65f, 0f), 12, 0.06f, new Color(0.90f, 0.90f, 0.94f), FontStyle.Bold);
+        var lbl = Txt(
+            label + "Lbl",
+            label,
+            pos + new Vector3(0f, 1.65f, 0f),
+            12,
+            0.06f,
+            new Color(0.90f, 0.90f, 0.94f),
+            FontStyle.Bold);
         _labelXforms.Add(lbl.transform);
     }
 
