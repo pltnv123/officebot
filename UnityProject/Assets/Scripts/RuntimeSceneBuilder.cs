@@ -145,7 +145,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("FloorTileBandB", new Vector3(4.5f, -0.043f, 3f), new Vector3(3.6f, 0.02f, 13f), Mat(new Color(0.34f, 0.30f, 0.26f, 1f), 0.30f));
 
         var pathAmber = Emissive(new Color(0.38f, 0.2f, 0.04f), new Color(1.00f, 0.56f, 0.10f, 1f), 3.4f);
-        var pathBlue = Emissive(new Color(0.12f, 0.20f, 0.35f), new Color(0.40f, 0.72f, 1.00f, 1f), 3.4f);
+        var pathBlue = Emissive(new Color(0.12f, 0.20f, 0.35f), new Color(0.31f, 0.75f, 1.00f, 1f), 3.4f);
         var pathGreen = Emissive(new Color(0.08f, 0.25f, 0.14f), new Color(0.20f, 1.00f, 0.74f, 1f), 3.4f);
 
         float step = 0.42f;
@@ -236,30 +236,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             Cube($"HdrBack_{c}", new Vector3(x, 3.95f, 8.93f), new Vector3(1.55f, 0.30f, 0.03f), Emissive(new Color(0.08f, 0.08f, 0.12f), Color.Lerp(headerCols[c], Color.white, 0.35f), 1.8f));
             Txt($"Hdr{c}", headers[c], new Vector3(x, 3.95f, 8.88f), 32, 0.15f, Color.Lerp(headerCols[c], Color.white, 0.78f), FontStyle.Bold);
 
-            for (int r = 0; r < ys.Length; r++)
-            {
-                float shade = (r % 2 == 0) ? 0.88f : 0.76f;
-                Color cardColor = Color.Lerp(headerCols[c], Color.white, 0.18f * (1f - r * 0.12f));
-                var card = Cube($"Card_{c}_{r}", new Vector3(x, ys[r], 8.96f), new Vector3(1.7f, 0.55f, 0.06f), Mat(cardColor, 0.04f));
-                var renderer = card.GetComponent<Renderer>();
-                if (renderer != null)
-                {
-                    _boardCardRenderers.Add(renderer);
-                    _boardCardColumns.Add(c);
-                }
-                _liveTaskLabels.Add(Txt($"Task_{c}_{r}", "", new Vector3(x + 0.12f, ys[r], 8.87f), 9, 0.07f, Color.white));
 
-                var dot = Cube($"AssigneeDot_{c}_{r}", new Vector3(x - 0.72f, ys[r], 8.88f), new Vector3(0.12f, 0.12f, 0.03f), Mat(new Color(0.35f, 0.35f, 0.35f), 0.02f));
-                var dotRenderer = dot.GetComponent<Renderer>();
-                if (dotRenderer != null) _assigneeDotRenderers.Add(dotRenderer);
-            }
-
-            // Extra sticky strips to keep board visually dense even with few live tasks.
-            Cube($"StickyA_{c}", new Vector3(x - 0.45f, 2.1f, 8.95f), new Vector3(0.62f, 0.24f, 0.03f), Mat(Color.Lerp(headerCols[c], Color.white, 0.25f), 0.03f));
-            Cube($"StickyB_{c}", new Vector3(x + 0.35f, 2.1f, 8.95f), new Vector3(0.58f, 0.22f, 0.03f), Mat(Color.Lerp(headerCols[c], Color.white, 0.4f), 0.03f));
-            Cube($"DenseCardA_{c}", new Vector3(x - 0.55f, 2.45f, 8.95f), new Vector3(0.78f, 0.20f, 0.03f), Mat(Color.Lerp(headerCols[c], Color.white, 0.55f), 0.03f));
-            Cube($"DenseCardB_{c}", new Vector3(x + 0.48f, 2.45f, 8.95f), new Vector3(0.72f, 0.20f, 0.03f), Mat(Color.Lerp(headerCols[c], Color.white, 0.35f), 0.03f));
-            Cube($"DenseCardC_{c}", new Vector3(x - 0.02f, 1.78f, 8.95f), new Vector3(1.32f, 0.22f, 0.03f), Mat(Color.Lerp(headerCols[c], Color.white, 0.62f), 0.03f));
 
             Color[] stickyPalette =
             {
