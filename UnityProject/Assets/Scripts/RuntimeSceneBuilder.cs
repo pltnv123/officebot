@@ -349,12 +349,36 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             new Vector3(1.28f, 1.10f, 0.92f),
             new Vector3(0.62f, 0.38f, 0.08f),
             Mat(new Color(0.06f, 0.06f, 0.10f), 0.2f));
-        Cube("DeskPaperA", new Vector3(-0.65f, 0.84f, 0.75f), new Vector3(0.95f, 0.02f, 0.65f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
-        Cube("DeskPaperB", new Vector3(0.55f, 0.84f, 1.2f), new Vector3(1.0f, 0.02f, 0.65f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
-        Cube("DeskPaperC", new Vector3(-0.05f, 0.84f, 1.7f), new Vector3(0.82f, 0.02f, 0.52f), Mat(new Color(0.90f, 0.88f, 0.80f), 0.03f));
-        Cube("DeskPaperD", new Vector3(0.22f, 0.84f, 1.85f), new Vector3(0.62f, 0.02f, 0.38f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
-        Cube("DeskPaperE", new Vector3(-0.62f, 0.84f, 1.95f), new Vector3(0.56f, 0.02f, 0.32f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
-        Cube("DeskPaperF", new Vector3(0.78f, 0.84f, 1.62f), new Vector3(0.58f, 0.02f, 0.34f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
+        Cube(
+            "DeskPaperA",
+            new Vector3(-0.65f, 0.84f, 0.75f),
+            new Vector3(0.95f, 0.02f, 0.65f),
+            Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
+        Cube(
+            "DeskPaperB",
+            new Vector3(0.55f, 0.84f, 1.2f),
+            new Vector3(1.0f, 0.02f, 0.65f),
+            Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
+        Cube(
+            "DeskPaperC",
+            new Vector3(-0.05f, 0.84f, 1.7f),
+            new Vector3(0.82f, 0.02f, 0.52f),
+            Mat(new Color(0.90f, 0.88f, 0.80f), 0.03f));
+        Cube(
+            "DeskPaperD",
+            new Vector3(0.22f, 0.84f, 1.85f),
+            new Vector3(0.62f, 0.02f, 0.38f),
+            Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
+        Cube(
+            "DeskPaperE",
+            new Vector3(-0.62f, 0.84f, 1.95f),
+            new Vector3(0.56f, 0.02f, 0.32f),
+            Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
+        Cube(
+            "DeskPaperF",
+            new Vector3(0.78f, 0.84f, 1.62f),
+            new Vector3(0.58f, 0.02f, 0.34f),
+            Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
         Cube("DeskMugA", new Vector3(-1.45f, 0.90f, 1.30f), new Vector3(0.22f, 0.24f, 0.22f), Mat(new Color(0.85f, 0.42f, 0.18f), 0.04f));
         Cube("DeskMugB", new Vector3(-1.25f, 0.90f, 0.62f), new Vector3(0.20f, 0.22f, 0.20f), Mat(new Color(0.78f, 0.42f, 0.20f), 0.04f));
         Cube("DeskMugC", new Vector3(1.52f, 0.90f, 0.58f), new Vector3(0.20f, 0.22f, 0.20f), Mat(new Color(0.82f, 0.46f, 0.22f), 0.04f));
@@ -382,10 +406,26 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             new Vector3(8.10f, 1.95f, 0.55f),
             new Vector3(1.18f, 0.78f, 0.08f),
             Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
-        Cube("Mon2", new Vector3(8.10f, 1.95f, 1.25f), new Vector3(1.18f, 0.78f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube("Mon2Screen", new Vector3(8.10f, 1.95f, 1.25f), new Vector3(1.18f, 0.78f, 0.08f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
-        Cube("Mon3", new Vector3(8.10f, 1.95f, 1.95f), new Vector3(1.18f, 0.78f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube("Mon3Screen", new Vector3(8.10f, 1.95f, 1.95f), new Vector3(1.18f, 0.78f, 0.08f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
+        Cube(
+            "Mon2",
+            new Vector3(8.10f, 1.95f, 1.25f),
+            new Vector3(1.18f, 0.78f, 0.08f),
+            Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
+        Cube(
+            "Mon2Screen",
+            new Vector3(8.10f, 1.95f, 1.25f),
+            new Vector3(1.18f, 0.78f, 0.08f),
+            Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
+        Cube(
+            "Mon3",
+            new Vector3(8.10f, 1.95f, 1.95f),
+            new Vector3(1.18f, 0.78f, 0.08f),
+            Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
+        Cube(
+            "Mon3Screen",
+            new Vector3(8.10f, 1.95f, 1.95f),
+            new Vector3(1.18f, 0.78f, 0.08f),
+            Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
         Cube("Mon4", new Vector3(7.55f, 1.45f, 0.25f), new Vector3(0.58f, 0.42f, 0.06f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
         Cube("Mon4Screen", new Vector3(7.55f, 1.45f, 0.25f), new Vector3(0.58f, 0.42f, 0.06f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
         Cube("Mon5", new Vector3(7.55f, 1.45f, 2.25f), new Vector3(0.58f, 0.42f, 0.06f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
