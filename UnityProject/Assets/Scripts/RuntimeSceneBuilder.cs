@@ -269,8 +269,24 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         taskBoard.transform.position = taskBoardPos;
         taskBoard.transform.localScale = taskBoardScale;
 
-        string[] headers = { "INBOX", "QUEUE", "PLAN", "WORK", "REVIEW", "DONE" };
-        float[] xs = { -4.175f, -2.505f, -0.835f, 0.835f, 2.505f, 4.175f };
+        string[] headers =
+        {
+            "INBOX",
+            "QUEUE",
+            "PLAN",
+            "WORK",
+            "REVIEW",
+            "DONE"
+        };
+        float[] xs =
+        {
+            -4.175f,
+            -2.505f,
+            -0.835f,
+            0.835f,
+            2.505f,
+            4.175f
+        };
         Color[] headerCols =
         {
             new Color(0.5f, 0.5f, 0.55f),
@@ -938,7 +954,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void WireBackend()
     {
-        var mgr = GameObject.Find("SceneManager") ?? new GameObject("SceneManager");
+        var mgr = GameObject.Find("SceneManager")
+                  ?? new GameObject("SceneManager");
         if (mgr.GetComponent<ApiClient>() == null)
             mgr.AddComponent<ApiClient>();
 
