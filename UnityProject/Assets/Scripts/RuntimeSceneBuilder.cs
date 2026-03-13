@@ -324,6 +324,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("DispatchConsoleGlow", new Vector3(-7.55f, 1.42f, 1.85f), new Vector3(0.66f, 0.06f, 0.42f), Emissive(new Color(0.45f, 0.20f, 0.05f), new Color(1.0f, 0.58f, 0.10f), 3.8f));
         Cube("DispatchGlowColumn", new Vector3(-7.4f, 1.4f, 0.2f), new Vector3(0.18f, 2.8f, 0.18f), Emissive(new Color(0.45f, 0.20f, 0.05f), new Color(1.0f, 0.56f, 0.08f), 3.8f));
         Cube("DispatchZoneGlow", new Vector3(-7.45f, 0.02f, 1.15f), new Vector3(2.8f, 0.02f, 2.1f), Emissive(new Color(0.35f, 0.18f, 0.03f), new Color(1.00f, 0.56f, 0.10f, 1f), 2.4f));
+        Cube("DispatchFloorGuide", new Vector3(-7.45f, 0.021f, 1.15f), new Vector3(2.2f, 0.01f, 1.6f), Emissive(new Color(0.30f, 0.14f, 0.02f), new Color(1.00f, 0.56f, 0.10f, 1f), 1.6f));
         Cube("DispatchFloorArrow", new Vector3(-6.9f, 0.03f, 2.9f), new Vector3(1.4f, 0.03f, 0.48f), Emissive(new Color(0.38f, 0.18f, 0.04f), new Color(1.00f, 0.60f, 0.12f), 5.0f));
         Cube("DispatchTerminalGlow", new Vector3(-7.95f, 1.28f, 1.42f), new Vector3(0.32f, 0.42f, 0.03f), Emissive(new Color(0.40f, 0.20f, 0.06f), new Color(1.00f, 0.62f, 0.14f), 4.2f));
         var dispatchLbl = Txt("DispatchLbl", "DISPATCH", new Vector3(-7.5f, 2.5f, 1.5f), 16, 0.10f, new Color(1.0f, 0.55f, 0.0f), FontStyle.Bold);
@@ -357,15 +358,15 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         Cube("MonitoringWall", new Vector3(8.25f, 2.1f, 5f), new Vector3(0.28f, 4.2f, 3.8f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.12f));
         Cube("Mon1", new Vector3(8.10f, 1.95f, 0.55f), new Vector3(1.18f, 0.78f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube("Mon1Screen", new Vector3(8.10f, 1.95f, 0.55f), new Vector3(1.18f, 0.78f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
+        Cube("Mon1Screen", new Vector3(8.10f, 1.95f, 0.55f), new Vector3(1.18f, 0.78f, 0.08f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
         Cube("Mon2", new Vector3(8.10f, 1.95f, 1.25f), new Vector3(1.18f, 0.78f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube("Mon2Screen", new Vector3(8.10f, 1.95f, 1.25f), new Vector3(1.18f, 0.78f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
+        Cube("Mon2Screen", new Vector3(8.10f, 1.95f, 1.25f), new Vector3(1.18f, 0.78f, 0.08f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
         Cube("Mon3", new Vector3(8.10f, 1.95f, 1.95f), new Vector3(1.18f, 0.78f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube("Mon3Screen", new Vector3(8.10f, 1.95f, 1.95f), new Vector3(1.18f, 0.78f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
+        Cube("Mon3Screen", new Vector3(8.10f, 1.95f, 1.95f), new Vector3(1.18f, 0.78f, 0.08f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
         Cube("Mon4", new Vector3(7.55f, 1.45f, 0.25f), new Vector3(0.58f, 0.42f, 0.06f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube("Mon4Screen", new Vector3(7.55f, 1.45f, 0.25f), new Vector3(0.58f, 0.42f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
+        Cube("Mon4Screen", new Vector3(7.55f, 1.45f, 0.25f), new Vector3(0.58f, 0.42f, 0.06f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
         Cube("Mon5", new Vector3(7.55f, 1.45f, 2.25f), new Vector3(0.58f, 0.42f, 0.06f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube("Mon5Screen", new Vector3(7.55f, 1.45f, 2.25f), new Vector3(0.58f, 0.42f, 0.03f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
+        Cube("Mon5Screen", new Vector3(7.55f, 1.45f, 2.25f), new Vector3(0.58f, 0.42f, 0.06f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
         // VREVIEWER monitoring target desk anchor/scale
         Cube("MonitoringDesk", new Vector3(7.05f, 0f, 1.15f), new Vector3(2.4f, 0.92f, 1.05f), Mat(new Color(0.25f, 0.25f, 0.32f), 0.1f));
         Cube("MonitoringConsoleA", new Vector3(6.7f, 0.92f, 4.5f), new Vector3(0.55f, 0.20f, 0.38f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.1f));
