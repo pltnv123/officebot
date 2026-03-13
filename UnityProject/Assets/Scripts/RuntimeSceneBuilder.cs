@@ -353,7 +353,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         Cube("MonitoringWall", new Vector3(8.10f, 2.1f, 1.25f), new Vector3(0.28f, 4.2f, 3.8f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.12f));
         Cube("Mon1", new Vector3(8.10f, 1.95f, 0.55f), new Vector3(1.18f, 0.78f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube("Mon1", new Vector3(8.10f, 1.95f, 0.55f), new Vector3(1.18f, 0.78f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
         Cube("Mon1Screen", new Vector3(8.10f, 1.95f, 0.55f), new Vector3(1.18f, 0.78f, 0.08f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
         Cube("Mon2", new Vector3(8.10f, 1.95f, 1.25f), new Vector3(1.18f, 0.78f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
         Cube("Mon2Screen", new Vector3(8.10f, 1.95f, 1.25f), new Vector3(1.18f, 0.78f, 0.08f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
@@ -557,12 +556,25 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     }
 
-    private static void CreatePointLight(string n, Vector3 pos, Color c, float intensity, float range)
+    private static void CreatePointLight(
+        string n,
+        Vector3 pos,
+        Color c,
+        float intensity,
+        float range)
     {
         L(n, LightType.Point, c, intensity, range, LightShadows.None, pos, Quaternion.identity);
     }
 
-    private static void L(string n, LightType t, Color c, float intensity, float range, LightShadows sh, Vector3 pos, Quaternion rot)
+    private static void L(
+        string n,
+        LightType t,
+        Color c,
+        float intensity,
+        float range,
+        LightShadows sh,
+        Vector3 pos,
+        Quaternion rot)
     {
         var go = new GameObject(n + "_Light");
         var lt = go.AddComponent<Light>();
