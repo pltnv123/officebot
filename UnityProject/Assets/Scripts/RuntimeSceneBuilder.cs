@@ -379,17 +379,61 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             new Vector3(0.78f, 0.84f, 1.62f),
             new Vector3(0.58f, 0.02f, 0.34f),
             Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f));
-        Cube("DeskMugA", new Vector3(-1.45f, 0.90f, 1.30f), new Vector3(0.22f, 0.24f, 0.22f), Mat(new Color(0.85f, 0.42f, 0.18f), 0.04f));
-        Cube("DeskMugB", new Vector3(-1.25f, 0.90f, 0.62f), new Vector3(0.20f, 0.22f, 0.20f), Mat(new Color(0.78f, 0.42f, 0.20f), 0.04f));
-        Cube("DeskMugC", new Vector3(1.52f, 0.90f, 0.58f), new Vector3(0.20f, 0.22f, 0.20f), Mat(new Color(0.82f, 0.46f, 0.22f), 0.04f));
-        Cube("DeskDeviceA", new Vector3(-0.35f, 0.90f, 0.45f), new Vector3(0.22f, 0.08f, 0.16f), Mat(new Color(0.15f, 0.16f, 0.20f), 0.08f));
-        Cube("DeskDeviceB", new Vector3(0.95f, 0.90f, 1.70f), new Vector3(0.26f, 0.08f, 0.18f), Mat(new Color(0.15f, 0.16f, 0.20f), 0.08f));
-        Cube("DeskDeviceC", new Vector3(0.42f, 0.92f, 0.42f), new Vector3(0.24f, 0.10f, 0.18f), Mat(new Color(0.14f, 0.16f, 0.20f), 0.08f));
-        Cube("DeskDeviceD", new Vector3(-0.18f, 0.92f, 0.58f), new Vector3(0.28f, 0.10f, 0.20f), Mat(new Color(0.14f, 0.16f, 0.20f), 0.08f));
-        Cube("DeskCrateA", new Vector3(-1.9f, 0.58f, 0.3f), new Vector3(0.62f, 0.34f, 0.48f), Mat(new Color(0.65f, 0.48f, 0.25f), 0.05f));
-        Cube("DeskCrateB", new Vector3(1.85f, 0.58f, 1.72f), new Vector3(0.58f, 0.36f, 0.45f), Mat(new Color(0.60f, 0.44f, 0.22f), 0.05f));
-        Cube("DeskLampStem", new Vector3(1.58f, 1.05f, 1.46f), new Vector3(0.06f, 0.42f, 0.06f), Mat(new Color(0.14f, 0.14f, 0.16f), 0.2f));
-        Cube("DeskLampHead", new Vector3(0.95f, 1.22f, 0.18f), new Vector3(0.26f, 0.16f, 0.22f), Emissive(new Color(0.30f, 0.20f, 0.10f), new Color(1.00f,0.80f,0.45f,1f), 2.6f));
+        Cube(
+            "DeskMugA",
+            new Vector3(-1.45f, 0.90f, 1.30f),
+            new Vector3(0.22f, 0.24f, 0.22f),
+            Mat(new Color(0.85f, 0.42f, 0.18f), 0.04f));
+        Cube(
+            "DeskMugB",
+            new Vector3(-1.25f, 0.90f, 0.62f),
+            new Vector3(0.20f, 0.22f, 0.20f),
+            Mat(new Color(0.78f, 0.42f, 0.20f), 0.04f));
+        Cube(
+            "DeskMugC",
+            new Vector3(1.52f, 0.90f, 0.58f),
+            new Vector3(0.20f, 0.22f, 0.20f),
+            Mat(new Color(0.82f, 0.46f, 0.22f), 0.04f));
+        Cube(
+            "DeskDeviceA",
+            new Vector3(-0.35f, 0.90f, 0.45f),
+            new Vector3(0.22f, 0.08f, 0.16f),
+            Mat(new Color(0.15f, 0.16f, 0.20f), 0.08f));
+        Cube(
+            "DeskDeviceB",
+            new Vector3(0.95f, 0.90f, 1.70f),
+            new Vector3(0.26f, 0.08f, 0.18f),
+            Mat(new Color(0.15f, 0.16f, 0.20f), 0.08f));
+        Cube(
+            "DeskDeviceC",
+            new Vector3(0.42f, 0.92f, 0.42f),
+            new Vector3(0.24f, 0.10f, 0.18f),
+            Mat(new Color(0.14f, 0.16f, 0.20f), 0.08f));
+        Cube(
+            "DeskDeviceD",
+            new Vector3(-0.18f, 0.92f, 0.58f),
+            new Vector3(0.28f, 0.10f, 0.20f),
+            Mat(new Color(0.14f, 0.16f, 0.20f), 0.08f));
+        Cube(
+            "DeskCrateA",
+            new Vector3(-1.9f, 0.58f, 0.3f),
+            new Vector3(0.62f, 0.34f, 0.48f),
+            Mat(new Color(0.65f, 0.48f, 0.25f), 0.05f));
+        Cube(
+            "DeskCrateB",
+            new Vector3(1.85f, 0.58f, 1.72f),
+            new Vector3(0.58f, 0.36f, 0.45f),
+            Mat(new Color(0.60f, 0.44f, 0.22f), 0.05f));
+        Cube(
+            "DeskLampStem",
+            new Vector3(1.58f, 1.05f, 1.46f),
+            new Vector3(0.06f, 0.42f, 0.06f),
+            Mat(new Color(0.14f, 0.14f, 0.16f), 0.2f));
+        Cube(
+            "DeskLampHead",
+            new Vector3(0.95f, 1.22f, 0.18f),
+            new Vector3(0.26f, 0.16f, 0.22f),
+            Emissive(new Color(0.30f, 0.20f, 0.10f), new Color(1.00f,0.80f,0.45f,1f), 2.6f));
 
         Cube(
             "MonitoringWall",
