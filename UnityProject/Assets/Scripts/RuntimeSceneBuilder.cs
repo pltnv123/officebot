@@ -144,12 +144,24 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("FloorTileBandA", new Vector3(-4.5f, -0.043f, 3f), new Vector3(3.6f, 0.02f, 13f), Mat(new Color(0.40f, 0.36f, 0.32f, 1f), 0.30f));
         Cube("FloorTileBandB", new Vector3(4.5f, -0.043f, 3f), new Vector3(3.6f, 0.02f, 13f), Mat(new Color(0.34f, 0.30f, 0.26f, 1f), 0.30f));
 
-        var pathAmber = Emissive(new Color(0.38f, 0.2f, 0.04f), new Color(1.00f, 0.56f, 0.10f, 1f), 3.4f);
-        var pathBlue = Emissive(new Color(0.12f, 0.20f, 0.35f), new Color(0.31f, 0.75f, 1.00f, 1f), 3.4f);
-        var pathGreen = Emissive(new Color(0.08f, 0.25f, 0.14f), new Color(0.20f, 1.00f, 0.74f, 1f), 3.4f);
+        var pathAmber = Emissive(
+            new Color(0.38f, 0.2f, 0.04f),
+            new Color(1.00f, 0.56f, 0.10f, 1f),
+            3.4f);
+        var pathBlue = Emissive(
+            new Color(0.12f, 0.20f, 0.35f),
+            new Color(0.31f, 0.75f, 1.00f, 1f),
+            3.4f);
+        var pathGreen = Emissive(
+            new Color(0.08f, 0.25f, 0.14f),
+            new Color(0.20f, 1.00f, 0.74f, 1f),
+            3.4f);
 
         float step = 0.42f;
-        Vector3 dotScale = new Vector3(0.11f, 0.02f, 0.11f);
+        Vector3 dotScale = new Vector3(
+            0.11f,
+            0.02f,
+            0.11f);
 
         void PathDots(
             string prefix,
@@ -204,7 +216,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             15,
             0.42f,
             new Vector3(0.11f, 0.02f, 0.11f));
-        var pathYellow = Emissive(new Color(0.45f, 0.32f, 0.08f), new Color(1.00f, 0.82f, 0.22f, 1f), 1.8f);
+        var pathYellow = Emissive(
+            new Color(0.45f, 0.32f, 0.08f),
+            new Color(1.00f, 0.82f, 0.22f, 1f),
+            1.8f);
         PathDots(
             "PathRoom2LinkDot_",
             new Vector3(6.9f, 0.03f, 2.0f),
@@ -629,10 +644,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         Vector3[] plantBases =
         {
-            new Vector3(-8.45f, 0f, 6.95f),
-            new Vector3(-3.55f, 0f, 7.15f),
-            new Vector3(3.95f, 0f, 7.15f),
-            new Vector3(8.18f, 0f, 6.88f)
+            new Vector3(-8.45f, 0.0f, 6.95f),
+            new Vector3(-3.55f, 0.0f, 7.15f),
+            new Vector3(3.95f, 0.0f, 7.15f),
+            new Vector3(8.18f, 0.0f, 6.88f)
         };
         for (int i = 0; i < plantBases.Length; i++)
         {
