@@ -296,7 +296,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             "Room2Arrow",
             new Vector3(8.78f, 1.18f, 6.12f),
             new Vector3(0.62f, 0.62f, 0.62f),
-            Emissive(new Color(0.4f, 0.2f, 0.05f), new Color(1.0f, 0.7f, 0.1f), 3.2f))
+            Emissive(
+                new Color(0.4f, 0.2f, 0.05f),
+                new Color(1.0f, 0.7f, 0.1f),
+                3.2f))
             .transform.rotation = Quaternion.Euler(0f, 0f, -28f);
         Cube("Room2ArrowGlow", new Vector3(8.78f, 1.18f, 6.12f), new Vector3(0.92f, 0.22f, 0.22f), Emissive(new Color(0.5f, 0.24f, 0.06f), new Color(1.0f, 0.70f, 0.18f), 3.0f));
         Cube("Room2PortalSideGlowL", new Vector3(7.25f, 1.6f, 6.30f), new Vector3(0.18f, 2.8f, 0.18f), Emissive(new Color(0.45f, 0.22f, 0.05f), new Color(1.0f, 0.62f, 0.16f), 3.6f));
@@ -395,6 +398,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 new Color(0.35f, 0.18f, 0.03f),
                 new Color(1.00f, 0.56f, 0.10f, 1f),
                 2.4f));
+
         Cube("DispatchFloorArrow", new Vector3(-6.9f, 0.03f, 2.9f), new Vector3(1.4f, 0.03f, 0.48f), Emissive(new Color(0.38f, 0.18f, 0.04f), new Color(1.00f, 0.60f, 0.12f), 5.0f));
         Cube("DispatchTerminalGlow", new Vector3(-7.95f, 1.28f, 1.42f), new Vector3(0.32f, 0.42f, 0.03f), Emissive(new Color(0.40f, 0.20f, 0.06f), new Color(1.00f, 0.62f, 0.14f), 4.2f));
         var dispatchLbl = Txt("DispatchLbl", "DISPATCH", new Vector3(-7.5f, 2.5f, 1.5f), 16, 0.10f, new Color(1.0f, 0.55f, 0.0f), FontStyle.Bold);
@@ -652,16 +656,19 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             "PLANNER",
             eyeCol,
             0f);
+
         BuildAgent(
             new Vector3(-6.85f, 0.0f, 0.95f),
             "WORKER",
             eyeCol,
             20f);
+
         BuildAgent(
             new Vector3(5.95f, 0.0f, 0.05f),
             "TESTER",
             eyeCol,
             -24f);
+
         BuildAgent(
             new Vector3(1.85f, 0.0f, 0.10f),
             "REVIEWER",
@@ -760,18 +767,21 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             new Color(1.00f, 0.62f, 0.30f, 1f),
             5.4f,
             22f);
+
         CreatePointLight(
             "DispatchFill",
             new Vector3(-7.2f, 2.8f, 1.0f),
             new Color(1.00f, 0.56f, 0.18f, 1f),
             3.2f,
             10f);
+
         CreatePointLight(
             "MonitorFill",
             new Vector3(7.4f, 2.9f, 1.3f),
             new Color(0.30f, 1.00f, 0.78f, 1f),
             2.8f,
             11f);
+
         CreatePointLight(
             "Room2Glow",
             new Vector3(8.6f, 2.6f, 6.2f),
