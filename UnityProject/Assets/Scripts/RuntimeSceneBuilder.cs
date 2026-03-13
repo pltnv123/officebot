@@ -231,7 +231,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         for (int c = 0; c < headers.Length; c++)
         {
             float x = xs[c];
-            Cube($"BoardDivider_{c}", new Vector3(x - 0.835f, 2.95f, 8.98f), new Vector3(0.08f, 2.2f, 0.1f), Mat(new Color(0.2f, 0.2f, 0.24f), 0.05f));
             Cube($"HdrBack_{c}", new Vector3(x, 3.95f, 8.93f), new Vector3(1.55f, 0.30f, 0.03f), Emissive(new Color(0.08f, 0.08f, 0.12f), Color.Lerp(headerCols[c], Color.white, 0.35f), 1.8f));
             Txt($"Hdr{c}", headers[c], new Vector3(x, 3.95f, 8.88f), 32, 0.15f, Color.Lerp(headerCols[c], Color.white, 0.78f), FontStyle.Bold);
 
@@ -352,7 +351,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("DeskLampStem", new Vector3(1.58f, 1.05f, 1.46f), new Vector3(0.06f, 0.42f, 0.06f), Mat(new Color(0.14f, 0.14f, 0.16f), 0.2f));
         Cube("DeskLampHead", new Vector3(0.95f, 1.22f, 0.18f), new Vector3(0.26f, 0.16f, 0.22f), Emissive(new Color(0.30f, 0.20f, 0.10f), new Color(1.00f,0.80f,0.45f,1f), 2.6f));
 
-        Cube("MonitoringWall", new Vector3(8.25f, 2.1f, 5f), new Vector3(0.28f, 4.2f, 3.8f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.12f));
+        Cube("MonitoringWall", new Vector3(8.10f, 2.1f, 1.25f), new Vector3(0.28f, 4.2f, 3.8f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.12f));
         Cube("Mon1", new Vector3(8.10f, 1.95f, 0.55f), new Vector3(1.18f, 0.78f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
         Cube("Mon1", new Vector3(8.10f, 1.95f, 0.55f), new Vector3(1.18f, 0.78f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
         Cube("Mon1Screen", new Vector3(8.10f, 1.95f, 0.55f), new Vector3(1.18f, 0.78f, 0.08f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
@@ -384,7 +383,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("MonitoringCableBundle", new Vector3(6.45f, 0.24f, 2.10f), new Vector3(0.46f, 0.06f, 0.24f), Mat(new Color(0.10f, 0.10f, 0.12f), 0.02f));
         Cube("MonitoringChairGlow", new Vector3(7.0f, 0.18f, 4.9f), new Vector3(1.1f, 0.03f, 1.1f), Emissive(new Color(0.05f, 0.16f, 0.10f), new Color(0.16f, 0.95f, 0.50f), 2.6f));
         Cube("MonitoringZoneGlow", new Vector3(7.2f, 0.02f, 1.2f), new Vector3(5.5f, 0.03f, 5.3f), Emissive(new Color(0.02f, 0.18f, 0.08f), new Color(0.14f, 0.85f, 0.40f), 3.8f));
-        Cube("MonitoringDeskGlow", new Vector3(7.05f, 0.92f, 1.15f), new Vector3(1.8f, 0.05f, 0.72f), Emissive(new Color(0.04f, 0.18f, 0.10f), new Color(0.16f, 0.95f, 0.50f), 2.8f));
+        Cube("MonitoringDeskGlow", new Vector3(7.05f, 0.92f, 1.15f), new Vector3(2.0f, 0.05f, 0.82f), Emissive(new Color(0.04f, 0.18f, 0.10f), new Color(0.16f, 0.95f, 0.50f), 2.8f));
         var monitoringLbl = Txt("MonitoringLbl", "MONITORING", new Vector3(7.2f, 3.0f, 1.2f), 14, 0.10f, new Color(0.15f, 1.0f, 0.45f), FontStyle.Bold);
         _labelXforms.Add(monitoringLbl.transform);
 
