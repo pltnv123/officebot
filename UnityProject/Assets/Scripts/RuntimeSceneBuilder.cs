@@ -222,7 +222,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         var pathYellow = Emissive(
             new Color(0.45f, 0.32f, 0.08f),
             new Color(1.00f, 0.82f, 0.22f, 1f),
-            1.8f);
+            1.8f
+        );
         PathDots(
             "PathRoom2LinkDot_",
             new Vector3(6.9f, 0.03f, 2.0f),
@@ -388,7 +389,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             20,
             0.62f,
             new Color(1.00f, 0.74f, 0.26f, 1f),
-            FontStyle.Bold);
+            FontStyle.Bold
+        );
         _labelXforms.Add(roomLbl.transform);
 
         // Room 2 interior behind the doorway
@@ -474,7 +476,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             Emissive(
                 new Color(0.35f, 0.18f, 0.03f),
                 new Color(1.00f, 0.56f, 0.10f, 1f),
-                2.4f));
+                2.4f)
+        );
 
         Cube("DispatchFloorArrow", new Vector3(-6.9f, 0.03f, 2.9f), new Vector3(1.4f, 0.03f, 0.48f), Emissive(new Color(0.38f, 0.18f, 0.04f), new Color(1.00f, 0.60f, 0.12f), 5.0f));
         Cube("DispatchTerminalGlow", new Vector3(-7.95f, 1.28f, 1.42f), new Vector3(0.32f, 0.42f, 0.03f), Emissive(new Color(0.40f, 0.20f, 0.06f), new Color(1.00f, 0.62f, 0.14f), 4.2f));
@@ -742,7 +745,11 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildAgents()
     {
-        var eyeCol = new Color(0.36f, 0.95f, 1.00f, 1f);
+        var eyeCol = new Color(
+            0.36f,
+            0.95f,
+            1.00f,
+            1f);
         BuildAgent(
             new Vector3(-3.25f, 0.0f, 0.05f),
             "PLANNER",
