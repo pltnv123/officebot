@@ -215,7 +215,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         string[] headers = { "INBOX", "QUEUE", "PLAN", "WORK", "REVIEW", "DONE" };
         float[] xs = { -4.175f, -2.505f, -0.835f, 0.835f, 2.505f, 4.175f };
-        float[] ys = { 3.3f, 2.9f, 2.5f, 2.1f };
         Color[] headerCols =
         {
             new Color(0.5f, 0.5f, 0.55f),
@@ -235,8 +234,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             Cube($"BoardDivider_{c}", new Vector3(x - 0.835f, 2.95f, 8.98f), new Vector3(0.08f, 2.2f, 0.1f), Mat(new Color(0.2f, 0.2f, 0.24f), 0.05f));
             Cube($"HdrBack_{c}", new Vector3(x, 3.95f, 8.93f), new Vector3(1.55f, 0.30f, 0.03f), Emissive(new Color(0.08f, 0.08f, 0.12f), Color.Lerp(headerCols[c], Color.white, 0.35f), 1.8f));
             Txt($"Hdr{c}", headers[c], new Vector3(x, 3.95f, 8.88f), 32, 0.15f, Color.Lerp(headerCols[c], Color.white, 0.78f), FontStyle.Bold);
-
-
 
             Color[] stickyPalette =
             {
@@ -324,7 +321,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("DispatchConsoleGlow", new Vector3(-7.55f, 1.42f, 1.85f), new Vector3(0.66f, 0.06f, 0.42f), Emissive(new Color(0.45f, 0.20f, 0.05f), new Color(1.0f, 0.58f, 0.10f), 3.8f));
         Cube("DispatchGlowColumn", new Vector3(-7.4f, 1.4f, 0.2f), new Vector3(0.18f, 2.8f, 0.18f), Emissive(new Color(0.45f, 0.20f, 0.05f), new Color(1.0f, 0.56f, 0.08f), 3.8f));
         Cube("DispatchZoneGlow", new Vector3(-7.45f, 0.02f, 1.15f), new Vector3(2.8f, 0.02f, 2.1f), Emissive(new Color(0.35f, 0.18f, 0.03f), new Color(1.00f, 0.56f, 0.10f, 1f), 2.4f));
-        Cube("DispatchFloorGuide", new Vector3(-7.45f, 0.021f, 1.15f), new Vector3(2.2f, 0.01f, 1.6f), Emissive(new Color(0.30f, 0.14f, 0.02f), new Color(1.00f, 0.56f, 0.10f, 1f), 1.6f));
         Cube("DispatchFloorArrow", new Vector3(-6.9f, 0.03f, 2.9f), new Vector3(1.4f, 0.03f, 0.48f), Emissive(new Color(0.38f, 0.18f, 0.04f), new Color(1.00f, 0.60f, 0.12f), 5.0f));
         Cube("DispatchTerminalGlow", new Vector3(-7.95f, 1.28f, 1.42f), new Vector3(0.32f, 0.42f, 0.03f), Emissive(new Color(0.40f, 0.20f, 0.06f), new Color(1.00f, 0.62f, 0.14f), 4.2f));
         var dispatchLbl = Txt("DispatchLbl", "DISPATCH", new Vector3(-7.5f, 2.5f, 1.5f), 16, 0.10f, new Color(1.0f, 0.55f, 0.0f), FontStyle.Bold);
@@ -357,6 +353,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("DeskLampHead", new Vector3(0.95f, 1.22f, 0.18f), new Vector3(0.26f, 0.16f, 0.22f), Emissive(new Color(0.30f, 0.20f, 0.10f), new Color(1.00f,0.80f,0.45f,1f), 2.6f));
 
         Cube("MonitoringWall", new Vector3(8.25f, 2.1f, 5f), new Vector3(0.28f, 4.2f, 3.8f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.12f));
+        Cube("Mon1", new Vector3(8.10f, 1.95f, 0.55f), new Vector3(1.18f, 0.78f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
         Cube("Mon1", new Vector3(8.10f, 1.95f, 0.55f), new Vector3(1.18f, 0.78f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
         Cube("Mon1Screen", new Vector3(8.10f, 1.95f, 0.55f), new Vector3(1.18f, 0.78f, 0.08f), Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
         Cube("Mon2", new Vector3(8.10f, 1.95f, 1.25f), new Vector3(1.18f, 0.78f, 0.08f), Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
@@ -534,10 +531,30 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         L("MainDirectional", LightType.Directional, new Color(1.0f, 0.90f, 0.68f), 2.8f, 100f,
             LightShadows.Soft, Vector3.zero, Quaternion.Euler(40f, -20f, 0f));
 
-        CreatePointLight("WarmKey", new Vector3(0.0f, 4.8f, 0.8f), new Color(1.00f, 0.62f, 0.30f, 1f), 5.4f, 22f);
-        CreatePointLight("DispatchFill", new Vector3(-7.2f, 2.8f, 1.0f), new Color(1.00f, 0.56f, 0.18f, 1f), 3.2f, 10f);
-        CreatePointLight("MonitorFill", new Vector3(7.4f, 2.9f, 1.3f), new Color(0.30f, 1.00f, 0.78f, 1f), 2.8f, 11f);
-        CreatePointLight("Room2Glow", new Vector3(8.6f, 2.6f, 6.2f), new Color(1.00f, 0.58f, 0.16f, 1f), 3.4f, 9f);
+        CreatePointLight(
+            "WarmKey",
+            new Vector3(0.0f, 4.8f, 0.8f),
+            new Color(1.00f, 0.62f, 0.30f, 1f),
+            5.4f,
+            22f);
+        CreatePointLight(
+            "DispatchFill",
+            new Vector3(-7.2f, 2.8f, 1.0f),
+            new Color(1.00f, 0.56f, 0.18f, 1f),
+            3.2f,
+            10f);
+        CreatePointLight(
+            "MonitorFill",
+            new Vector3(7.4f, 2.9f, 1.3f),
+            new Color(0.30f, 1.00f, 0.78f, 1f),
+            2.8f,
+            11f);
+        CreatePointLight(
+            "Room2Glow",
+            new Vector3(8.6f, 2.6f, 6.2f),
+            new Color(1.00f, 0.58f, 0.16f, 1f),
+            3.4f,
+            9f);
 
     }
 
