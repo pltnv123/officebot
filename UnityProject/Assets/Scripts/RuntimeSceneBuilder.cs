@@ -176,11 +176,39 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             }
         }
 
-        PathDots("PathDispatchDot_", new Vector3(-7.1f, 0.03f, 1.0f), new Vector3(-0.6f, 0.03f, 0.5f), pathAmber, 18, 0.42f, new Vector3(0.11f, 0.02f, 0.11f));
-        PathDots("PathBoardDot_", new Vector3(-0.1f, 0.03f, -2.15f), new Vector3(0.0f, 0.03f, 2.75f), pathBlue, 14, 0.42f, new Vector3(0.11f, 0.02f, 0.11f));
-        PathDots("PathMonitoringDot_", new Vector3(1.2f, 0.03f, 0.55f), new Vector3(7.15f, 0.03f, 0.55f), pathGreen, 15, 0.42f, new Vector3(0.11f, 0.02f, 0.11f));
+        PathDots(
+            "PathDispatchDot_",
+            new Vector3(-7.1f, 0.03f, 1.0f),
+            new Vector3(-0.6f, 0.03f, 0.5f),
+            pathAmber,
+            18,
+            0.42f,
+            new Vector3(0.11f, 0.02f, 0.11f));
+        PathDots(
+            "PathBoardDot_",
+            new Vector3(-0.1f, 0.03f, -2.15f),
+            new Vector3(0.0f, 0.03f, 2.75f),
+            pathBlue,
+            14,
+            0.42f,
+            new Vector3(0.11f, 0.02f, 0.11f));
+        PathDots(
+            "PathMonitoringDot_",
+            new Vector3(1.2f, 0.03f, 0.55f),
+            new Vector3(7.15f, 0.03f, 0.55f),
+            pathGreen,
+            15,
+            0.42f,
+            new Vector3(0.11f, 0.02f, 0.11f));
         var pathYellow = Emissive(new Color(0.45f, 0.32f, 0.08f), new Color(1.00f, 0.82f, 0.22f, 1f), 1.8f);
-        PathDots("PathRoom2LinkDot_", new Vector3(6.9f, 0.03f, 2.0f), new Vector3(8.55f, 0.03f, 5.8f), pathYellow, 10, 0.42f, new Vector3(0.11f, 0.02f, 0.11f));
+        PathDots(
+            "PathRoom2LinkDot_",
+            new Vector3(6.9f, 0.03f, 2.0f),
+            new Vector3(8.55f, 0.03f, 5.8f),
+            pathYellow,
+            10,
+            0.42f,
+            new Vector3(0.11f, 0.02f, 0.11f));
 
         var wall = Mat(new Color(0.24f, 0.18f, 0.14f), 0.14f);
         Cube("WallToneBandL", new Vector3(-9.0f, 2.0f, 6.8f), new Vector3(0.12f, 2.6f, 3.0f), Mat(new Color(0.28f, 0.20f, 0.16f), 0.22f));
@@ -245,10 +273,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
             Color[] stickyPalette =
             {
-                new Color(1.00f,0.84f,0.26f,1f),
-                new Color(0.40f,0.72f,1.00f,1f),
-                new Color(0.98f,0.56f,0.22f,1f),
-                new Color(0.44f,0.96f,0.78f,1f)
+                new Color(1.00f, 0.84f, 0.26f, 1f),
+                new Color(0.40f, 0.72f, 1.00f, 1f),
+                new Color(0.98f, 0.56f, 0.22f, 1f),
+                new Color(0.44f, 0.96f, 0.78f, 1f)
             };
             int cardsPerColumn = 16;
             Vector3 cardScale = new Vector3(0.22f, 0.14f, 0.02f);
@@ -604,8 +632,16 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         };
         for (int i = 0; i < plantBases.Length; i++)
         {
-            Cyl($"PlantPot_{i}", new Vector3(plantBases[i].x, 0.25f, plantBases[i].z), new Vector3(0.38f, 0.55f, 0.38f), Mat(new Color(0.55f, 0.32f, 0.12f), 0.08f));
-            Cube($"PlantLeaves_{i}", new Vector3(plantBases[i].x, 0.92f, plantBases[i].z), new Vector3(0.76f, 1.22f, 0.76f), Mat(new Color(0.22f, 0.56f, 0.28f, 1f), 0.05f));
+            Cyl(
+                $"PlantPot_{i}",
+                new Vector3(plantBases[i].x, 0.25f, plantBases[i].z),
+                new Vector3(0.38f, 0.55f, 0.38f),
+                Mat(new Color(0.55f, 0.32f, 0.12f), 0.08f));
+            Cube(
+                $"PlantLeaves_{i}",
+                new Vector3(plantBases[i].x, 0.92f, plantBases[i].z),
+                new Vector3(0.76f, 1.22f, 0.76f),
+                Mat(new Color(0.22f, 0.56f, 0.28f, 1f), 0.05f));
         }
 
         Cube("WallShelfPropsL", new Vector3(-9.8f, 2.2f, 6.6f), new Vector3(0.20f, 0.16f, 2.6f), Mat(new Color(0.34f, 0.25f, 0.16f), 0.08f));
