@@ -205,9 +205,18 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void BuildBoard()
     {
         // VREVIEWER board target: position/scale + dense 90-note population
-        Vector3 taskBoardPos = new Vector3(0.0f, 2.55f, 8.75f);
-        Vector3 taskBoardScale = new Vector3(10.6f, 3.2f, 0.24f);
-        Vector3 taskBoardFrameScale = new Vector3(taskBoardScale.x + 1.0f, taskBoardScale.y + 0.9f, 0.15f);
+        Vector3 taskBoardPos = new Vector3(
+            0.0f,
+            2.55f,
+            8.75f);
+        Vector3 taskBoardScale = new Vector3(
+            10.6f,
+            3.2f,
+            0.24f);
+        Vector3 taskBoardFrameScale = new Vector3(
+            taskBoardScale.x + 1.0f,
+            taskBoardScale.y + 0.9f,
+            0.15f);
         Cube("TaskBoardFrame", taskBoardPos + new Vector3(0f, 0f, -0.05f), taskBoardFrameScale, Mat(new Color(0.46f, 0.31f, 0.14f), 0.10f));
         var taskBoard = Cube("TaskBoard", new Vector3(0f, 0f, 0f), Vector3.one, Mat(new Color(0.07f, 0.07f, 0.10f), 0.10f));
         taskBoard.transform.position = taskBoardPos;
@@ -638,10 +647,26 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void BuildAgents()
     {
         var eyeCol = new Color(0.36f, 0.95f, 1.00f, 1f);
-        BuildAgent(new Vector3(-3.25f, 0.0f, 0.05f), "PLANNER", eyeCol, 0f);
-        BuildAgent(new Vector3(-6.85f, 0.0f, 0.95f), "WORKER", eyeCol, 20f);
-        BuildAgent(new Vector3(5.95f, 0.0f, 0.05f), "TESTER", eyeCol, -24f);
-        BuildAgent(new Vector3(1.85f, 0.0f, 0.10f), "REVIEWER", eyeCol, -12f);
+        BuildAgent(
+            new Vector3(-3.25f, 0.0f, 0.05f),
+            "PLANNER",
+            eyeCol,
+            0f);
+        BuildAgent(
+            new Vector3(-6.85f, 0.0f, 0.95f),
+            "WORKER",
+            eyeCol,
+            20f);
+        BuildAgent(
+            new Vector3(5.95f, 0.0f, 0.05f),
+            "TESTER",
+            eyeCol,
+            -24f);
+        BuildAgent(
+            new Vector3(1.85f, 0.0f, 0.10f),
+            "REVIEWER",
+            eyeCol,
+            -12f);
     }
 
     private void BuildAgent(Vector3 pos, string role, Color eyeCol, float rotY)
@@ -717,7 +742,11 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     {
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
         RenderSettings.ambientIntensity = 31.9f;
-        RenderSettings.ambientLight = new Color(1.00f, 0.84f, 0.62f, 1f);
+        RenderSettings.ambientLight = new Color(
+            1.00f,
+            0.84f,
+            0.62f,
+            1f);
 
         var def = GameObject.Find("Directional Light");
         if (def != null) Object.DestroyImmediate(def);
