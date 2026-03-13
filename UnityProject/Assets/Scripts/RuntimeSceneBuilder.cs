@@ -128,15 +128,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildRoom()
     {
-        // VREVIEWER lighting target (warm Pixar-like base)
-        RenderSettings.ambientMode = AmbientMode.Flat;
-        RenderSettings.ambientLight = new Color(1.00f, 0.84f, 0.62f, 1f);
-        RenderSettings.fog = false;
-
-        CreatePointLight("KeyWarm", new Vector3(0f, 4.9f, 1.1f), new Color(1.00f, 0.62f, 0.30f, 1f), 4.8f, 22f);
-        CreatePointLight("FillL", new Vector3(-6.7f, 3.5f, 2.9f), new Color(1.00f, 0.68f, 0.38f, 1f), 2.6f, 14f);
-        CreatePointLight("FillR", new Vector3(6.7f, 3.5f, 2.9f), new Color(1.00f, 0.68f, 0.38f, 1f), 2.6f, 14f);
-        CreatePointLight("WarmKey",  new Vector3(0f, 4.8f, 0.8f), new Color(1.00f, 0.62f, 0.30f, 1f), 5.8f, 24f);
 
         var floor = Mat(new Color(0.36f, 0.32f, 0.28f, 1f), 0.30f);
         Cube("Floor", new Vector3(0f, -0.05f, 3f), new Vector3(24f, 0.1f, 18f), floor);
@@ -483,7 +474,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         );
 
         Cube("DispatchFloorArrow", new Vector3(-6.9f, 0.03f, 2.9f), new Vector3(1.4f, 0.03f, 0.48f), Emissive(new Color(0.38f, 0.18f, 0.04f), new Color(1.00f, 0.60f, 0.12f), 5.0f));
-        Cube("DispatchTerminalGlow", new Vector3(-7.95f, 1.28f, 1.42f), new Vector3(0.32f, 0.42f, 0.03f), Emissive(new Color(0.40f, 0.20f, 0.06f), new Color(1.00f, 0.62f, 0.14f), 4.2f));
+        Cube("DispatchWallTerminalGlow", new Vector3(-7.95f, 1.28f, 1.42f), new Vector3(0.32f, 0.42f, 0.03f), Emissive(new Color(0.40f, 0.20f, 0.06f), new Color(1.00f, 0.62f, 0.14f), 4.2f));
         var dispatchLbl = Txt("DispatchLbl", "DISPATCH", new Vector3(-7.5f, 2.5f, 1.5f), 16, 0.10f, new Color(1.0f, 0.55f, 0.0f), FontStyle.Bold);
         _labelXforms.Add(dispatchLbl.transform);
 
@@ -850,18 +841,18 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private static void BuildLighting()
     {
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-        RenderSettings.ambientIntensity = 31.9f;
         RenderSettings.ambientLight = new Color(
             1.00f,
             0.84f,
             0.62f,
             1f);
+        RenderSettings.fog = false;
 
         var def = GameObject.Find("Directional Light");
         if (def != null) Object.DestroyImmediate(def);
 
-        L("MainDirectional", LightType.Directional, new Color(1.0f, 0.90f, 0.68f), 2.8f, 100f,
-            LightShadows.Soft, Vector3.zero, Quaternion.Euler(40f, -20f, 0f));
+        var mainDirectional = GameObject.Find("MainDirectional_Light");
+        if (mainDirectional != null) Object.DestroyImmediate(mainDirectional);
 
         CreatePointLight(
             "WarmKey",
@@ -890,7 +881,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             new Color(1.00f, 0.58f, 0.16f, 1f),
             3.4f,
             9f);
-
     }
 
     private static void CreatePointLight(
