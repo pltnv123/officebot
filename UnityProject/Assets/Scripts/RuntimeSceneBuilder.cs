@@ -172,11 +172,13 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             var delta = to - from;
             var length = delta.magnitude;
             var dir = length > 0.001f ? delta.normalized : Vector3.forward;
-            int count = Mathf.Max(2, Mathf.CeilToInt(length / step));
+                int count = Mathf.Max(2, Mathf.CeilToInt(length / step));
+
             for (int i = 0; i <= count; i++)
             {
                 float t = i / (float)count;
                 var p = Vector3.Lerp(from, to, t);
+
                 var dot = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 dot.name = prefix + i;
                 dot.transform.position = p;
@@ -184,6 +186,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 dot.GetComponent<Renderer>().material = mat;
 
                 float dist = t * length;
+
                 if (Mathf.Abs(dist % 2.10f) < 0.24f)
                 {
                     var arrow = Cube(prefix + "Arrow" + i, p + new Vector3(0f, 0.01f, 0f), new Vector3(0.28f, 0.02f, 0.28f), mat);
@@ -955,7 +958,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void WireBackend()
     {
         var mgr = GameObject.Find("SceneManager")
-                  ?? new GameObject("SceneManager");
+            ?? new GameObject("SceneManager");
         if (mgr.GetComponent<ApiClient>() == null)
             mgr.AddComponent<ApiClient>();
 
