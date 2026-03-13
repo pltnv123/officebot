@@ -151,7 +151,11 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         float step = 0.42f;
         Vector3 dotScale = new Vector3(0.11f, 0.02f, 0.11f);
 
-        void PathDots(string prefix, Vector3 from, Vector3 to, Material mat)
+        void PathDots(
+            string prefix,
+            Vector3 from,
+            Vector3 to,
+            Material mat)
         {
             var delta = to - from;
             var length = delta.magnitude;
@@ -891,9 +895,12 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void AddNavMeshSource(string objectName)
     {
         var go = GameObject.Find(objectName);
-        if (go == null) return;
+        if (go == null)
+            return;
+
         var mf = go.GetComponent<MeshFilter>();
-        if (mf == null || mf.sharedMesh == null) return;
+        if (mf == null || mf.sharedMesh == null)
+            return;
 
         _navSources.Add(new NavMeshBuildSource
         {
@@ -907,18 +914,24 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private static Vector3 SnapToNavMesh(Vector3 point, float maxDistance = 2f)
     {
         if (NavMesh.SamplePosition(point, out var hit, maxDistance, NavMesh.AllAreas))
+        {
             return hit.position;
+        }
+
         return point;
     }
 
     private void WireBackend()
     {
         var mgr = GameObject.Find("SceneManager") ?? new GameObject("SceneManager");
-        if (mgr.GetComponent<ApiClient>() == null) mgr.AddComponent<ApiClient>();
+        if (mgr.GetComponent<ApiClient>() == null)
+            mgr.AddComponent<ApiClient>();
 
         BotMover Mv(int idx, string role, Vector3 idle, Vector3 board, Vector3 desk, Vector3 done)
         {
-            if (idx >= _agents.Count) return null;
+            if (idx >= _agents.Count)
+                return null;
+
             var go = _agents[idx];
             var mv = go.GetComponent<BotMover>() ?? go.AddComponent<BotMover>();
             mv.SetRole(role);
