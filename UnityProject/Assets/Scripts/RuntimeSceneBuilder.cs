@@ -283,7 +283,12 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("Room2PillarL", new Vector3(5.35f, 1.9f, 8.62f), new Vector3(0.22f, 3.9f, 0.22f), Emissive(new Color(0.45f, 0.24f, 0.05f), new Color(1.0f, 0.58f, 0.08f), 2.4f));
         Cube("Room2PillarR", new Vector3(7.85f, 1.9f, 8.62f), new Vector3(0.22f, 3.9f, 0.22f), Emissive(new Color(0.45f, 0.24f, 0.05f), new Color(1.0f, 0.58f, 0.08f), 2.4f));
 
-        Cube("Room2Arrow", new Vector3(8.78f, 1.18f, 6.12f), new Vector3(0.62f, 0.62f, 0.62f), Emissive(new Color(0.4f, 0.2f, 0.05f), new Color(1.0f, 0.7f, 0.1f), 3.2f)).transform.rotation = Quaternion.Euler(0f, 0f, -28f);
+        Cube(
+            "Room2Arrow",
+            new Vector3(8.78f, 1.18f, 6.12f),
+            new Vector3(0.62f, 0.62f, 0.62f),
+            Emissive(new Color(0.4f, 0.2f, 0.05f), new Color(1.0f, 0.7f, 0.1f), 3.2f))
+            .transform.rotation = Quaternion.Euler(0f, 0f, -28f);
         Cube("Room2ArrowGlow", new Vector3(8.78f, 1.18f, 6.12f), new Vector3(0.92f, 0.22f, 0.22f), Emissive(new Color(0.5f, 0.24f, 0.06f), new Color(1.0f, 0.70f, 0.18f), 3.0f));
         Cube("Room2PortalSideGlowL", new Vector3(7.25f, 1.6f, 6.30f), new Vector3(0.18f, 2.8f, 0.18f), Emissive(new Color(0.45f, 0.22f, 0.05f), new Color(1.0f, 0.62f, 0.16f), 3.6f));
         Cube("Room2PortalSideGlowR", new Vector3(10.25f, 1.6f, 6.30f), new Vector3(0.18f, 2.8f, 0.18f), Emissive(new Color(0.45f, 0.22f, 0.05f), new Color(1.0f, 0.62f, 0.16f), 3.6f));
@@ -330,12 +335,36 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             new Vector3(-6.65f, 1.18f, 1.05f),
             new Vector3(0.72f, 0.46f, 0.02f),
             Emissive(new Color(0.4f, 0.2f, 0.05f), new Color(1.00f,0.58f,0.18f,1f), 2.8f));
-        Cube("DispatchBox1", new Vector3(-8.35f, 0f, 0.55f), new Vector3(0.72f, 0.42f, 0.62f), Mat(new Color(0.7f, 0.55f, 0.25f), 0.05f));
-        Cube("DispatchBox2", new Vector3(-8.00f, 0f, 1.05f), new Vector3(0.62f, 0.62f, 0.62f), Mat(new Color(0.65f, 0.5f, 0.2f), 0.05f));
-        Cube("DispatchBox3", new Vector3(-7.75f, 0f, 1.60f), new Vector3(0.82f, 0.52f, 0.72f), Mat(new Color(0.72f, 0.58f, 0.28f), 0.05f));
-        Cube("DispatchBox4", new Vector3(-8.20f, 0f, 1.95f), new Vector3(0.66f, 0.86f, 0.66f), Mat(new Color(0.68f, 0.50f, 0.22f), 0.05f));
-        Cube("DispatchBox5", new Vector3(-7.35f, 0f, 0.55f), new Vector3(0.58f, 0.38f, 0.58f), Mat(new Color(0.76f, 0.58f, 0.30f), 0.05f));
-        Cube("DispatchBox6", new Vector3(-7.10f, 0f, 1.95f), new Vector3(0.54f, 0.54f, 0.54f), Mat(new Color(0.70f, 0.54f, 0.26f), 0.05f));
+        Cube(
+            "DispatchBox1",
+            new Vector3(-8.35f, 0f, 0.55f),
+            new Vector3(0.72f, 0.42f, 0.62f),
+            Mat(new Color(0.7f, 0.55f, 0.25f), 0.05f));
+        Cube(
+            "DispatchBox2",
+            new Vector3(-8.00f, 0f, 1.05f),
+            new Vector3(0.62f, 0.62f, 0.62f),
+            Mat(new Color(0.65f, 0.5f, 0.2f), 0.05f));
+        Cube(
+            "DispatchBox3",
+            new Vector3(-7.75f, 0f, 1.60f),
+            new Vector3(0.82f, 0.52f, 0.72f),
+            Mat(new Color(0.72f, 0.58f, 0.28f), 0.05f));
+        Cube(
+            "DispatchBox4",
+            new Vector3(-8.20f, 0f, 1.95f),
+            new Vector3(0.66f, 0.86f, 0.66f),
+            Mat(new Color(0.68f, 0.50f, 0.22f), 0.05f));
+        Cube(
+            "DispatchBox5",
+            new Vector3(-7.35f, 0f, 0.55f),
+            new Vector3(0.58f, 0.38f, 0.58f),
+            Mat(new Color(0.76f, 0.58f, 0.30f), 0.05f));
+        Cube(
+            "DispatchBox6",
+            new Vector3(-7.10f, 0f, 1.95f),
+            new Vector3(0.54f, 0.54f, 0.54f),
+            Mat(new Color(0.70f, 0.54f, 0.26f), 0.05f));
         Cube("DispatchRack", new Vector3(-7.8f, 1.6f, 5.8f), new Vector3(0.22f, 2.6f, 1.6f), Mat(new Color(0.30f, 0.20f, 0.10f), 0.08f));
         Cube("DispatchHolo", new Vector3(-7.5f, 1.55f, 1.65f), new Vector3(1.0f, 0.05f, 0.8f), Emissive(new Color(0.5f, 0.22f, 0.05f), new Color(1.0f, 0.60f, 0.12f), 2.4f));
         Cube("DispatchPaperA", new Vector3(-7.1f, 0.84f, 1.8f), new Vector3(0.42f, 0.02f, 0.30f), Mat(new Color(0.9f, 0.86f, 0.76f), 0.03f));
