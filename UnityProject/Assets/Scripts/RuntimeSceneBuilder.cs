@@ -329,7 +329,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 new Color(0.44f, 0.96f, 0.78f, 1f)
             };
             int cardsPerColumn = 16;
-            Vector3 cardScale = new Vector3(0.22f, 0.14f, 0.02f);
+            Vector3 cardScale = new Vector3(
+                0.22f,
+                0.14f,
+                0.02f);
             float boardTopY = taskBoardPos.y + taskBoardScale.y * 0.5f - 0.30f;
             float boardBottomY = Mathf.Max(0.20f, taskBoardPos.y - taskBoardScale.y * 0.5f + 0.25f);
             for (int s = 0; s < cardsPerColumn; s++)
@@ -994,6 +997,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
             var go = _agents[idx];
             var mv = go.GetComponent<BotMover>() ?? go.AddComponent<BotMover>();
+
             mv.SetRole(role);
             mv.idlePos = SnapToNavMesh(idle);
             mv.boardPos = SnapToNavMesh(board);
