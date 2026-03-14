@@ -114,17 +114,17 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private static void SetupCamera()
     {
-        var cam = Camera.main;
-        if (cam == null) return;
+        var mainCamera = Camera.main;
+        if (mainCamera == null) return;
 
-        cam.orthographic = false;
-        cam.fieldOfView = 35.0f;
-        cam.transform.position = new Vector3(0.00f, 8.85f, -8.30f);
-        cam.transform.rotation = Quaternion.Euler(43.0f, 0.0f, 0.0f);
-        cam.clearFlags = CameraClearFlags.SolidColor;
-        cam.backgroundColor = new Color(0.08f, 0.07f, 0.06f);
-        cam.nearClipPlane = 0.3f;
-        cam.farClipPlane = 140f;
+        mainCamera.orthographic = false;
+        mainCamera.fieldOfView = 35.0f;
+        mainCamera.transform.position = new Vector3(0.00f, 8.85f, -8.30f);
+        mainCamera.transform.rotation = Quaternion.Euler(43.0f, 0.0f, 0.0f);
+        mainCamera.clearFlags = CameraClearFlags.SolidColor;
+        mainCamera.backgroundColor = new Color(0.08f, 0.07f, 0.06f);
+        mainCamera.nearClipPlane = 0.3f;
+        mainCamera.farClipPlane = 140f;
 
         var rightHudCanvasObject = GameObject.Find("rightHudCanvas")
                                  ?? GameObject.Find("UICanvas")
