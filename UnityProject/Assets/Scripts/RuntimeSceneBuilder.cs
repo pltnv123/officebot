@@ -114,7 +114,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private static void BuildCamera()
     {
-        var mainCamera = Camera.main;
+        Camera mainCamera = Camera.main;
         if (mainCamera == null) return;
 
         mainCamera.orthographic = false;
