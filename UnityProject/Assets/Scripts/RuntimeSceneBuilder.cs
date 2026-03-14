@@ -393,10 +393,14 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             }
         }
 
-        _wipText = Txt("WIP", "WIP 00", new Vector3(-2.0f, 1.0f, 8.9f), 10, 0.08f, new Color(1f, 0.93f, 0.72f), FontStyle.Bold);
-        _queueText = Txt("QUEUE", "QUEUE 00", new Vector3(-6.7f, 1.0f, 8.9f), 9, 0.08f, new Color(0.92f, 0.86f, 0.68f));
-        _blockersText = Txt("BLK", "BLOCKERS 0", new Vector3(2.0f, 1.0f, 8.9f), 9, 0.08f, new Color(1f, 0.74f, 0.66f));
-        _throughputText = Txt("THRU", "THROUGHPUT 0", new Vector3(6.8f, 1.0f, 8.9f), 9, 0.08f, new Color(0.74f, 0.90f, 1f));
+        _wipText = Txt("WIP", "WIP 00", new Vector3(-2.0f, -1.70f, 0.15f), 10, 0.08f, new Color(1f, 0.93f, 0.72f), FontStyle.Bold);
+        _wipText.transform.SetParent(taskBoardRoot.transform, false);
+        _queueText = Txt("QUEUE", "QUEUE 00", new Vector3(-6.7f, -1.70f, 0.15f), 9, 0.08f, new Color(0.92f, 0.86f, 0.68f));
+        _queueText.transform.SetParent(taskBoardRoot.transform, false);
+        _blockersText = Txt("BLK", "BLOCKERS 0", new Vector3(2.0f, -1.70f, 0.15f), 9, 0.08f, new Color(1f, 0.74f, 0.66f));
+        _blockersText.transform.SetParent(taskBoardRoot.transform, false);
+        _throughputText = Txt("THRU", "THROUGHPUT 0", new Vector3(6.8f, -1.70f, 0.15f), 9, 0.08f, new Color(0.74f, 0.90f, 1f));
+        _throughputText.transform.SetParent(taskBoardRoot.transform, false);
     }
 
     private void BuildZones()
