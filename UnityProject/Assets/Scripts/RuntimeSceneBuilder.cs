@@ -535,7 +535,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         deskLampStem.transform.SetParent(mainDeskRoot.transform, false);
         deskLampStem.transform.localPosition = new Vector3(1.20f, 1.02f, 0.14f);
         deskLamp.transform.SetParent(mainDeskRoot.transform, false);
-        deskLamp.transform.localPosition = new Vector3(1.12f, 1.28f, -0.08f);
+        deskLamp.transform.localPosition = new Vector3(1.12f, 1.28f, 0.12f);
         deskLamp.transform.localRotation = Quaternion.Euler(0.0f, -24.0f, 0.0f);
 
         var laptop = Cube("DeskLaptop", new Vector3(0.32f, 1.05f, 0.08f), new Vector3(0.62f, 0.04f, 0.40f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.2f));
