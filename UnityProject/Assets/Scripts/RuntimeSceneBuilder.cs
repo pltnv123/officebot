@@ -129,19 +129,18 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         cam.nearClipPlane = 0.3f;
         cam.farClipPlane = 140f;
 
-        var rightHudCanvas = GameObject.Find("rightHudCanvas")
-                           ?? GameObject.Find("UICanvas")
-                           ?? GameObject.Find("uiCanvas")
-                           ?? GameObject.Find("DebugCanvas");
-        if (rightHudCanvas != null)
+        var rightHudCanvasGo = GameObject.Find("rightHudCanvas")
+                             ?? GameObject.Find("UICanvas")
+                             ?? GameObject.Find("uiCanvas")
+                             ?? GameObject.Find("DebugCanvas");
+        if (rightHudCanvasGo != null)
         {
-            rightHudCanvas.transform.position = new Vector3(60.00f, 0.00f, 0.00f);
-            rightHudCanvas.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+            rightHudCanvasGo.transform.position = new Vector3(60.00f, 0.00f, 0.00f);
+            rightHudCanvasGo.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
 
-            foreach (var behaviour in rightHudCanvas.GetComponents<Behaviour>())
-                behaviour.enabled = false;
-            foreach (var behaviour in rightHudCanvas.GetComponentsInChildren<Behaviour>(true))
-                behaviour.enabled = false;
+            var rightHudCanvas = rightHudCanvasGo.GetComponent<Canvas>();
+            if (rightHudCanvas != null)
+                rightHudCanvas.enabled = false;
         }
     }
 
