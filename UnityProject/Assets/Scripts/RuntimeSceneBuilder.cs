@@ -119,7 +119,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         cam.orthographic = false;
         cam.fieldOfView = 35.0f;
-        cam.transform.position = new Vector3(0.00f, 8.90f, -8.40f);
+        cam.transform.position = new Vector3(
+            0.00f,
+            8.85f,
+            -8.30f);
         cam.transform.rotation = Quaternion.Euler(43.0f, 0.0f, 0.0f);
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = new Color(0.08f, 0.07f, 0.06f);
