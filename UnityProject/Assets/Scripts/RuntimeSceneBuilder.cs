@@ -537,11 +537,15 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         deskLamp.transform.localPosition = new Vector3(1.12f, 1.28f, -0.08f);
         deskLamp.transform.localRotation = Quaternion.Euler(0.0f, -24.0f, 0.0f);
 
+        var laptop = Cube("DeskLaptop", new Vector3(0.32f, 1.05f, 0.08f), new Vector3(0.62f, 0.04f, 0.40f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.2f));
+        var monitorA = Cube("DeskMonitorA", new Vector3(-0.22f, 1.14f, -0.30f), new Vector3(0.58f, 0.36f, 0.04f), Mat(new Color(0.06f, 0.06f, 0.10f), 0.2f));
+        var monitorB = Cube("DeskMonitorB", new Vector3(0.72f, 1.14f, -0.22f), new Vector3(0.58f, 0.36f, 0.04f), Mat(new Color(0.06f, 0.06f, 0.10f), 0.2f));
+
         GameObject[] deskProps =
         {
-            Cube("DeskLaptop", new Vector3(0.32f, 1.05f, 0.08f), new Vector3(0.62f, 0.04f, 0.40f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.2f)),
-            Cube("DeskMonitorA", new Vector3(-0.22f, 1.14f, -0.30f), new Vector3(0.58f, 0.36f, 0.04f), Mat(new Color(0.06f, 0.06f, 0.10f), 0.2f)),
-            Cube("DeskMonitorB", new Vector3(0.72f, 1.14f, -0.22f), new Vector3(0.58f, 0.36f, 0.04f), Mat(new Color(0.06f, 0.06f, 0.10f), 0.2f)),
+            laptop,
+            monitorA,
+            monitorB,
             Cube("DeskPaperA", new Vector3(-0.85f, 0.92f, 0.88f), new Vector3(0.22f, 0.03f, 0.16f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f)),
             Cube("DeskPaperB", new Vector3(-0.52f, 0.92f, 1.08f), new Vector3(0.22f, 0.03f, 0.16f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f)),
             Cube("DeskPaperC", new Vector3(-0.18f, 0.92f, 1.24f), new Vector3(0.22f, 0.03f, 0.16f), Mat(new Color(0.90f, 0.88f, 0.80f), 0.03f)),
