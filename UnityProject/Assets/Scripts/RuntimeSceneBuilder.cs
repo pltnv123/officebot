@@ -477,35 +477,44 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             Mat(new Color(0.14f, 0.14f, 0.16f), 0.2f));
         var deskLamp = Cube(
             "DeskLamp",
-            new Vector3(0.95f, 1.22f, 0.18f),
+            new Vector3(1.10f, 1.26f, 0.12f),
             new Vector3(0.26f, 0.16f, 0.22f),
-            Emissive(new Color(0.30f, 0.20f, 0.10f), new Color(1.00f, 0.80f, 0.45f, 1f), 2.6f));
-        mainDeskRoot.transform.position = new Vector3(0.0f, 0.0f, 0.1f);
-        mainDeskRoot.transform.localScale = new Vector3(4.2f, 1.0f, 2.6f);
+            Emissive(new Color(0.30f, 0.20f, 0.10f), new Color(1.00f, 0.82f, 0.46f, 1f), 3.0f));
+        deskLamp.transform.rotation = Quaternion.Euler(0.0f, -24.0f, 0.0f);
+        mainDeskRoot.transform.position = new Vector3(0.0f, 0.0f, 0.25f);
+        mainDeskRoot.transform.localScale = new Vector3(4.60f, 1.0f, 2.85f);
+        deskTop.transform.position = new Vector3(0.0f, 1.02f, 0.25f);
+        deskTop.transform.localScale = new Vector3(3.95f, 0.18f, 2.30f);
+        deskTop.transform.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
         deskTop.transform.SetParent(mainDeskRoot.transform, true);
         deskLampStem.transform.SetParent(mainDeskRoot.transform, true);
         deskLamp.transform.SetParent(mainDeskRoot.transform, true);
 
         GameObject[] deskProps =
         {
-            Cube("DeskLaptop", new Vector3(-0.95f, 0.86f, 1.25f), new Vector3(0.95f, 0.04f, 0.60f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.2f)),
-            Cube("DeskMonitorA", new Vector3(0.65f, 1.10f, 0.72f), new Vector3(0.82f, 0.46f, 0.08f), Mat(new Color(0.06f, 0.06f, 0.10f), 0.2f)),
-            Cube("DeskMonitorB", new Vector3(1.28f, 1.10f, 0.92f), new Vector3(0.62f, 0.38f, 0.08f), Mat(new Color(0.06f, 0.06f, 0.10f), 0.2f)),
-            Cube("DeskPaperA", new Vector3(-0.65f, 0.84f, 0.75f), new Vector3(0.95f, 0.02f, 0.65f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f)),
-            Cube("DeskPaperB", new Vector3(0.55f, 0.84f, 1.2f), new Vector3(1.0f, 0.02f, 0.65f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f)),
-            Cube("DeskPaperC", new Vector3(-0.05f, 0.84f, 1.7f), new Vector3(0.82f, 0.02f, 0.52f), Mat(new Color(0.90f, 0.88f, 0.80f), 0.03f)),
-            Cube("DeskPaperD", new Vector3(0.22f, 0.84f, 1.85f), new Vector3(0.62f, 0.02f, 0.38f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f)),
-            Cube("DeskPaperE", new Vector3(-0.62f, 0.84f, 1.95f), new Vector3(0.56f, 0.02f, 0.32f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f)),
-            Cube("DeskPaperF", new Vector3(0.78f, 0.84f, 1.62f), new Vector3(0.58f, 0.02f, 0.34f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f)),
-            Cube("DeskMugA", new Vector3(-1.45f, 0.90f, 1.30f), new Vector3(0.22f, 0.24f, 0.22f), Mat(new Color(0.85f, 0.42f, 0.18f), 0.04f)),
-            Cube("DeskMugB", new Vector3(-1.25f, 0.90f, 0.62f), new Vector3(0.20f, 0.22f, 0.20f), Mat(new Color(0.78f, 0.42f, 0.20f), 0.04f)),
-            Cube("DeskMugC", new Vector3(1.52f, 0.90f, 0.58f), new Vector3(0.20f, 0.22f, 0.20f), Mat(new Color(0.82f, 0.46f, 0.22f), 0.04f)),
-            Cube("DeskDeviceA", new Vector3(-0.35f, 0.90f, 0.45f), new Vector3(0.22f, 0.08f, 0.16f), Mat(new Color(0.15f, 0.16f, 0.20f), 0.08f)),
-            Cube("DeskDeviceB", new Vector3(0.95f, 0.90f, 1.70f), new Vector3(0.26f, 0.08f, 0.18f), Mat(new Color(0.15f, 0.16f, 0.20f), 0.08f)),
-            Cube("DeskDeviceC", new Vector3(0.42f, 0.92f, 0.42f), new Vector3(0.24f, 0.10f, 0.18f), Mat(new Color(0.14f, 0.16f, 0.20f), 0.08f)),
-            Cube("DeskDeviceD", new Vector3(-0.18f, 0.92f, 0.58f), new Vector3(0.28f, 0.10f, 0.20f), Mat(new Color(0.14f, 0.16f, 0.20f), 0.08f)),
-            Cube("DeskCrateA", new Vector3(-1.9f, 0.58f, 0.3f), new Vector3(0.62f, 0.34f, 0.48f), Mat(new Color(0.65f, 0.48f, 0.25f), 0.05f)),
-            Cube("DeskCrateB", new Vector3(1.85f, 0.58f, 1.72f), new Vector3(0.58f, 0.36f, 0.45f), Mat(new Color(0.60f, 0.44f, 0.22f), 0.05f))
+            Cube("DeskLaptop", new Vector3(0.35f, 1.05f, 0.05f), new Vector3(0.58f, 0.04f, 0.38f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.2f)),
+            Cube("DeskMonitorA", new Vector3(-0.15f, 1.12f, -0.32f), new Vector3(0.56f, 0.34f, 0.04f), Mat(new Color(0.06f, 0.06f, 0.10f), 0.2f)),
+            Cube("DeskMonitorB", new Vector3(0.68f, 1.12f, -0.26f), new Vector3(0.56f, 0.34f, 0.04f), Mat(new Color(0.06f, 0.06f, 0.10f), 0.2f)),
+            Cube("DeskPaperA", new Vector3(-0.85f, 0.92f, 0.88f), new Vector3(0.22f, 0.03f, 0.16f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f)),
+            Cube("DeskPaperB", new Vector3(-0.52f, 0.92f, 1.08f), new Vector3(0.22f, 0.03f, 0.16f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f)),
+            Cube("DeskPaperC", new Vector3(-0.18f, 0.92f, 1.24f), new Vector3(0.22f, 0.03f, 0.16f), Mat(new Color(0.90f, 0.88f, 0.80f), 0.03f)),
+            Cube("DeskPaperD", new Vector3(0.18f, 0.92f, 1.34f), new Vector3(0.22f, 0.03f, 0.16f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f)),
+            Cube("DeskPaperE", new Vector3(0.56f, 0.92f, 1.18f), new Vector3(0.22f, 0.03f, 0.16f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f)),
+            Cube("DeskPaperF", new Vector3(0.88f, 0.92f, 0.94f), new Vector3(0.22f, 0.03f, 0.16f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f)),
+            Cube("DeskMugA", new Vector3(-1.10f, 0.96f, 0.82f), new Vector3(0.10f, 0.12f, 0.10f), Mat(new Color(0.85f, 0.42f, 0.18f), 0.04f)),
+            Cube("DeskMugB", new Vector3(1.18f, 0.96f, 0.76f), new Vector3(0.10f, 0.12f, 0.10f), Mat(new Color(0.82f, 0.46f, 0.22f), 0.04f)),
+            Cube("DeskTabletA", new Vector3(-0.92f, 0.95f, 0.18f), new Vector3(0.16f, 0.05f, 0.12f), Mat(new Color(0.15f, 0.16f, 0.20f), 0.08f)),
+            Cube("DeskTabletB", new Vector3(-0.54f, 0.95f, -0.02f), new Vector3(0.16f, 0.05f, 0.12f), Mat(new Color(0.15f, 0.16f, 0.20f), 0.08f)),
+            Cube("DeskTabletC", new Vector3(0.98f, 0.95f, 0.22f), new Vector3(0.16f, 0.05f, 0.12f), Mat(new Color(0.15f, 0.16f, 0.20f), 0.08f)),
+            Cube("DeskDeviceA", new Vector3(-0.10f, 0.96f, 0.62f), new Vector3(0.16f, 0.05f, 0.12f), Mat(new Color(0.14f, 0.16f, 0.20f), 0.08f)),
+            Cube("DeskDeviceB", new Vector3(0.28f, 0.96f, 0.78f), new Vector3(0.16f, 0.05f, 0.12f), Mat(new Color(0.14f, 0.16f, 0.20f), 0.08f)),
+            Cube("DeskDeviceC", new Vector3(0.64f, 0.96f, 0.56f), new Vector3(0.16f, 0.05f, 0.12f), Mat(new Color(0.14f, 0.16f, 0.20f), 0.08f)),
+            Cube("DeskDeviceD", new Vector3(-0.38f, 0.96f, 0.44f), new Vector3(0.16f, 0.05f, 0.12f), Mat(new Color(0.14f, 0.16f, 0.20f), 0.08f)),
+            Cube("DeskBoxA", new Vector3(-1.62f, 0.62f, 0.22f), new Vector3(0.34f, 0.22f, 0.28f), Mat(new Color(0.65f, 0.48f, 0.25f), 0.05f)),
+            Cube("DeskBoxB", new Vector3(1.52f, 0.62f, 1.82f), new Vector3(0.34f, 0.22f, 0.28f), Mat(new Color(0.60f, 0.44f, 0.22f), 0.05f)),
+            Cube("DeskBoxC", new Vector3(1.28f, 0.62f, 0.12f), new Vector3(0.34f, 0.22f, 0.28f), Mat(new Color(0.60f, 0.44f, 0.22f), 0.05f)),
+            Cube("DeskNotebookA", new Vector3(-1.05f, 0.93f, -0.18f), new Vector3(0.24f, 0.04f, 0.18f), Mat(new Color(0.84f, 0.72f, 0.28f), 0.04f)),
+            Cube("DeskNotebookB", new Vector3(1.06f, 0.93f, -0.10f), new Vector3(0.24f, 0.04f, 0.18f), Mat(new Color(0.26f, 0.62f, 0.94f), 0.04f))
         };
         foreach (var deskProp in deskProps)
             deskProp.transform.SetParent(mainDeskRoot.transform, true);
