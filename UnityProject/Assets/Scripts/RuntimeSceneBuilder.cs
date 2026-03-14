@@ -451,14 +451,14 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             new Vector3(-7.30f, 0.00f, 1.20f),
             new Vector3(2.30f, 0.92f, 1.15f),
             Mat(new Color(0.45f, 0.28f, 0.10f), 0.12f));
-        dispatchDesk.transform.SetParent(dispatchZoneRoot.transform, true);
+        dispatchDesk.transform.SetParent(dispatchZoneRoot.transform, false);
 
         var terminalScreen = Cube(
             "DispatchTerminal",
             new Vector3(-6.65f, 1.18f, 1.05f),
             new Vector3(0.74f, 0.48f, 0.05f),
             Emissive(new Color(0.40f, 0.20f, 0.05f), new Color(1.00f, 0.58f, 0.18f, 1f), 3.00f));
-        terminalScreen.transform.SetParent(dispatchZoneRoot.transform, true);
+        terminalScreen.transform.SetParent(dispatchZoneRoot.transform, false);
 
         GameObject[] dispatchBoxes =
         {
@@ -472,7 +472,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             Cube("DispatchBox8", new Vector3(-7.54f, 0.00f, 2.18f), new Vector3(0.52f, 0.52f, 0.70f), Mat(new Color(0.70f, 0.52f, 0.24f), 0.05f))
         };
         foreach (var box in dispatchBoxes)
-            box.transform.SetParent(dispatchZoneRoot.transform, true);
+            box.transform.SetParent(dispatchZoneRoot.transform, false);
 
         var dispatchFloorGlow = Cube(
             "DispatchFloorGlow",
@@ -482,7 +482,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 new Color(0.35f, 0.18f, 0.03f),
                 new Color(1.00f, 0.56f, 0.10f, 1f),
                 2.80f));
-        dispatchFloorGlow.transform.SetParent(dispatchZoneRoot.transform, true);
+        dispatchFloorGlow.transform.SetParent(dispatchZoneRoot.transform, false);
 
         var dispatchArrow = Cube(
             "DispatchArrow",
@@ -490,10 +490,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             new Vector3(0.90f, 0.02f, 0.90f),
             Emissive(new Color(0.35f, 0.18f, 0.03f), new Color(1.00f, 0.56f, 0.10f, 1f), 2.4f));
         dispatchArrow.transform.rotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
-        dispatchArrow.transform.SetParent(dispatchZoneRoot.transform, true);
+        dispatchArrow.transform.SetParent(dispatchZoneRoot.transform, false);
 
         var dispatchLbl = Txt("DispatchLbl", "DISPATCH", new Vector3(-7.5f, 2.5f, 1.5f), 16, 0.10f, new Color(1.0f, 0.55f, 0.0f), FontStyle.Bold);
-        dispatchLbl.transform.SetParent(dispatchZoneRoot.transform, true);
+        dispatchLbl.transform.SetParent(dispatchZoneRoot.transform, false);
         _labelXforms.Add(dispatchLbl.transform);
 
         // Canonical main desk target: one root, one top, one lamp, exact 18 props
