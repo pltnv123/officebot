@@ -511,8 +511,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             Mat(new Color(0.52f, 0.34f, 0.18f), 0.18f));
         var deskTop = Cube(
             "DeskTop",
-            new Vector3(0.0f, 1.02f, 0.1f),
-            new Vector3(3.6f, 0.18f, 2.1f),
+            new Vector3(0.0f, 1.02f, 0.20f),
+            new Vector3(4.05f, 0.18f, 2.35f),
             Mat(new Color(0.64f, 0.46f, 0.25f), 0.20f));
         var deskLampStem = Cube(
             "DeskLampStem",
