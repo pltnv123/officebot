@@ -521,7 +521,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             Mat(new Color(0.14f, 0.14f, 0.16f), 0.2f));
         var deskLamp = Cube(
             "DeskLamp",
-            new Vector3(1.12f, 1.28f, 0.12f),
+            new Vector3(1.12f, 1.28f, -0.08f),
             new Vector3(0.26f, 0.16f, 0.22f),
             Emissive(new Color(0.30f, 0.20f, 0.10f), new Color(1.00f, 0.82f, 0.46f, 1f), 3.2f));
         deskLamp.transform.rotation = Quaternion.Euler(0.0f, -24.0f, 0.0f);
