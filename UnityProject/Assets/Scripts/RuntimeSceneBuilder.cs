@@ -441,18 +441,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         room2Label.transform.SetParent(room2EntranceRoot.transform, true);
         _labelXforms.Add(room2Label.transform);
 
-        // Room 2 interior behind the doorway
-        var room2Floor = Mat(new Color(0.58f, 0.42f, 0.22f), 0.08f);
-        Cube("Room2Floor", new Vector3(6.6f, -0.05f, 10.9f), new Vector3(2.8f, 0.1f, 2.2f), room2Floor);
-        Cube("Room2BackWall", new Vector3(6.6f, 2.2f, 12.0f), new Vector3(2.8f, 4.4f, 0.25f), Mat(new Color(0.26f, 0.19f, 0.13f), 0.12f));
-        Cube("Room2LeftWall", new Vector3(5.2f, 2.2f, 10.9f), new Vector3(0.25f, 4.4f, 2.2f), Mat(new Color(0.22f, 0.16f, 0.11f), 0.10f));
-        Cube("Room2RightWall", new Vector3(8.0f, 2.2f, 10.9f), new Vector3(0.25f, 4.4f, 2.2f), Mat(new Color(0.22f, 0.16f, 0.11f), 0.10f));
-        Cube("Room2Ceiling", new Vector3(6.6f, 4.35f, 10.9f), new Vector3(2.8f, 0.12f, 2.2f), Mat(new Color(0.18f, 0.13f, 0.09f), 0.06f));
-
-        // Interior props + two gray sub agents
-        Cube("Room2Desk", new Vector3(6.6f, 0.42f, 11.4f), new Vector3(1.6f, 0.84f, 0.9f), Mat(new Color(0.45f, 0.33f, 0.20f), 0.12f));
-        BuildStaticSubAgent(new Vector3(6.1f, 0f, 10.5f), "SUB-AGENT-1");
-        BuildStaticSubAgent(new Vector3(7.1f, 0f, 10.5f), "SUB-AGENT-2");
 
         var dispatchZoneRoot = new GameObject("DispatchZoneRoot");
 
