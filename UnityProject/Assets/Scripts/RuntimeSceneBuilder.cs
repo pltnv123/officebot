@@ -353,39 +353,30 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildZones()
     {
-        var roomGlow = Emissive(new Color(0.55f, 0.30f, 0.06f), new Color(1.0f, 0.60f, 0.05f), 4.0f);
-        Cube("Room2FrameOuter", new Vector3(6.6f, 2.0f, 8.7f), new Vector3(3.1f, 4.5f, 0.24f), roomGlow);
-        // VREVIEWER room2 doorway accent target
-        Cube(
-            "Room2DoorFrameTarget",
+        var room2EntranceRoot = new GameObject("Room2EntranceRoot");
+
+        var room2Frame = Cube(
+            "Room2Frame",
             new Vector3(8.78f, 0.0f, 6.32f),
             new Vector3(3.05f, 3.35f, 0.24f),
             Emissive(
                 new Color(0.45f, 0.22f, 0.05f),
                 new Color(1.00f, 0.58f, 0.14f, 1f),
                 3.8f));
-        Cube("Room2FrameInner", new Vector3(6.6f, 2.0f, 8.72f), new Vector3(2.6f, 4.0f, 0.14f), Emissive(new Color(0.45f, 0.24f, 0.04f), new Color(1.0f, 0.55f, 0.02f), 3.2f));
-        Cube("Room2Inner", new Vector3(6.6f, 2.0f, 8.75f), new Vector3(2.1f, 3.7f, 0.15f), Mat(new Color(0.15f, 0.12f, 0.08f), 0.08f));
-        Cube("Room2TopGlow", new Vector3(6.6f, 4.1f, 8.65f), new Vector3(2.8f, 0.15f, 0.1f), roomGlow);
-        Cube("Room2LeftGlow", new Vector3(5.25f, 2.0f, 8.65f), new Vector3(0.15f, 3.7f, 0.1f), roomGlow);
-        Cube("Room2RightGlow", new Vector3(7.95f, 2.0f, 8.65f), new Vector3(0.15f, 3.7f, 0.1f), roomGlow);
-        Cube("Room2DoorFloorGlow", new Vector3(6.6f, -0.01f, 8.9f), new Vector3(2.6f, 0.03f, 1.2f), Emissive(new Color(0.4f, 0.2f, 0.05f), new Color(1.0f, 0.55f, 0.06f), 2.5f));
-        Cube("Room2PillarL", new Vector3(5.35f, 1.9f, 8.62f), new Vector3(0.22f, 3.9f, 0.22f), Emissive(new Color(0.45f, 0.24f, 0.05f), new Color(1.0f, 0.58f, 0.08f), 2.4f));
-        Cube("Room2PillarR", new Vector3(7.85f, 1.9f, 8.62f), new Vector3(0.22f, 3.9f, 0.22f), Emissive(new Color(0.45f, 0.24f, 0.05f), new Color(1.0f, 0.58f, 0.08f), 2.4f));
+        room2Frame.transform.SetParent(room2EntranceRoot.transform, true);
 
-        Cube(
+        var room2Arrow = Cube(
             "Room2Arrow",
             new Vector3(8.78f, 1.18f, 6.12f),
             new Vector3(0.62f, 0.62f, 0.62f),
             Emissive(
                 new Color(0.4f, 0.2f, 0.05f),
                 new Color(1.0f, 0.7f, 0.1f),
-                3.2f))
-            .transform.rotation = Quaternion.Euler(0f, 0f, -28f);
-        Cube("Room2ArrowGlow", new Vector3(8.78f, 1.18f, 6.12f), new Vector3(0.92f, 0.22f, 0.22f), Emissive(new Color(0.5f, 0.24f, 0.06f), new Color(1.0f, 0.70f, 0.18f), 3.0f));
-        Cube("Room2PortalSideGlowL", new Vector3(7.25f, 1.6f, 6.30f), new Vector3(0.18f, 2.8f, 0.18f), Emissive(new Color(0.45f, 0.22f, 0.05f), new Color(1.0f, 0.62f, 0.16f), 3.6f));
-        Cube("Room2PortalSideGlowR", new Vector3(10.25f, 1.6f, 6.30f), new Vector3(0.18f, 2.8f, 0.18f), Emissive(new Color(0.45f, 0.22f, 0.05f), new Color(1.0f, 0.62f, 0.16f), 3.6f));
-        var roomLbl = Txt(
+                3.2f));
+        room2Arrow.transform.rotation = Quaternion.Euler(0f, 0f, -28f);
+        room2Arrow.transform.SetParent(room2EntranceRoot.transform, true);
+
+        var room2Label = Txt(
             "Room2Lbl",
             "ROOM 2",
             new Vector3(8.78f, 2.86f, 6.08f),
@@ -394,7 +385,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             new Color(1.00f, 0.74f, 0.26f, 1f),
             FontStyle.Bold
         );
-        _labelXforms.Add(roomLbl.transform);
+        room2Label.transform.SetParent(room2EntranceRoot.transform, true);
+        _labelXforms.Add(room2Label.transform);
 
         // Room 2 interior behind the doorway
         var room2Floor = Mat(new Color(0.58f, 0.42f, 0.22f), 0.08f);
