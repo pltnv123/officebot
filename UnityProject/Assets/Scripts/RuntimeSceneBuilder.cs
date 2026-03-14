@@ -258,12 +258,12 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void BuildBoard()
     {
         Vector3 taskBoardPos = new Vector3(
-            0.0f,
-            2.55f,
-            8.75f);
+            0.00f,
+            2.70f,
+            8.82f);
         Vector3 taskBoardScale = new Vector3(
-            10.6f,
-            3.2f,
+            10.90f,
+            3.45f,
             0.24f);
         Vector3 taskBoardFrameScale = new Vector3(
             taskBoardScale.x + 1.0f,
@@ -280,6 +280,13 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         taskBoardRoot.transform.position = taskBoardPos;
         taskBoardRoot.transform.localScale = taskBoardScale;
 
+        var taskBoardHeader = Cube(
+            "TaskBoardHeader",
+            taskBoardPos + new Vector3(0.00f, 1.64f, 0.00f),
+            new Vector3(3.20f, 0.44f, 0.06f),
+            Emissive(new Color(0.04f, 0.18f, 0.24f), new Color(0.18f, 0.84f, 1.00f, 1.00f), 2.60f));
+        taskBoardHeader.transform.SetParent(taskBoardRoot.transform, true);
+
         string[] columnTitles =
         {
             "INBOX",
@@ -291,67 +298,57 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         };
         float[] xs =
         {
-            -4.175f,
-            -2.505f,
-            -0.835f,
-            0.835f,
-            2.505f,
-            4.175f
-        };
-        Color[] headerCols =
-        {
-            new Color(0.5f, 0.5f, 0.55f),
-            new Color(0.95f, 0.75f, 0.0f),
-            new Color(0.2f, 0.45f, 0.95f),
-            new Color(0.95f, 0.45f, 0.05f),
-            new Color(0.65f, 0.15f, 0.85f),
-            new Color(0.1f, 0.75f, 0.2f)
+            -4.20f,
+            -2.52f,
+            -0.84f,
+            0.84f,
+            2.52f,
+            4.20f
         };
         Color[] stickyPalette =
         {
-            new Color(1.00f, 0.84f, 0.26f, 1f),
-            new Color(0.40f, 0.72f, 1.00f, 1f),
-            new Color(0.98f, 0.56f, 0.22f, 1f),
-            new Color(0.44f, 0.96f, 0.78f, 1f)
+            new Color(1.00f, 0.84f, 0.24f, 1.00f),
+            new Color(0.40f, 0.72f, 1.00f, 1.00f),
+            new Color(0.98f, 0.56f, 0.22f, 1.00f),
+            new Color(0.44f, 0.96f, 0.78f, 1.00f)
         };
         int cardsPerColumn = 16;
         Vector3 cardScale = new Vector3(
             0.22f,
             0.14f,
             0.02f);
-        float boardTopY = taskBoardPos.y + taskBoardScale.y * 0.5f - 0.30f;
-        float boardBottomY = Mathf.Max(0.20f, taskBoardPos.y - taskBoardScale.y * 0.5f + 0.25f);
-
-        for (int hi = 0; hi < headerCols.Length && hi < _columnHighlightColors.Length; hi++)
-            _columnHighlightColors[hi] = headerCols[hi];
+        float cardSpacingY = 0.19f;
 
         for (int c = 0; c < columnTitles.Length; c++)
         {
             float x = xs[c];
-            var headerBack = Cube(
+            var titleBack = Cube(
                 $"HdrBack_{c}",
-                new Vector3(x, 3.95f, 8.93f),
-                new Vector3(1.55f, 0.30f, 0.03f),
-                Emissive(new Color(0.08f, 0.08f, 0.12f), Color.Lerp(headerCols[c], Color.white, 0.35f), 1.8f));
-            headerBack.transform.SetParent(taskBoardRoot.transform, true);
+                new Vector3(x, taskBoardPos.y + 1.32f, taskBoardPos.z + 0.11f),
+                new Vector3(1.40f, 0.34f, 0.04f),
+                Emissive(new Color(0.08f, 0.08f, 0.12f), new Color(0.18f, 0.84f, 1.00f, 1.00f), 1.8f));
+            titleBack.transform.SetParent(taskBoardRoot.transform, true);
 
-            var headerText = Txt(
+            var titleText = Txt(
                 $"Hdr{c}",
                 columnTitles[c],
-                new Vector3(x, 3.95f, 8.88f),
+                new Vector3(x, taskBoardPos.y + 1.32f, taskBoardPos.z + 0.03f),
                 32,
                 0.15f,
-                Color.Lerp(headerCols[c], Color.white, 0.78f),
+                Color.white,
                 FontStyle.Bold);
-            headerText.transform.SetParent(taskBoardRoot.transform, true);
+            titleText.transform.SetParent(taskBoardRoot.transform, true);
 
             for (int s = 0; s < cardsPerColumn; s++)
             {
                 float sx = x - 0.33f + (s % 2) * 0.44f;
-                float rawSy = 3.58f - (s / 2) * 0.18f;
-                float sy = Mathf.Clamp(rawSy, boardBottomY, boardTopY);
+                float sy = taskBoardPos.y + 1.02f - (s / 2) * cardSpacingY;
                 var sc = stickyPalette[s % stickyPalette.Length];
-                var sticky = Cube($"Sticky_{c}_{s}", new Vector3(sx, sy, 8.94f), cardScale, Mat(sc, 0.03f));
+                var sticky = Cube(
+                    $"Sticky_{c}_{s}",
+                    new Vector3(sx, sy, taskBoardPos.z + 0.12f),
+                    cardScale,
+                    Mat(sc, 0.03f));
                 sticky.transform.SetParent(taskBoardRoot.transform, true);
             }
         }
