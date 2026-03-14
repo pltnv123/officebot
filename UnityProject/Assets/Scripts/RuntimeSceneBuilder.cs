@@ -525,13 +525,17 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         deskLamp.transform.rotation = Quaternion.Euler(0.0f, -24.0f, 0.0f);
         mainDeskRoot.transform.position = new Vector3(0.0f, 0.0f, 0.20f);
         mainDeskRoot.transform.localScale = new Vector3(4.80f, 1.0f, 2.90f);
-        deskBase.transform.SetParent(mainDeskRoot.transform, true);
-        deskTop.transform.position = new Vector3(0.0f, 1.02f, 0.20f);
+        deskBase.transform.SetParent(mainDeskRoot.transform, false);
+        deskBase.transform.localPosition = new Vector3(0.0f, 0.46f, 0.0f);
+        deskTop.transform.SetParent(mainDeskRoot.transform, false);
+        deskTop.transform.localPosition = new Vector3(0.0f, 1.02f, 0.0f);
         deskTop.transform.localScale = new Vector3(4.05f, 0.18f, 2.35f);
-        deskTop.transform.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
-        deskTop.transform.SetParent(mainDeskRoot.transform, true);
-        deskLampStem.transform.SetParent(mainDeskRoot.transform, true);
-        deskLamp.transform.SetParent(mainDeskRoot.transform, true);
+        deskTop.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
+        deskLampStem.transform.SetParent(mainDeskRoot.transform, false);
+        deskLampStem.transform.localPosition = new Vector3(1.20f, 1.02f, 0.14f);
+        deskLamp.transform.SetParent(mainDeskRoot.transform, false);
+        deskLamp.transform.localPosition = new Vector3(1.12f, 1.28f, -0.08f);
+        deskLamp.transform.localRotation = Quaternion.Euler(0.0f, -24.0f, 0.0f);
 
         GameObject[] deskProps =
         {
