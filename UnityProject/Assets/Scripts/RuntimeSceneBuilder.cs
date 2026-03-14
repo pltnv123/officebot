@@ -529,6 +529,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         mainDeskRoot.transform.localScale = new Vector3(4.80f, 1.0f, 2.90f);
         deskBase.transform.SetParent(mainDeskRoot.transform, false);
         deskBase.transform.localPosition = new Vector3(0.0f, 0.46f, 0.0f);
+        deskBase.transform.localScale = new Vector3(4.20f, 0.92f, 2.50f);
         deskTop.transform.SetParent(mainDeskRoot.transform, false);
         deskTop.transform.localPosition = new Vector3(0.0f, 1.02f, 0.0f);
         deskTop.transform.localScale = new Vector3(4.05f, 0.18f, 2.35f);
