@@ -413,44 +413,49 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         var dispatchDesk = Cube(
             "DispatchDesk",
-            new Vector3(-7.25f, 0f, 1.15f),
-            new Vector3(2.2f, 0.90f, 1.10f),
+            new Vector3(-7.30f, 0.00f, 1.20f),
+            new Vector3(2.30f, 0.92f, 1.15f),
             Mat(new Color(0.45f, 0.28f, 0.10f), 0.12f));
         dispatchDesk.transform.SetParent(dispatchZoneRoot.transform, true);
 
         var terminalScreen = Cube(
             "DispatchTerminal",
             new Vector3(-6.65f, 1.18f, 1.05f),
-            new Vector3(0.72f, 0.46f, 0.05f),
-            Emissive(new Color(0.40f, 0.20f, 0.05f), new Color(1.00f, 0.58f, 0.18f, 1f), 2.8f));
+            new Vector3(0.74f, 0.48f, 0.05f),
+            Emissive(new Color(0.40f, 0.20f, 0.05f), new Color(1.00f, 0.58f, 0.18f, 1f), 3.00f));
         terminalScreen.transform.SetParent(dispatchZoneRoot.transform, true);
 
-        GameObject[] boxStackA =
+        GameObject[] dispatchBoxes =
         {
-            Cube("DispatchBox1", new Vector3(-8.35f, 0f, 0.55f), new Vector3(0.72f, 0.42f, 0.62f), Mat(new Color(0.7f, 0.55f, 0.25f), 0.05f)),
-            Cube("DispatchBox2", new Vector3(-8.00f, 0f, 1.05f), new Vector3(0.62f, 0.62f, 0.62f), Mat(new Color(0.65f, 0.5f, 0.2f), 0.05f)),
-            Cube("DispatchBox3", new Vector3(-7.75f, 0f, 1.60f), new Vector3(0.82f, 0.52f, 0.72f), Mat(new Color(0.72f, 0.58f, 0.28f), 0.05f)),
-            Cube("DispatchBox4", new Vector3(-8.20f, 0f, 1.95f), new Vector3(0.66f, 0.86f, 0.66f), Mat(new Color(0.68f, 0.50f, 0.22f), 0.05f))
+            Cube("DispatchBox1", new Vector3(-8.36f, 0.00f, 0.55f), new Vector3(0.72f, 0.42f, 0.62f), Mat(new Color(0.7f, 0.55f, 0.25f), 0.05f)),
+            Cube("DispatchBox2", new Vector3(-8.02f, 0.00f, 1.05f), new Vector3(0.62f, 0.62f, 0.62f), Mat(new Color(0.65f, 0.5f, 0.2f), 0.05f)),
+            Cube("DispatchBox3", new Vector3(-7.76f, 0.00f, 1.60f), new Vector3(0.82f, 0.52f, 0.72f), Mat(new Color(0.72f, 0.58f, 0.28f), 0.05f)),
+            Cube("DispatchBox4", new Vector3(-8.22f, 0.00f, 1.95f), new Vector3(0.66f, 0.86f, 0.66f), Mat(new Color(0.68f, 0.50f, 0.22f), 0.05f)),
+            Cube("DispatchBox5", new Vector3(-7.36f, 0.00f, 0.55f), new Vector3(0.58f, 0.38f, 0.58f), Mat(new Color(0.76f, 0.58f, 0.30f), 0.05f)),
+            Cube("DispatchBox6", new Vector3(-7.10f, 0.00f, 1.95f), new Vector3(0.54f, 0.54f, 0.54f), Mat(new Color(0.70f, 0.54f, 0.26f), 0.05f)),
+            Cube("DispatchBox7", new Vector3(-8.48f, 0.00f, 1.52f), new Vector3(0.78f, 0.44f, 0.60f), Mat(new Color(0.74f, 0.56f, 0.28f), 0.05f)),
+            Cube("DispatchBox8", new Vector3(-7.54f, 0.00f, 2.18f), new Vector3(0.52f, 0.52f, 0.70f), Mat(new Color(0.70f, 0.52f, 0.24f), 0.05f))
         };
-        GameObject[] boxStackB =
-        {
-            Cube("DispatchBox5", new Vector3(-7.35f, 0f, 0.55f), new Vector3(0.58f, 0.38f, 0.58f), Mat(new Color(0.76f, 0.58f, 0.30f), 0.05f)),
-            Cube("DispatchBox6", new Vector3(-7.10f, 0f, 1.95f), new Vector3(0.54f, 0.54f, 0.54f), Mat(new Color(0.70f, 0.54f, 0.26f), 0.05f))
-        };
-        foreach (var box in boxStackA)
-            box.transform.SetParent(dispatchZoneRoot.transform, true);
-        foreach (var box in boxStackB)
+        foreach (var box in dispatchBoxes)
             box.transform.SetParent(dispatchZoneRoot.transform, true);
 
-        var dispatchGlow = Cube(
-            "DispatchZoneGlow",
-            new Vector3(-7.45f, 0.02f, 1.15f),
-            new Vector3(2.8f, 0.02f, 2.1f),
+        var dispatchFloorGlow = Cube(
+            "DispatchFloorGlow",
+            new Vector3(-7.46f, 0.02f, 1.16f),
+            new Vector3(2.90f, 0.02f, 2.16f),
             Emissive(
                 new Color(0.35f, 0.18f, 0.03f),
                 new Color(1.00f, 0.56f, 0.10f, 1f),
-                2.4f));
-        dispatchGlow.transform.SetParent(dispatchZoneRoot.transform, true);
+                2.80f));
+        dispatchFloorGlow.transform.SetParent(dispatchZoneRoot.transform, true);
+
+        var dispatchArrow = Cube(
+            "DispatchArrow",
+            new Vector3(-6.90f, 0.03f, -0.10f),
+            new Vector3(0.90f, 0.02f, 0.90f),
+            Emissive(new Color(0.35f, 0.18f, 0.03f), new Color(1.00f, 0.56f, 0.10f, 1f), 2.4f));
+        dispatchArrow.transform.rotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
+        dispatchArrow.transform.SetParent(dispatchZoneRoot.transform, true);
 
         var dispatchLbl = Txt("DispatchLbl", "DISPATCH", new Vector3(-7.5f, 2.5f, 1.5f), 16, 0.10f, new Color(1.0f, 0.55f, 0.0f), FontStyle.Bold);
         dispatchLbl.transform.SetParent(dispatchZoneRoot.transform, true);
