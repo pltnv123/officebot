@@ -666,10 +666,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         Vector3[] plantBases =
         {
-            new Vector3(-8.45f, 0.0f, 6.95f),
-            new Vector3(-3.55f, 0.0f, 7.15f),
-            new Vector3(3.95f, 0.0f, 7.15f),
-            new Vector3(8.18f, 0.0f, 6.88f)
+            new Vector3(-8.46f, 0.0f, 6.96f),
+            new Vector3(-3.56f, 0.0f, 7.14f),
+            new Vector3(3.96f, 0.0f, 7.14f),
+            new Vector3(8.20f, 0.0f, 6.88f)
         };
         for (int i = 0; i < plantBases.Length; i++)
         {
@@ -685,18 +685,22 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 Mat(new Color(0.22f, 0.56f, 0.28f, 1f), 0.05f));
         }
 
-        Cube("WallShelfPropsL", new Vector3(-9.8f, 2.2f, 6.6f), new Vector3(0.20f, 0.16f, 2.6f), Mat(new Color(0.34f, 0.25f, 0.16f), 0.08f));
-        Cube("WallShelfPropsR", new Vector3(9.8f, 2.2f, 6.6f), new Vector3(0.20f, 0.16f, 2.6f), Mat(new Color(0.34f, 0.25f, 0.16f), 0.08f));
-        Cube("PerimeterCrateL", new Vector3(-9.2f, 0.35f, 5.9f), new Vector3(0.7f, 0.7f, 0.7f), Mat(new Color(0.52f, 0.34f, 0.18f), 0.06f));
-        Cube("PerimeterCrateR", new Vector3(9.1f, 0.35f, 5.8f), new Vector3(0.7f, 0.7f, 0.7f), Mat(new Color(0.52f, 0.34f, 0.18f), 0.06f));
-        Cube("PerimeterPanelL", new Vector3(-9.4f, 0.04f, 2.2f), new Vector3(1.8f, 0.02f, 1.2f), Mat(new Color(0.44f, 0.32f, 0.20f), 0.18f));
-        Cube("PerimeterPanelR", new Vector3(9.3f, 0.04f, 2.1f), new Vector3(1.8f, 0.02f, 1.2f), Mat(new Color(0.44f, 0.32f, 0.20f), 0.18f));
-        Cube("PerimeterToolCrateL", new Vector3(-8.6f, 0.42f, 4.8f), new Vector3(0.64f, 0.42f, 0.54f), Mat(new Color(0.56f, 0.38f, 0.20f), 0.06f));
-        Cube("PerimeterToolCrateR", new Vector3(8.5f, 0.42f, 4.7f), new Vector3(0.64f, 0.42f, 0.54f), Mat(new Color(0.56f, 0.38f, 0.20f), 0.06f));
-        Cube("PerimeterShelfBoxL", new Vector3(-9.7f, 2.45f, 6.2f), new Vector3(0.20f, 0.26f, 0.38f), Mat(new Color(0.54f, 0.36f, 0.20f), 0.06f));
-        Cube("PerimeterShelfBoxR", new Vector3(9.7f, 2.45f, 6.1f), new Vector3(0.20f, 0.26f, 0.38f), Mat(new Color(0.54f, 0.36f, 0.20f), 0.06f));
-        Cube("PerimeterFloorPropL", new Vector3(-9.0f, 0.18f, 3.4f), new Vector3(0.46f, 0.28f, 0.36f), Mat(new Color(0.48f, 0.34f, 0.22f), 0.07f));
-        Cube("PerimeterFloorPropR", new Vector3(9.0f, 0.18f, 3.3f), new Vector3(0.46f, 0.28f, 0.36f), Mat(new Color(0.48f, 0.34f, 0.22f), 0.07f));
+        Cube("leftShelf", new Vector3(-8.60f, 1.80f, 2.90f), new Vector3(1.40f, 2.20f, 0.38f), Mat(new Color(0.34f, 0.25f, 0.16f), 0.08f));
+        Cube("rightShelf", new Vector3(8.58f, 1.72f, 5.10f), new Vector3(1.12f, 1.80f, 0.34f), Mat(new Color(0.34f, 0.25f, 0.16f), 0.08f));
+
+        Vector3[] perimeterCratePositions =
+        {
+            new Vector3(-1.20f, 0.00f, 6.90f),
+            new Vector3(1.10f, 0.00f, 6.85f),
+            new Vector3(6.65f, 0.00f, 6.20f),
+            new Vector3(7.88f, 0.00f, 3.10f),
+            new Vector3(-7.90f, 0.00f, 6.10f),
+            new Vector3(-6.60f, 0.00f, 6.35f)
+        };
+        for (int i = 0; i < perimeterCratePositions.Length; i++)
+        {
+            Cube($"PerimeterCrate_{i}", perimeterCratePositions[i], new Vector3(0.62f, 0.42f, 0.62f), Mat(new Color(0.52f, 0.34f, 0.18f), 0.06f));
+        }
         Cube("PerimeterToolStackL", new Vector3(-8.7f, 0.36f, 6.2f), new Vector3(0.56f, 0.56f, 0.46f), Mat(new Color(0.54f, 0.36f, 0.20f), 0.07f));
         Cube("PerimeterToolStackR", new Vector3(8.6f, 0.36f, 6.1f), new Vector3(0.56f, 0.56f, 0.46f), Mat(new Color(0.54f, 0.36f, 0.20f), 0.07f));
 
