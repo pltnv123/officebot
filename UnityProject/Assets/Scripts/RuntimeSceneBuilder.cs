@@ -45,7 +45,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void Start()
     {
-        SetupCamera();
+        BuildCamera();
         BuildRoom();
         BuildBoard();
         BuildZones();
@@ -112,7 +112,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         }
     }
 
-    private static void SetupCamera()
+    private static void BuildCamera()
     {
         var mainCamera = Camera.main;
         if (mainCamera == null) return;
