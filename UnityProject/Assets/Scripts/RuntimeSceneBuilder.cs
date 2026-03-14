@@ -323,10 +323,11 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         var taskBoardHeader = Cube(
             "TaskBoardHeader",
-            taskBoardPos + new Vector3(0.00f, 1.64f, 0.00f),
+            Vector3.zero,
             new Vector3(3.20f, 0.44f, 0.06f),
             Emissive(new Color(0.04f, 0.18f, 0.24f), new Color(0.18f, 0.84f, 1.00f, 1.00f), 2.60f));
-        taskBoardHeader.transform.SetParent(taskBoardRoot.transform, true);
+        taskBoardHeader.transform.SetParent(taskBoardRoot.transform, false);
+        taskBoardHeader.transform.localPosition = new Vector3(0.00f, 1.64f, 0.00f);
 
         string[] columnTitles =
         {
