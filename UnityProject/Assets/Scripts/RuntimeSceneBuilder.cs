@@ -409,82 +409,51 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         BuildStaticSubAgent(new Vector3(6.1f, 0f, 10.5f), "SUB-AGENT-1");
         BuildStaticSubAgent(new Vector3(7.1f, 0f, 10.5f), "SUB-AGENT-2");
 
-        Cube(
+        var dispatchZoneRoot = new GameObject("DispatchZoneRoot");
+
+        var dispatchDesk = Cube(
             "DispatchDesk",
             new Vector3(-7.25f, 0f, 1.15f),
             new Vector3(2.2f, 0.90f, 1.10f),
             Mat(new Color(0.45f, 0.28f, 0.10f), 0.12f));
-        Cube(
-            "DispatchPanel",
-            new Vector3(-8.1f, 0.8f, 1.5f),
-            new Vector3(0.3f, 1.6f, 1.2f),
-            Mat(new Color(0.3f, 0.18f, 0.06f), 0.12f));
-        Cube(
+        dispatchDesk.transform.SetParent(dispatchZoneRoot.transform, true);
+
+        var terminalScreen = Cube(
             "DispatchTerminal",
             new Vector3(-6.65f, 1.18f, 1.05f),
             new Vector3(0.72f, 0.46f, 0.05f),
-            Mat(new Color(0.05f, 0.05f, 0.12f), 0.1f));
-        Cube(
-            "DispatchTerminalGlow",
-            new Vector3(-6.65f, 1.18f, 1.05f),
-            new Vector3(0.72f, 0.46f, 0.02f),
-            Emissive(new Color(0.4f, 0.2f, 0.05f), new Color(1.00f,0.58f,0.18f,1f), 2.8f));
-        Cube(
-            "DispatchBox1",
-            new Vector3(-8.35f, 0f, 0.55f),
-            new Vector3(0.72f, 0.42f, 0.62f),
-            Mat(new Color(0.7f, 0.55f, 0.25f), 0.05f));
-        Cube(
-            "DispatchBox2",
-            new Vector3(-8.00f, 0f, 1.05f),
-            new Vector3(0.62f, 0.62f, 0.62f),
-            Mat(new Color(0.65f, 0.5f, 0.2f), 0.05f));
-        Cube(
-            "DispatchBox3",
-            new Vector3(-7.75f, 0f, 1.60f),
-            new Vector3(0.82f, 0.52f, 0.72f),
-            Mat(new Color(0.72f, 0.58f, 0.28f), 0.05f));
-        Cube(
-            "DispatchBox4",
-            new Vector3(-8.20f, 0f, 1.95f),
-            new Vector3(0.66f, 0.86f, 0.66f),
-            Mat(new Color(0.68f, 0.50f, 0.22f), 0.05f));
-        Cube(
-            "DispatchBox5",
-            new Vector3(-7.35f, 0f, 0.55f),
-            new Vector3(0.58f, 0.38f, 0.58f),
-            Mat(new Color(0.76f, 0.58f, 0.30f), 0.05f));
-        Cube(
-            "DispatchBox6",
-            new Vector3(-7.10f, 0f, 1.95f),
-            new Vector3(0.54f, 0.54f, 0.54f),
-            Mat(new Color(0.70f, 0.54f, 0.26f), 0.05f));
-        Cube("DispatchRack", new Vector3(-7.8f, 1.6f, 5.8f), new Vector3(0.22f, 2.6f, 1.6f), Mat(new Color(0.30f, 0.20f, 0.10f), 0.08f));
-        Cube("DispatchHolo", new Vector3(-7.5f, 1.55f, 1.65f), new Vector3(1.0f, 0.05f, 0.8f), Emissive(new Color(0.5f, 0.22f, 0.05f), new Color(1.0f, 0.60f, 0.12f), 2.4f));
-        Cube("DispatchPaperA", new Vector3(-7.1f, 0.84f, 1.8f), new Vector3(0.42f, 0.02f, 0.30f), Mat(new Color(0.9f, 0.86f, 0.76f), 0.03f));
-        Cube("DispatchToolA", new Vector3(-7.9f, 0.86f, 1.3f), new Vector3(0.26f, 0.08f, 0.12f), Mat(new Color(0.65f, 0.36f, 0.12f), 0.04f));
-        Cube("DispatchToolB", new Vector3(-7.2f, 0.86f, 1.15f), new Vector3(0.24f, 0.08f, 0.14f), Mat(new Color(0.60f, 0.32f, 0.10f), 0.04f));
-        Cube("DispatchPaperB", new Vector3(-7.75f, 0.84f, 1.95f), new Vector3(0.34f, 0.02f, 0.26f), Mat(new Color(0.9f, 0.86f, 0.76f), 0.03f));
-        Cube("DispatchPaperC", new Vector3(-7.35f, 0.84f, 1.62f), new Vector3(0.30f, 0.02f, 0.20f), Mat(new Color(0.9f, 0.86f, 0.76f), 0.03f));
-        Cube("DispatchToolC", new Vector3(-8.05f, 0.86f, 1.75f), new Vector3(0.22f, 0.07f, 0.10f), Mat(new Color(0.62f, 0.34f, 0.12f), 0.04f));
-        Cube("DispatchWallPanel", new Vector3(-8.25f, 1.95f, 1.45f), new Vector3(0.12f, 1.6f, 1.8f), Emissive(new Color(0.36f, 0.18f, 0.05f), new Color(1.0f, 0.58f, 0.10f), 2.8f));
-        Cube("DispatchToolRack", new Vector3(-8.0f, 1.35f, 2.6f), new Vector3(0.18f, 1.8f, 0.9f), Mat(new Color(0.36f, 0.22f, 0.12f), 0.08f));
-        Cube("DispatchCableCoil", new Vector3(-7.25f, 0.88f, 2.35f), new Vector3(0.20f, 0.08f, 0.20f), Mat(new Color(0.12f, 0.12f, 0.14f), 0.03f));
-        Cube("DispatchConsoleGlow", new Vector3(-7.55f, 1.42f, 1.85f), new Vector3(0.66f, 0.06f, 0.42f), Emissive(new Color(0.45f, 0.20f, 0.05f), new Color(1.0f, 0.58f, 0.10f), 3.8f));
-        Cube("DispatchGlowColumn", new Vector3(-7.4f, 1.4f, 0.2f), new Vector3(0.18f, 2.8f, 0.18f), Emissive(new Color(0.45f, 0.20f, 0.05f), new Color(1.0f, 0.56f, 0.08f), 3.8f));
-        Cube(
+            Emissive(new Color(0.40f, 0.20f, 0.05f), new Color(1.00f, 0.58f, 0.18f, 1f), 2.8f));
+        terminalScreen.transform.SetParent(dispatchZoneRoot.transform, true);
+
+        GameObject[] boxStackA =
+        {
+            Cube("DispatchBox1", new Vector3(-8.35f, 0f, 0.55f), new Vector3(0.72f, 0.42f, 0.62f), Mat(new Color(0.7f, 0.55f, 0.25f), 0.05f)),
+            Cube("DispatchBox2", new Vector3(-8.00f, 0f, 1.05f), new Vector3(0.62f, 0.62f, 0.62f), Mat(new Color(0.65f, 0.5f, 0.2f), 0.05f)),
+            Cube("DispatchBox3", new Vector3(-7.75f, 0f, 1.60f), new Vector3(0.82f, 0.52f, 0.72f), Mat(new Color(0.72f, 0.58f, 0.28f), 0.05f)),
+            Cube("DispatchBox4", new Vector3(-8.20f, 0f, 1.95f), new Vector3(0.66f, 0.86f, 0.66f), Mat(new Color(0.68f, 0.50f, 0.22f), 0.05f))
+        };
+        GameObject[] boxStackB =
+        {
+            Cube("DispatchBox5", new Vector3(-7.35f, 0f, 0.55f), new Vector3(0.58f, 0.38f, 0.58f), Mat(new Color(0.76f, 0.58f, 0.30f), 0.05f)),
+            Cube("DispatchBox6", new Vector3(-7.10f, 0f, 1.95f), new Vector3(0.54f, 0.54f, 0.54f), Mat(new Color(0.70f, 0.54f, 0.26f), 0.05f))
+        };
+        foreach (var box in boxStackA)
+            box.transform.SetParent(dispatchZoneRoot.transform, true);
+        foreach (var box in boxStackB)
+            box.transform.SetParent(dispatchZoneRoot.transform, true);
+
+        var dispatchGlow = Cube(
             "DispatchZoneGlow",
             new Vector3(-7.45f, 0.02f, 1.15f),
             new Vector3(2.8f, 0.02f, 2.1f),
             Emissive(
                 new Color(0.35f, 0.18f, 0.03f),
                 new Color(1.00f, 0.56f, 0.10f, 1f),
-                2.4f)
-        );
+                2.4f));
+        dispatchGlow.transform.SetParent(dispatchZoneRoot.transform, true);
 
-        Cube("DispatchFloorArrow", new Vector3(-6.9f, 0.03f, 2.9f), new Vector3(1.4f, 0.03f, 0.48f), Emissive(new Color(0.38f, 0.18f, 0.04f), new Color(1.00f, 0.60f, 0.12f), 5.0f));
-        Cube("DispatchWallTerminalGlow", new Vector3(-7.95f, 1.28f, 1.42f), new Vector3(0.32f, 0.42f, 0.03f), Emissive(new Color(0.40f, 0.20f, 0.06f), new Color(1.00f, 0.62f, 0.14f), 4.2f));
         var dispatchLbl = Txt("DispatchLbl", "DISPATCH", new Vector3(-7.5f, 2.5f, 1.5f), 16, 0.10f, new Color(1.0f, 0.55f, 0.0f), FontStyle.Bold);
+        dispatchLbl.transform.SetParent(dispatchZoneRoot.transform, true);
         _labelXforms.Add(dispatchLbl.transform);
 
         // Canonical main desk target: one root, one top, one lamp, exact 18 props
