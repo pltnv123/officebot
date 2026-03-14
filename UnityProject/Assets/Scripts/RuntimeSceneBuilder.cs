@@ -530,9 +530,11 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             Cube("DeskDeviceD", new Vector3(-0.38f, 0.96f, 0.44f), new Vector3(0.16f, 0.05f, 0.12f), Mat(new Color(0.14f, 0.16f, 0.20f), 0.08f)),
             Cube("DeskBoxA", new Vector3(-1.62f, 0.62f, 0.22f), new Vector3(0.34f, 0.22f, 0.28f), Mat(new Color(0.65f, 0.48f, 0.25f), 0.05f)),
             Cube("DeskBoxB", new Vector3(1.52f, 0.62f, 1.82f), new Vector3(0.34f, 0.22f, 0.28f), Mat(new Color(0.60f, 0.44f, 0.22f), 0.05f)),
-            Cube("DeskBoxC", new Vector3(1.28f, 0.62f, 0.12f), new Vector3(0.34f, 0.22f, 0.28f), Mat(new Color(0.60f, 0.44f, 0.22f), 0.05f)),
             Cube("DeskNotebookA", new Vector3(-1.05f, 0.93f, -0.18f), new Vector3(0.24f, 0.04f, 0.18f), Mat(new Color(0.84f, 0.72f, 0.28f), 0.04f)),
-            Cube("DeskNotebookB", new Vector3(1.06f, 0.93f, -0.10f), new Vector3(0.24f, 0.04f, 0.18f), Mat(new Color(0.26f, 0.62f, 0.94f), 0.04f))
+            Cube("DeskNotebookB", new Vector3(1.06f, 0.93f, -0.10f), new Vector3(0.24f, 0.04f, 0.18f), Mat(new Color(0.26f, 0.62f, 0.94f), 0.04f)),
+            Cube("DeskNotebookC", new Vector3(0.08f, 0.93f, -0.26f), new Vector3(0.24f, 0.04f, 0.18f), Mat(new Color(0.92f, 0.78f, 0.32f), 0.04f)),
+            Cube("DeskDrawerA", new Vector3(-1.58f, 0.36f, 0.18f), new Vector3(0.62f, 0.54f, 0.62f), Mat(new Color(0.54f, 0.36f, 0.18f), 0.06f)),
+            Cube("DeskDrawerB", new Vector3(1.58f, 0.36f, 1.84f), new Vector3(0.62f, 0.54f, 0.62f), Mat(new Color(0.54f, 0.36f, 0.18f), 0.06f))
         };
         foreach (var deskProp in deskProps)
             deskProp.transform.SetParent(mainDeskRoot.transform, true);
