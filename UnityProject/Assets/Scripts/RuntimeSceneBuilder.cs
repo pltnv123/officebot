@@ -364,32 +364,32 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             float x = xs[c];
             var titleBack = Cube(
                 $"HdrBack_{c}",
-                new Vector3(x, taskBoardPos.y + 1.32f, taskBoardPos.z + 0.11f),
+                new Vector3(x, 1.32f, 0.11f),
                 new Vector3(1.40f, 0.34f, 0.04f),
                 Emissive(new Color(0.08f, 0.08f, 0.12f), new Color(0.18f, 0.84f, 1.00f, 1.00f), 1.8f));
-            titleBack.transform.SetParent(taskBoardRoot.transform, true);
+            titleBack.transform.SetParent(taskBoardRoot.transform, false);
 
             var titleText = Txt(
                 $"Hdr{c}",
                 columnTitles[c],
-                new Vector3(x, taskBoardPos.y + 1.32f, taskBoardPos.z + 0.03f),
+                new Vector3(x, 1.32f, 0.03f),
                 32,
                 0.15f,
                 Color.white,
                 FontStyle.Bold);
-            titleText.transform.SetParent(taskBoardRoot.transform, true);
+            titleText.transform.SetParent(taskBoardRoot.transform, false);
 
             for (int s = 0; s < cardsPerColumn; s++)
             {
                 float sx = x - 0.33f + (s % 2) * 0.44f;
-                float sy = taskBoardPos.y + 1.02f - (s / 2) * cardSpacingY;
+                float sy = 1.02f - (s / 2) * cardSpacingY;
                 var sc = stickyPalette[s % stickyPalette.Length];
                 var sticky = Cube(
                     $"Sticky_{c}_{s}",
-                    new Vector3(sx, sy, taskBoardPos.z + 0.12f),
+                    new Vector3(sx, sy, 0.12f),
                     cardScale,
                     Mat(sc, 0.03f));
-                sticky.transform.SetParent(taskBoardRoot.transform, true);
+                sticky.transform.SetParent(taskBoardRoot.transform, false);
             }
         }
 
