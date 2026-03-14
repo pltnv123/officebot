@@ -588,22 +588,27 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             var miniGlow = Cube(
                 $"MonitorMiniScreenGlow_{i}",
                 miniScreenPositions[i],
-                new Vector3(0.58f, 0.42f, 0.06f),
+                new Vector3(0.62f, 0.44f, 0.06f),
                 Emissive(
                     new Color(0.08f, 0.22f, 0.16f),
                     new Color(0.18f, 1.00f, 0.78f, 1f),
-                    3.6f));
+                    3.9f));
             miniGlow.transform.SetParent(monitoringZoneRoot.transform, true);
         }
 
-        var monitorDesk = Cube("MonitorDesk", new Vector3(7.05f, 0f, 1.15f), new Vector3(2.4f, 0.92f, 1.05f), Mat(new Color(0.25f, 0.25f, 0.32f), 0.1f));
+        var monitorDesk = Cube("MonitorDesk", new Vector3(7.10f, 0.00f, 1.20f), new Vector3(2.50f, 0.92f, 1.12f), Mat(new Color(0.25f, 0.25f, 0.32f), 0.1f));
         monitorDesk.transform.SetParent(monitoringZoneRoot.transform, true);
         Cube("MonitoringConsoleA", new Vector3(6.7f, 0.92f, 4.5f), new Vector3(0.55f, 0.20f, 0.38f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.1f));
         Cube("MonitoringConsoleB", new Vector3(6.95f, 0.92f, 5.4f), new Vector3(0.50f, 0.20f, 0.34f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.1f));
         Cube("MonitoringRack", new Vector3(6.15f, 1.7f, 5.9f), new Vector3(0.22f, 2.8f, 1.5f), Mat(new Color(0.10f, 0.12f, 0.14f), 0.1f));
-        Cyl("MonitoringChairBase", new Vector3(7.0f, 0.22f, 4.9f), new Vector3(0.28f, 0.16f, 0.28f), Mat(new Color(0.12f, 0.12f, 0.14f), 0.12f));
-        Cube("MonitoringChairSeat", new Vector3(7.0f, 0.56f, 4.9f), new Vector3(0.58f, 0.16f, 0.58f), Mat(new Color(0.18f, 0.22f, 0.26f), 0.12f));
-        Cube("MonitoringChairBack", new Vector3(7.0f, 0.95f, 5.15f), new Vector3(0.58f, 0.56f, 0.10f), Mat(new Color(0.18f, 0.22f, 0.26f), 0.12f));
+        var operatorChair = new GameObject("OperatorChair");
+        operatorChair.transform.SetParent(monitoringZoneRoot.transform, false);
+        operatorChair.transform.position = new Vector3(6.55f, 0.00f, 1.28f);
+        operatorChair.transform.rotation = Quaternion.Euler(0.0f, 22.0f, 0.0f);
+        operatorChair.transform.localScale = new Vector3(0.72f, 0.72f, 0.72f);
+        Go(operatorChair, PrimitiveType.Cylinder, "Base", new Vector3(0f, 0.22f, 0f), new Vector3(0.28f, 0.16f, 0.28f), Mat(new Color(0.12f, 0.12f, 0.14f), 0.12f));
+        Go(operatorChair, PrimitiveType.Cube, "Seat", new Vector3(0f, 0.56f, 0f), new Vector3(0.58f, 0.16f, 0.58f), Mat(new Color(0.18f, 0.22f, 0.26f), 0.12f));
+        Go(operatorChair, PrimitiveType.Cube, "Back", new Vector3(0f, 0.95f, 0.25f), new Vector3(0.58f, 0.56f, 0.10f), Mat(new Color(0.18f, 0.22f, 0.26f), 0.12f));
         Cube("MonitoringKeypad", new Vector3(7.25f, 0.92f, 5.15f), new Vector3(0.28f, 0.04f, 0.22f), Emissive(new Color(0.08f, 0.18f, 0.10f), new Color(0.18f, 0.9f, 0.45f), 1.6f));
         Cube("MonitoringTablet", new Vector3(6.55f, 0.94f, 1.45f), new Vector3(0.36f, 0.04f, 0.24f), Mat(new Color(0.08f, 0.10f, 0.14f), 0.16f));
         Cube("MonitoringCableTray", new Vector3(6.25f, 0.35f, 1.95f), new Vector3(0.40f, 0.08f, 0.18f), Mat(new Color(0.12f, 0.12f, 0.14f), 0.04f));
