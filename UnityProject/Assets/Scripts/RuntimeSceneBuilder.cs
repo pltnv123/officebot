@@ -337,16 +337,18 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             "REVIEW",
             "DONE"
         };
+        float columnWidth = 1.56f;
+        float columnGap = 0.12f;
+        float columnPitch = columnWidth + columnGap;
         float[] xs =
         {
-            -4.20f,
-            -2.52f,
-            -0.84f,
-            0.84f,
-            2.52f,
-            4.20f
+            -2.5f * columnPitch,
+            -1.5f * columnPitch,
+            -0.5f * columnPitch,
+            0.5f * columnPitch,
+            1.5f * columnPitch,
+            2.5f * columnPitch
         };
-        float columnWidth = 1.56f;
         Color[] stickyPalette =
         {
             new Color(1.00f, 0.84f, 0.24f, 1.00f),
