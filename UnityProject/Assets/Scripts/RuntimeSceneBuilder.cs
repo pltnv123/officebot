@@ -138,11 +138,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             rightHudCanvas.transform.position = new Vector3(60.00f, 0.00f, 0.00f);
             rightHudCanvas.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
 
-            var canvas = rightHudCanvas.GetComponent<Canvas>();
-            if (canvas != null)
-                canvas.enabled = false;
-
-            rightHudCanvas.SetActive(false);
+            foreach (var behaviour in rightHudCanvas.GetComponents<Behaviour>())
+                behaviour.enabled = false;
+            foreach (var behaviour in rightHudCanvas.GetComponentsInChildren<Behaviour>(true))
+                behaviour.enabled = false;
         }
     }
 
