@@ -141,6 +141,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             var canvas = rightHudCanvas.GetComponent<Canvas>();
             if (canvas != null)
                 canvas.enabled = false;
+
+            rightHudCanvas.SetActive(false);
         }
     }
 
