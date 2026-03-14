@@ -291,9 +291,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("LeftWall", new Vector3(-10.8f, 2.5f, 3f), new Vector3(0.55f, 5f, 18f), wall);
         Cube("RightWall", new Vector3(10.8f, 2.5f, 3f), new Vector3(0.55f, 5f, 18f), wall);
 
-        var shelf = Mat(new Color(0.32f, 0.27f, 0.20f), 0.1f);
-        Cube("ShelfA", new Vector3(-11.6f, 2.0f, 1.0f), new Vector3(0.4f, 0.12f, 4.2f), shelf);
-        Cube("ShelfB", new Vector3(-11.6f, 2.8f, 1.0f), new Vector3(0.4f, 0.12f, 4.2f), shelf);
     }
 
     private void BuildBoard()
