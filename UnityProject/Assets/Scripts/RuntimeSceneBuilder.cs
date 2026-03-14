@@ -538,69 +538,65 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         foreach (var deskProp in deskProps)
             deskProp.transform.SetParent(mainDeskRoot.transform, true);
 
-        Cube(
-            "MonitoringWall",
+        var monitoringZoneRoot = new GameObject("MonitoringZoneRoot");
+
+        var monitorWall = Cube(
+            "MonitorWall",
             new Vector3(8.10f, 2.1f, 1.25f),
             new Vector3(0.28f, 4.2f, 3.8f),
             Mat(new Color(0.10f, 0.10f, 0.14f), 0.12f));
-        Cube(
-            "Mon1",
+        monitorWall.transform.SetParent(monitoringZoneRoot.transform, true);
+
+        Vector3[] mainScreenPositions =
+        {
             new Vector3(8.10f, 1.95f, 0.55f),
-            new Vector3(1.18f, 0.78f, 0.08f),
-            Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube(
-            "Mon1Screen",
-            new Vector3(8.10f, 1.95f, 0.55f),
-            new Vector3(1.18f, 0.78f, 0.08f),
-            Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
-        Cube(
-            "Mon2",
             new Vector3(8.10f, 1.95f, 1.25f),
-            new Vector3(1.18f, 0.78f, 0.08f),
-            Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube(
-            "Mon2Screen",
-            new Vector3(8.10f, 1.95f, 1.25f),
-            new Vector3(1.18f, 0.78f, 0.08f),
-            Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
-        Cube(
-            "Mon3",
-            new Vector3(8.10f, 1.95f, 1.95f),
-            new Vector3(1.18f, 0.78f, 0.08f),
-            Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube(
-            "Mon3Screen",
-            new Vector3(8.10f, 1.95f, 1.95f),
-            new Vector3(1.18f, 0.78f, 0.08f),
-            Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
-        Cube(
-            "Mon4",
+            new Vector3(8.10f, 1.95f, 1.95f)
+        };
+        for (int i = 0; i < mainScreenPositions.Length; i++)
+        {
+            var screenBody = Cube(
+                $"MonitorScreen_{i}",
+                mainScreenPositions[i],
+                new Vector3(1.18f, 0.78f, 0.08f),
+                Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
+            screenBody.transform.SetParent(monitoringZoneRoot.transform, true);
+
+            var screenGlow = Cube(
+                $"MonitorScreenGlow_{i}",
+                mainScreenPositions[i],
+                new Vector3(1.18f, 0.78f, 0.08f),
+                Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
+            screenGlow.transform.SetParent(monitoringZoneRoot.transform, true);
+        }
+
+        Vector3[] miniScreenPositions =
+        {
             new Vector3(7.55f, 1.45f, 0.25f),
-            new Vector3(0.58f, 0.42f, 0.06f),
-            Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube(
-            "Mon4Screen",
-            new Vector3(7.55f, 1.45f, 0.25f),
-            new Vector3(0.58f, 0.42f, 0.06f),
-            Emissive(
-                new Color(0.08f, 0.22f, 0.16f),
-                new Color(0.18f, 1.00f, 0.78f, 1f),
-                3.6f));
-        Cube(
-            "Mon5",
-            new Vector3(7.55f, 1.45f, 2.25f),
-            new Vector3(0.58f, 0.42f, 0.06f),
-            Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-        Cube(
-            "Mon5Screen",
-            new Vector3(7.55f, 1.45f, 2.25f),
-            new Vector3(0.58f, 0.42f, 0.06f),
-            Emissive(
-                new Color(0.08f, 0.22f, 0.16f),
-                new Color(0.18f, 1.00f, 0.78f, 1f),
-                3.6f));
-        // VREVIEWER monitoring target desk anchor/scale
-        Cube("MonitoringDesk", new Vector3(7.05f, 0f, 1.15f), new Vector3(2.4f, 0.92f, 1.05f), Mat(new Color(0.25f, 0.25f, 0.32f), 0.1f));
+            new Vector3(7.55f, 1.45f, 2.25f)
+        };
+        for (int i = 0; i < miniScreenPositions.Length; i++)
+        {
+            var miniBody = Cube(
+                $"MonitorMiniScreen_{i}",
+                miniScreenPositions[i],
+                new Vector3(0.58f, 0.42f, 0.06f),
+                Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
+            miniBody.transform.SetParent(monitoringZoneRoot.transform, true);
+
+            var miniGlow = Cube(
+                $"MonitorMiniScreenGlow_{i}",
+                miniScreenPositions[i],
+                new Vector3(0.58f, 0.42f, 0.06f),
+                Emissive(
+                    new Color(0.08f, 0.22f, 0.16f),
+                    new Color(0.18f, 1.00f, 0.78f, 1f),
+                    3.6f));
+            miniGlow.transform.SetParent(monitoringZoneRoot.transform, true);
+        }
+
+        var monitorDesk = Cube("MonitorDesk", new Vector3(7.05f, 0f, 1.15f), new Vector3(2.4f, 0.92f, 1.05f), Mat(new Color(0.25f, 0.25f, 0.32f), 0.1f));
+        monitorDesk.transform.SetParent(monitoringZoneRoot.transform, true);
         Cube("MonitoringConsoleA", new Vector3(6.7f, 0.92f, 4.5f), new Vector3(0.55f, 0.20f, 0.38f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.1f));
         Cube("MonitoringConsoleB", new Vector3(6.95f, 0.92f, 5.4f), new Vector3(0.50f, 0.20f, 0.34f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.1f));
         Cube("MonitoringRack", new Vector3(6.15f, 1.7f, 5.9f), new Vector3(0.22f, 2.8f, 1.5f), Mat(new Color(0.10f, 0.12f, 0.14f), 0.1f));
@@ -621,7 +617,14 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("MonitoringZoneGlow", new Vector3(7.2f, 0.02f, 1.2f), new Vector3(5.5f, 0.03f, 5.3f), Emissive(new Color(0.02f, 0.18f, 0.08f), new Color(0.14f, 0.85f, 0.40f), 3.8f));
         Cube("MonitoringDeskGlow", new Vector3(7.05f, 0.92f, 1.15f), new Vector3(2.0f, 0.05f, 0.82f), Emissive(new Color(0.04f, 0.18f, 0.10f), new Color(0.16f, 0.95f, 0.50f), 2.8f));
         var monitoringLbl = Txt("MonitoringLbl", "MONITORING", new Vector3(7.2f, 3.0f, 1.2f), 14, 0.10f, new Color(0.15f, 1.0f, 0.45f), FontStyle.Bold);
+        monitoringLbl.transform.SetParent(monitoringZoneRoot.transform, true);
         _labelXforms.Add(monitoringLbl.transform);
+
+        foreach (Transform child in monitoringZoneRoot.transform)
+        {
+            if (child.name.StartsWith("Monitoring") || child.name.StartsWith("Monitor"))
+                continue;
+        }
 
         Vector3[] plantBases =
         {
