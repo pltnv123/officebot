@@ -365,7 +365,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             var titleBack = Cube(
                 $"HdrBack_{c}",
                 new Vector3(x, taskBoardPos.y + 1.32f, taskBoardPos.z + 0.11f),
-                new Vector3(columnWidth, 0.34f, 0.04f),
+                new Vector3(1.40f, 0.34f, 0.04f),
                 Emissive(new Color(0.08f, 0.08f, 0.12f), new Color(0.18f, 0.84f, 1.00f, 1.00f), 1.8f));
             titleBack.transform.SetParent(taskBoardRoot.transform, true);
 
