@@ -501,8 +501,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         // Canonical main desk target: one root, one top, one lamp, exact 18 props
         var mainDeskRoot = Cube(
             "MainDeskRoot",
-            new Vector3(0.0f, 0.0f, 0.1f),
-            new Vector3(4.2f, 1.0f, 2.6f),
+            new Vector3(0.0f, 0.0f, 0.20f),
+            new Vector3(4.80f, 1.0f, 2.90f),
             Mat(new Color(0.46f, 0.30f, 0.14f), 0.18f));
         var deskBase = Cube(
             "DeskBase",
