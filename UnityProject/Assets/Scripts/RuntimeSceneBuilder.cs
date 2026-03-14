@@ -575,7 +575,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             new Vector3(8.10f, 2.1f, 1.25f),
             new Vector3(0.28f, 4.2f, 3.8f),
             Mat(new Color(0.10f, 0.10f, 0.14f), 0.12f));
-        monitorWall.transform.SetParent(monitoringZoneRoot.transform, true);
+        monitorWall.transform.SetParent(monitoringZoneRoot.transform, false);
 
         Vector3[] mainScreenPositions =
         {
@@ -590,14 +590,14 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 mainScreenPositions[i],
                 new Vector3(1.18f, 0.80f, 0.08f),
                 Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-            screenBody.transform.SetParent(monitoringZoneRoot.transform, true);
+            screenBody.transform.SetParent(monitoringZoneRoot.transform, false);
 
             var screenGlow = Cube(
                 $"MonitorScreenGlow_{i}",
                 mainScreenPositions[i],
                 new Vector3(1.18f, 0.80f, 0.08f),
                 Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.9f));
-            screenGlow.transform.SetParent(monitoringZoneRoot.transform, true);
+            screenGlow.transform.SetParent(monitoringZoneRoot.transform, false);
         }
 
         Vector3[] miniScreenPositions =
@@ -612,7 +612,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 miniScreenPositions[i],
                 new Vector3(0.62f, 0.44f, 0.06f),
                 Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
-            miniBody.transform.SetParent(monitoringZoneRoot.transform, true);
+            miniBody.transform.SetParent(monitoringZoneRoot.transform, false);
 
             var miniGlow = Cube(
                 $"MonitorMiniScreenGlow_{i}",
@@ -622,11 +622,11 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                     new Color(0.08f, 0.22f, 0.16f),
                     new Color(0.18f, 1.00f, 0.78f, 1f),
                     3.9f));
-            miniGlow.transform.SetParent(monitoringZoneRoot.transform, true);
+            miniGlow.transform.SetParent(monitoringZoneRoot.transform, false);
         }
 
         var monitorDesk = Cube("MonitorDesk", new Vector3(7.10f, 0.00f, 1.20f), new Vector3(2.50f, 0.92f, 1.12f), Mat(new Color(0.25f, 0.25f, 0.32f), 0.1f));
-        monitorDesk.transform.SetParent(monitoringZoneRoot.transform, true);
+        monitorDesk.transform.SetParent(monitoringZoneRoot.transform, false);
         var operatorChair = new GameObject("OperatorChair");
         operatorChair.transform.SetParent(monitoringZoneRoot.transform, false);
         operatorChair.transform.position = new Vector3(6.55f, 0.00f, 1.28f);
@@ -636,7 +636,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Go(operatorChair, PrimitiveType.Cube, "Seat", new Vector3(0f, 0.56f, 0f), new Vector3(0.58f, 0.16f, 0.58f), Mat(new Color(0.18f, 0.22f, 0.26f), 0.12f));
         Go(operatorChair, PrimitiveType.Cube, "Back", new Vector3(0f, 0.95f, 0.25f), new Vector3(0.58f, 0.56f, 0.10f), Mat(new Color(0.18f, 0.22f, 0.26f), 0.12f));
         var monitoringLbl = Txt("MonitoringLbl", "MONITORING", new Vector3(7.2f, 3.0f, 1.2f), 14, 0.10f, new Color(0.15f, 1.0f, 0.45f), FontStyle.Bold);
-        monitoringLbl.transform.SetParent(monitoringZoneRoot.transform, true);
+        monitoringLbl.transform.SetParent(monitoringZoneRoot.transform, false);
         _labelXforms.Add(monitoringLbl.transform);
 
         foreach (Transform child in monitoringZoneRoot.transform)
