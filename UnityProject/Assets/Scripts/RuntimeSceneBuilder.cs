@@ -792,8 +792,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     {
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
         RenderSettings.ambientLight = new Color(
-            0.98f,
-            0.82f,
+            1.00f,
+            0.84f,
             0.64f,
             1.00f);
         RenderSettings.fog = false;
@@ -806,38 +806,38 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         CreatePointLight(
             "WarmKey",
-            new Vector3(0.00f, 5.20f, 0.80f),
+            new Vector3(0.00f, 5.40f, 0.80f),
             new Color(1.00f, 0.66f, 0.34f, 1.00f),
-            6.20f,
+            6.60f,
             24.00f);
 
         CreatePointLight(
-            "DispatchFill",
-            new Vector3(-7.10f, 2.80f, 1.10f),
-            new Color(1.00f, 0.58f, 0.18f, 1.00f),
-            3.80f,
-            11.00f);
-
-        CreatePointLight(
             "DeskLight",
-            new Vector3(0.60f, 2.60f, 0.40f),
-            new Color(1.00f, 0.76f, 0.42f, 1.00f),
-            3.40f,
+            new Vector3(0.60f, 2.70f, 0.30f),
+            new Color(1.00f, 0.78f, 0.44f, 1.00f),
+            3.80f,
             10.00f);
 
         CreatePointLight(
-            "MonitorFill",
-            new Vector3(7.30f, 2.90f, 1.20f),
-            new Color(0.22f, 1.00f, 0.78f, 1.00f),
-            3.40f,
+            "DispatchFill",
+            new Vector3(-7.20f, 2.90f, 1.10f),
+            new Color(1.00f, 0.58f, 0.18f, 1.00f),
+            4.00f,
             11.00f);
 
         CreatePointLight(
+            "MonitorFill",
+            new Vector3(7.30f, 3.00f, 1.20f),
+            new Color(0.20f, 1.00f, 0.78f, 1.00f),
+            3.80f,
+            11.50f);
+
+        CreatePointLight(
             "Room2Glow",
-            new Vector3(8.70f, 2.80f, 6.10f),
+            new Vector3(8.70f, 2.90f, 6.10f),
             new Color(1.00f, 0.58f, 0.16f, 1.00f),
-            3.90f,
-            9.00f);
+            4.20f,
+            9.20f);
     }
 
     private static void CreatePointLight(
