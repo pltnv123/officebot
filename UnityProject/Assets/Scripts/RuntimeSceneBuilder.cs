@@ -375,18 +375,18 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         var room2Frame = Cube(
             "Room2Frame",
-            new Vector3(8.78f, 0.0f, 6.32f),
-            new Vector3(3.05f, 3.35f, 0.24f),
+            new Vector3(8.82f, 0.0f, 6.34f),
+            new Vector3(3.08f, 3.38f, 0.24f),
             Emissive(
                 new Color(0.45f, 0.22f, 0.05f),
                 new Color(1.00f, 0.58f, 0.14f, 1f),
-                3.8f));
+                4.1f));
         room2Frame.transform.SetParent(room2EntranceRoot.transform, true);
 
         var room2Arrow = Cube(
             "Room2Arrow",
-            new Vector3(8.78f, 1.18f, 6.12f),
-            new Vector3(0.62f, 0.62f, 0.62f),
+            new Vector3(8.82f, 1.18f, 6.10f),
+            new Vector3(0.64f, 0.64f, 0.64f),
             Emissive(
                 new Color(0.4f, 0.2f, 0.05f),
                 new Color(1.0f, 0.7f, 0.1f),
@@ -397,12 +397,13 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         var room2Label = Txt(
             "Room2Lbl",
             "ROOM 2",
-            new Vector3(8.78f, 2.86f, 6.08f),
+            new Vector3(8.82f, 2.92f, 6.06f),
             20,
             0.62f,
-            new Color(1.00f, 0.74f, 0.26f, 1f),
+            new Color(1.00f, 0.76f, 0.28f, 1f),
             FontStyle.Bold
         );
+        room2Label.transform.localScale = new Vector3(1.20f, 1.20f, 1.20f);
         room2Label.transform.SetParent(room2EntranceRoot.transform, true);
         _labelXforms.Add(room2Label.transform);
 
