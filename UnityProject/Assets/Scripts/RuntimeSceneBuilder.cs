@@ -133,14 +133,14 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                                  ?? GameObject.Find("UICanvas")
                                  ?? GameObject.Find("uiCanvas")
                                  ?? GameObject.Find("DebugCanvas");
-        if (rightHudCanvasObject != null)
+        var rightHudCanvas = rightHudCanvasObject != null
+            ? rightHudCanvasObject.GetComponent<Canvas>()
+            : null;
+        if (rightHudCanvas != null)
         {
-            rightHudCanvasObject.transform.position = new Vector3(60.00f, 0.00f, 0.00f);
-            rightHudCanvasObject.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
-
-            var rightHudCanvas = rightHudCanvasObject.GetComponent<Canvas>();
-            if (rightHudCanvas != null)
-                rightHudCanvas.enabled = false;
+            rightHudCanvas.transform.position = new Vector3(60.00f, 0.00f, 0.00f);
+            rightHudCanvas.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+            rightHudCanvas.enabled = false;
         }
     }
 
