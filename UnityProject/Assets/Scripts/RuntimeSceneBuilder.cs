@@ -116,14 +116,22 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     {
         var cam = Camera.main;
         if (cam == null) return;
+
         cam.orthographic = false;
-        cam.fieldOfView = 63f;
-        cam.transform.position = new Vector3(0f, 13f, -9f);
-        cam.transform.rotation = Quaternion.Euler(47f, 0f, 0f);
+        cam.fieldOfView = 36.0f;
+        cam.transform.position = new Vector3(0.00f, 9.60f, -8.80f);
+        cam.transform.rotation = Quaternion.Euler(42.0f, 0.0f, 0.0f);
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = new Color(0.08f, 0.07f, 0.06f);
         cam.nearClipPlane = 0.3f;
         cam.farClipPlane = 140f;
+
+        var uiCanvas = GameObject.Find("UICanvas") ?? GameObject.Find("uiCanvas") ?? GameObject.Find("DebugCanvas");
+        if (uiCanvas != null)
+        {
+            uiCanvas.transform.position = new Vector3(30.0f, 0.0f, 0.0f);
+            uiCanvas.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+        }
     }
 
     private void BuildRoom()
