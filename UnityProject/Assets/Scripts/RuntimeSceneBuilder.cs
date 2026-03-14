@@ -171,6 +171,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             0.11f,
             0.02f,
             0.11f);
+        Vector3 arrowScale = new Vector3(
+            0.22f,
+            0.02f,
+            0.34f);
         float arrowInterval = 2.10f;
 
         void PathDots(
@@ -201,7 +205,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
                 float dist = i * step;
                 if (Mathf.Abs(dist % arrowInterval) < 0.24f)
                 {
-                    var arrow = Cube(prefix + "Arrow" + i, p + new Vector3(0f, 0.01f, 0f), new Vector3(0.28f, 0.02f, 0.28f), mat);
+                    var arrow = Cube(prefix + "Arrow" + i, p + new Vector3(0f, 0.01f, 0f), arrowScale, mat);
                     arrow.transform.rotation = Quaternion.Euler(0f, Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg + 45f, 0f);
                 }
             }
@@ -231,6 +235,33 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             15,
             dotStep,
             dotScale);
+
+        var pathDesk = Emissive(
+            new Color(0.40f, 0.20f, 0.05f),
+            new Color(1.00f, 0.62f, 0.18f, 1f),
+            3.4f);
+        for (int i = 0; i < 16; i++)
+        {
+            float angle = (Mathf.PI * 2f * i) / 16f;
+            var p = new Vector3(
+                Mathf.Cos(angle) * 2.60f,
+                0.03f,
+                0.20f + Mathf.Sin(angle) * 2.60f);
+            var dot = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            dot.name = "DeskLoopDot_" + i;
+            dot.transform.position = p;
+            dot.transform.localScale = dotScale;
+            dot.GetComponent<Renderer>().material = pathDesk;
+
+            float dist = i * dotStep;
+            if (Mathf.Abs(dist % arrowInterval) < 0.24f)
+            {
+                var tangent = new Vector3(-Mathf.Sin(angle), 0f, Mathf.Cos(angle));
+                var arrow = Cube("DeskLoopArrow_" + i, p + new Vector3(0f, 0.01f, 0f), arrowScale, pathDesk);
+                arrow.transform.rotation = Quaternion.Euler(0f, Mathf.Atan2(tangent.x, tangent.z) * Mathf.Rad2Deg + 45f, 0f);
+            }
+        }
+
         var pathYellow = Emissive(
             new Color(0.45f, 0.32f, 0.08f),
             new Color(1.00f, 0.82f, 0.22f, 1f),
