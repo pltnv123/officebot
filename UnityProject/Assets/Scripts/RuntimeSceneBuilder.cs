@@ -118,19 +118,26 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         if (cam == null) return;
 
         cam.orthographic = false;
-        cam.fieldOfView = 36.0f;
-        cam.transform.position = new Vector3(0.00f, 9.60f, -8.80f);
-        cam.transform.rotation = Quaternion.Euler(42.0f, 0.0f, 0.0f);
+        cam.fieldOfView = 35.0f;
+        cam.transform.position = new Vector3(0.00f, 8.90f, -8.40f);
+        cam.transform.rotation = Quaternion.Euler(43.0f, 0.0f, 0.0f);
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = new Color(0.08f, 0.07f, 0.06f);
         cam.nearClipPlane = 0.3f;
         cam.farClipPlane = 140f;
 
-        var uiCanvas = GameObject.Find("UICanvas") ?? GameObject.Find("uiCanvas") ?? GameObject.Find("DebugCanvas");
-        if (uiCanvas != null)
+        var rightHudCanvas = GameObject.Find("rightHudCanvas")
+                           ?? GameObject.Find("UICanvas")
+                           ?? GameObject.Find("uiCanvas")
+                           ?? GameObject.Find("DebugCanvas");
+        if (rightHudCanvas != null)
         {
-            uiCanvas.transform.position = new Vector3(30.0f, 0.0f, 0.0f);
-            uiCanvas.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+            rightHudCanvas.transform.position = new Vector3(60.00f, 0.00f, 0.00f);
+            rightHudCanvas.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+
+            var canvas = rightHudCanvas.GetComponent<Canvas>();
+            if (canvas != null)
+                canvas.enabled = false;
         }
     }
 
