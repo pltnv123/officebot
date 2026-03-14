@@ -246,7 +246,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildBoard()
     {
-        // VREVIEWER board target: position/scale + dense 90-note population
         Vector3 taskBoardPos = new Vector3(
             0.0f,
             2.55f,
@@ -259,12 +258,18 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             taskBoardScale.x + 1.0f,
             taskBoardScale.y + 0.9f,
             0.15f);
-        Cube("TaskBoardFrame", taskBoardPos + new Vector3(0f, 0f, -0.05f), taskBoardFrameScale, Mat(new Color(0.46f, 0.31f, 0.14f), 0.10f));
-        var taskBoard = Cube("TaskBoard", new Vector3(0f, 0f, 0f), Vector3.one, Mat(new Color(0.07f, 0.07f, 0.10f), 0.10f));
-        taskBoard.transform.position = taskBoardPos;
-        taskBoard.transform.localScale = taskBoardScale;
 
-        string[] headers =
+        Cube("TaskBoardFrame", taskBoardPos + new Vector3(0f, 0f, -0.05f), taskBoardFrameScale, Mat(new Color(0.46f, 0.31f, 0.14f), 0.10f));
+
+        var taskBoardRoot = Cube(
+            "TaskBoardRoot",
+            Vector3.zero,
+            Vector3.one,
+            Mat(new Color(0.07f, 0.07f, 0.10f), 0.10f));
+        taskBoardRoot.transform.position = taskBoardPos;
+        taskBoardRoot.transform.localScale = taskBoardScale;
+
+        string[] columnTitles =
         {
             "INBOX",
             "QUEUE",
@@ -291,48 +296,52 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             new Color(0.65f, 0.15f, 0.85f),
             new Color(0.1f, 0.75f, 0.2f)
         };
+        Color[] stickyPalette =
+        {
+            new Color(1.00f, 0.84f, 0.26f, 1f),
+            new Color(0.40f, 0.72f, 1.00f, 1f),
+            new Color(0.98f, 0.56f, 0.22f, 1f),
+            new Color(0.44f, 0.96f, 0.78f, 1f)
+        };
+        int cardsPerColumn = 16;
+        Vector3 cardScale = new Vector3(
+            0.22f,
+            0.14f,
+            0.02f);
+        float boardTopY = taskBoardPos.y + taskBoardScale.y * 0.5f - 0.30f;
+        float boardBottomY = Mathf.Max(0.20f, taskBoardPos.y - taskBoardScale.y * 0.5f + 0.25f);
 
         for (int hi = 0; hi < headerCols.Length && hi < _columnHighlightColors.Length; hi++)
             _columnHighlightColors[hi] = headerCols[hi];
 
-        for (int c = 0; c < headers.Length; c++)
+        for (int c = 0; c < columnTitles.Length; c++)
         {
             float x = xs[c];
-            Cube(
+            var headerBack = Cube(
                 $"HdrBack_{c}",
                 new Vector3(x, 3.95f, 8.93f),
                 new Vector3(1.55f, 0.30f, 0.03f),
                 Emissive(new Color(0.08f, 0.08f, 0.12f), Color.Lerp(headerCols[c], Color.white, 0.35f), 1.8f));
-            Txt(
+            headerBack.transform.SetParent(taskBoardRoot.transform, true);
+
+            var headerText = Txt(
                 $"Hdr{c}",
-                headers[c],
+                columnTitles[c],
                 new Vector3(x, 3.95f, 8.88f),
                 32,
                 0.15f,
                 Color.Lerp(headerCols[c], Color.white, 0.78f),
                 FontStyle.Bold);
+            headerText.transform.SetParent(taskBoardRoot.transform, true);
 
-            Color[] stickyPalette =
-            {
-                new Color(1.00f, 0.84f, 0.26f, 1f),
-                new Color(0.40f, 0.72f, 1.00f, 1f),
-                new Color(0.98f, 0.56f, 0.22f, 1f),
-                new Color(0.44f, 0.96f, 0.78f, 1f)
-            };
-            int cardsPerColumn = 16;
-            Vector3 cardScale = new Vector3(
-                0.22f,
-                0.14f,
-                0.02f);
-            float boardTopY = taskBoardPos.y + taskBoardScale.y * 0.5f - 0.30f;
-            float boardBottomY = Mathf.Max(0.20f, taskBoardPos.y - taskBoardScale.y * 0.5f + 0.25f);
             for (int s = 0; s < cardsPerColumn; s++)
             {
                 float sx = x - 0.33f + (s % 2) * 0.44f;
                 float rawSy = 3.58f - (s / 2) * 0.18f;
                 float sy = Mathf.Clamp(rawSy, boardBottomY, boardTopY);
                 var sc = stickyPalette[s % stickyPalette.Length];
-                Cube($"StickyDense_{c}_{s}", new Vector3(sx, sy, 8.94f), cardScale, Mat(sc, 0.03f));
+                var sticky = Cube($"Sticky_{c}_{s}", new Vector3(sx, sy, 8.94f), cardScale, Mat(sc, 0.03f));
+                sticky.transform.SetParent(taskBoardRoot.transform, true);
             }
         }
 
