@@ -550,38 +550,38 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         Vector3[] mainScreenPositions =
         {
-            new Vector3(8.10f, 1.95f, 0.55f),
-            new Vector3(8.10f, 1.95f, 1.25f),
-            new Vector3(8.10f, 1.95f, 1.95f)
+            new Vector3(8.12f, 1.96f, 0.52f),
+            new Vector3(8.12f, 1.96f, 1.24f),
+            new Vector3(8.12f, 1.96f, 1.96f)
         };
         for (int i = 0; i < mainScreenPositions.Length; i++)
         {
             var screenBody = Cube(
                 $"MonitorScreen_{i}",
                 mainScreenPositions[i],
-                new Vector3(1.18f, 0.78f, 0.08f),
+                new Vector3(1.18f, 0.80f, 0.08f),
                 Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
             screenBody.transform.SetParent(monitoringZoneRoot.transform, true);
 
             var screenGlow = Cube(
                 $"MonitorScreenGlow_{i}",
                 mainScreenPositions[i],
-                new Vector3(1.18f, 0.78f, 0.08f),
-                Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.6f));
+                new Vector3(1.18f, 0.80f, 0.08f),
+                Emissive(new Color(0.08f, 0.22f, 0.16f), new Color(0.18f, 1.00f, 0.78f, 1f), 3.9f));
             screenGlow.transform.SetParent(monitoringZoneRoot.transform, true);
         }
 
         Vector3[] miniScreenPositions =
         {
-            new Vector3(7.55f, 1.45f, 0.25f),
-            new Vector3(7.55f, 1.45f, 2.25f)
+            new Vector3(7.56f, 1.42f, 0.18f),
+            new Vector3(7.56f, 1.42f, 2.30f)
         };
         for (int i = 0; i < miniScreenPositions.Length; i++)
         {
             var miniBody = Cube(
                 $"MonitorMiniScreen_{i}",
                 miniScreenPositions[i],
-                new Vector3(0.58f, 0.42f, 0.06f),
+                new Vector3(0.62f, 0.44f, 0.06f),
                 Mat(new Color(0.04f, 0.04f, 0.08f), 0.2f));
             miniBody.transform.SetParent(monitoringZoneRoot.transform, true);
 
