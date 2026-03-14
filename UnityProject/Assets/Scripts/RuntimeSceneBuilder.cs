@@ -566,7 +566,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             Cube("DeskDrawerB", new Vector3(1.58f, 0.36f, 1.84f), new Vector3(0.62f, 0.54f, 0.62f), Mat(new Color(0.54f, 0.36f, 0.18f), 0.06f))
         };
         foreach (var deskProp in deskProps)
-            deskProp.transform.SetParent(mainDeskRoot.transform, true);
+            deskProp.transform.SetParent(mainDeskRoot.transform, false);
 
         var monitoringZoneRoot = new GameObject("MonitoringZoneRoot");
 
