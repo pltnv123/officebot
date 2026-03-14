@@ -148,37 +148,40 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             new Color(0.20f, 1.00f, 0.74f, 1f),
             3.4f);
 
-        float step = 0.42f;
+        float dotStep = 0.42f;
         Vector3 dotScale = new Vector3(
             0.11f,
             0.02f,
             0.11f);
+        float arrowInterval = 2.10f;
 
         void PathDots(
             string prefix,
             Vector3 from,
             Vector3 to,
-            Material mat)
+            Material mat,
+            int dotCount,
+            float step,
+            Vector3 scale)
         {
             var delta = to - from;
             var length = delta.magnitude;
             var dir = length > 0.001f ? delta.normalized : Vector3.forward;
-                int count = Mathf.Max(2, Mathf.CeilToInt(length / step));
+            int count = Mathf.Max(2, dotCount - 1);
 
-            for (int i = 0; i <= count; i++)
+            for (int i = 0; i < dotCount; i++)
             {
-                float t = i / (float)count;
+                float t = count <= 0 ? 0f : i / (float)count;
                 var p = Vector3.Lerp(from, to, t);
 
                 var dot = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 dot.name = prefix + i;
                 dot.transform.position = p;
-                dot.transform.localScale = dotScale;
+                dot.transform.localScale = scale;
                 dot.GetComponent<Renderer>().material = mat;
 
-                float dist = t * length;
-
-                if (Mathf.Abs(dist % 2.10f) < 0.24f)
+                float dist = i * step;
+                if (Mathf.Abs(dist % arrowInterval) < 0.24f)
                 {
                     var arrow = Cube(prefix + "Arrow" + i, p + new Vector3(0f, 0.01f, 0f), new Vector3(0.28f, 0.02f, 0.28f), mat);
                     arrow.transform.rotation = Quaternion.Euler(0f, Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg + 45f, 0f);
@@ -192,24 +195,24 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             new Vector3(-0.6f, 0.03f, 0.5f),
             pathAmber,
             18,
-            0.42f,
-            new Vector3(0.11f, 0.02f, 0.11f));
+            dotStep,
+            dotScale);
         PathDots(
             "PathBoardDot_",
             new Vector3(-0.1f, 0.03f, -2.15f),
             new Vector3(0.0f, 0.03f, 2.75f),
             pathBlue,
             14,
-            0.42f,
-            new Vector3(0.11f, 0.02f, 0.11f));
+            dotStep,
+            dotScale);
         PathDots(
             "PathMonitoringDot_",
             new Vector3(1.2f, 0.03f, 0.55f),
             new Vector3(7.15f, 0.03f, 0.55f),
             pathGreen,
             15,
-            0.42f,
-            new Vector3(0.11f, 0.02f, 0.11f));
+            dotStep,
+            dotScale);
         var pathYellow = Emissive(
             new Color(0.45f, 0.32f, 0.08f),
             new Color(1.00f, 0.82f, 0.22f, 1f),
@@ -221,8 +224,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             new Vector3(8.55f, 0.03f, 5.8f),
             pathYellow,
             10,
-            0.42f,
-            new Vector3(0.11f, 0.02f, 0.11f));
+            dotStep,
+            dotScale);
 
         var wall = Mat(new Color(0.24f, 0.18f, 0.14f), 0.14f);
         Cube("WallToneBandL", new Vector3(-9.0f, 2.0f, 6.8f), new Vector3(0.12f, 2.6f, 3.0f), Mat(new Color(0.28f, 0.20f, 0.16f), 0.22f));
