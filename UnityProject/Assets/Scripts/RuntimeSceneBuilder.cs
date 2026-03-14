@@ -683,34 +683,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     }
 
 
-    private void BuildStaticSubAgent(Vector3 pos, string label)
-    {
-        var root = new GameObject(label);
-        root.transform.position = pos;
-        root.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
-
-        var grayBody = Mat(new Color(0.70f, 0.70f, 0.72f), 0.10f);
-        var dark = Mat(new Color(0.12f, 0.12f, 0.14f), 0.05f);
-        var eye = Emissive(new Color(0.25f, 0.25f, 0.28f), new Color(0.85f, 0.85f, 0.9f), 1.2f);
-
-        Go(root, PrimitiveType.Cylinder, "Base", new Vector3(0f, 0.14f, 0f), new Vector3(0.45f, 0.08f, 0.45f), dark);
-        Go(root, PrimitiveType.Cube, "Body", new Vector3(0f, 0.58f, 0f), new Vector3(0.52f, 0.50f, 0.40f), grayBody);
-        Go(root, PrimitiveType.Sphere, "Head", new Vector3(0f, 1.18f, 0f), new Vector3(0.44f, 0.40f, 0.40f), grayBody);
-        Go(root, PrimitiveType.Cube, "Face", new Vector3(0f, 1.18f, 0.20f), new Vector3(0.34f, 0.24f, 0.05f), dark);
-        Go(root, PrimitiveType.Sphere, "EyeL", new Vector3(-0.09f, 1.18f, 0.23f), new Vector3(0.12f, 0.12f, 0.06f), eye);
-        Go(root, PrimitiveType.Sphere, "EyeR", new Vector3(0.09f, 1.18f, 0.23f), new Vector3(0.12f, 0.12f, 0.06f), eye);
-
-        var lbl = Txt(
-            label + "Lbl",
-            label,
-            pos + new Vector3(0f, 1.65f, 0f),
-            12,
-            0.06f,
-            new Color(0.90f, 0.90f, 0.94f),
-            FontStyle.Bold);
-        _labelXforms.Add(lbl.transform);
-    }
-
     private void BuildAgents()
     {
         var eyeCol = new Color(
@@ -876,7 +848,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         // Explicit navigation geometry to avoid invalid mesh sources from labels/FX objects.
         AddNavMeshSource("Floor");
-        AddNavMeshSource("Room2Floor");
 
         if (_navSources.Count == 0)
         {
