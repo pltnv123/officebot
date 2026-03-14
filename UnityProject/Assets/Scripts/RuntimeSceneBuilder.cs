@@ -477,6 +477,11 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             new Vector3(0.0f, 0.0f, 0.1f),
             new Vector3(4.2f, 1.0f, 2.6f),
             Mat(new Color(0.46f, 0.30f, 0.14f), 0.18f));
+        var deskBase = Cube(
+            "DeskBase",
+            new Vector3(0.0f, 0.46f, 0.20f),
+            new Vector3(4.20f, 0.92f, 2.50f),
+            Mat(new Color(0.52f, 0.34f, 0.18f), 0.18f));
         var deskTop = Cube(
             "DeskTop",
             new Vector3(0.0f, 1.02f, 0.1f),
@@ -489,14 +494,15 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             Mat(new Color(0.14f, 0.14f, 0.16f), 0.2f));
         var deskLamp = Cube(
             "DeskLamp",
-            new Vector3(1.10f, 1.26f, 0.12f),
+            new Vector3(1.12f, 1.28f, 0.12f),
             new Vector3(0.26f, 0.16f, 0.22f),
-            Emissive(new Color(0.30f, 0.20f, 0.10f), new Color(1.00f, 0.82f, 0.46f, 1f), 3.0f));
+            Emissive(new Color(0.30f, 0.20f, 0.10f), new Color(1.00f, 0.82f, 0.46f, 1f), 3.2f));
         deskLamp.transform.rotation = Quaternion.Euler(0.0f, -24.0f, 0.0f);
-        mainDeskRoot.transform.position = new Vector3(0.0f, 0.0f, 0.25f);
-        mainDeskRoot.transform.localScale = new Vector3(4.60f, 1.0f, 2.85f);
-        deskTop.transform.position = new Vector3(0.0f, 1.02f, 0.25f);
-        deskTop.transform.localScale = new Vector3(3.95f, 0.18f, 2.30f);
+        mainDeskRoot.transform.position = new Vector3(0.0f, 0.0f, 0.20f);
+        mainDeskRoot.transform.localScale = new Vector3(4.80f, 1.0f, 2.90f);
+        deskBase.transform.SetParent(mainDeskRoot.transform, true);
+        deskTop.transform.position = new Vector3(0.0f, 1.02f, 0.20f);
+        deskTop.transform.localScale = new Vector3(4.05f, 0.18f, 2.35f);
         deskTop.transform.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
         deskTop.transform.SetParent(mainDeskRoot.transform, true);
         deskLampStem.transform.SetParent(mainDeskRoot.transform, true);
@@ -504,9 +510,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         GameObject[] deskProps =
         {
-            Cube("DeskLaptop", new Vector3(0.35f, 1.05f, 0.05f), new Vector3(0.58f, 0.04f, 0.38f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.2f)),
-            Cube("DeskMonitorA", new Vector3(-0.15f, 1.12f, -0.32f), new Vector3(0.56f, 0.34f, 0.04f), Mat(new Color(0.06f, 0.06f, 0.10f), 0.2f)),
-            Cube("DeskMonitorB", new Vector3(0.68f, 1.12f, -0.26f), new Vector3(0.56f, 0.34f, 0.04f), Mat(new Color(0.06f, 0.06f, 0.10f), 0.2f)),
+            Cube("DeskLaptop", new Vector3(0.32f, 1.05f, 0.08f), new Vector3(0.62f, 0.04f, 0.40f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.2f)),
+            Cube("DeskMonitorA", new Vector3(-0.22f, 1.14f, -0.30f), new Vector3(0.58f, 0.36f, 0.04f), Mat(new Color(0.06f, 0.06f, 0.10f), 0.2f)),
+            Cube("DeskMonitorB", new Vector3(0.72f, 1.14f, -0.22f), new Vector3(0.58f, 0.36f, 0.04f), Mat(new Color(0.06f, 0.06f, 0.10f), 0.2f)),
             Cube("DeskPaperA", new Vector3(-0.85f, 0.92f, 0.88f), new Vector3(0.22f, 0.03f, 0.16f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f)),
             Cube("DeskPaperB", new Vector3(-0.52f, 0.92f, 1.08f), new Vector3(0.22f, 0.03f, 0.16f), Mat(new Color(0.92f, 0.90f, 0.82f), 0.03f)),
             Cube("DeskPaperC", new Vector3(-0.18f, 0.92f, 1.24f), new Vector3(0.22f, 0.03f, 0.16f), Mat(new Color(0.90f, 0.88f, 0.80f), 0.03f)),
