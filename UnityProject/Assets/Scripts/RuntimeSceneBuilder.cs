@@ -633,9 +633,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         var monitorDesk = Cube("MonitorDesk", new Vector3(7.10f, 0.00f, 1.20f), new Vector3(2.50f, 0.92f, 1.12f), Mat(new Color(0.25f, 0.25f, 0.32f), 0.1f));
         monitorDesk.transform.SetParent(monitoringZoneRoot.transform, true);
-        Cube("MonitoringConsoleA", new Vector3(6.7f, 0.92f, 4.5f), new Vector3(0.55f, 0.20f, 0.38f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.1f));
-        Cube("MonitoringConsoleB", new Vector3(6.95f, 0.92f, 5.4f), new Vector3(0.50f, 0.20f, 0.34f), Mat(new Color(0.10f, 0.10f, 0.14f), 0.1f));
-        Cube("MonitoringRack", new Vector3(6.15f, 1.7f, 5.9f), new Vector3(0.22f, 2.8f, 1.5f), Mat(new Color(0.10f, 0.12f, 0.14f), 0.1f));
         var operatorChair = new GameObject("OperatorChair");
         operatorChair.transform.SetParent(monitoringZoneRoot.transform, false);
         operatorChair.transform.position = new Vector3(6.55f, 0.00f, 1.28f);
@@ -644,19 +641,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Go(operatorChair, PrimitiveType.Cylinder, "Base", new Vector3(0f, 0.22f, 0f), new Vector3(0.28f, 0.16f, 0.28f), Mat(new Color(0.12f, 0.12f, 0.14f), 0.12f));
         Go(operatorChair, PrimitiveType.Cube, "Seat", new Vector3(0f, 0.56f, 0f), new Vector3(0.58f, 0.16f, 0.58f), Mat(new Color(0.18f, 0.22f, 0.26f), 0.12f));
         Go(operatorChair, PrimitiveType.Cube, "Back", new Vector3(0f, 0.95f, 0.25f), new Vector3(0.58f, 0.56f, 0.10f), Mat(new Color(0.18f, 0.22f, 0.26f), 0.12f));
-        Cube("MonitoringKeypad", new Vector3(7.25f, 0.92f, 5.15f), new Vector3(0.28f, 0.04f, 0.22f), Emissive(new Color(0.08f, 0.18f, 0.10f), new Color(0.18f, 0.9f, 0.45f), 1.6f));
-        Cube("MonitoringTablet", new Vector3(6.55f, 0.94f, 1.45f), new Vector3(0.36f, 0.04f, 0.24f), Mat(new Color(0.08f, 0.10f, 0.14f), 0.16f));
-        Cube("MonitoringCableTray", new Vector3(6.25f, 0.35f, 1.95f), new Vector3(0.40f, 0.08f, 0.18f), Mat(new Color(0.12f, 0.12f, 0.14f), 0.04f));
-        Cube("MonitoringPatchPanel", new Vector3(6.05f, 1.85f, 2.05f), new Vector3(0.38f, 0.52f, 0.16f), Emissive(new Color(0.06f, 0.18f, 0.10f), new Color(0.16f, 0.95f, 0.48f), 2.2f));
-        Cube("MonitoringWallGlow", new Vector3(8.15f, 1.95f, 1.25f), new Vector3(0.88f, 6.4f, 5.7f), Emissive(new Color(0.04f, 0.16f, 0.10f), new Color(0.20f, 1.00f, 0.72f), 12.8f));
-        Cube("MonitoringPropRack", new Vector3(6.15f, 1.15f, 0.45f), new Vector3(0.28f, 1.8f, 0.9f), Mat(new Color(0.12f, 0.14f, 0.16f), 0.12f));
-        Cube("MonitoringServerStack", new Vector3(6.0f, 0.85f, 2.25f), new Vector3(0.34f, 1.4f, 0.48f), Mat(new Color(0.10f, 0.12f, 0.14f), 0.12f));
-        Cube("MonitoringServerGlow", new Vector3(6.0f, 0.90f, 2.0f), new Vector3(0.22f, 0.86f, 0.04f), Emissive(new Color(0.06f, 0.16f, 0.10f), new Color(0.18f, 0.95f, 0.50f), 2.8f));
-        Cube("MonitoringStatusStrip", new Vector3(8.05f, 0.55f, 2.25f), new Vector3(0.12f, 0.28f, 0.86f), Emissive(new Color(0.06f, 0.16f, 0.10f), new Color(0.18f, 0.95f, 0.50f), 3.0f));
-        Cube("MonitoringCableBundle", new Vector3(6.45f, 0.24f, 2.10f), new Vector3(0.46f, 0.06f, 0.24f), Mat(new Color(0.10f, 0.10f, 0.12f), 0.02f));
-        Cube("MonitoringChairGlow", new Vector3(7.0f, 0.18f, 4.9f), new Vector3(1.1f, 0.03f, 1.1f), Emissive(new Color(0.05f, 0.16f, 0.10f), new Color(0.16f, 0.95f, 0.50f), 2.6f));
-        Cube("MonitoringZoneGlow", new Vector3(7.2f, 0.02f, 1.2f), new Vector3(5.5f, 0.03f, 5.3f), Emissive(new Color(0.02f, 0.18f, 0.08f), new Color(0.14f, 0.85f, 0.40f), 3.8f));
-        Cube("MonitoringDeskGlow", new Vector3(7.05f, 0.92f, 1.15f), new Vector3(2.0f, 0.05f, 0.82f), Emissive(new Color(0.04f, 0.18f, 0.10f), new Color(0.16f, 0.95f, 0.50f), 2.8f));
         var monitoringLbl = Txt("MonitoringLbl", "MONITORING", new Vector3(7.2f, 3.0f, 1.2f), 14, 0.10f, new Color(0.15f, 1.0f, 0.45f), FontStyle.Bold);
         monitoringLbl.transform.SetParent(monitoringZoneRoot.transform, true);
         _labelXforms.Add(monitoringLbl.transform);
