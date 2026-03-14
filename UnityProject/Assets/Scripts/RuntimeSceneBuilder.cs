@@ -792,18 +792,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         labelRoot.transform.localPosition = new Vector3(0f, 2.34f, 0f);
         labelRoot.transform.localScale = Vector3.one * 0.16f;
 
-        var back = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        back.name = "LabelBack";
-        back.transform.SetParent(labelRoot.transform, false);
-        back.transform.localPosition = new Vector3(0f, 0f, 0.12f);
-        back.transform.localScale = new Vector3(5.0f, 1.2f, 0.10f);
-        back.GetComponent<Renderer>().material = Emissive(new Color(0.03f, 0.03f, 0.04f), new Color(0.02f, 0.02f, 0.03f), 0.6f);
-
-        AddLabelOutline(labelRoot.transform, role, new Vector3(0.02f, 0f, 0.01f));
-        AddLabelOutline(labelRoot.transform, role, new Vector3(-0.02f, 0f, 0.01f));
-        AddLabelOutline(labelRoot.transform, role, new Vector3(0f, 0.02f, 0.01f));
-        AddLabelOutline(labelRoot.transform, role, new Vector3(0f, -0.02f, 0.01f));
-
         var tm = labelRoot.AddComponent<TextMesh>();
         tm.text = role;
         tm.fontSize = 30;
@@ -821,20 +809,6 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         _agentWorkingTarget.Add(false);
         _agents.Add(root);
         _agentIdle.Add(pos);
-    }
-
-    private static void AddLabelOutline(Transform parent, string role, Vector3 lp)
-    {
-        var go = new GameObject("LabelOutline");
-        go.transform.SetParent(parent, false);
-        go.transform.localPosition = lp;
-        var t = go.AddComponent<TextMesh>();
-        t.text = role;
-        t.fontSize = 30;
-        t.characterSize = 0.16f;
-        t.color = Color.black;
-        t.anchor = TextAnchor.MiddleCenter;
-        t.alignment = TextAlignment.Center;
     }
 
     private static void BuildLighting()
