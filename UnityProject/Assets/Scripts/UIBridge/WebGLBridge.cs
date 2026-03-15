@@ -28,7 +28,15 @@ namespace OfficeHub.UIBridge
             try
             {
                 var summary = JsonUtility.FromJson<UnityStateSummary>(json);
-                LastSnapshot = new OfficeStateSnapshot(0, Math.Max(0, summary?.active ?? 0), Math.Max(0, summary?.done ?? 0));
+                LastSnapshot = new OfficeStateSnapshot
+                {
+                    Board = new OfficeStateBoard
+                    {
+                        InboxCount = 0,
+                        DoingCount = Math.Max(0, summary?.active ?? 0),
+                        DoneCount = Math.Max(0, summary?.done ?? 0),
+                    }
+                };
             }
             catch (Exception ex)
             {

@@ -1,7 +1,7 @@
 // OfficeBot Multi-Agent System v2.0
 using System.Collections.Generic;
+using OfficeHub.UIBridge;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.Rendering;
 using UnityEngine.AI;
 
@@ -40,6 +40,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     };
 
     [SerializeField] private string taskStateUrl = "/api/state";
+    private OfficeStateStore _officeStateStore;
+    private OfficeStatePoller _officeStatePoller;
+    private OfficeSceneController _officeSceneController;
     private NavMeshData _runtimeNavMeshData;
     private readonly List<NavMeshBuildSource> _navSources = new();
 
@@ -53,7 +56,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         BuildRuntimeNavMesh();
         BuildLighting();
         WireBackend();
-        StartCoroutine(PollTaskState());
+        EnsureOfficeStatePipeline();
     }
 
     private void Update()
@@ -1032,103 +1035,152 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         return tm;
     }
 
-    [System.Serializable] private sealed class RT { public string id, title, status, assignee; }
-    [System.Serializable] private sealed class RS { public List<RT> tasks; }
-    [System.Serializable] private sealed class RSE { public List<RT> tasks; public RS taskState; }
-
-    private System.Collections.IEnumerator PollTaskState()
+    private void EnsureOfficeStatePipeline()
     {
-        while (true)
+        _officeStateStore = GetComponent<OfficeStateStore>();
+        if (_officeStateStore == null) _officeStateStore = gameObject.AddComponent<OfficeStateStore>();
+
+        _officeStatePoller = GetComponent<OfficeStatePoller>();
+        if (_officeStatePoller == null) _officeStatePoller = gameObject.AddComponent<OfficeStatePoller>();
+        _officeStatePoller.Configure(_officeStateStore, taskStateUrl);
+
+        _officeSceneController = GetComponent<OfficeSceneController>();
+        if (_officeSceneController == null) _officeSceneController = gameObject.AddComponent<OfficeSceneController>();
+        _officeSceneController.Configure(_officeStateStore, this);
+    }
+
+    public void ApplyOfficeStateSnapshot(OfficeStateSnapshot snapshot)
+    {
+        var safeSnapshot = snapshot ?? OfficeStateSnapshot.Empty;
+        var tasks = safeSnapshot.Tasks ?? new List<OfficeStateTask>();
+        var board = safeSnapshot.Board;
+        var columnCounts = BuildColumnCounts(tasks);
+        if (board?.ColumnTaskCounts != null)
         {
-            var req = UnityWebRequest.Get(taskStateUrl);
-            req.timeout = 4;
-            yield return req.SendWebRequest();
+            for (int i = 0; i < columnCounts.Length && i < board.ColumnTaskCounts.Count; i++)
+                columnCounts[i] = board.ColumnTaskCounts[i];
+        }
 
-            if (req.result == UnityWebRequest.Result.Success)
+        int doing = 0;
+        int done = 0;
+        foreach (var task in tasks)
+        {
+            var status = (task?.Status ?? string.Empty).Trim().ToLowerInvariant();
+            if (status == "done") done++;
+            else doing++;
+        }
+
+        ResetAgentWorkingTargets();
+        ApplyAgentWorkingTargets(safeSnapshot.Agents, tasks);
+
+        var columnTasks = BuildColumnTasks(tasks);
+        for (int i = 0; i < _liveTaskLabels.Count; i++)
+        {
+            var tm = _liveTaskLabels[i];
+            if (tm == null) continue;
+
+            int column = i < _boardCardColumns.Count ? _boardCardColumns[i] : 0;
+            int row = i % 4;
+            var hasTask = column >= 0 && column < columnTasks.Length && row < columnTasks[column].Count;
+            var task = hasTask ? columnTasks[column][row] : null;
+
+            if (task == null)
             {
-                var e = JsonUtility.FromJson<RSE>(req.downloadHandler.text);
-                var tasks = e?.tasks ?? e?.taskState?.tasks;
-                if (tasks != null)
-                {
-                    int doing = 0, done = 0;
-                    var columnCounts = new int[6];
-                    foreach (var tk in tasks)
-                    {
-                        var s = (tk.status ?? "").ToLower();
-                        if (s == "done") done++; else doing++;
-                        if (!StatusToColumn.TryGetValue(s, out var col)) col = 1;
-                        if (col >= 0 && col < columnCounts.Length)
-                            columnCounts[col]++;
-                    }
-
-                    for (int ai = 0; ai < _agentWorkingTarget.Count; ai++) _agentWorkingTarget[ai] = false;
-                    foreach (var tk in tasks)
-                    {
-                        var assignee = (tk?.assignee ?? "").Trim().ToLower();
-                        var status = (tk?.status ?? "").Trim().ToLower();
-                        if (string.IsNullOrEmpty(assignee)) continue;
-                        if (status == "done") continue;
-
-                        for (int ai = 0; ai < _agentRoles.Length && ai < _agentWorkingTarget.Count; ai++)
-                        {
-                            if (_agentRoles[ai] == assignee)
-                            {
-                                _agentWorkingTarget[ai] = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    var columnTasks = new List<RT>[6];
-                    for (int c = 0; c < columnTasks.Length; c++) columnTasks[c] = new List<RT>();
-
-                    foreach (var task in tasks)
-                    {
-                        var st = (task?.status ?? "").ToLower();
-                        if (!StatusToColumn.TryGetValue(st, out var column)) column = 1;
-                        column = Mathf.Clamp(column, 0, columnTasks.Length - 1);
-                        columnTasks[column].Add(task);
-                    }
-
-                    for (int i = 0; i < _liveTaskLabels.Count; i++)
-                    {
-                        var tm = _liveTaskLabels[i];
-                        if (tm == null) continue;
-
-                        int column = i < _boardCardColumns.Count ? _boardCardColumns[i] : 0;
-                        int row = i % 4;
-                        var hasTask = column >= 0 && column < columnTasks.Length && row < columnTasks[column].Count;
-                        var task = hasTask ? columnTasks[column][row] : null;
-
-                        if (task == null)
-                        {
-                            tm.text = "";
-                            if (i < _assigneeDotRenderers.Count && _assigneeDotRenderers[i] != null)
-                                _assigneeDotRenderers[i].material.color = new Color(0.35f, 0.35f, 0.35f);
-                            continue;
-                        }
-
-                        var id = string.IsNullOrWhiteSpace(task.id) ? "TASK" : task.id;
-                        var title = string.IsNullOrWhiteSpace(task.title) ? "Без названия" : task.title;
-                        var text = $"{id} {title}";
-                        tm.text = text.Length > 28 ? text.Substring(0, 27) + "…" : text;
-
-                        if (i < _assigneeDotRenderers.Count && _assigneeDotRenderers[i] != null)
-                            _assigneeDotRenderers[i].material.color = GetAssigneeColor(task.assignee);
-                    }
-
-                    UpdateBoardCardColors(columnCounts);
-
-                    if (_wipText != null) _wipText.text = $"WIP {doing:00}";
-                    if (_queueText != null) _queueText.text = $"QUEUE {tasks.Count:00}";
-                    if (_blockersText != null) _blockersText.text = $"BLOCKERS {Mathf.Max(0, doing - 3)}";
-                    if (_throughputText != null) _throughputText.text = $"THROUGHPUT {done:00}";
-                }
+                tm.text = string.Empty;
+                if (i < _assigneeDotRenderers.Count && _assigneeDotRenderers[i] != null)
+                    _assigneeDotRenderers[i].material.color = new Color(0.35f, 0.35f, 0.35f);
+                continue;
             }
 
-            req.Dispose();
-            yield return new WaitForSeconds(5f);
+            var id = string.IsNullOrWhiteSpace(task.Id) ? "TASK" : task.Id;
+            var title = string.IsNullOrWhiteSpace(task.Title) ? "Без названия" : task.Title;
+            var text = $"{id} {title}";
+            tm.text = text.Length > 28 ? text.Substring(0, 27) + "…" : text;
+
+            if (i < _assigneeDotRenderers.Count && _assigneeDotRenderers[i] != null)
+                _assigneeDotRenderers[i].material.color = GetAssigneeColor(task.Assignee);
         }
+
+        UpdateBoardCardColors(columnCounts);
+
+        if (_wipText != null) _wipText.text = $"WIP {doing:00}";
+        if (_queueText != null) _queueText.text = $"QUEUE {tasks.Count:00}";
+        if (_blockersText != null) _blockersText.text = $"BLOCKERS {Mathf.Max(0, doing - 3):0}";
+        if (_throughputText != null) _throughputText.text = $"THROUGHPUT {done:00}";
+    }
+
+    private void ResetAgentWorkingTargets()
+    {
+        for (int ai = 0; ai < _agentWorkingTarget.Count; ai++) _agentWorkingTarget[ai] = false;
+    }
+
+    private void ApplyAgentWorkingTargets(List<OfficeStateAgent> agents, List<OfficeStateTask> tasks)
+    {
+        var appliedAgents = false;
+        if (agents != null)
+        {
+            foreach (var agent in agents)
+            {
+                var role = (agent?.Role ?? agent?.Id ?? string.Empty).Trim().ToLowerInvariant();
+                if (string.IsNullOrEmpty(role)) continue;
+                if (!agent.IsWorking) continue;
+                MarkAgentWorking(role);
+                appliedAgents = true;
+            }
+        }
+
+        if (appliedAgents || tasks == null) return;
+
+        foreach (var task in tasks)
+        {
+            var assignee = (task?.Assignee ?? string.Empty).Trim().ToLowerInvariant();
+            var status = (task?.Status ?? string.Empty).Trim().ToLowerInvariant();
+            if (string.IsNullOrEmpty(assignee) || status == "done") continue;
+            MarkAgentWorking(assignee);
+        }
+    }
+
+    private void MarkAgentWorking(string role)
+    {
+        for (int ai = 0; ai < _agentRoles.Length && ai < _agentWorkingTarget.Count; ai++)
+        {
+            if (_agentRoles[ai] != role) continue;
+            _agentWorkingTarget[ai] = true;
+            break;
+        }
+    }
+
+    private int[] BuildColumnCounts(List<OfficeStateTask> tasks)
+    {
+        var counts = new int[6];
+        if (tasks == null) return counts;
+        foreach (var task in tasks)
+        {
+            var column = ResolveColumn(task?.Status);
+            if (column >= 0 && column < counts.Length) counts[column]++;
+        }
+        return counts;
+    }
+
+    private List<OfficeStateTask>[] BuildColumnTasks(List<OfficeStateTask> tasks)
+    {
+        var columnTasks = new List<OfficeStateTask>[6];
+        for (int c = 0; c < columnTasks.Length; c++) columnTasks[c] = new List<OfficeStateTask>();
+        if (tasks == null) return columnTasks;
+
+        foreach (var task in tasks)
+        {
+            var column = Mathf.Clamp(ResolveColumn(task?.Status), 0, columnTasks.Length - 1);
+            columnTasks[column].Add(task);
+        }
+
+        return columnTasks;
+    }
+
+    private static int ResolveColumn(string status)
+    {
+        var key = (status ?? string.Empty).Trim().ToLowerInvariant();
+        return StatusToColumn.TryGetValue(key, out var column) ? column : 1;
     }
 
 
