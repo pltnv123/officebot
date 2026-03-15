@@ -102,11 +102,51 @@ app.get('/api/state', async (_req, res) => {
     assignee: inferAssignee(task, idx),
   }));
 
-  if (Array.isArray(enriched?.taskState?.tasks)) {
-    enriched.taskState = { ...enriched.taskState, tasks: normalizedTasks };
-  } else if (Array.isArray(enriched?.tasks)) {
-    enriched.tasks = normalizedTasks;
-  }
+  const agentMap = new Map();
+  normalizedTasks.forEach((task) => {
+    const role = inferAssignee(task);
+    if (!role) return;
+    if (!agentMap.has(role)) {
+      agentMap.set(role, {
+        id: role,
+        role,
+        state: 'idle',
+        isWorking: false,
+        taskId: '',
+      });
+    }
+    if (String(task?.status || '').toLowerCase() === 'done') return;
+    const agent = agentMap.get(role);
+    agent.state = String(task?.status || 'doing').toLowerCase();
+    agent.isWorking = true;
+    agent.taskId = String(task?.id || '');
+  });
+
+  const columnKeys = ['inbox', 'queue', 'planning', 'doing', 'review', 'done'];
+  const columnTaskCounts = columnKeys.map(() => 0);
+  normalizedTasks.forEach((task) => {
+    const status = String(task?.status || '').toLowerCase();
+    let column = 1;
+    if (status === 'inbox') column = 0;
+    else if (status === 'queue') column = 1;
+    else if (status === 'plan' || status === 'planning') column = 2;
+    else if (status === 'work' || status === 'doing') column = 3;
+    else if (status === 'review' || status === 'rework') column = 4;
+    else if (status === 'done') column = 5;
+    columnTaskCounts[column] += 1;
+  });
+
+  enriched.updatedAt = String(enriched.updatedAt || enriched.timestamp || nowIso());
+  enriched.tasks = normalizedTasks;
+  enriched.taskState = { ...(enriched.taskState || {}), tasks: normalizedTasks };
+  enriched.agents = Array.from(agentMap.values());
+  enriched.events = Array.isArray(enriched.events) ? enriched.events : [];
+  enriched.board = {
+    inboxCount: columnTaskCounts[0],
+    doingCount: normalizedTasks.filter((task) => String(task?.status || '').toLowerCase() !== 'done').length,
+    doneCount: normalizedTasks.filter((task) => String(task?.status || '').toLowerCase() === 'done').length,
+    columnTaskCounts,
+  };
 
   res.json(enriched);
 });
