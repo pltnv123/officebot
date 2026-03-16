@@ -1,0 +1,57 @@
+{
+  "patterns": [
+    {
+      "pattern": "Subagent says 'Now I'll create' but doesn't write files",
+      "cause": "Timeout or tool call generation failure",
+      "solution": "Verify files with ls after subagent, do directly if missing",
+      "severity": "high",
+      "learned": "2026-03-16"
+    },
+    {
+      "pattern": "Empty tool calls (missing command/content)",
+      "cause": "Model generation error",
+      "solution": "Retry with explicit content parameter",
+      "severity": "medium",
+      "learned": "2026-03-16"
+    },
+    {
+      "pattern": "Gateway restart kills session (SIGTERM)",
+      "cause": "systemctl restart openclaw-gateway kills active session",
+      "solution": "Check state after restart, don't edit config directly",
+      "severity": "high",
+      "learned": "2026-03-16"
+    },
+    {
+      "pattern": "openclaw.json direct edit breaks gateway",
+      "cause": "JSON corruption or invalid format",
+      "solution": "Only use openclaw CLI commands for config changes",
+      "severity": "critical",
+      "learned": "2026-03-16"
+    },
+    {
+      "pattern": "Screenshot shows Unity loading screen not scene",
+      "cause": "WebGL not fully loaded, timeout too short",
+      "solution": "Wait 25s after canvas found, use domcontentloaded not networkidle",
+      "severity": "medium",
+      "learned": "2026-03-16"
+    },
+    {
+      "pattern": "CI build doesn't reflect code changes",
+      "cause": "Build caching or wrong commit",
+      "solution": "Check WASM timestamp vs commit, force cache-bust URL param",
+      "severity": "high",
+      "learned": "2026-03-16"
+    }
+  ],
+  "solutions": {
+    "rate_limit": "Wait 60s, switch to free model, retry",
+    "403_ip_ban": "Use Tor proxy via privoxy (127.0.0.1:8118)",
+    "subagent_incomplete": "Check output, do task directly if missing",
+    "unity_scene_wrong": "Verify WASM timestamp, check code, force cache-bust"
+  },
+  "metrics": {
+    "2026-03-16": {
+      "checks_run": 1
+    }
+  }
+}
