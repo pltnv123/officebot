@@ -4,6 +4,18 @@ const path = require('path');
 const { spawn } = require('child_process');
 const { runOrchestrator, tickFirstDoingTask } = require('./taskOrchestrator');
 
+// ═══ Autonomous Agent System ═══
+const {
+  addTask: autoAddTask,
+  listTasks: autoListTasks,
+  listAgents: autoListAgents,
+  completeTask: autoCompleteTask,
+  executeTask: autoExecuteTask,
+  getTask: autoGetTask,
+  tick: autoTick,
+} = require('./autonomousApi');
+// ═══════════════════════════════════
+
 const app = express();
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -248,6 +260,16 @@ app.post('/telegram/webhook', async (req, res) => {
 
   res.json({ ok: true, createdTaskId: task.id });
 });
+
+// ═══ Autonomous Agent Endpoints ═══
+app.post('/api/task', autoAddTask);              // POST /api/task — добавить задачу
+app.get('/api/tasks', autoListTasks);            // GET /api/tasks — список задач
+app.get('/api/agents', autoListAgents);          // GET /api/agents — статус агентов
+app.get('/api/task/:id', autoGetTask);           // GET /api/task/:id — детали задачи
+app.post('/api/task/:id/complete', autoCompleteTask); // POST /api/task/:id/complete — завершить
+app.post('/api/task/:id/execute', autoExecuteTask);   // POST /api/task/:id/execute — запустить
+app.post('/api/autonomous/tick', autoTick);      // POST /api/autonomous/tick — обработать одну задачу
+// ═══════════════════════════════════
 
 const PORT = Number(process.env.PORT || 8787);
 app.listen(PORT, () => {
