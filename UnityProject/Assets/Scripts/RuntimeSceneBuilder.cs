@@ -24,7 +24,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private readonly Color[] _columnHighlightColors = new Color[4];
     private TextMesh _wipText, _queueText, _blockersText, _throughputText;
     private float _t;
-    private readonly string[] _agentRoles = { "planner", "worker", "reviewer" };
+    private readonly string[] _agentRoles = { "chief", "planner", "worker", "reviewer", "builder" };
     private static readonly Color _boardCardBaseColor = new Color(0.28f, 0.28f, 0.28f);
     private static readonly Dictionary<string, int> StatusToColumn = new(System.StringComparer.OrdinalIgnoreCase)
     {
@@ -692,22 +692,37 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildAgents()
     {
+        // 5-agent system: CHIEF (center-back, gold), PLANNER (left, orange),
+        // WORKER (left-front, blue), REVIEWER (right-front, yellow), BUILDER (right, green)
+
         BuildAgent(
-            new Vector3(-3.25f, 0.0f, 0.05f),
-            "WORKER",
-            new Color(0.20f, 0.60f, 1.00f, 1f),
+            new Vector3(0.00f, 0.0f, -1.20f),
+            "CHIEF",
+            new Color(1.00f, 0.84f, 0.00f, 1f),
             0f);
 
         BuildAgent(
-            new Vector3(0.00f, 0.0f, 0.10f),
+            new Vector3(-3.80f, 0.0f, 0.05f),
             "PLANNER",
             new Color(1.00f, 0.55f, 0.15f, 1f),
             0f);
 
         BuildAgent(
-            new Vector3(3.25f, 0.0f, 0.05f),
+            new Vector3(-1.50f, 0.0f, 0.40f),
+            "WORKER",
+            new Color(0.20f, 0.60f, 1.00f, 1f),
+            0f);
+
+        BuildAgent(
+            new Vector3(1.50f, 0.0f, 0.40f),
             "REVIEWER",
             new Color(0.90f, 0.85f, 0.20f, 1f),
+            0f);
+
+        BuildAgent(
+            new Vector3(3.80f, 0.0f, 0.05f),
+            "BUILDER",
+            new Color(0.20f, 1.00f, 0.40f, 1f),
             0f);
     }
 
@@ -925,15 +940,19 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             return mv;
         }
 
-        // Map existing orchestrator roles to planner/worker/tester.
-        var plannerM = Mv(1, "planner", new Vector3(-1.8f, 0f, 0.5f), new Vector3(0f, 0f, 8f), new Vector3(-1.3f, 0f, 1.2f), new Vector3(5.2f, 0f, 8.6f));
-        var workerM = Mv(0, "worker", new Vector3(-6.5f, 0f, 2.5f), new Vector3(0f, 0f, 8f), new Vector3(-0.3f, 0f, 1.0f), new Vector3(5.6f, 0f, 8.6f));
-        var testerM = Mv(2, "reviewer", new Vector3(6.5f, 0f, 2.5f), new Vector3(0f, 0f, 8f), new Vector3(0.8f, 0f, 1.0f), new Vector3(6.0f, 0f, 8.6f));
+        // Map 5-agent system: chief, planner, worker, reviewer, builder
+        var chiefM = Mv(0, "chief", new Vector3(0f, 0f, -1.2f), new Vector3(0f, 0f, 8f), new Vector3(0f, 0f, 1.5f), new Vector3(5f, 0f, 8.6f));
+        var plannerM = Mv(1, "planner", new Vector3(-3.8f, 0f, 0.5f), new Vector3(-1f, 0f, 8f), new Vector3(-1.3f, 0f, 1.2f), new Vector3(4.6f, 0f, 8.6f));
+        var workerM = Mv(2, "worker", new Vector3(-6.5f, 0f, 2.5f), new Vector3(-0.5f, 0f, 8f), new Vector3(-0.3f, 0f, 1.0f), new Vector3(5.2f, 0f, 8.6f));
+        var reviewerM = Mv(3, "reviewer", new Vector3(6.5f, 0f, 2.5f), new Vector3(0.5f, 0f, 8f), new Vector3(0.8f, 0f, 1.0f), new Vector3(5.8f, 0f, 8.6f));
+        var builderM = Mv(4, "builder", new Vector3(3.8f, 0f, 0.5f), new Vector3(1f, 0f, 8f), new Vector3(1.5f, 0f, 1.2f), new Vector3(6.2f, 0f, 8.6f));
 
         var orch = mgr.GetComponent<TaskOrchestrator>() ?? mgr.AddComponent<TaskOrchestrator>();
+        orch.chiefBot = chiefM;
         orch.plannerBot = plannerM;
         orch.workerBot = workerM;
-        orch.testerBot = testerM;
+        orch.testerBot = reviewerM;
+        orch.builderBot = builderM;
 
         var poller = mgr.GetComponent<StatePoller>() ?? mgr.AddComponent<StatePoller>();
         poller.orchestrator = orch;
@@ -1179,9 +1198,11 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private static Color GetAssigneeColor(string assignee)
     {
         var key = (assignee ?? "").Trim().ToLower();
+        if (key == "chief") return new Color(1.00f, 0.84f, 0.00f);
         if (key == "planner") return new Color(1.00f, 0.55f, 0.15f);
         if (key == "worker") return new Color(0.20f, 0.60f, 1.00f);
         if (key == "reviewer") return new Color(0.90f, 0.85f, 0.20f);
+        if (key == "builder") return new Color(0.20f, 1.00f, 0.40f);
         return new Color(0.75f, 0.75f, 0.78f);
     }
     private void UpdateBoardCardColors(int[] columnCounts)
