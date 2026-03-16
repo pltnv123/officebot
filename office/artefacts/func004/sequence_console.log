@@ -1,0 +1,174 @@
+[2026-03-11T13:29:07.136Z] error: Mixed Content: The page at 'https://5.45.115.12/office/' was loaded over HTTPS, but requested an insecure resource 'http://5.45.115.12:8787/api/state?ts=1773235747091'. This request has been blocked; the content must be served over HTTPS.
+[2026-03-11T13:29:07.146Z] error: cpu/load poll failed TypeError: Failed to fetch
+    at pollCpuLoad (https://5.45.115.12/office/scripts/tasks-ui.js?v=48:137:30)
+    at https://5.45.115.12/office/scripts/tasks-ui.js?v=48:158:3
+    at https://5.45.115.12/office/scripts/tasks-ui.js?v=48:161:3
+[2026-03-11T13:29:07.341Z] error: wasm streaming compile failed: TypeError: Failed to execute 'compile' on 'WebAssembly': Incorrect response MIME type. Expected 'application/wasm'.
+[2026-03-11T13:29:07.342Z] warning: HTTP Response Header "Content-Type" configured incorrectly on the server for file ./Build/WebGL.wasm.gz , should be "application/wasm". Startup time performance will suffer.
+[2026-03-11T13:29:07.342Z] error: falling back to ArrayBuffer instantiation
+[2026-03-11T13:29:07.846Z] log: navigator.mediaDevices support available
+[2026-03-11T13:29:08.164Z] log: [UnityMemory] Configuration Parameters - Can be set up in boot.config
+
+[2026-03-11T13:29:08.164Z] log:     "memorysetup-allocator-temp-initial-block-size-main=262144"
+
+[2026-03-11T13:29:08.184Z] log:     "memorysetup-allocator-temp-initial-block-size-worker=262144"
+
+[2026-03-11T13:29:08.186Z] log:     "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+
+[2026-03-11T13:29:08.186Z] log:     "memorysetup-temp-allocator-size-audio-worker=65536"
+
+[2026-03-11T13:29:08.186Z] log:     "memorysetup-temp-allocator-size-background-worker=32768"
+
+[2026-03-11T13:29:08.187Z] log:     "memorysetup-bucket-allocator-granularity=16"
+
+[2026-03-11T13:29:08.187Z] log:     "memorysetup-bucket-allocator-bucket-count=8"
+
+[2026-03-11T13:29:08.187Z] log:     "memorysetup-bucket-allocator-block-size=4194304"
+
+[2026-03-11T13:29:08.187Z] log:     "memorysetup-bucket-allocator-block-count=1"
+
+[2026-03-11T13:29:08.187Z] log:     "memorysetup-main-allocator-block-size=16777216"
+
+[2026-03-11T13:29:08.187Z] log:     "memorysetup-thread-allocator-block-size=16777216"
+
+[2026-03-11T13:29:08.187Z] log:     "memorysetup-gfx-main-allocator-block-size=16777216"
+
+[2026-03-11T13:29:08.187Z] log:     "memorysetup-gfx-thread-allocator-block-size=16777216"
+
+[2026-03-11T13:29:08.188Z] log:     "memorysetup-cache-allocator-block-size=4194304"
+
+[2026-03-11T13:29:08.188Z] log:     "memorysetup-typetree-allocator-block-size=2097152"
+
+[2026-03-11T13:29:08.188Z] log:     "memorysetup-profiler-bucket-allocator-granularity=16"
+
+[2026-03-11T13:29:08.188Z] log:     "memorysetup-profiler-bucket-allocator-bucket-count=8"
+
+[2026-03-11T13:29:08.193Z] log:     "memorysetup-profiler-bucket-allocator-block-size=4194304"
+
+[2026-03-11T13:29:08.193Z] log:     "memorysetup-profiler-bucket-allocator-block-count=1"
+
+[2026-03-11T13:29:08.193Z] log:     "memorysetup-profiler-allocator-block-size=16777216"
+
+[2026-03-11T13:29:08.194Z] log:     "memorysetup-profiler-editor-allocator-block-size=1048576"
+
+[2026-03-11T13:29:08.194Z] log:     "memorysetup-temp-allocator-size-main=4194304"
+
+[2026-03-11T13:29:08.194Z] log:     "memorysetup-job-temp-allocator-block-size=2097152"
+
+[2026-03-11T13:29:08.194Z] log:     "memorysetup-job-temp-allocator-block-size-background=1048576"
+
+[2026-03-11T13:29:08.194Z] log:     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+
+[2026-03-11T13:29:08.286Z] log: [PhysX] Initialized SinglethreadedTaskDispatcher.
+
+[2026-03-11T13:29:08.296Z] log: Loading player data from data.unity3d
+
+[2026-03-11T13:29:08.312Z] log: Initialize engine version: 2022.3.62f1 (4af31df58517)
+
+[2026-03-11T13:29:08.316Z] log: Creating WebGL 2.0 context.
+[2026-03-11T13:29:08.364Z] log: Renderer: WebKit WebGL
+
+[2026-03-11T13:29:08.367Z] log: Vendor:   WebKit
+
+[2026-03-11T13:29:08.369Z] log: Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+
+[2026-03-11T13:29:08.369Z] log: GLES:     3
+
+[2026-03-11T13:29:08.369Z] log:  EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_float_blend EXT_polygon_offset_clamp EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_mirror_clamp_to_edge NV_shader_noperspective_interpolation OES_draw_buffers_indexed OES_sample_variables OES_shader_multisample_interpolation OES_texture_float_linear OVR_multiview2 WEBGL_clip_cull_distance WEBGL_compressed_texture_astc WEBGL_compressed_texture_etc WEBGL_compressed_texture_etc1 WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode WEBGL_stencil_texturing GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_float_blend GL_EXT_polygon_offset_clamp GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_mirro
+
+[2026-03-11T13:29:08.369Z] log: r_clamp_to_edge GL_NV_shader_noperspective_interpolation GL_OES_draw_buffers_indexed GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_texture_float_linear GL_OVR_multiview2 GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_astc GL_WEBGL_compressed_texture_etc GL_WEBGL_compressed_texture_etc1 GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode GL_WEBGL_stencil_texturing
+
+[2026-03-11T13:29:08.393Z] log: OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+
+[2026-03-11T13:29:08.572Z] log: Input Manager initialize...
+
+[2026-03-11T13:29:08.604Z] log: [PhysX] Initialized SinglethreadedTaskDispatcher.
+
+[2026-03-11T13:29:08.607Z] log: UnloadTime: 7.800001 ms
+
+[2026-03-11T13:29:08.913Z] warning: [.WebGL-0x3a84022d2400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[2026-03-11T13:29:08.957Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T13:29:08.959Z] warning: [.WebGL-0x3a84022d2400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[2026-03-11T13:29:09.018Z] warning: [.WebGL-0x3a84022d2400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[2026-03-11T13:29:09.059Z] warning: [.WebGL-0x3a84022d2400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[2026-03-11T13:29:09.242Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T13:29:09.382Z] log: [UnityCache] 'https://5.45.115.12/office/Build/WebGL.data.gz' successfully downloaded and stored in the indexedDB cache
+[2026-03-11T13:29:09.648Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T13:29:10.038Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T13:29:10.492Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T13:29:10.765Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T13:29:10.770Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T13:29:10.778Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T13:29:10.778Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T13:29:10.778Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T13:29:10.782Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T13:29:10.782Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T13:29:10.786Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T13:29:10.791Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T13:29:10.797Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T13:29:10.798Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T13:29:10.800Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T13:29:10.801Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T13:29:10.804Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T13:29:10.806Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T13:29:10.806Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T13:29:10.807Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T13:29:10.810Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T13:29:10.812Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T13:29:10.812Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T13:29:10.812Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T13:29:10.817Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T13:29:10.819Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T13:29:10.820Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T13:29:10.822Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T13:29:10.824Z] error: Can't add component because class 'CapsuleCollider' doesn't exist!
+
+[2026-03-11T13:29:10.830Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T13:29:10.831Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T13:29:10.831Z] error: Can't add component because class 'SphereCollider' doesn't exist!
+
+[2026-03-11T13:29:11.558Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T13:29:11.569Z] error: ArgumentException: JSON parse error: Invalid value.
+
+
+
+[2026-03-11T13:29:11.905Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T13:29:12.177Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T13:29:12.448Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T13:29:12.846Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T13:29:13.243Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T13:29:13.663Z] warning: The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio
+[2026-03-11T13:29:14.633Z] log: Audio context resumed after 6.179 seconds.
+[2026-03-11T13:29:37.302Z] error: Mixed Content: The page at 'https://5.45.115.12/office/' was loaded over HTTPS, but requested an insecure resource 'http://5.45.115.12:8787/api/state?ts=1773235777273'. This request has been blocked; the content must be served over HTTPS.
+[2026-03-11T13:29:37.441Z] error: cpu/load poll failed TypeError: Failed to fetch
+    at pollCpuLoad (https://5.45.115.12/office/scripts/tasks-ui.js?v=48:137:30)
+[2026-03-11T13:30:07.278Z] error: Mixed Content: The page at 'https://5.45.115.12/office/' was loaded over HTTPS, but requested an insecure resource 'http://5.45.115.12:8787/api/state?ts=1773235807268'. This request has been blocked; the content must be served over HTTPS.
+[2026-03-11T13:30:07.471Z] error: cpu/load poll failed TypeError: Failed to fetch
+    at pollCpuLoad (https://5.45.115.12/office/scripts/tasks-ui.js?v=48:137:30)

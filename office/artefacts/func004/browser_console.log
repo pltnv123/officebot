@@ -1,0 +1,5 @@
+[console:error] Failed to load resource: the server responded with a status of 404 (File not found)
+[console:error] Failed to load resource: the server responded with a status of 404 (File not found)
+[console:error] Unable to load file ./Build/WebGL.framework.js.gz! Check that the file exists on the remote server. (also check browser Console and Devtools Network tab to debug)
+[console:error] Failed to load resource: the server responded with a status of 404 (File not found)
+[console:log] [UnityCache] 'http://127.0.0.1:8080/Build/WebGL.data.gz' request failed with status: 404 File not found

@@ -2,7 +2,57 @@
   const overlay = document.getElementById('unity-overlay');
   const canvas = document.getElementById('unity-canvas');
 
-  const config = {
+  const setMessage = (text) => {
+    if (overlay) overlay.textContent = text;
+  };
+
+  async function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = () => reject(new Error('Failed to load ' + src));
+      document.head.appendChild(script);
+    });
+  }
+
+  async function runFallback(reason) {
+    setMessage(`Unity build fallback (${reason})`);
+    try {
+      const mod = await import('./fallback-scene.js?v=3');
+      mod.launchFallbackScene(canvas);
+    } catch (error) {
+      setMessage('Ошибка fallback-сцены: ' + error);
+    }
+  }
+
+  try {
+    // Prefer new CI artifact naming first, then legacy office.*
+    await loadScript('./Build/WebGL.loader.js');
+  } catch (e1) {
+    try {
+      await loadScript('./Build/office.loader.js');
+    } catch (e2) {
+      await runFallback('loader not found');
+      return;
+    }
+  }
+
+  if (typeof createUnityInstance !== 'function') {
+    await runFallback('нет createUnityInstance');
+    return;
+  }
+
+  const hasWebGLNames = true; // build currently deploys WebGL.*.gz files
+  const config = hasWebGLNames ? {
+    dataUrl: './Build/WebGL.data.gz',
+    frameworkUrl: './Build/WebGL.framework.js.gz',
+    codeUrl: './Build/WebGL.wasm.gz',
+    streamingAssetsUrl: 'StreamingAssets',
+    companyName: 'Office',
+    productName: 'FrogOffice',
+    productVersion: '1.0'
+  } : {
     dataUrl: './Build/office.data',
     frameworkUrl: './Build/office.framework.js',
     codeUrl: './Build/office.wasm',
@@ -12,28 +62,38 @@
     productVersion: '1.0'
   };
 
-  const setMessage = (text) => {
-    if (overlay) overlay.textContent = text;
-  };
-
-  async function runFallback(reason) {
-    setMessage(`Unity build ещё не готов (${reason}). Показан стартовый fallback-офис.`);
+  function forwardEventToUnity(detail) {
     try {
-      const mod = await import('./fallback-scene.js?v=2');
-      mod.launchFallbackScene(canvas);
-    } catch (error) {
-      setMessage('Ошибка fallback-сцены: ' + error);
+      const inst = window.OfficeUnity?.instance;
+      if (!inst || typeof inst.SendMessage !== 'function') return false;
+      const payload = JSON.stringify(detail || {});
+      inst.SendMessage('WebBridge', 'OnWebEvent', payload);
+      return true;
+    } catch (_) {
+      return false;
     }
   }
 
-  if (typeof createUnityInstance !== 'function') {
-    await runFallback('нет createUnityInstance');
-    return;
-  }
+  window.addEventListener('office:api-action', (evt) => {
+    const detail = evt?.detail || {};
+    if (!forwardEventToUnity(detail)) {
+      window.__officeUnityEventQueue = window.__officeUnityEventQueue || [];
+      window.__officeUnityEventQueue.push(detail);
+      if (window.__officeUnityEventQueue.length > 30) window.__officeUnityEventQueue.shift();
+    }
+  });
 
   createUnityInstance(canvas, config, (progress) => {
     setMessage(`Загрузка Unity: ${Math.round(progress * 100)}%`);
-  }).then(() => {
+  }).then((instance) => {
+    window.OfficeUnity = { instance, loadedAt: Date.now() };
+
+    const queue = window.__officeUnityEventQueue || [];
+    while (queue.length) {
+      const msg = queue.shift();
+      forwardEventToUnity(msg);
+    }
+
     setMessage('Unity сцена загружена');
     setTimeout(() => { if (overlay) overlay.style.display = 'none'; }, 1200);
   }).catch(async (error) => {

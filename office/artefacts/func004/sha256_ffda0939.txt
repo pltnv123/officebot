@@ -1,0 +1,4 @@
+05145feb5472db278aee2cc95354899f770ef8e7548a180e97eb842aa97e6a5a  /home/antonbot/.openclaw/workspace/office/artefacts/func004/remote_scene_t0.png
+4505f9fd10ab5965d5799a932cb4c011d542519e62f71924dd8411bc11163289  /home/antonbot/.openclaw/workspace/office/artefacts/func004/remote_scene_t12.png
+009f4f6e7561d84f116a9ebb89ad77e2492181a823a23b945940cf4e1f80003e  /home/antonbot/.openclaw/workspace/office/artefacts/func004/remote_scene_t24.png
+42531568129dece4da5085a7cb5db96275482a50b8399781e614fce563b6012d  /home/antonbot/.openclaw/workspace/office/artefacts/func004/sequence.mp4

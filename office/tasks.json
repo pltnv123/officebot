@@ -1,73 +1,346 @@
 {
   "tasks": [
     {
-      "id": "START-001",
-      "title": "Показать старт проекта в сцене (fallback office v2)",
+      "id": "TASK-1773192619719",
+      "title": "FUNC004 smoke 3",
+      "assignee": "planner",
       "status": "doing",
-      "estimate": 120.0,
-      "actual": 11.86,
+      "estimate": 60,
+      "actual": 0,
+      "progress": 0,
       "subtasks": [
         {
-          "title": "Собрать полноценный fallback офис (стены/окно/доска)",
+          "title": "Разбор и план",
           "status": "doing",
-          "estimate": 45.0,
-          "actual": 11.86,
-          "progress": 26.4
+          "estimate": 15,
+          "actual": 0,
+          "progress": 1,
+          "started_at": 1773192619
         },
         {
-          "title": "Добавить персонажей-ассистентов и idle-анимацию",
+          "title": "Реализация",
           "status": "todo",
-          "estimate": 35.0,
-          "actual": 0.0,
+          "estimate": 30,
+          "actual": 0,
           "progress": 0
         },
         {
-          "title": "Показать понятный статус Unity build + fallback",
+          "title": "Проверка",
           "status": "todo",
-          "estimate": 20.0,
-          "actual": 0.0,
-          "progress": 0
-        },
-        {
-          "title": "Проверить отображение на телефоне",
-          "status": "todo",
-          "estimate": 20.0,
-          "actual": 0.0,
+          "estimate": 15,
+          "actual": 0,
           "progress": 0
         }
-      ],
-      "progress": 9.9
+      ]
     },
     {
-      "id": "START-002",
-      "title": "Запуск нового Sprint-1 (Unity WebGL)",
+      "id": "TASK-1773192619522",
+      "title": "FUNC004 smoke 2",
+      "assignee": "chief",
       "status": "doing",
-      "estimate": 180.0,
-      "actual": 1.86,
+      "estimate": 60,
+      "actual": 0,
+      "progress": 0,
       "subtasks": [
         {
-          "title": "Контракт /state v1",
+          "title": "Разбор и план",
           "status": "doing",
-          "estimate": 60.0,
-          "actual": 1.86,
-          "progress": 3.1
+          "estimate": 15,
+          "actual": 0,
+          "progress": 1,
+          "started_at": 1773192619
         },
         {
-          "title": "Unity URP bootstrap",
+          "title": "Реализация",
           "status": "todo",
-          "estimate": 70.0,
-          "actual": 0.0,
+          "estimate": 30,
+          "actual": 0,
           "progress": 0
         },
         {
-          "title": "JS↔Unity bridge",
+          "title": "Проверка",
           "status": "todo",
-          "estimate": 50.0,
-          "actual": 0.0,
+          "estimate": 15,
+          "actual": 0,
+          "progress": 0
+        }
+      ]
+    },
+    {
+      "id": "TASK-1773192619336",
+      "title": "FUNC004 smoke 1",
+      "assignee": "tester",
+      "status": "doing",
+      "estimate": 60,
+      "actual": 0,
+      "progress": 0,
+      "subtasks": [
+        {
+          "title": "Разбор и план",
+          "status": "doing",
+          "estimate": 15,
+          "actual": 0,
+          "progress": 1,
+          "started_at": 1773192619
+        },
+        {
+          "title": "Реализация",
+          "status": "todo",
+          "estimate": 30,
+          "actual": 0,
+          "progress": 0
+        },
+        {
+          "title": "Проверка",
+          "status": "todo",
+          "estimate": 15,
+          "actual": 0,
+          "progress": 0
+        }
+      ]
+    },
+    {
+      "id": "PLAN-001",
+      "title": "Unity URP WebGL: Базовая сцена офиса",
+      "status": "done",
+      "estimate": 90,
+      "actual": 90,
+      "progress": 100,
+      "subtasks": [
+        {
+          "title": "Очистить и стабилизировать task/state pipeline",
+          "status": "done",
+          "estimate": 20,
+          "actual": 20,
+          "progress": 100
+        },
+        {
+          "title": "Главный стол + свет читаемый",
+          "status": "done",
+          "estimate": 40,
+          "actual": 40,
+          "progress": 100
+        },
+        {
+          "title": "Стол сотрудника + chill зона",
+          "status": "done",
+          "estimate": 30,
+          "actual": 30,
+          "progress": 100
+        }
+      ],
+      "completed_at": 1772546027
+    },
+    {
+      "id": "PLAN-002",
+      "title": "Правая панель: Сейчас делаю / Активные / Последние",
+      "status": "done",
+      "estimate": 45,
+      "actual": 45,
+      "progress": 100,
+      "subtasks": [
+        {
+          "title": "Показывать только актуальные задачи",
+          "status": "done",
+          "estimate": 15,
+          "actual": 15,
+          "progress": 100
+        },
+        {
+          "title": "Вложенные подзадачи + прогресс бары",
+          "status": "done",
+          "estimate": 20,
+          "actual": 20,
+          "progress": 100
+        },
+        {
+          "title": "CPU/Load + now-doing синхронизация",
+          "status": "done",
+          "estimate": 10,
+          "actual": 10,
+          "progress": 100
+        }
+      ],
+      "completed_at": 1772546389
+    },
+    {
+      "id": "PLAN-003",
+      "title": "Unity сцена: финализация столов, ассистентов и chill-zone",
+      "status": "done",
+      "estimate": 120,
+      "actual": 120,
+      "progress": 100,
+      "started_at": 1772546389,
+      "completed_at": 1772688521,
+      "subtasks": [
+        {
+          "title": "Детализировать стол сотрудника и монитор",
+          "status": "done",
+          "estimate": 40,
+          "actual": 40,
+          "progress": 100
+        },
+        {
+          "title": "Ассистенты с ролями и бейджами (3+)",
+          "status": "done",
+          "estimate": 40,
+          "actual": 40,
+          "progress": 100
+        },
+        {
+          "title": "Chill-zone (софа, лампа, растения) финальный вид",
+          "status": "done",
+          "estimate": 40,
+          "actual": 40,
+          "progress": 100
+        }
+      ]
+    },
+    {
+      "id": "VIZ-001",
+      "title": "3 robots visible simultaneously on screen",
+      "status": "done",
+      "estimate": 20,
+      "actual": 20,
+      "progress": 100,
+      "started_at": 1772786780,
+      "subtasks": [
+        {
+          "title": "Move all 3 robots to negative Z in front of desk",
+          "status": "done",
+          "estimate": 10,
+          "actual": 10,
+          "progress": 100
+        },
+        {
+          "title": "Wait for wasm timestamp change after deploy",
+          "status": "done",
+          "estimate": 5,
+          "actual": 5,
+          "progress": 100
+        },
+        {
+          "title": "Confirm with screenshot all 3 robots visible",
+          "status": "done",
+          "estimate": 5,
+          "actual": 5,
+          "progress": 100
+        }
+      ],
+      "completed_at": 1772875525
+    },
+    {
+      "id": "VIZ-002",
+      "title": "Pixar quality lighting",
+      "status": "done",
+      "estimate": 45,
+      "actual": 45,
+      "progress": 100,
+      "subtasks": [
+        {
+          "title": "Warm ambient Color(1.0, 0.95, 0.85)",
+          "status": "done",
+          "estimate": 10,
+          "actual": 10,
+          "progress": 100
+        },
+        {
+          "title": "Directional light pos(2,8,-4) intensity=1.5 warm color",
+          "status": "done",
+          "estimate": 10,
+          "actual": 10,
+          "progress": 100
+        },
+        {
+          "title": "Rim lights behind robots for depth",
+          "status": "done",
+          "estimate": 15,
+          "actual": 15,
+          "progress": 100
+        },
+        {
+          "title": "Screenshot confirms warm Pixar lighting",
+          "status": "done",
+          "estimate": 10,
+          "actual": 10,
+          "progress": 100
+        }
+      ],
+      "started_at": 1772875803,
+      "completed_at": 1772954008
+    },
+    {
+      "id": "VIZ-003",
+      "title": "Pixar quality robot models",
+      "status": "doing",
+      "estimate": 90,
+      "actual": 0,
+      "progress": 0,
+      "subtasks": [
+        {
+          "title": "Search and download stylized robot GLB from Sketchfab",
+          "status": "doing",
+          "estimate": 20,
+          "actual": 0,
+          "progress": 1,
+          "started_at": 1773192619
+        },
+        {
+          "title": "Import GLB into Unity and assign to 3 robots",
+          "status": "todo",
+          "estimate": 40,
+          "actual": 0,
+          "progress": 0
+        },
+        {
+          "title": "Add name badges: WORKER / PLANNER / REVIEWER",
+          "status": "todo",
+          "estimate": 20,
+          "actual": 0,
+          "progress": 0
+        },
+        {
+          "title": "Screenshot confirms Pixar robot quality",
+          "status": "todo",
+          "estimate": 10,
+          "actual": 0,
           "progress": 0
         }
       ],
-      "progress": 1.0
+      "started_at": 1772954101
+    },
+    {
+      "id": "VIZ-004",
+      "title": "Floor and environment quality",
+      "status": "doing",
+      "estimate": 30,
+      "actual": 0,
+      "progress": 0,
+      "subtasks": [
+        {
+          "title": "Floor warm beige Color(0.54, 0.48, 0.38)",
+          "status": "doing",
+          "estimate": 10,
+          "actual": 0,
+          "progress": 1,
+          "started_at": 1773192619
+        },
+        {
+          "title": "Board position (0, 2.3, 4.2) with all 4 columns",
+          "status": "todo",
+          "estimate": 10,
+          "actual": 0,
+          "progress": 0
+        },
+        {
+          "title": "Screenshot confirms environment matches reference",
+          "status": "todo",
+          "estimate": 10,
+          "actual": 0,
+          "progress": 0
+        }
+      ],
+      "started_at": 1772984401
     }
   ]
 }

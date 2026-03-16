@@ -1,42 +1,42 @@
-# OpenClaw Stack — быстрый операционный конспект
+# OPENCLAW_STACK.md — Technical Reference
 
-## Основные ресурсы
-- Сайт: https://openclaw.ai
-- Документация: https://docs.openclaw.ai
+## OpenClaw Resources
+- Docs: https://docs.openclaw.ai
 - GitHub: https://github.com/openclaw/openclaw
-- Релизы: https://github.com/openclaw/openclaw/releases
-- Discord: https://discord.gg/openclaw
-- ClawHub (Skills): https://hub.openclaw.ai
+- Skills hub: https://hub.openclaw.ai
 
-## Гайды/статьи для онбординга
-- Habr (RU): https://habr.com/ru/articles/990786/
-- DigitalOcean: https://www.digitalocean.com/resources/articles/what-is-openclaw
-- Dev.to: https://dev.to/laracopilot/what-is-openclaw-ai-in-2026-a-practical-guide-for-developers-25hj
-- AIMLAPI quickstart: https://docs.aimlapi.com/quickstart/openclaw
-- Wikipedia: https://en.wikipedia.org/wiki/OpenClaw
+## Model Providers
+- Primary: openai-codex/gpt-5.3-codex (OAuth via new account)
+- Fallbacks: openai/gpt-5.1-codex → openai/gpt-5.3-codex → openai-codex/gpt-5.1-codex-mini → openai/gpt-4.1-mini
 
-## Провайдеры моделей
-- OpenRouter (старт): https://openrouter.ai
-- Anthropic: https://console.anthropic.com
-- OpenAI: https://platform.openai.com
-- DeepSeek: https://api.deepseek.com
+## Key Commands
+- openclaw skills list — list available skills
+- openclaw gateway stop/start — manage gateway
+- openclaw configure — change settings
+- gh run list --limit 5 — check CI status
+- stat /var/www/office/Build/WebGL.wasm.gz | grep Modify — verify deploy
 
-## Что уже изучено и зафиксировано
-- Документация: стартовая страница + подсказка использовать `https://docs.openclaw.ai/llms.txt` как индекс всех страниц.
-- Releases: подтверждён рабочий процесс «перед изменениями смотреть changelog»; отмечены важные направления (secrets workflow, ACP/thread sessions, agents bind/unbind, transport changes).
-- Habr-гайд: полезен как практический взгляд (архитектура gateway/agent/skills/memory и реальные подводные камни), но использовать как вторичный источник после официальных docs.
+## Implementation Rules
+1. Check local OpenClaw docs first, then docs.openclaw.ai
+2. Before any change: check latest release and changelog
+3. Always have fallback model provider
+4. Diagnosis order: openclaw status → targeted checks → logs
+5. Any external guide is secondary, not source of truth
 
-## Принятые правила внедрения (локально)
-1. Сначала проверять локальные доки OpenClaw в окружении, затем `docs.openclaw.ai`.
-2. Для всех новых фич/правок сначала смотреть релизы и changelog.
-3. Для повторяемых операций оформлять в виде skills/чеклистов.
-4. Для задач по моделям держать fallback-провайдера (OpenRouter + прямые ключи).
-5. При диагностике сначала `openclaw status`, затем точечные проверки.
-6. Любой внешний гайд (Habr/Dev.to/DO) считать вспомогательным, не источником истины.
+## Pre-Change Checklist
+- [ ] Current OpenClaw release checked
+- [ ] Breaking changes in docs checked
+- [ ] Primary and fallback model provider set
+- [ ] Rollback plan exists (backup/commit)
+- [ ] Changes documented in workspace
 
-## Мини-чеклист перед изменениями
-- [ ] Проверен актуальный релиз OpenClaw
-- [ ] Проверены breaking changes в docs
-- [ ] Определён основной и резервный провайдер модели
-- [ ] Есть план отката (backup / commit)
-- [ ] Изменения задокументированы в workspace
+## WebGL/Unity Critical Rules
+- NEVER use Shader.Find("Standard") — returns null in URP WebGL
+- ALWAYS use Shader.Find("Universal Render Pipeline/Lit")
+- If scene is black: first check shader null errors in browser console
+- URP fallback: Shader.Find("Hidden/InternalErrorShader")
+
+## SSH Tunnel (for browser access)
+- Command: ssh -N -L 18789:127.0.0.1:18789 antonbot@5.45.115.12
+- Browser: http://127.0.0.1:18789
+- Token: 906d803d570653290bacd4a5ad98d8aaf66f81c7369d5061

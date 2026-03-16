@@ -1,0 +1,10 @@
+{
+  "toggles": {
+    "lights": false,
+    "door_room2": true
+  },
+  "metrics": {
+    "lastToggleAt": "2026-03-03T09:23:20.820Z",
+    "lastToggleId": "lights"
+  }
+}

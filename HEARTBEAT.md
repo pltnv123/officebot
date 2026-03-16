@@ -1,5 +1,4 @@
 # HEARTBEAT.md
 
-# Keep this file empty (or with only comments) to skip heartbeat API calls.
-
-# Add tasks below when you want the agent to check something periodically.
+# Heartbeat is disabled — autoloop handles periodic work via cron jobs.json
+# Do not add tasks here — use BACKLOG.md instead

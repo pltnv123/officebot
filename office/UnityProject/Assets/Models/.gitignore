@@ -1,0 +1,5 @@
+# Generated in CI by Blender job
+Robots/*.fbx
+Robots/*.FBX
+Robots/*.meta
+!.gitkeep

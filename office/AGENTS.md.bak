@@ -1,0 +1,177 @@
+## Telegram Reporting Rules
+- Every 30 minutes send a status update in Telegram.
+- Status format: 1) Сделано 2) В работе 3) Следующий шаг 4) ETA
+
+## VISUAL PRIORITY LOCK — MANDATORY, NEVER OVERRIDE
+
+### THE ONLY GOAL RIGHT NOW
+Make http://5.45.115.12/office/ match the reference image exactly.
+
+### SCENE SUCCESS CONDITIONS (check before every cycle)
+Run this check at the start of every autonomous cycle:
+- [ ] 3 robots visible simultaneously on screen
+- [ ] Floor is warm beige (not dark/green)
+- [ ] Scene is bright enough to see all details
+- [ ] Board fills back wall with INBOX/PLAN/WORK/DONE columns
+- [ ] Camera angle matches reference
+
+### VISUAL LOCK RULE
+If ANY of the 5 conditions above is FALSE:
+- ONLY work on RuntimeSceneBuilder.cs
+- ZERO ops/backend/frontend/docs commits
+- ZERO healthcheck changes
+- ZERO CI workflow changes
+
+### FORBIDDEN until all 5 conditions are TRUE
+- ops: commits
+- frontend: commits
+- backend: commits 
+- docs: commits
+- CI/workflow commits
+- healthcheck commits
+
+### SELF-CHECK before every commit
+Ask: "Does this change make the scene look more like the reference?"
+If NO → do not commit. Fix a visual problem instead.
+
+### CURRENT VISUAL PROBLEMS (fix in order)
+1. Only 1 robot visible — need 3 robots on screen simultaneously
+2. Scene too dark — ambient must be Color(1.0, 0.95, 0.85)
+3. Floor dark olive — must be warm beige Color(0.54, 0.48, 0.38)
+4. Board too high/cut off — position (0, 2.3, 4.2)
+
+### CI DISCIPLINE
+- After every push: wait for wasm timestamp to change
+- Command: stat /var/www/office/Build/WebGL.wasm.gz | grep Modify
+- Do NOT push again until timestamp changes
+- If build cancelled: one empty commit retry, then wait silently
+
+## Task Execution Rules
+
+### RULE 1 — ONE TASK AT A TIME
+- Never start new task until current is deployed and confirmed
+
+### RULE 2 — SELF-HEALING
+On failure: try 3 fixes before reporting blocker
+
+### RULE 3 — VERIFY BEFORE DONE
+Visual task = done only when scene screenshot confirms it
+
+### RULE 4 — NO FAKE PROGRESS
+Never report done without proof
+
+---
+
+## CI_RULES — ОБЯЗАТЕЛЬНО при красном билде
+
+### ТРИГГЕР
+Если gh run list --limit 1 показывает failure — немедленно начать CI_FIX без ожидания команды.
+
+### АЛГОРИТМ CI_FIX
+
+ШАГ 1 — читать лог:
+gh run view <RUN_ID> --log-failed 2>/dev/null | grep -A5 "error CS"
+
+ШАГ 2 — найти строку:
+sed -n '405,420p' UnityProject/Assets/Scripts/RuntimeSceneBuilder.cs
+
+ШАГ 3 — исправить ТОЛЬКО ошибку компиляции. НЕ менять координаты роботов, НЕ менять камеру.
+
+ШАГ 4 — коммит:
+git add UnityProject/Assets/Scripts/RuntimeSceneBuilder.cs
+git commit -m "FIX: CS<N> line <N>"
+git push
+
+ШАГ 5 — ждать зелёного билда (sleep 30 + gh run list)
+
+ШАГ 6 — скриншот + Telegram + доклад по-русски
+
+### ЗАПРЕЩЕНО
+- Ждать команды если билд красный
+- Молчать — всегда слать статус в Telegram
+- Менять координаты/камеру при compile fix
+
+---
+
+## CI_RULES — ОБЯЗАТЕЛЬНО при красном билде
+
+### ТРИГГЕР — проверять при каждом цикле
+```bash
+GH_TOKEN=$(cat /home/antonbot/.openclaw/openclaw.json | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));console.log(d.github?.token||'')")
+REPO="pltnv123/officebot"
+
+# Получить статус последнего билда
+curl -s "https://api.github.com/repos/${REPO}/actions/runs?per_page=1" \
+ -H "Authorization: token ${GH_TOKEN}" \
+ | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));const r=d.workflow_runs[0];console.log(r.conclusion,r.id,r.head_sha.slice(0,7))"
+```
+Если вывод содержит `failure` — НЕМЕДЛЕННО начать CI_FIX.
+
+### АЛГОРИТМ CI_FIX
+
+**ШАГ 1 — найти ошибку**
+```bash
+GH_TOKEN=$(cat /home/antonbot/.openclaw/openclaw.json | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));console.log(d.github?.token||'')")
+REPO="pltnv123/officebot"
+RUN_ID=$(curl -s "https://api.github.com/repos/${REPO}/actions/runs?per_page=1" \
+ -H "Authorization: token ${GH_TOKEN}" \
+ | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));console.log(d.workflow_runs[0].id)")
+
+# Получить лог провалившегося job
+JOB_ID=$(curl -s "https://api.github.com/repos/${REPO}/actions/runs/${RUN_ID}/jobs" \
+ -H "Authorization: token ${GH_TOKEN}" \
+ | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));const j=d.jobs.find(j=>j.conclusion==='failure');console.log(j?.id||'')")
+
+curl -s "https://api.github.com/repos/${REPO}/actions/jobs/${JOB_ID}/logs" \
+ -H "Authorization: token ${GH_TOKEN}" -L 2>/dev/null | grep "error CS\|error:" | head -10
+```
+
+**ШАГ 2 — прочитать файл на нужной строке**
+```bash
+# Пример для line 412:
+sed -n '405,420p' /home/antonbot/.openclaw/workspace/office/UnityProject/Assets/Scripts/RuntimeSceneBuilder.cs
+```
+
+**ШАГ 3 — исправить ТОЛЬКО ошибку компиляции**
+- НЕ менять координаты роботов
+- НЕ менять позицию камеры
+- Менять минимально — только строку с ошибкой
+
+**ШАГ 4 — коммит и пуш**
+```bash
+cd /home/antonbot/.openclaw/workspace/office
+git add UnityProject/Assets/Scripts/RuntimeSceneBuilder.cs
+git commit -m "FIX: CS<номер> line <номер> <краткое описание>"
+git push
+```
+
+**ШАГ 5 — ждать зелёного билда**
+```bash
+# Повторять каждые 30 сек, до 15 минут
+sleep 30
+curl -s "https://api.github.com/repos/${REPO}/actions/runs?per_page=1" \
+ -H "Authorization: token ${GH_TOKEN}" \
+ | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));console.log(d.workflow_runs[0].conclusion)"
+```
+
+**ШАГ 6 — скриншот + Telegram**
+```bash
+node /home/antonbot/.openclaw/workspace/office/scripts/screenshot.js http://5.45.115.12/office/ /tmp/viz_fix.png
+BOT_TOKEN=$(node -e "const d=require('/home/antonbot/.openclaw/openclaw.json');console.log(d.channels.telegram.botToken)")
+curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto" \
+ -F "chat_id=6540715349" \
+ -F "caption=✅ FIX: <ошибка> исправлена. Commit: <hash>" \
+ -F "photo=@/tmp/viz_fix.png"
+```
+
+### ЗАПРЕЩЕНО
+- Ждать команды если билд красный — исправлять самостоятельно
+- Молчать — всегда слать статус в Telegram
+- Менять координаты/камеру при compile fix
+- Использовать gh CLI (не установлен — использовать curl)
+
+## SHADER RULE — CRITICAL FOR WEBGL URP
+- NEVER use Shader.Find("Standard") — returns null in URP WebGL build
+- ALWAYS use Shader.Find("Universal Render Pipeline/Lit") as primary
+- LS() helper must only reference URP shaders
+- If scene is black: first check is always shader null errors in browser console
