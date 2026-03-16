@@ -26,7 +26,7 @@
 | Testing | TESTING | Green | REVIEWER | `testing` | → WORKER → CHIEF |
 | Academic | PRODUCT (shared) | Orange | PLANNER | `academic` | → CHIEF |
 | Paid Media | PRODUCT (shared) | Orange | PLANNER | `paid-media` | → CHIEF |
-| Game Dev | ENGINEERING (shared) | Blue | WORKER | `game-dev` | → REVIEWER → CHIEF |
+| Game Dev | GAME DEV | Purple | WORKER | `game-dev` | → REVIEWER → CHIEF |
 
 ## Complete Agent Directory (117 agents)
 

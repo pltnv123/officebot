@@ -4,7 +4,7 @@
 - **Source**: `agents/agency/game-development/**/*.md`
 - **Total Agents**: 20 (across Blender, Godot, Roblox, Unity, Unreal subdirectories)
 - **Primary Robot**: WORKER
-- **Zone**: Engineering Zone (blue) — shared with Engineering
+- **Zone**: Game Dev Zone (purple) — own dedicated zone
 - **Telegram Topic**: `game-dev`
 - **Escalation**: WORKER → REVIEWER → CHIEF
 

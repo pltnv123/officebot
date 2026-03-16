@@ -700,6 +700,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         {
             ("ENGINEERING",   new Vector3(-6.0f, 0.015f, 4.0f),  new Color(0.15f, 0.35f, 0.65f, 0.55f), new Color(0.30f, 0.70f, 1.00f)),
             ("DESIGN",        new Vector3( 4.5f, 0.015f, 4.5f),  new Color(0.55f, 0.20f, 0.65f, 0.55f), new Color(0.80f, 0.40f, 1.00f)),
+            ("GAME DEV",      new Vector3( 7.8f, 0.015f, 4.5f),  new Color(0.60f, 0.30f, 0.90f, 0.55f), new Color(0.75f, 0.45f, 1.00f)),
             ("PRODUCT",       new Vector3(-4.5f, 0.015f,-2.5f),  new Color(0.85f, 0.45f, 0.10f, 0.55f), new Color(1.00f, 0.65f, 0.20f)),
             ("MARKETING",     new Vector3( 4.5f, 0.015f,-2.5f),  new Color(0.75f, 0.30f, 0.15f, 0.55f), new Color(1.00f, 0.50f, 0.25f)),
             ("SALES",         new Vector3(-7.0f, 0.015f,-1.5f),  new Color(0.80f, 0.65f, 0.10f, 0.55f), new Color(1.00f, 0.85f, 0.20f)),
