@@ -21,5 +21,10 @@
   "floor dark": "Check floor color in BuildRoom() - should be (0.68, 0.62, 0.52)",
   "subagent incomplete task": "Coding subagent said 'Now I'll create...' but didn't write files. Solution: check output with 'ls -la', verify files exist, if not — do task directly without subagent.",
   "subagent timeout before write": "Subagent gathered data but timed out before writing. Solution: split task into smaller chunks, or write files directly via exec.",
-  "empty tool call": "Generated empty tool call (missing command/content). Solution: retry with explicit content parameter, or use exec with heredoc."
+  "empty tool call": "Generated empty tool call (missing command/content). Solution: retry with explicit content parameter, or use exec with heredoc.",
+  "Provider returned error": {
+    "cause": "OpenRouter rate limit or model overload on free tier (hunter-alpha)",
+    "solution": "Retry with exponential backoff (3s, 6s, 12s). Switch to openai-codex or other model if persists.",
+    "prevention": "Cache responses, use paid models for heavy tasks, add cooldown between requests"
+  }
 }

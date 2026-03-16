@@ -41,6 +41,13 @@
       "solution": "Check WASM timestamp vs commit, force cache-bust URL param",
       "severity": "high",
       "learned": "2026-03-16"
+    },
+    {
+      "pattern": "Provider returned error",
+      "cause": "OpenRouter free tier (hunter-alpha) rate limit or temporary overload",
+      "solution": "Switch model to openai-codex or wait 60s, retry with backoff",
+      "severity": "medium",
+      "learned": "2026-03-16T22:30"
     }
   ],
   "solutions": {
