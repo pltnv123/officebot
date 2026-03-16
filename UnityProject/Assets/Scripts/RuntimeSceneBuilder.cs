@@ -24,19 +24,19 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private readonly Color[] _columnHighlightColors = new Color[4];
     private TextMesh _wipText, _queueText, _blockersText, _throughputText;
     private float _t;
-    private readonly string[] _agentRoles = { "chief", "planner", "worker", "reviewer", "builder" };
+    private readonly string[] _agentRoles = { "worker", "planner", "reviewer" };
     private static readonly Color _boardCardBaseColor = new Color(0.28f, 0.28f, 0.28f);
     private static readonly Dictionary<string, int> StatusToColumn = new(System.StringComparer.OrdinalIgnoreCase)
     {
         ["inbox"] = 0,
-        ["queue"] = 0,
-        ["plan"] = 1,
-        ["planning"] = 1,
-        ["work"] = 2,
-        ["doing"] = 2,
-        ["review"] = 2,
-        ["rework"] = 2,
-        ["done"] = 3
+        ["queue"] = 1,
+        ["plan"] = 2,
+        ["planning"] = 2,
+        ["work"] = 3,
+        ["doing"] = 3,
+        ["review"] = 4,
+        ["rework"] = 4,
+        ["done"] = 5
     };
 
     [SerializeField] private string taskStateUrl = "/api/state";
@@ -122,9 +122,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         if (mainCamera == null) return;
 
         mainCamera.orthographic = false;
-        mainCamera.fieldOfView = 40f;
-        mainCamera.transform.position = new Vector3(0f, 3.5f, -7.0f);
-        mainCamera.transform.rotation = Quaternion.Euler(18.0f, 0.0f, 0.0f);
+        mainCamera.fieldOfView = 50f;
+        mainCamera.transform.position = new Vector3(0f, 2.5f, -5.5f);
+        mainCamera.transform.rotation = Quaternion.Euler(25.0f, 0.0f, 0.0f);
         mainCamera.clearFlags = CameraClearFlags.SolidColor;
         mainCamera.backgroundColor = new Color(0.08f, 0.07f, 0.06f);
         mainCamera.nearClipPlane = 0.3f;
@@ -148,7 +148,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void BuildRoom()
     {
 
-        var floor = Mat(new Color(0.68f, 0.62f, 0.52f, 1f), 0.30f);
+        var floor = Mat(new Color(0.86f, 0.78f, 0.69f, 1f), 0.30f);
         Cube("Floor", new Vector3(0f, -0.05f, 3f), new Vector3(24f, 0.1f, 18f), floor);
         Cube("FloorCenterPanel", new Vector3(0f, -0.045f, 3f), new Vector3(18f, 0.02f, 13f), Mat(new Color(0.72f, 0.66f, 0.56f, 1f), 0.30f));
         Cube("FloorTileBandA", new Vector3(-4.5f, -0.043f, 3f), new Vector3(3.6f, 0.02f, 13f), Mat(new Color(0.70f, 0.64f, 0.54f, 1f), 0.30f));
@@ -330,8 +330,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         string[] columnTitles =
         {
             "INBOX",
+            "QUEUE",
             "PLAN",
-            "WORK",
+            "REVIEW",
+            "REVIEW",
             "DONE"
         };
         float columnWidth = 2.40f;
@@ -752,37 +754,26 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildAgents()
     {
-        // 5-agent system: CHIEF (center-back, gold), PLANNER (left, orange),
-        // WORKER (left-front, blue), REVIEWER (right-front, yellow), BUILDER (right, green)
+        // 3 robots matching reference: white bodies, cyan eyes
+        // WORKER (left), PLANNER (center), REVIEWER (right)
+        Color cyanEyes = new Color(0f, 0.71f, 1.00f, 1f); // RGB(0,180,255)
 
         BuildAgent(
-            new Vector3(0.00f, 0.0f, -1.20f),
-            "CHIEF",
-            new Color(1.00f, 0.84f, 0.00f, 1f),
-            0f);
-
-        BuildAgent(
-            new Vector3(-3.80f, 0.0f, 0.05f),
-            "PLANNER",
-            new Color(1.00f, 0.55f, 0.15f, 1f),
-            0f);
-
-        BuildAgent(
-            new Vector3(-1.50f, 0.0f, 0.40f),
+            new Vector3(-3.20f, 0.0f, 0.50f),
             "WORKER",
-            new Color(0.20f, 0.60f, 1.00f, 1f),
+            cyanEyes,
             0f);
 
         BuildAgent(
-            new Vector3(1.50f, 0.0f, 0.40f),
+            new Vector3(0.00f, 0.0f, -1.50f),
+            "PLANNER",
+            cyanEyes,
+            0f);
+
+        BuildAgent(
+            new Vector3(3.20f, 0.0f, 0.50f),
             "REVIEWER",
-            new Color(0.90f, 0.85f, 0.20f, 1f),
-            0f);
-
-        BuildAgent(
-            new Vector3(3.80f, 0.0f, 0.05f),
-            "BUILDER",
-            new Color(0.20f, 1.00f, 0.40f, 1f),
+            cyanEyes,
             0f);
     }
 
@@ -794,7 +785,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         root.transform.localScale = new Vector3(0.88f, 0.88f, 0.88f);
 
         // Tint body slightly toward eye color for role recognition
-        Color body = Color.Lerp(new Color(0.85f, 0.85f, 0.88f), eyeCol, 0.35f);
+        Color body = new Color(0.90f, 0.90f, 0.90f);
         Color dark = new Color(0.10f, 0.10f, 0.12f);
 
         Go(root, PrimitiveType.Cylinder, "Base", new Vector3(0f, 0.16f, 0f), new Vector3(0.6f, 0.10f, 0.6f), Mat(dark));
@@ -838,7 +829,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             0.92f,
             0.78f,
             1.00f);
-        RenderSettings.ambientIntensity = 1.2f;
+        RenderSettings.ambientIntensity = 1.5f;
         RenderSettings.fog = false;
 
         var def = GameObject.Find("Directional Light");
