@@ -1,0 +1,22 @@
+{
+  "rate_limit": "Wait 60s, switch to free model (hunter-alpha), retry",
+  "429": "Rate limit hit. Wait 60s, reduce context, switch profile",
+  "403": "IP ban. Use Tor proxy: socks5h://127.0.0.1:9050 or HTTP proxy 127.0.0.1:8118",
+  "401": "Auth expired. Check auth-profiles.json, try account2 profile",
+  "404 no endpoints": "Model unavailable. Switch to next model in fallback chain",
+  "no tool support": "Model can't use tools. Switch to tool-capable model",
+  "Timeout 60000ms exceeded": "WebGL loading too long. Increase timeout or use domcontentloaded",
+  "page.goto: Timeout": "Screenshot timeout. Use domcontentloaded instead of networkidle",
+  "Command aborted by signal SIGTERM": "Gateway restart killed session. Re-check state after restart",
+  "context overflow": "Session too long. Use /reset or /compact, then continue",
+  "SIGTERM": "Process killed. Check if gateway restart needed, re-verify state",
+  "Connection refused": "Server down. Check nginx: systemctl restart nginx",
+  "WASM not updated": "CI still building. Wait for gh run list to show completed/success",
+  "Scene looks wrong": "Check WASM timestamp vs code. Force cache-bust: ?v=TIMESTAMP",
+  "openai-codex rate limit": "Both profiles in cooldown. Switch to hunter-alpha, continue working",
+  "git push rejected": "Pull first: git pull --rebase, then push again",
+  "Unity compile error": "Check C# syntax in RuntimeSceneBuilder.cs, fix and recommit",
+  "robot colors wrong": "Check eyeCol values in BuildAgents(). Each robot needs distinct color",
+  "camera top-down": "Verify BuildCamera() position=(0,3.5,-7) rotation=(18,0,0)",
+  "floor dark": "Check floor color in BuildRoom() - should be (0.68, 0.62, 0.52)"
+}
