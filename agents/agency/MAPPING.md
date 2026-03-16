@@ -1,219 +1,238 @@
-# Agency-Agents → OfficeBot Mapping
-> Auto-generated mapping of 117 agency-agents to OfficeBot Unity system
+# Agency-Agents → OfficeBot Mapping (117 agents)
+> Complete 1:1 mapping of all agency-agents to OfficeBot Unity system
 > Source: https://github.com/msitarzewski/agency-agents (MIT)
+> Last updated: 2026-03-16
 
 ## Unity Robot Roles (5 agents in scene)
 
 | Robot | Color | Eye Color | Unity Role | Agency Division | Key Responsibilities |
 |-------|-------|-----------|-----------|-----------------|---------------------|
-| **CHIEF** | White/Gold | Gold `(1.0, 0.84, 0.0)` | `chief` | Orchestrator | Overall coordination, task routing, status reporting |
-| **PLANNER** | White/Orange | Orange `(1.0, 0.55, 0.15)` | `planner` | Product + PM | Sprint planning, task breakdown, prioritization |
-| **WORKER** | White/Blue | Blue `(0.2, 0.6, 1.0)` | `worker` | Engineering | Code writing, implementation, prototyping |
-| **REVIEWER** | White/Yellow | Yellow `(0.9, 0.85, 0.2)` | `reviewer` | Testing + Design | Code review, QA, visual quality, accessibility |
-| **BUILDER** | White/Green | Green `(0.2, 1.0, 0.4)` | `builder` | DevOps + SRE | CI/CD, deployment, infrastructure, monitoring |
+| **CHIEF** | White/Gold | Gold `(1.0, 0.84, 0.0)` | `chief` | Orchestrator + Sales | Overall coordination, task routing, sales, status reporting |
+| **PLANNER** | White/Orange | Orange `(1.0, 0.55, 0.15)` | `planner` | Product + PM + Marketing + Academic + Paid Media | Sprint planning, task breakdown, strategy, research |
+| **WORKER** | White/Blue | Blue `(0.2, 0.6, 1.0)` | `worker` | Engineering + Game Development | Code writing, implementation, prototyping, all technical |
+| **REVIEWER** | White/Yellow | Yellow `(0.9, 0.85, 0.2)` | `reviewer` | Design + Testing | Code review, QA, visual quality, accessibility |
+| **BUILDER** | White/Green | Green `(0.2, 1.0, 0.4)` | `builder` | DevOps + SRE (from Engineering) | CI/CD, deployment, infrastructure, monitoring |
 
-## Telegram Topic Mapping
+## Division → Zone → Robot Mapping
 
-| Division | Telegram Topic | Primary Robot | Escalation |
-|----------|---------------|---------------|------------|
-| Engineering | `engineering` | WORKER | → REVIEWER → CHIEF |
-| Design | `design` | REVIEWER | → PLANNER → CHIEF |
-| Product | `product` | PLANNER | → CHIEF |
-| Marketing | `marketing` | PLANNER | → CHIEF |
-| Sales | `sales` | CHIEF | Direct to Anton |
-| Project Management | `pm` | PLANNER | → CHIEF |
-| Testing | `testing` | REVIEWER | → WORKER → CHIEF |
-| Academic | `academic` | PLANNER | → CHIEF |
-| Paid Media | `paid-media` | PLANNER | → CHIEF |
-| Game Development | `game-dev` | WORKER | → REVIEWER → CHIEF |
+| Division | Zone | Floor Color | Primary Robot | Telegram Topic | Escalation |
+|----------|------|-------------|---------------|---------------|------------|
+| Engineering | ENGINEERING | Blue | WORKER | `engineering` | → REVIEWER → CHIEF |
+| Design | DESIGN | Purple | REVIEWER | `design` | → PLANNER → CHIEF |
+| Product | PRODUCT | Orange | PLANNER | `product` | → CHIEF |
+| Marketing | MARKETING | Red-Orange | PLANNER | `marketing` | → CHIEF |
+| Sales | SALES | Gold | CHIEF | `sales` | Direct to Anton |
+| Project Management | PM | Brown-Orange | PLANNER | `pm` | → CHIEF |
+| Testing | TESTING | Green | REVIEWER | `testing` | → WORKER → CHIEF |
+| Academic | PRODUCT (shared) | Orange | PLANNER | `academic` | → CHIEF |
+| Paid Media | PRODUCT (shared) | Orange | PLANNER | `paid-media` | → CHIEF |
+| Game Dev | ENGINEERING (shared) | Blue | WORKER | `game-dev` | → REVIEWER → CHIEF |
 
-## Agent-to-Role Detailed Mapping
+## Complete Agent Directory (117 agents)
 
-### 🔵 WORKER Robot (Engineering Division - 23 agents)
-Handles all code writing, implementation, and technical work.
+### 🔵 WORKER Robot — Engineering (23 agents)
 
-| Agency Agent | OfficeBot Role | Specialization | Trigger Condition |
-|-------------|---------------|----------------|-------------------|
-| `engineering-frontend-developer` | WORKER/web | Frontend, UI components | Tasks tagged `frontend`, `ui`, `web` |
-| `engineering-backend-architect` | WORKER/api | API design, server architecture | Tasks tagged `backend`, `api`, `server` |
-| `engineering-code-reviewer` | WORKER→REVIEWER | Code quality review | Auto-triggered on PR creation |
-| `engineering-devops-automator` | WORKER→BUILDER | CI/CD pipelines, automation | Tasks tagged `devops`, `ci`, `deploy` |
-| `engineering-security-engineer` | WORKER/sec | Security audits, vulnerability fixes | Tasks tagged `security`, `auth`, `vuln` |
-| `engineering-sre` | WORKER→BUILDER | Reliability, monitoring, SLOs | Tasks tagged `sre`, `monitoring`, `uptime` |
-| `engineering-senior-developer` | WORKER/lead | Complex features, architecture decisions | Priority tasks, technical debt |
-| `engineering-rapid-prototyper` | WORKER/proto | Quick MVPs, proof of concepts | Tasks tagged `prototype`, `mvp`, `spike` |
-| `engineering-ai-engineer` | WORKER/ai | ML pipelines, AI integrations | Tasks tagged `ai`, `ml`, `model` |
-| `engineering-data-engineer` | WORKER/data | Data pipelines, ETL, warehousing | Tasks tagged `data`, `etl`, `pipeline` |
-| `engineering-database-optimizer` | WORKER/db | Query optimization, schema design | Tasks tagged `database`, `sql`, `query` |
-| `engineering-software-architect` | WORKER/arch | System design, tech stack decisions | Tasks tagged `architecture`, `design` |
-| `engineering-mobile-app-builder` | WORKER/mobile | iOS/Android development | Tasks tagged `mobile`, `ios`, `android` |
-| `engineering-technical-writer` | WORKER/docs | Documentation, API docs | Tasks tagged `docs`, `documentation` |
-| `engineering-git-workflow-master` | WORKER/git | Git strategies, branching | Tasks tagged `git`, `branch`, `merge` |
-| `engineering-ai-data-remediation-engineer` | WORKER/ai-data | Data cleaning, AI data prep | Tasks tagged `data-cleanup`, `remediation` |
-| `engineering-autonomous-optimization-architect` | WORKER/opt | Performance optimization | Tasks tagged `optimize`, `performance` |
-| `engineering-embedded-firmware-engineer` | WORKER/embedded | Embedded systems, IoT | Tasks tagged `embedded`, `iot`, `firmware` |
-| `engineering-incident-response-commander` | WORKER/irc | Incident management, P0 response | P0/P1 incidents, outages |
-| `engineering-threat-detection-engineer` | WORKER/threat | Threat detection, security monitoring | Tasks tagged `threat`, `ids`, `detection` |
-| `engineering-solidity-smart-contract-engineer` | WORKER/web3 | Smart contracts, blockchain | Tasks tagged `web3`, `solidity`, `contract` |
-| `engineering-feishu-integration-developer` | WORKER/feishu | Feishu/Lark integrations | Tasks tagged `feishu`, `lark` |
-| `engineering-wechat-mini-program-developer` | WORKER/wechat | WeChat mini-programs | Tasks tagged `wechat`, `miniprogram` |
+| # | Agent | Specialization | Tags | Integration |
+|---|-------|---------------|------|-------------|
+| 1 | `engineering-frontend-developer` | Frontend, React/Vue/Angular, UI components | `frontend`, `ui`, `web` | INTEGRATION.md |
+| 2 | `engineering-backend-architect` | API design, server architecture | `backend`, `api`, `server` | INTEGRATION.md |
+| 3 | `engineering-code-reviewer` | Code quality review | Auto on PR | → REVIEWER |
+| 4 | `engineering-devops-automator` | CI/CD pipelines, automation | `devops`, `ci`, `deploy` | → BUILDER |
+| 5 | `engineering-security-engineer` | Security audits, vulnerability fixes | `security`, `auth`, `vuln` | INTEGRATION.md |
+| 6 | `engineering-sre` | Reliability, monitoring, SLOs | `sre`, `monitoring`, `uptime` | → BUILDER |
+| 7 | `engineering-senior-developer` | Complex features, architecture decisions | Priority, tech debt | INTEGRATION.md |
+| 8 | `engineering-rapid-prototyper` | Quick MVPs, proof of concepts | `prototype`, `mvp`, `spike` | INTEGRATION.md |
+| 9 | `engineering-ai-engineer` | ML pipelines, AI integrations | `ai`, `ml`, `model` | INTEGRATION.md |
+| 10 | `engineering-data-engineer` | Data pipelines, ETL, warehousing | `data`, `etl`, `pipeline` | INTEGRATION.md |
+| 11 | `engineering-database-optimizer` | Query optimization, schema design | `database`, `sql`, `query` | INTEGRATION.md |
+| 12 | `engineering-software-architect` | System design, tech stack decisions | `architecture`, `design` | INTEGRATION.md |
+| 13 | `engineering-mobile-app-builder` | iOS/Android development | `mobile`, `ios`, `android` | INTEGRATION.md |
+| 14 | `engineering-technical-writer` | Documentation, API docs | `docs`, `documentation` | INTEGRATION.md |
+| 15 | `engineering-git-workflow-master` | Git strategies, branching | `git`, `branch`, `merge` | INTEGRATION.md |
+| 16 | `engineering-ai-data-remediation-engineer` | Data cleaning, AI data prep | `data-cleanup`, `remediation` | INTEGRATION.md |
+| 17 | `engineering-autonomous-optimization-architect` | Performance optimization | `optimize`, `performance` | INTEGRATION.md |
+| 18 | `engineering-embedded-firmware-engineer` | Embedded systems, IoT | `embedded`, `iot`, `firmware` | INTEGRATION.md |
+| 19 | `engineering-incident-response-commander` | Incident management, P0 response | P0/P1 incidents | INTEGRATION.md |
+| 20 | `engineering-threat-detection-engineer` | Threat detection, security monitoring | `threat`, `ids`, `detection` | INTEGRATION.md |
+| 21 | `engineering-solidity-smart-contract-engineer` | Smart contracts, blockchain | `web3`, `solidity`, `contract` | INTEGRATION.md |
+| 22 | `engineering-feishu-integration-developer` | Feishu/Lark integrations | `feishu`, `lark` | INTEGRATION.md |
+| 23 | `engineering-wechat-mini-program-developer` | WeChat mini-programs | `wechat`, `miniprogram` | INTEGRATION.md |
 
-### 🟡 REVIEWER Robot (Design + Testing - 16 agents)
-Handles quality assurance, code review, and design review.
+### 🔵 WORKER Robot — Game Development (20 agents)
 
-| Agency Agent | OfficeBot Role | Specialization | Trigger Condition |
-|-------------|---------------|----------------|-------------------|
-| `design-ui-designer` | REVIEWER/ui | UI design, visual components | Tasks tagged `design`, `ui`, `visual` |
-| `design-ux-researcher` | REVIEWER/ux | User research, usability | Tasks tagged `ux`, `research`, `user-test` |
-| `design-brand-guardian` | REVIEWER/brand | Brand consistency, guidelines | Tasks tagged `brand`, `identity`, `style` |
-| `design-visual-storyteller` | REVIEWER/story | Visual narratives, presentations | Tasks tagged `presentation`, `story`, `visual` |
-| `design-whimsy-injector` | REVIEWER/whimsy | Fun details, micro-interactions | Tasks tagged `whimsy`, `polish`, `delight` |
-| `design-ux-architect` | REVIEWER/ux-arch | Information architecture | Tasks tagged `ia`, `navigation`, `flow` |
-| `design-image-prompt-engineer` | REVIEWER/img | AI image generation prompts | Tasks tagged `image`, `prompt`, `ai-art` |
-| `design-inclusive-visuals-specialist` | REVIEWER/a11y | Accessibility, inclusive design | Tasks tagged `a11y`, `inclusive`, `accessibility` |
-| `testing-evidence-collector` | REVIEWER/evidence | Test evidence, screenshots, logs | Auto-triggered on test runs |
-| `testing-reality-checker` | REVIEWER/reality | Validates outputs against specs | Auto-triggered before deployment |
-| `testing-api-tester` | REVIEWER/api-test | API testing, contract tests | Tasks tagged `api-test`, `contract` |
-| `testing-performance-benchmarker` | REVIEWER/perf | Performance benchmarks, load tests | Tasks tagged `benchmark`, `load-test` |
-| `testing-accessibility-auditor` | REVIEWER/a11y-audit | WCAG compliance, a11y audits | Tasks tagged `a11y-audit`, `wcag` |
-| `testing-test-results-analyzer` | REVIEWER/analyze | Test result analysis, trends | Post-test-run analysis |
-| `testing-tool-evaluator` | REVIEWER/tools | Testing tool evaluation | Tasks tagged `test-tool`, `evaluation` |
-| `testing-workflow-optimizer` | REVIEWER/workflow-opt | Test workflow optimization | Tasks tagged `test-workflow`, `ci-opt` |
+| # | Agent | Specialization | Tags | Integration |
+|---|-------|---------------|------|-------------|
+| 24 | `game-audio-engineer` | Game audio, sound design, middleware | `audio`, `sound` | INTEGRATION.md |
+| 25 | `game-designer` | Game mechanics, systems design | `gamedesign`, `mechanics` | INTEGRATION.md |
+| 26 | `level-designer` | Level design, world building | `level`, `map`, `world` | INTEGRATION.md |
+| 27 | `narrative-designer` | Game narrative, dialog systems | `gamenarrative`, `dialog` | INTEGRATION.md |
+| 28 | `technical-artist` | Shaders, VFX, rendering pipelines | `techart`, `shader`, `vfx` | INTEGRATION.md |
+| 29 | `blender-addon-engineer` | Blender addons, 3D tools | `blender`, `3d`, `addon` | INTEGRATION.md |
+| 30 | `godot-gameplay-scripter` | Godot GDScript, gameplay | `godot`, `gdscript` | INTEGRATION.md |
+| 31 | `godot-multiplayer-engineer` | Godot networking, multiplayer | `godot-multiplayer` | INTEGRATION.md |
+| 32 | `godot-shader-developer` | Godot shaders, visual effects | `godot-shader` | INTEGRATION.md |
+| 33 | `roblox-avatar-creator` | Roblox avatar systems | `roblox-avatar` | INTEGRATION.md |
+| 34 | `roblox-experience-designer` | Roblox experience design | `roblox-experience` | INTEGRATION.md |
+| 35 | `roblox-systems-scripter` | Roblox Luau scripting | `roblox`, `luau` | INTEGRATION.md |
+| 36 | `unity-architect` | Unity architecture, project structure | `unity-arch` | INTEGRATION.md |
+| 37 | `unity-editor-tool-developer` | Unity editor extensions, tools | `unity-tool` | INTEGRATION.md |
+| 38 | `unity-multiplayer-engineer` | Unity Netcode, multiplayer | `unity-netcode` | INTEGRATION.md |
+| 39 | `unity-shader-graph-artist` | Unity Shader Graph, visual effects | `unity-shader` | INTEGRATION.md |
+| 40 | `unreal-multiplayer-architect` | Unreal networking, multiplayer | `unreal-netcode` | INTEGRATION.md |
+| 41 | `unreal-systems-engineer` | Unreal C++, gameplay systems | `unreal`, `ue-cpp` | INTEGRATION.md |
+| 42 | `unreal-technical-artist` | Unreal materials, Niagara VFX | `ue-material`, `niagara` | INTEGRATION.md |
+| 43 | `unreal-world-builder` | Unreal world building, landscapes | `ue-world`, `landscape` | INTEGRATION.md |
 
-### 🟠 PLANNER Robot (Product + PM + Marketing + Academic - 41 agents)
-Handles planning, strategy, research, and task decomposition.
+### 🟡 REVIEWER Robot — Design (8 agents)
 
-| Agency Agent | OfficeBot Role | Specialization | Trigger Condition |
-|-------------|---------------|----------------|-------------------|
-| `product-manager` | PLANNER/pm | Product strategy, roadmapping | Tasks tagged `product`, `roadmap`, `strategy` |
-| `product-sprint-prioritizer` | PLANNER/sprint | Sprint planning, backlog grooming | Sprint start, backlog review |
-| `product-trend-researcher` | PLANNER/trends | Market trends, competitive analysis | Tasks tagged `trend`, `research`, `market` |
-| `product-feedback-synthesizer` | PLANNER/feedback | User feedback analysis | Tasks tagged `feedback`, `user-voice` |
-| `product-behavioral-nudge-engine` | PLANNER/nudge | Behavioral design, engagement | Tasks tagged `engagement`, `retention`, `nudge` |
-| `project-management-studio-producer` | PLANNER/producer | Studio operations, resource allocation | Studio-wide planning |
-| `project-management-project-shepherd` | PLANNER/shepherd | Project tracking, delivery | Tasks tagged `delivery`, `milestone` |
-| `project-management-experiment-tracker` | PLANNER/experiment | A/B tests, experiment tracking | Tasks tagged `experiment`, `ab-test` |
-| `project-management-jira-workflow-steward` | PLANNER/jira | Workflow optimization | Tasks tagged `workflow`, `process` |
-| `project-management-studio-operations` | PLANNER/ops | Operations, tooling, efficiency | Tasks tagged `operations`, `tools` |
-| `project-manager-senior` | PLANNER/senior-pm | Complex project management | High-priority, multi-team projects |
-| `marketing-growth-hacker` | PLANNER/growth | Growth strategies, viral loops | Tasks tagged `growth`, `viral`, `acquisition` |
-| `marketing-content-creator` | PLANNER/content | Content creation, copywriting | Tasks tagged `content`, `copy`, `blog` |
-| `marketing-seo-specialist` | PLANNER/seo | SEO optimization, keywords | Tasks tagged `seo`, `keywords`, `ranking` |
-| `marketing-social-media-strategist` | PLANNER/social | Social media strategy | Tasks tagged `social`, `media` |
-| `marketing-tiktok-strategist` | PLANNER/tiktok | TikTok marketing | Tasks tagged `tiktok`, `short-video` |
-| `marketing-reddit-community-builder` | PLANNER/reddit | Reddit community management | Tasks tagged `reddit`, `community` |
-| `marketing-twitter-engager` | PLANNER/twitter | Twitter/X engagement | Tasks tagged `twitter`, `x-platform` |
-| `marketing-instagram-curator` | PLANNER/instagram | Instagram content curation | Tasks tagged `instagram`, `visual-content` |
-| `marketing-linkedin-content-creator` | PLANNER/linkedin | LinkedIn content | Tasks tagged `linkedin`, `b2b` |
-| `marketing-podcast-strategist` | PLANNER/podcast | Podcast strategy, production | Tasks tagged `podcast`, `audio` |
-| `marketing-book-co-author` | PLANNER/book | Book writing, long-form content | Tasks tagged `book`, `long-form` |
-| `marketing-carousel-growth-engine` | PLANNER/carousel | Carousel content, slides | Tasks tagged `carousel`, `slides` |
-| `marketing-app-store-optimizer` | PLANNER/aso | App store optimization | Tasks tagged `aso`, `app-store` |
-| `marketing-ai-citation-strategist` | PLANNER/ai-cite | AI search citations | Tasks tagged `ai-citation`, `ai-seo` |
-| `marketing-baidu-seo-specialist` | PLANNER/baidu | Baidu SEO, Chinese market | Tasks tagged `baidu`, `china-seo` |
-| `marketing-bilibili-content-strategist` | PLANNER/bilibili | Bilibili content strategy | Tasks tagged `bilibili`, `cn-video` |
-| `marketing-douyin-strategist` | PLANNER/douyin | Douyin/TikTok China | Tasks tagged `douyin`, `cn-short-video` |
-| `marketing-kuaishou-strategist` | PLANNER/kuaishou | Kuaishou platform | Tasks tagged `kuaishou` |
-| `marketing-wechat-official-account` | PLANNER/wechat | WeChat official accounts | Tasks tagged `wechat-official`, `wechat-content` |
-| `marketing-weibo-strategist` | PLANNER/weibo | Weibo marketing | Tasks tagged `weibo`, `cn-social` |
-| `marketing-xiaohongshu-specialist` | PLANNER/xiaohongshu | Xiaohongshu/RED | Tasks tagged `xiaohongshu`, `red` |
-| `marketing-zhihu-strategist` | PLANNER/zhihu | Zhihu content strategy | Tasks tagged `zhihu`, `cn-qa` |
-| `marketing-livestream-commerce-coach` | PLANNER/livestream | Livestream commerce | Tasks tagged `livestream`, `live-commerce` |
-| `marketing-cross-border-ecommerce` | PLANNER/cross-border | Cross-border e-commerce | Tasks tagged `cross-border`, `ecommerce` |
-| `marketing-china-ecommerce-operator` | PLANNER/china-ecom | China e-commerce operations | Tasks tagged `china-ecom`, `tmall`, `jd` |
-| `marketing-private-domain-operator` | PLANNER/private-domain | Private traffic, community ops | Tasks tagged `private-domain`, `community-ops` |
-| `marketing-short-video-editing-coach` | PLANNER/video-edit | Short video editing | Tasks tagged `video-edit`, `short-video` |
-| `academic-anthropologist` | PLANNER/anthro | Cultural analysis, user behavior | Tasks tagged `culture`, `anthropology` |
-| `academic-historian` | PLANNER/history | Historical context, precedent | Tasks tagged `history`, `precedent` |
-| `academic-psychologist` | PLANNER/psych | User psychology, motivation | Tasks tagged `psychology`, `behavior` |
-| `academic-geographer` | PLANNER/geo | Spatial analysis, location | Tasks tagged `geography`, `location`, `spatial` |
-| `academic-narratologist` | PLANNER/narrative | Narrative structure, storytelling | Tasks tagged `narrative`, `story-structure` |
+| # | Agent | Specialization | Tags | Integration |
+|---|-------|---------------|------|-------------|
+| 44 | `design-ui-designer` | UI design, visual components, design systems | `design`, `ui`, `visual` | INTEGRATION.md |
+| 45 | `design-ux-researcher` | User research, usability testing | `ux`, `research`, `user-test` | INTEGRATION.md |
+| 46 | `design-brand-guardian` | Brand consistency, style guidelines | `brand`, `identity`, `style` | INTEGRATION.md |
+| 47 | `design-visual-storyteller` | Visual narratives, presentations | `presentation`, `story` | INTEGRATION.md |
+| 48 | `design-whimsy-injector` | Fun details, micro-interactions, polish | `whimsy`, `polish`, `delight` | INTEGRATION.md |
+| 49 | `design-ux-architect` | Information architecture, navigation | `ia`, `navigation`, `flow` | INTEGRATION.md |
+| 50 | `design-image-prompt-engineer` | AI image generation prompts | `image`, `prompt`, `ai-art` | INTEGRATION.md |
+| 51 | `design-inclusive-visuals-specialist` | Accessibility, inclusive design | `a11y`, `inclusive` | INTEGRATION.md |
 
-### 🟢 BUILDER Robot (Paid Media + DevOps/SRE tasks - 7 agents)
-Handles infrastructure, deployment, and paid media operations.
+### 🟡 REVIEWER Robot — Testing (8 agents)
 
-| Agency Agent | OfficeBot Role | Specialization | Trigger Condition |
-|-------------|---------------|----------------|-------------------|
-| `paid-media-ppc-strategist` | BUILDER/ppc | PPC campaigns, ad spend | Tasks tagged `ppc`, `ad-spend`, `campaigns` |
-| `paid-media-creative-strategist` | BUILDER/ad-creative | Ad creative, copy, visuals | Tasks tagged `ad-creative`, `ad-copy` |
-| `paid-media-search-query-analyst` | BUILDER/query | Search query analysis, keywords | Tasks tagged `search-query`, `sem` |
-| `paid-media-paid-social-strategist` | BUILDER/paid-social | Paid social campaigns | Tasks tagged `paid-social`, `fb-ads`, `ig-ads` |
-| `paid-media-programmatic-buyer` | BUILDER/programmatic | Programmatic ad buying | Tasks tagged `programmatic`, `dsp`, `rtb` |
-| `paid-media-tracking-specialist` | BUILDER/tracking | Ad tracking, pixels, attribution | Tasks tagged `tracking`, `pixel`, `attribution` |
-| `paid-media-auditor` | BUILDER/audit | Ad account audits, optimization | Tasks tagged `ad-audit`, `account-review` |
+| # | Agent | Specialization | Tags | Integration |
+|---|-------|---------------|------|-------------|
+| 52 | `testing-accessibility-auditor` | WCAG compliance, a11y audits | `a11y-audit`, `wcag` | INTEGRATION.md |
+| 53 | `testing-api-tester` | API testing, contract tests | `api-test`, `contract` | INTEGRATION.md |
+| 54 | `testing-evidence-collector` | Test evidence, screenshots, logs | Auto on test runs | INTEGRATION.md |
+| 55 | `testing-performance-benchmarker` | Performance benchmarks, load tests | `benchmark`, `load-test` | INTEGRATION.md |
+| 56 | `testing-reality-checker` | Validates outputs against specs | Auto before deploy | INTEGRATION.md |
+| 57 | `testing-test-results-analyzer` | Test result analysis, trends | Post-test-run | INTEGRATION.md |
+| 58 | `testing-tool-evaluator` | Testing tool evaluation | `test-tool`, `evaluation` | INTEGRATION.md |
+| 59 | `testing-workflow-optimizer` | Test workflow optimization | `test-workflow`, `ci-optimize` | INTEGRATION.md |
 
-### ⚪ CHIEF Robot (Sales + Orchestrator - 9 agents)
-Handles high-level coordination, sales, and direct user interaction.
+### 🟠 PLANNER Robot — Product (5 agents)
 
-| Agency Agent | OfficeBot Role | Specialization | Trigger Condition |
-|-------------|---------------|----------------|-------------------|
-| `sales-outbound-strategist` | CHIEF/outbound | Outbound sales strategy | Tasks tagged `sales-outbound`, `cold-outreach` |
-| `sales-deal-strategist` | CHIEF/deals | Deal strategy, negotiation | Tasks tagged `deal`, `negotiation`, `pricing` |
-| `sales-discovery-coach` | CHIEF/discovery | Sales discovery calls | Tasks tagged `discovery`, `qualify` |
-| `sales-proposal-strategist` | CHIEF/proposal | Proposal creation, RFPs | Tasks tagged `proposal`, `rfp`, `bid` |
-| `sales-coach` | CHIEF/coach | Sales coaching, training | Tasks tagged `sales-training`, `coaching` |
-| `sales-pipeline-analyst` | CHIEF/pipeline | Pipeline analysis, forecasting | Tasks tagged `pipeline`, `forecast`, `crm` |
-| `sales-account-strategist` | CHIEF/account | Account planning, expansion | Tasks tagged `account`, `expansion`, `upsell` |
-| `sales-engineer` | CHIEF/sales-eng | Technical sales, demos | Tasks tagged `demo`, `poc`, `technical-sales` |
-| ORCHESTRATOR | CHIEF | System coordination | All tasks pass through CHIEF first |
+| # | Agent | Specialization | Tags | Integration |
+|---|-------|---------------|------|-------------|
+| 60 | `product-behavioral-nudge-engine` | Behavioral nudges, habit design | `nudge`, `behavioral` | INTEGRATION.md |
+| 61 | `product-feedback-synthesizer` | User feedback synthesis | `feedback`, `synthesis` | INTEGRATION.md |
+| 62 | `product-manager` | Product management, roadmapping | `product`, `roadmap` | INTEGRATION.md |
+| 63 | `product-sprint-prioritizer` | Sprint prioritization, backlog | `sprint`, `prioritize` | INTEGRATION.md |
+| 64 | `product-trend-researcher` | Market trends, competitive analysis | `trend`, `market` | INTEGRATION.md |
 
-## Workflow: Task → Agent Assignment
+### 🟠 PLANNER Robot — Project Management (6 agents)
 
-```
-User sends task to Telegram
-  ↓
-CHIEF receives and classifies:
-  ├─ Engineering task → WORKER
-  ├─ Design/QA task → REVIEWER  
-  ├─ Planning task → PLANNER
-  ├─ Infra/deploy task → BUILDER
-  └─ Sales task → CHIEF handles directly
-  ↓
-Assigned robot picks up task:
-  ├─ Updates board: INBOX → PLAN → WORK → DONE
-  ├─ Posts status to Telegram topic
-  └─ On completion → routes to REVIEWER (if code)
-  ↓
-REVIEWER checks:
-  ├─ APPROVED → moves to DONE, notifies CHIEF
-  └─ CHANGES → back to WORK → WORKER
-  ↓
-CHIEF reports to Anton in main Telegram chat
-```
+| # | Agent | Specialization | Tags | Integration |
+|---|-------|---------------|------|-------------|
+| 65 | `project-management-experiment-tracker` | Experiment tracking, A/B test results | `experiment`, `ab-test` | INTEGRATION.md |
+| 66 | `project-management-jira-workflow-steward` | Jira workflow optimization | `jira`, `workflow` | INTEGRATION.md |
+| 67 | `project-management-project-shepherd` | Project guidance, stakeholder mgmt | `project`, `stakeholder` | INTEGRATION.md |
+| 68 | `project-management-studio-operations` | Studio operations, resource allocation | `studio-ops`, `resources` | INTEGRATION.md |
+| 69 | `project-management-studio-producer` | Executive creative/technical orchestration | `producer`, `strategy` | INTEGRATION.md |
+| 70 | `project-manager-senior` | Senior PM, complex project delivery | `senior-pm`, `delivery` | INTEGRATION.md |
 
-## Integration with Existing OfficeBot Pipeline
+### 🟠 PLANNER Robot — Marketing (27 agents)
 
-The agency-agents extend (not replace) the existing pipeline:
-- **PLANNER** role maps to product/project managers from agency-agents
-- **WORKER** role maps to all engineering agents
-- **REVIEWER** role maps to testing + design agents
-- **BUILDER** (new) role maps to devops + paid media agents
-- **CHIEF** (enhanced) role includes sales + orchestrator functions
+| # | Agent | Specialization | Tags | Integration |
+|---|-------|---------------|------|-------------|
+| 71 | `marketing-ai-citation-strategist` | AI citation optimization, GEO | `ai-citation`, `geo` | INTEGRATION.md |
+| 72 | `marketing-app-store-optimizer` | App store optimization | `aso`, `app-store` | INTEGRATION.md |
+| 73 | `marketing-baidu-seo-specialist` | Baidu SEO, China search | `baidu`, `china-seo` | INTEGRATION.md |
+| 74 | `marketing-bilibili-content-strategist` | Bilibili content strategy | `bilibili`, `china-video` | INTEGRATION.md |
+| 75 | `marketing-book-co-author` | Book writing, long-form content | `book`, `longform` | INTEGRATION.md |
+| 76 | `marketing-carousel-growth-engine` | Carousel content growth | `carousel`, `linkedin-carousel` | INTEGRATION.md |
+| 77 | `marketing-china-ecommerce-operator` | China e-commerce operations | `china-ecommerce`, `tmall` | INTEGRATION.md |
+| 78 | `marketing-content-creator` | Content creation, copywriting | `content`, `copy`, `blog` | INTEGRATION.md |
+| 79 | `marketing-cross-border-ecommerce` | Cross-border e-commerce | `cross-border`, `international` | INTEGRATION.md |
+| 80 | `marketing-douyin-strategist` | Douyin/TikTok China strategy | `douyin`, `tiktok-cn` | INTEGRATION.md |
+| 81 | `marketing-growth-hacker` | Growth hacking, viral loops | `growth`, `viral` | INTEGRATION.md |
+| 82 | `marketing-instagram-curator` | Instagram content curation | `instagram`, `ig` | INTEGRATION.md |
+| 83 | `marketing-kuaishou-strategist` | Kuaishou short video strategy | `kuaishou`, `short-video-cn` | INTEGRATION.md |
+| 84 | `marketing-linkedin-content-creator` | LinkedIn content, B2B | `linkedin`, `b2b-content` | INTEGRATION.md |
+| 85 | `marketing-livestream-commerce-coach` | Livestream commerce coaching | `livestream`, `live-commerce` | INTEGRATION.md |
+| 86 | `marketing-podcast-strategist` | Podcast strategy, distribution | `podcast`, `audio-content` | INTEGRATION.md |
+| 87 | `marketing-private-domain-operator` | Private domain marketing | `private-domain` | INTEGRATION.md |
+| 88 | `marketing-reddit-community-builder` | Reddit community building | `reddit`, `community` | INTEGRATION.md |
+| 89 | `marketing-seo-specialist` | SEO optimization, search ranking | `seo`, `search` | INTEGRATION.md |
+| 90 | `marketing-short-video-editing-coach` | Short video editing coaching | `video-edit`, `short-video` | INTEGRATION.md |
+| 91 | `marketing-social-media-strategist` | Social media strategy | `social`, `social-media` | INTEGRATION.md |
+| 92 | `marketing-tiktok-strategist` | TikTok global strategy | `tiktok`, `short-video` | INTEGRATION.md |
+| 93 | `marketing-twitter-engager` | Twitter/X engagement strategy | `twitter`, `x-platform` | INTEGRATION.md |
+| 94 | `marketing-wechat-official-account` | WeChat official account | `wechat`, `wechat-oa` | INTEGRATION.md |
+| 95 | `marketing-weibo-strategist` | Weibo strategy, China social | `weibo`, `china-social` | INTEGRATION.md |
+| 96 | `marketing-xiaohongshu-specialist` | Xiaohongshu (RED) marketing | `xiaohongshu`, `red` | INTEGRATION.md |
+| 97 | `marketing-zhihu-strategist` | Zhihu content strategy | `zhihu`, `china-qa` | INTEGRATION.md |
 
-## File Structure
-```
-office/agents/agency/
-├── MAPPING.md                    ← This file
-├── academic/                     (5 agents)
-│   ├── academic-anthropologist.md
-│   ├── academic-geographer.md
-│   ├── academic-historian.md
-│   ├── academic-narratologist.md
-│   └── academic-psychologist.md
-├── design/                       (8 agents)
-├── engineering/                  (23 agents)
-├── game-development/             (17 agents)
-│   ├── blender/
-│   ├── godot/
-│   ├── roblox-studio/
-│   ├── unity/
-│   └── unreal-engine/
-├── marketing/                    (27 agents)
-├── paid-media/                   (7 agents)
-├── product/                      (5 agents)
-├── project-management/           (6 agents)
-├── sales/                        (8 agents)
-└── testing/                      (8 agents)
-```
+### 🟠 PLANNER Robot — Academic (5 agents)
 
-Total: **117 agent definitions** across **10 divisions**
+| # | Agent | Specialization | Tags | Integration |
+|---|-------|---------------|------|-------------|
+| 98 | `academic-anthropologist` | Cultural analysis, user behavior patterns | `research`, `culture` | INTEGRATION.md |
+| 99 | `academic-geographer` | Spatial analysis, location intelligence | `location`, `spatial` | INTEGRATION.md |
+| 100 | `academic-historian` | Historical context, precedent research | `history`, `context` | INTEGRATION.md |
+| 101 | `academic-narratologist` | Story structure, narrative design | `story`, `narrative` | INTEGRATION.md |
+| 102 | `academic-psychologist` | User psychology, behavioral design | `psychology`, `ux-research` | INTEGRATION.md |
+
+### 🟠 PLANNER Robot — Paid Media (7 agents)
+
+| # | Agent | Specialization | Tags | Integration |
+|---|-------|---------------|------|-------------|
+| 103 | `paid-media-auditor` | Paid media account auditing | `pm-audit`, `account-review` | INTEGRATION.md |
+| 104 | `paid-media-creative-strategist` | Ad creative strategy | `pm-creative`, `ad-creative` | INTEGRATION.md |
+| 105 | `paid-media-paid-social-strategist` | Paid social campaigns | `pm-social`, `paid-social` | INTEGRATION.md |
+| 106 | `paid-media-ppc-strategist` | PPC campaign optimization | `ppc`, `google-ads` | INTEGRATION.md |
+| 107 | `paid-media-programmatic-buyer` | Programmatic ad buying | `programmatic`, `dsp` | INTEGRATION.md |
+| 108 | `paid-media-search-query-analyst` | Search query analysis | `search-query`, `keyword` | INTEGRATION.md |
+| 109 | `paid-media-tracking-specialist` | Tracking, attribution, pixels | `tracking`, `attribution` | INTEGRATION.md |
+
+### ⚪ CHIEF Robot — Sales (8 agents)
+
+| # | Agent | Specialization | Tags | Integration |
+|---|-------|---------------|------|-------------|
+| 110 | `sales-account-strategist` | Account strategy, key accounts | `account`, `key-account` | INTEGRATION.md |
+| 111 | `sales-coach` | Sales coaching, skill development | `sales-coach`, `training` | INTEGRATION.md |
+| 112 | `sales-deal-strategist` | Deal strategy, negotiation | `deal`, `negotiation` | INTEGRATION.md |
+| 113 | `sales-discovery-coach` | Discovery call coaching | `discovery`, `qualification` | INTEGRATION.md |
+| 114 | `sales-engineer` | Technical sales, demos | `demo`, `technical-sales` | INTEGRATION.md |
+| 115 | `sales-outbound-strategist` | Outbound sales strategy | `outbound`, `prospecting` | INTEGRATION.md |
+| 116 | `sales-pipeline-analyst` | Pipeline analysis, forecasting | `pipeline`, `forecast` | INTEGRATION.md |
+| 117 | `sales-proposal-strategist` | Proposal writing, RFP responses | `proposal`, `rfp`, `bid` | INTEGRATION.md |
+
+## Robot Statistics
+
+| Robot | Agents | Divisions Covered | Percentage |
+|-------|--------|-------------------|------------|
+| ⚪ CHIEF | 8 (+ orchestration) | Sales | 6.8% |
+| 🟠 PLANNER | 56 | Product, PM, Marketing, Academic, Paid Media | 47.9% |
+| 🔵 WORKER | 43 | Engineering, Game Development | 36.8% |
+| 🟡 REVIEWER | 16 | Design, Testing | 13.7% |
+| 🟢 BUILDER | 0 (shared from Engineering) | DevOps/SRE via WORKER | 0% (embedded) |
+| **TOTAL** | **117** | **10 divisions** | **100%** |
+
+## Telegram Command Reference
+
+### Status Commands
+- `/agent_status <name>` — Status of specific agent
+- `/agent_status --all` — All 117 agents
+- `/division_list` — All divisions with agent counts
+- `/division_list --verbose` — With individual agent details
+
+### Division Commands
+- `/engineering_status` — Engineering division status
+- `/design_status` — Design division status
+- `/testing_status` — Testing division status
+- `/product_status` — Product division status
+- `/marketing_status` — Marketing division status
+- `/sales_status` — Sales division status
+- `/pm_status` — Project Management status
+- `/academic_status` — Academic division status
+- `/paidmedia_status` — Paid Media division status
+- `/gamedev_status` — Game Development status
+
+### Task Assignment
+- `/assign <agent> <task>` — Assign task to specific agent
+- `/assign_to_agent.sh engineering-frontend-developer "Fix mobile layout"`
+
+### Visual Review
+- Screenshot: `node scripts/screenshot.js`
+- Healthcheck: `bash scripts/ops/office_healthcheck.sh`
+- CI status: `cd office && gh run list --limit 3`

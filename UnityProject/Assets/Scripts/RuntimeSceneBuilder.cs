@@ -52,6 +52,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         BuildRoom();
         BuildBoard();
         BuildZones();
+        BuildDivisionZones();
         BuildAgents();
         BuildRuntimeNavMesh();
         BuildLighting();
@@ -687,6 +688,64 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Cube("PerimeterToolStackR", new Vector3(8.6f, 0.36f, 6.1f), new Vector3(0.56f, 0.56f, 0.46f), Mat(new Color(0.54f, 0.36f, 0.20f), 0.07f));
 
 
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // DIVISION ZONES — 7 colored floor areas for agency divisions
+    // ═══════════════════════════════════════════════════════════════
+    private void BuildDivisionZones()
+    {
+        // Division zone definitions: name, position, color, label color
+        var divisions = new (string name, Vector3 pos, Color floorColor, Color labelColor)[]
+        {
+            ("ENGINEERING",   new Vector3(-6.0f, 0.015f, 4.0f),  new Color(0.15f, 0.35f, 0.65f, 0.55f), new Color(0.30f, 0.70f, 1.00f)),
+            ("DESIGN",        new Vector3( 4.5f, 0.015f, 4.5f),  new Color(0.55f, 0.20f, 0.65f, 0.55f), new Color(0.80f, 0.40f, 1.00f)),
+            ("PRODUCT",       new Vector3(-4.5f, 0.015f,-2.5f),  new Color(0.85f, 0.45f, 0.10f, 0.55f), new Color(1.00f, 0.65f, 0.20f)),
+            ("MARKETING",     new Vector3( 4.5f, 0.015f,-2.5f),  new Color(0.75f, 0.30f, 0.15f, 0.55f), new Color(1.00f, 0.50f, 0.25f)),
+            ("SALES",         new Vector3(-7.0f, 0.015f,-1.5f),  new Color(0.80f, 0.65f, 0.10f, 0.55f), new Color(1.00f, 0.85f, 0.20f)),
+            ("PM",            new Vector3( 0.0f, 0.015f,-3.5f),  new Color(0.60f, 0.45f, 0.15f, 0.55f), new Color(0.90f, 0.70f, 0.30f)),
+            ("TESTING",       new Vector3( 6.5f, 0.015f, 1.5f),  new Color(0.20f, 0.60f, 0.35f, 0.55f), new Color(0.30f, 0.95f, 0.55f)),
+        };
+
+        foreach (var (name, pos, floorColor, labelColor) in divisions)
+        {
+            var root = new GameObject($"DivisionZone_{name}");
+
+            // Floor panel
+            var floor = Cube(
+                $"DivFloor_{name}",
+                pos,
+                new Vector3(3.4f, 0.02f, 3.0f),
+                Emissive(
+                    new Color(floorColor.r * 0.3f, floorColor.g * 0.3f, floorColor.b * 0.3f),
+                    floorColor,
+                    1.8f));
+            floor.transform.SetParent(root.transform, false);
+
+            // Border lines (4 thin cubes around the zone)
+            float bx = 1.72f, bz = 1.52f, bh = 0.025f, bt = 0.04f;
+            var borderMat = Emissive(
+                new Color(labelColor.r * 0.2f, labelColor.g * 0.2f, labelColor.b * 0.2f),
+                labelColor * 0.7f,
+                2.2f);
+
+            Cube($"DivBorderN_{name}", pos + new Vector3(0f, bh, bz), new Vector3(3.5f, bt, bt), borderMat).transform.SetParent(root.transform, false);
+            Cube($"DivBorderS_{name}", pos + new Vector3(0f, bh, -bz), new Vector3(3.5f, bt, bt), borderMat).transform.SetParent(root.transform, false);
+            Cube($"DivBorderE_{name}", pos + new Vector3(bx, bh, 0f), new Vector3(bt, bt, 3.1f), borderMat).transform.SetParent(root.transform, false);
+            Cube($"DivBorderW_{name}", pos + new Vector3(-bx, bh, 0f), new Vector3(bt, bt, 3.1f), borderMat).transform.SetParent(root.transform, false);
+
+            // Label (floating above zone)
+            var label = Txt(
+                $"DivLabel_{name}",
+                name,
+                pos + new Vector3(0f, 0.08f, 0f),
+                14,
+                0.18f,
+                labelColor,
+                FontStyle.Bold);
+            label.transform.SetParent(root.transform, false);
+            _labelXforms.Add(label.transform);
+        }
     }
 
 
