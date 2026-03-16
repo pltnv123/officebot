@@ -1,0 +1,11 @@
+{
+  "group_id": -1003780060338,
+  "topics": {
+    "glavny": {"name": "🏠 Главный", "thread_id": 3},
+    "planner": {"name": "📋 Planner", "thread_id": 4},
+    "worker": {"name": "🔧 Worker", "thread_id": 5},
+    "reviewer": {"name": "🔍 Reviewer", "thread_id": 6},
+    "builder": {"name": "🏗️ Builder", "thread_id": 7},
+    "vreviewer": {"name": "👁️ VReviewer", "thread_id": 8}
+  }
+}

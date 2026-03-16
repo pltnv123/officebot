@@ -21,22 +21,22 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private readonly List<Renderer> _assigneeDotRenderers = new();
     private readonly List<Renderer> _boardCardRenderers = new();
     private readonly List<int> _boardCardColumns = new();
-    private readonly Color[] _columnHighlightColors = new Color[6];
+    private readonly Color[] _columnHighlightColors = new Color[4];
     private TextMesh _wipText, _queueText, _blockersText, _throughputText;
     private float _t;
-    private readonly string[] _agentRoles = { "chief", "planner", "worker", "tester" };
+    private readonly string[] _agentRoles = { "planner", "worker", "reviewer" };
     private static readonly Color _boardCardBaseColor = new Color(0.28f, 0.28f, 0.28f);
     private static readonly Dictionary<string, int> StatusToColumn = new(System.StringComparer.OrdinalIgnoreCase)
     {
         ["inbox"] = 0,
-        ["queue"] = 1,
-        ["plan"] = 2,
-        ["planning"] = 2,
-        ["work"] = 3,
-        ["doing"] = 3,
-        ["review"] = 4,
-        ["rework"] = 4,
-        ["done"] = 5
+        ["queue"] = 0,
+        ["plan"] = 1,
+        ["planning"] = 1,
+        ["work"] = 2,
+        ["doing"] = 2,
+        ["review"] = 2,
+        ["rework"] = 2,
+        ["done"] = 3
     };
 
     [SerializeField] private string taskStateUrl = "/api/state";
@@ -147,11 +147,11 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void BuildRoom()
     {
 
-        var floor = Mat(new Color(0.36f, 0.32f, 0.28f, 1f), 0.30f);
+        var floor = Mat(new Color(0.68f, 0.62f, 0.52f, 1f), 0.30f);
         Cube("Floor", new Vector3(0f, -0.05f, 3f), new Vector3(24f, 0.1f, 18f), floor);
-        Cube("FloorCenterPanel", new Vector3(0f, -0.045f, 3f), new Vector3(18f, 0.02f, 13f), Mat(new Color(0.42f, 0.38f, 0.34f, 1f), 0.30f));
-        Cube("FloorTileBandA", new Vector3(-4.5f, -0.043f, 3f), new Vector3(3.6f, 0.02f, 13f), Mat(new Color(0.40f, 0.36f, 0.32f, 1f), 0.30f));
-        Cube("FloorTileBandB", new Vector3(4.5f, -0.043f, 3f), new Vector3(3.6f, 0.02f, 13f), Mat(new Color(0.34f, 0.30f, 0.26f, 1f), 0.30f));
+        Cube("FloorCenterPanel", new Vector3(0f, -0.045f, 3f), new Vector3(18f, 0.02f, 13f), Mat(new Color(0.72f, 0.66f, 0.56f, 1f), 0.30f));
+        Cube("FloorTileBandA", new Vector3(-4.5f, -0.043f, 3f), new Vector3(3.6f, 0.02f, 13f), Mat(new Color(0.70f, 0.64f, 0.54f, 1f), 0.30f));
+        Cube("FloorTileBandB", new Vector3(4.5f, -0.043f, 3f), new Vector3(3.6f, 0.02f, 13f), Mat(new Color(0.64f, 0.58f, 0.48f, 1f), 0.30f));
 
         var pathAmber = Emissive(
             new Color(0.38f, 0.2f, 0.04f),
@@ -276,15 +276,15 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             dotStep,
             dotScale);
 
-        var wall = Mat(new Color(0.24f, 0.18f, 0.14f), 0.14f);
-        Cube("WallToneBandL", new Vector3(-9.0f, 2.0f, 6.8f), new Vector3(0.12f, 2.6f, 3.0f), Mat(new Color(0.28f, 0.20f, 0.16f), 0.22f));
-        Cube("WallToneBandR", new Vector3(9.0f, 2.0f, 6.8f), new Vector3(0.12f, 2.6f, 3.0f), Mat(new Color(0.20f, 0.16f, 0.12f), 0.08f));
+        var wall = Mat(new Color(0.45f, 0.38f, 0.30f), 0.14f);
+        Cube("WallToneBandL", new Vector3(-9.0f, 2.0f, 6.8f), new Vector3(0.12f, 2.6f, 3.0f), Mat(new Color(0.50f, 0.42f, 0.34f), 0.22f));
+        Cube("WallToneBandR", new Vector3(9.0f, 2.0f, 6.8f), new Vector3(0.12f, 2.6f, 3.0f), Mat(new Color(0.40f, 0.34f, 0.26f), 0.08f));
         // Back wall with a real doorway opening to Room 2 (right-rear)
         Cube("BackWallLeft", new Vector3(-3.4f, 2.5f, 10f), new Vector3(17.2f, 5f, 0.25f), wall);
         Cube("BackWallRight", new Vector3(10.2f, 2.5f, 10f), new Vector3(3.6f, 5f, 0.25f), wall);
         Cube("BackWallTopLintel", new Vector3(8.0f, 4.35f, 10f), new Vector3(2.8f, 1.3f, 0.25f), wall);
 
-        var depthWallMat = Mat(new Color(0.15f, 0.12f, 0.08f), 0.12f);
+        var depthWallMat = Mat(new Color(0.30f, 0.25f, 0.18f), 0.12f);
         Cube("DepthBackWallLeft", new Vector3(-3.4f, 3f, 9f), new Vector3(17.2f, 6f, 0.3f), depthWallMat);
         Cube("DepthBackWallRight", new Vector3(10.2f, 3f, 9f), new Vector3(3.6f, 6f, 0.3f), depthWallMat);
         Cube("DepthBackWallTopLintel", new Vector3(8.0f, 4.8f, 9f), new Vector3(2.8f, 2.4f, 0.3f), depthWallMat);
@@ -329,23 +329,19 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         string[] columnTitles =
         {
             "INBOX",
-            "QUEUE",
             "PLAN",
             "WORK",
-            "REVIEW",
             "DONE"
         };
-        float columnWidth = 1.56f;
+        float columnWidth = 2.40f;
         float columnGap = 0.12f;
         float columnPitch = columnWidth + columnGap;
         float[] xs =
         {
-            -2.5f * columnPitch,
             -1.5f * columnPitch,
             -0.5f * columnPitch,
             0.5f * columnPitch,
-            1.5f * columnPitch,
-            2.5f * columnPitch
+            1.5f * columnPitch
         };
         Color[] stickyPalette =
         {
@@ -696,34 +692,23 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private void BuildAgents()
     {
-        var eyeCol = new Color(
-            0.36f,
-            0.95f,
-            1.00f,
-            1f);
         BuildAgent(
             new Vector3(-3.25f, 0.0f, 0.05f),
-            "PLANNER",
-            eyeCol,
+            "WORKER",
+            new Color(0.20f, 0.60f, 1.00f, 1f),
             0f);
 
         BuildAgent(
-            new Vector3(-6.85f, 0.0f, 0.95f),
-            "WORKER",
-            eyeCol,
-            20f);
+            new Vector3(0.00f, 0.0f, 0.10f),
+            "PLANNER",
+            new Color(1.00f, 0.55f, 0.15f, 1f),
+            0f);
 
         BuildAgent(
-            new Vector3(5.95f, 0.0f, 0.05f),
-            "TESTER",
-            eyeCol,
-            -24f);
-
-        BuildAgent(
-            new Vector3(1.85f, 0.0f, 0.10f),
+            new Vector3(3.25f, 0.0f, 0.05f),
             "REVIEWER",
-            eyeCol,
-            -12f);
+            new Color(0.90f, 0.85f, 0.20f, 1f),
+            0f);
     }
 
     private void BuildAgent(Vector3 pos, string role, Color eyeCol, float rotY)
@@ -774,8 +759,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
         RenderSettings.ambientLight = new Color(
             1.00f,
-            0.84f,
-            0.64f,
+            0.92f,
+            0.78f,
             1.00f);
         RenderSettings.fog = false;
 
@@ -788,37 +773,44 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         CreatePointLight(
             "WarmKey",
             new Vector3(0.00f, 5.40f, 0.80f),
-            new Color(1.00f, 0.66f, 0.34f, 1.00f),
-            6.60f,
-            24.00f);
+            new Color(1.00f, 0.70f, 0.38f, 1.00f),
+            8.60f,
+            26.00f);
 
         CreatePointLight(
             "DeskLight",
             new Vector3(0.60f, 2.70f, 0.30f),
-            new Color(1.00f, 0.78f, 0.44f, 1.00f),
-            3.80f,
-            10.00f);
+            new Color(1.00f, 0.82f, 0.50f, 1.00f),
+            5.00f,
+            12.00f);
 
         CreatePointLight(
             "DispatchFill",
             new Vector3(-7.20f, 2.90f, 1.10f),
-            new Color(1.00f, 0.58f, 0.18f, 1.00f),
-            4.00f,
-            11.00f);
+            new Color(1.00f, 0.62f, 0.22f, 1.00f),
+            5.20f,
+            13.00f);
 
         CreatePointLight(
             "MonitorFill",
             new Vector3(7.30f, 3.00f, 1.20f),
-            new Color(0.20f, 1.00f, 0.78f, 1.00f),
-            3.80f,
-            11.50f);
+            new Color(0.25f, 1.00f, 0.78f, 1.00f),
+            5.00f,
+            13.00f);
 
         CreatePointLight(
             "Room2Glow",
             new Vector3(8.70f, 2.90f, 6.10f),
-            new Color(1.00f, 0.58f, 0.16f, 1.00f),
-            4.20f,
-            9.20f);
+            new Color(1.00f, 0.62f, 0.20f, 1.00f),
+            5.50f,
+            11.00f);
+
+        CreatePointLight(
+            "BoardLight",
+            new Vector3(0.00f, 5.00f, 7.50f),
+            new Color(1.00f, 0.90f, 0.70f, 1.00f),
+            6.00f,
+            8.00f);
     }
 
     private static void CreatePointLight(
@@ -935,8 +927,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
         // Map existing orchestrator roles to planner/worker/tester.
         var plannerM = Mv(1, "planner", new Vector3(-1.8f, 0f, 0.5f), new Vector3(0f, 0f, 8f), new Vector3(-1.3f, 0f, 1.2f), new Vector3(5.2f, 0f, 8.6f));
-        var workerM = Mv(2, "worker", new Vector3(-6.5f, 0f, 2.5f), new Vector3(0f, 0f, 8f), new Vector3(-0.3f, 0f, 1.0f), new Vector3(5.6f, 0f, 8.6f));
-        var testerM = Mv(3, "tester", new Vector3(6.5f, 0f, 2.5f), new Vector3(0f, 0f, 8f), new Vector3(0.8f, 0f, 1.0f), new Vector3(6.0f, 0f, 8.6f));
+        var workerM = Mv(0, "worker", new Vector3(-6.5f, 0f, 2.5f), new Vector3(0f, 0f, 8f), new Vector3(-0.3f, 0f, 1.0f), new Vector3(5.6f, 0f, 8.6f));
+        var testerM = Mv(2, "reviewer", new Vector3(6.5f, 0f, 2.5f), new Vector3(0f, 0f, 8f), new Vector3(0.8f, 0f, 1.0f), new Vector3(6.0f, 0f, 8.6f));
 
         var orch = mgr.GetComponent<TaskOrchestrator>() ?? mgr.AddComponent<TaskOrchestrator>();
         orch.plannerBot = plannerM;
@@ -1152,7 +1144,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private int[] BuildColumnCounts(List<OfficeStateTask> tasks)
     {
-        var counts = new int[6];
+        var counts = new int[4];
         if (tasks == null) return counts;
         foreach (var task in tasks)
         {
@@ -1164,7 +1156,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     private List<OfficeStateTask>[] BuildColumnTasks(List<OfficeStateTask> tasks)
     {
-        var columnTasks = new List<OfficeStateTask>[6];
+        var columnTasks = new List<OfficeStateTask>[4];
         for (int c = 0; c < columnTasks.Length; c++) columnTasks[c] = new List<OfficeStateTask>();
         if (tasks == null) return columnTasks;
 
@@ -1187,10 +1179,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private static Color GetAssigneeColor(string assignee)
     {
         var key = (assignee ?? "").Trim().ToLower();
-        if (key == "chief") return new Color(1.00f, 0.85f, 0.35f);
-        if (key == "planner") return new Color(0.35f, 0.65f, 1.00f);
-        if (key == "worker") return new Color(0.20f, 0.95f, 0.72f);
-        if (key == "tester") return new Color(0.45f, 1.00f, 0.65f);
+        if (key == "planner") return new Color(1.00f, 0.55f, 0.15f);
+        if (key == "worker") return new Color(0.20f, 0.60f, 1.00f);
+        if (key == "reviewer") return new Color(0.90f, 0.85f, 0.20f);
         return new Color(0.75f, 0.75f, 0.78f);
     }
     private void UpdateBoardCardColors(int[] columnCounts)
