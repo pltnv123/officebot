@@ -1,0 +1,793 @@
+{
+  "engineering/frontend-developer": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["frontend", "react", "vue", "angular", "css", "ui", "html", "web"],
+    "description": "Frontend разработка, UI компоненты"
+  },
+  "engineering/backend-architect": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["backend", "api", "server", "rest", "graphql", "microservice"],
+    "description": "API дизайн, серверная архитектура"
+  },
+  "engineering/code-reviewer": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["code-review", "review", "pr"],
+    "description": "Ревью качества кода"
+  },
+  "engineering/devops-automator": {
+    "robot": "BUILDER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 7,
+    "triggers": ["devops", "ci", "cd", "deploy", "pipeline", "github-actions"],
+    "description": "CI/CD пайплайны, автоматизация"
+  },
+  "engineering/security-engineer": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["security", "auth", "vuln", "xss", "csrf", "injection"],
+    "description": "Аудит безопасности, исправление уязвимостей"
+  },
+  "engineering/sre": {
+    "robot": "BUILDER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 7,
+    "triggers": ["sre", "monitoring", "uptime", "reliability", "slo"],
+    "description": "Надёжность, мониторинг, SLO"
+  },
+  "engineering/senior-developer": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["senior", "architecture", "tech-debt", "complex", "refactor"],
+    "description": "Сложные фичи, архитектурные решения"
+  },
+  "engineering/rapid-prototyper": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["prototype", "mvp", "spike", "poc", "quick"],
+    "description": "Быстрые MVP, прототипы"
+  },
+  "engineering/ai-engineer": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["ai", "ml", "model", "neural", "llm", "gpt", "openai"],
+    "description": "ML пайплайны, AI интеграции"
+  },
+  "engineering/data-engineer": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["data", "etl", "pipeline", "warehouse", "spark"],
+    "description": "Data пайплайны, ETL"
+  },
+  "engineering/database-optimizer": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["database", "sql", "query", "postgres", "mysql", "index"],
+    "description": "Оптимизация запросов, схемы БД"
+  },
+  "engineering/software-architect": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["system-design", "tech-stack", "scalability", "distributed"],
+    "description": "Системный дизайн, выбор стека"
+  },
+  "engineering/mobile-app-builder": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["mobile", "ios", "android", "react-native", "flutter"],
+    "description": "Разработка мобильных приложений"
+  },
+  "engineering/technical-writer": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["docs", "documentation", "readme", "api-docs"],
+    "description": "Документация, API docs"
+  },
+  "engineering/git-workflow-master": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["git", "branch", "merge", "rebase", "workflow"],
+    "description": "Git стратегии, ветвление"
+  },
+  "engineering/ai-data-remediation-engineer": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["data-cleanup", "remediation", "data-quality"],
+    "description": "Очистка данных, подготовка для AI"
+  },
+  "engineering/autonomous-optimization-architect": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["optimize", "performance", "profiling", "benchmark"],
+    "description": "Оптимизация производительности"
+  },
+  "engineering/embedded-firmware-engineer": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["embedded", "iot", "firmware", "arduino", "esp32"],
+    "description": "Встраиваемые системы, IoT"
+  },
+  "engineering/incident-response-commander": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["incident", "p0", "p1", "outage", "postmortem"],
+    "description": "Управление инцидентами, P0/P1"
+  },
+  "engineering/threat-detection-engineer": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["threat", "ids", "detection", "siem"],
+    "description": "Обнаружение угроз, мониторинг безопасности"
+  },
+  "engineering/solidity-smart-contract-engineer": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["web3", "solidity", "contract", "blockchain", "ethereum"],
+    "description": "Смарт-контракты, блокчейн"
+  },
+  "engineering/feishu-integration-developer": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["feishu", "lark", "lark-api"],
+    "description": "Интеграции Feishu/Lark"
+  },
+  "engineering/wechat-mini-program-developer": {
+    "robot": "WORKER",
+    "zone": "ENGINEERING",
+    "telegram_thread": 5,
+    "triggers": ["wechat", "miniprogram", "小程序"],
+    "description": "WeChat мини-программы"
+  },
+  "game-development/game-audio-engineer": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["audio", "sound", "fmod", "wwise", "game-audio"],
+    "description": "Аудио игр, звуковой дизайн"
+  },
+  "game-development/game-designer": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["gamedesign", "mechanics", "game-design", "gameplay"],
+    "description": "Механики игр, системный дизайн"
+  },
+  "game-development/level-designer": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["level", "map", "world", "level-design"],
+    "description": "Дизайн уровней, построение мира"
+  },
+  "game-development/narrative-designer": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["gamenarrative", "dialog", "story", "narrative"],
+    "description": "Игровой нарратив, диалоги"
+  },
+  "game-development/technical-artist": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["techart", "shader", "vfx", "rendering", "visual-effects"],
+    "description": "Шейдеры, VFX, рендеринг"
+  },
+  "game-development/blender-addon-engineer": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["blender", "3d", "addon", "blender-python"],
+    "description": "Blender аддоны, 3D инструменты"
+  },
+  "game-development/godot-gameplay-scripter": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["godot", "gdscript"],
+    "description": "Godot GDScript, геймплей"
+  },
+  "game-development/godot-multiplayer-engineer": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["godot-multiplayer", "godot-netcode"],
+    "description": "Godot мультиплеер, нетворкинг"
+  },
+  "game-development/godot-shader-developer": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["godot-shader"],
+    "description": "Godot шейдеры, визуальные эффекты"
+  },
+  "game-development/roblox-avatar-creator": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["roblox-avatar"],
+    "description": "Roblox аватары"
+  },
+  "game-development/roblox-experience-designer": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["roblox-experience"],
+    "description": "Roblox дизайн опыта"
+  },
+  "game-development/roblox-systems-scripter": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["roblox", "luau"],
+    "description": "Roblox Luau скриптинг"
+  },
+  "game-development/unity-architect": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["unity", "unity-arch", "unity3d"],
+    "description": "Unity архитектура, структура проекта"
+  },
+  "game-development/unity-editor-tool-developer": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["unity-tool", "unity-editor", "editor-extension"],
+    "description": "Unity editor расширения"
+  },
+  "game-development/unity-multiplayer-engineer": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["unity-netcode", "unity-multiplayer"],
+    "description": "Unity Netcode, мультиплеер"
+  },
+  "game-development/unity-shader-graph-artist": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["unity-shader", "shader-graph"],
+    "description": "Unity Shader Graph, визуальные эффекты"
+  },
+  "game-development/unreal-multiplayer-architect": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["unreal-netcode", "unreal-multiplayer"],
+    "description": "Unreal мультиплеер"
+  },
+  "game-development/unreal-systems-engineer": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["unreal", "ue-cpp", "ue5"],
+    "description": "Unreal C++, игровые системы"
+  },
+  "game-development/unreal-technical-artist": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["ue-material", "niagara", "unreal-vfx"],
+    "description": "Unreal материалы, Niagara VFX"
+  },
+  "game-development/unreal-world-builder": {
+    "robot": "WORKER",
+    "zone": "GAME DEV",
+    "telegram_thread": 5,
+    "triggers": ["ue-world", "landscape", "world-building"],
+    "description": "Unreal построение мира"
+  },
+  "design/ui-designer": {
+    "robot": "REVIEWER",
+    "zone": "DESIGN",
+    "telegram_thread": 6,
+    "triggers": ["design", "ui", "visual", "figma", "design-system"],
+    "description": "UI дизайн, визуальные компоненты"
+  },
+  "design/ux-researcher": {
+    "robot": "REVIEWER",
+    "zone": "DESIGN",
+    "telegram_thread": 6,
+    "triggers": ["ux", "research", "user-test", "usability", "interview"],
+    "description": "UX исследование, тестирование"
+  },
+  "design/brand-guardian": {
+    "robot": "REVIEWER",
+    "zone": "DESIGN",
+    "telegram_thread": 6,
+    "triggers": ["brand", "identity", "style", "branding"],
+    "description": "Бренд-консистентность, стили"
+  },
+  "design/visual-storyteller": {
+    "robot": "REVIEWER",
+    "zone": "DESIGN",
+    "telegram_thread": 6,
+    "triggers": ["presentation", "story", "visual-narrative"],
+    "description": "Визуальные нарративы, презентации"
+  },
+  "design/whimsy-injector": {
+    "robot": "REVIEWER",
+    "zone": "DESIGN",
+    "telegram_thread": 6,
+    "triggers": ["whimsy", "polish", "delight", "micro-interaction"],
+    "description": "Микро-взаимодействия, полировка"
+  },
+  "design/ux-architect": {
+    "robot": "REVIEWER",
+    "zone": "DESIGN",
+    "telegram_thread": 6,
+    "triggers": ["ia", "navigation", "flow", "information-architecture"],
+    "description": "Информационная архитектура, навигация"
+  },
+  "design/image-prompt-engineer": {
+    "robot": "REVIEWER",
+    "zone": "DESIGN",
+    "telegram_thread": 6,
+    "triggers": ["image", "prompt", "ai-art", "midjourney", "dalle"],
+    "description": "AI генерация изображений"
+  },
+  "design/inclusive-visuals-specialist": {
+    "robot": "REVIEWER",
+    "zone": "DESIGN",
+    "telegram_thread": 6,
+    "triggers": ["a11y", "inclusive", "accessibility", "wcag"],
+    "description": "Доступность, инклюзивный дизайн"
+  },
+  "testing/accessibility-auditor": {
+    "robot": "REVIEWER",
+    "zone": "TESTING",
+    "telegram_thread": 6,
+    "triggers": ["a11y-audit", "wcag", "screen-reader"],
+    "description": "WCAG compliance, a11y аудиты"
+  },
+  "testing/api-tester": {
+    "robot": "REVIEWER",
+    "zone": "TESTING",
+    "telegram_thread": 6,
+    "triggers": ["api-test", "contract", "postman", "integration-test"],
+    "description": "API тестирование, контрактные тесты"
+  },
+  "testing/evidence-collector": {
+    "robot": "REVIEWER",
+    "zone": "TESTING",
+    "telegram_thread": 6,
+    "triggers": ["test-evidence", "screenshot", "test-log"],
+    "description": "Сбор доказательств тестирования"
+  },
+  "testing/performance-benchmarker": {
+    "robot": "REVIEWER",
+    "zone": "TESTING",
+    "telegram_thread": 6,
+    "triggers": ["benchmark", "load-test", "stress-test", "perf-test"],
+    "description": "Бенчмарки производительности"
+  },
+  "testing/reality-checker": {
+    "robot": "REVIEWER",
+    "zone": "TESTING",
+    "telegram_thread": 6,
+    "triggers": ["reality-check", "spec-validation", "acceptance"],
+    "description": "Валидация результатов по спецификации"
+  },
+  "testing/test-results-analyzer": {
+    "robot": "REVIEWER",
+    "zone": "TESTING",
+    "telegram_thread": 6,
+    "triggers": ["test-analysis", "test-trend", "flaky-test"],
+    "description": "Анализ результатов тестов"
+  },
+  "testing/tool-evaluator": {
+    "robot": "REVIEWER",
+    "zone": "TESTING",
+    "telegram_thread": 6,
+    "triggers": ["test-tool", "evaluation", "qa-tool"],
+    "description": "Оценка инструментов тестирования"
+  },
+  "testing/workflow-optimizer": {
+    "robot": "REVIEWER",
+    "zone": "TESTING",
+    "telegram_thread": 6,
+    "triggers": ["test-workflow", "ci-optimize", "test-pipeline"],
+    "description": "Оптимизация тестовых процессов"
+  },
+  "product/behavioral-nudge-engine": {
+    "robot": "PLANNER",
+    "zone": "PRODUCT",
+    "telegram_thread": 4,
+    "triggers": ["nudge", "behavioral", "habit"],
+    "description": "Поведенческие нudge, дизайн привычек"
+  },
+  "product/feedback-synthesizer": {
+    "robot": "PLANNER",
+    "zone": "PRODUCT",
+    "telegram_thread": 4,
+    "triggers": ["feedback", "synthesis", "user-feedback"],
+    "description": "Синтез обратной связи пользователей"
+  },
+  "product/manager": {
+    "robot": "PLANNER",
+    "zone": "PRODUCT",
+    "telegram_thread": 4,
+    "triggers": ["product", "roadmap", "product-manager", "feature"],
+    "description": "Продуктовое управление, роадмап"
+  },
+  "product/sprint-prioritizer": {
+    "robot": "PLANNER",
+    "zone": "PRODUCT",
+    "telegram_thread": 4,
+    "triggers": ["sprint", "prioritize", "backlog", "planning"],
+    "description": "Приоритизация спринтов, бэклог"
+  },
+  "product/trend-researcher": {
+    "robot": "PLANNER",
+    "zone": "PRODUCT",
+    "telegram_thread": 4,
+    "triggers": ["trend", "market", "competitive", "analysis"],
+    "description": "Рыночные тренды, конкурентный анализ"
+  },
+  "project-management/experiment-tracker": {
+    "robot": "PLANNER",
+    "zone": "PM",
+    "telegram_thread": 4,
+    "triggers": ["experiment", "ab-test", "a/b", "hypothesis"],
+    "description": "Трекинг экспериментов, A/B тесты"
+  },
+  "project-management/jira-workflow-steward": {
+    "robot": "PLANNER",
+    "zone": "PM",
+    "telegram_thread": 4,
+    "triggers": ["jira", "workflow", "atlassian"],
+    "description": "Оптимизация Jira workflow"
+  },
+  "project-management/project-shepherd": {
+    "robot": "PLANNER",
+    "zone": "PM",
+    "telegram_thread": 4,
+    "triggers": ["project", "stakeholder", "coordination"],
+    "description": "Управление проектами, стейкхолдеры"
+  },
+  "project-management/studio-operations": {
+    "robot": "PLANNER",
+    "zone": "PM",
+    "telegram_thread": 4,
+    "triggers": ["studio-ops", "resources", "allocation"],
+    "description": "Операции студии, ресурсы"
+  },
+  "project-management/studio-producer": {
+    "robot": "PLANNER",
+    "zone": "PM",
+    "telegram_thread": 4,
+    "triggers": ["producer", "strategy", "executive"],
+    "description": "Исполнительная оркестрация"
+  },
+  "project-management/senior": {
+    "robot": "PLANNER",
+    "zone": "PM",
+    "telegram_thread": 4,
+    "triggers": ["senior-pm", "delivery", "program"],
+    "description": "Сеньор PM, сложные проекты"
+  },
+  "marketing/ai-citation-strategist": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["ai-citation", "geo", "ai-seo"],
+    "description": "AI citation оптимизация, GEO"
+  },
+  "marketing/app-store-optimizer": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["aso", "app-store", "store-listing"],
+    "description": "ASO оптимизация"
+  },
+  "marketing/baidu-seo-specialist": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["baidu", "china-seo", "baidu-seo"],
+    "description": "Baidu SEO, Китай"
+  },
+  "marketing/bilibili-content-strategist": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["bilibili", "china-video"],
+    "description": "Bilibili контент-стратегия"
+  },
+  "marketing/book-co-author": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["book", "longform", "writing"],
+    "description": "Написание книг, long-form контент"
+  },
+  "marketing/carousel-growth-engine": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["carousel", "linkedin-carousel"],
+    "description": "Карусельный контент"
+  },
+  "marketing/china-ecommerce-operator": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["china-ecommerce", "tmall", "jd"],
+    "description": "Китайская e-commerce операции"
+  },
+  "marketing/content-creator": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["content", "copy", "blog", "article", "copywriting"],
+    "description": "Создание контента, копирайтинг"
+  },
+  "marketing/cross-border-ecommerce": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["cross-border", "international", "export"],
+    "description": "Кросс-бордер e-commerce"
+  },
+  "marketing/douyin-strategist": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["douyin", "tiktok-cn"],
+    "description": "Douyin/TikTok China стратегия"
+  },
+  "marketing/growth-hacker": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["growth", "viral", "acquisition", "retention"],
+    "description": "Growth hacking, виральные циклы"
+  },
+  "marketing/instagram-curator": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["instagram", "ig", "reels"],
+    "description": "Instagram контент-куратор"
+  },
+  "marketing/kuaishou-strategist": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["kuaishou", "short-video-cn"],
+    "description": "Kuaishou короткие видео"
+  },
+  "marketing/linkedin-content-creator": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["linkedin", "b2b-content", "professional"],
+    "description": "LinkedIn контент, B2B"
+  },
+  "marketing/livestream-commerce-coach": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["livestream", "live-commerce"],
+    "description": "Livestream commerce"
+  },
+  "marketing/podcast-strategist": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["podcast", "audio-content"],
+    "description": "Подкаст стратегия"
+  },
+  "marketing/private-domain-operator": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["private-domain", "wechat-group"],
+    "description": "Приватный домен маркетинг"
+  },
+  "marketing/reddit-community-builder": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["reddit", "community", "subreddit"],
+    "description": "Reddit сообщества"
+  },
+  "marketing/seo-specialist": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["seo", "search", "google", "ranking", "serp"],
+    "description": "SEO оптимизация"
+  },
+  "marketing/short-video-editing-coach": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["video-edit", "short-video", "tiktok-edit"],
+    "description": "Редактирование коротких видео"
+  },
+  "marketing/social-media-strategist": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["social", "social-media", "smm"],
+    "description": "Social media стратегия"
+  },
+  "marketing/tiktok-strategist": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["tiktok", "short-video"],
+    "description": "TikTok глобальная стратегия"
+  },
+  "marketing/twitter-engager": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["twitter", "x-platform", "tweet"],
+    "description": "Twitter/X вовлечение"
+  },
+  "marketing/wechat-official-account": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["wechat", "wechat-oa", "公众号"],
+    "description": "WeChat официальный аккаунт"
+  },
+  "marketing/weibo-strategist": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["weibo", "china-social"],
+    "description": "Weibo стратегия"
+  },
+  "marketing/xiaohongshu-specialist": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["xiaohongshu", "red", "小红书"],
+    "description": "Xiaohongshu (RED) маркетинг"
+  },
+  "marketing/zhihu-strategist": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["zhihu", "china-qa", "知乎"],
+    "description": "Zhihu контент-стратегия"
+  },
+  "paid-media/auditor": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["pm-audit", "account-review", "ad-audit"],
+    "description": "Аудит платных медиа"
+  },
+  "paid-media/creative-strategist": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["pm-creative", "ad-creative", "creative"],
+    "description": "Стратегия рекламного креатива"
+  },
+  "paid-media/paid-social-strategist": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["pm-social", "paid-social", "facebook-ads"],
+    "description": "Платные соцсети"
+  },
+  "paid-media/ppc-strategist": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["ppc", "google-ads", "adwords"],
+    "description": "PPC кампании"
+  },
+  "paid-media/programmatic-buyer": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["programmatic", "dsp", "rtb"],
+    "description": "Программатик закупки"
+  },
+  "paid-media/search-query-analyst": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["search-query", "keyword", "sem"],
+    "description": "Анализ поисковых запросов"
+  },
+  "paid-media/tracking-specialist": {
+    "robot": "PLANNER",
+    "zone": "MARKETING",
+    "telegram_thread": 4,
+    "triggers": ["tracking", "attribution", "pixel", "gtm"],
+    "description": "Трекинг, атрибуция, пиксели"
+  },
+  "sales/account-strategist": {
+    "robot": "CHIEF",
+    "zone": "SALES",
+    "telegram_thread": 3,
+    "triggers": ["account", "key-account", "enterprise"],
+    "description": "Стратегия аккаунтов"
+  },
+  "sales/coach": {
+    "robot": "CHIEF",
+    "zone": "SALES",
+    "telegram_thread": 3,
+    "triggers": ["sales-coach", "training", "onboarding"],
+    "description": "Сейлз коучинг"
+  },
+  "sales/deal-strategist": {
+    "robot": "CHIEF",
+    "zone": "SALES",
+    "telegram_thread": 3,
+    "triggers": ["deal", "negotiation", "close"],
+    "description": "Стратегия сделок, переговоры"
+  },
+  "sales/discovery-coach": {
+    "robot": "CHIEF",
+    "zone": "SALES",
+    "telegram_thread": 3,
+    "triggers": ["discovery", "qualification", "needs"],
+    "description": "Discovery звонки"
+  },
+  "sales/engineer": {
+    "robot": "CHIEF",
+    "zone": "SALES",
+    "telegram_thread": 3,
+    "triggers": ["demo", "technical-sales", "presale"],
+    "description": "Технические продажи, демо"
+  },
+  "sales/outbound-strategist": {
+    "robot": "CHIEF",
+    "zone": "SALES",
+    "telegram_thread": 3,
+    "triggers": ["outbound", "prospecting", "cold-email"],
+    "description": "Outbound продажи"
+  },
+  "sales/pipeline-analyst": {
+    "robot": "CHIEF",
+    "zone": "SALES",
+    "telegram_thread": 3,
+    "triggers": ["pipeline", "forecast", "crm"],
+    "description": "Анализ воронки, прогнозы"
+  },
+  "sales/proposal-strategist": {
+    "robot": "CHIEF",
+    "zone": "SALES",
+    "telegram_thread": 3,
+    "triggers": ["proposal", "rfp", "bid", "tender"],
+    "description": "Написание предложений, RFP"
+  },
+  "academic/psychologist": {
+    "robot": "REVIEWER",
+    "zone": "DESIGN",
+    "telegram_thread": 6,
+    "triggers": ["psychology", "ux-psych", "cognitive", "behavior"],
+    "description": "UX психология"
+  }
+}

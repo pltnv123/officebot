@@ -1,0 +1,336 @@
+#!/usr/bin/env bash
+#
+# convert.sh — OfficeBot edition: Convert agency agent .md files into tool-specific formats.
+#
+# Adapted from agency-agents for OfficeBot project.
+# Generates files into office/agents/agency/generated/ with "OfficeBot" prefix.
+#
+# Usage:
+#   ./scripts/convert.sh [--tool <name>] [--out <dir>] [--help]
+#
+# Tools:
+#   openclaw     — OpenClaw SOUL.md files (generated/<agent>/SOUL.md, AGENTS.md, IDENTITY.md)
+#   cursor       — Cursor rule files (.cursor/rules/*.mdc)
+#   aider        — Single CONVENTIONS.md for Aider
+#   windsurf     — Single .windsurfrules for Windsurf
+#   all          — All tools (default)
+
+set -euo pipefail
+
+# --- Colour helpers ---
+if [[ -t 1 && -z "${NO_COLOR:-}" && "${TERM:-}" != "dumb" ]]; then
+  GREEN=$'\033[0;32m'; YELLOW=$'\033[1;33m'; RED=$'\033[0;31m'; BOLD=$'\033[1m'; RESET=$'\033[0m'
+else
+  GREEN=''; YELLOW=''; RED=''; BOLD=''; RESET=''
+fi
+
+info()    { printf "${GREEN}[OK]${RESET}  %s\n" "$*"; }
+warn()    { printf "${YELLOW}[!!]${RESET}  %s\n" "$*"; }
+error()   { printf "${RED}[ERR]${RESET} %s\n" "$*" >&2; }
+header()  { echo -e "\n${BOLD}$*${RESET}"; }
+
+# --- Paths ---
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+OUT_DIR="$REPO_ROOT/generated"
+TODAY="$(date +%Y-%m-%d)"
+
+AGENT_DIRS=(
+  academic design engineering game-development marketing paid-media
+  product project-management sales testing support spatial-computing specialized
+)
+
+PREFIX="OfficeBot"
+
+# --- Usage ---
+usage() {
+  cat <<'EOF'
+Usage: ./scripts/convert.sh [--tool <name>] [--out <dir>] [--help]
+
+Tools:
+  openclaw  — OpenClaw SOUL.md, AGENTS.md, IDENTITY.md per agent
+  cursor    — Cursor .mdc rule files
+  aider     — Single CONVENTIONS.md
+  windsurf  — Single .windsurfrules
+  all       — All tools (default)
+
+Options:
+  --out DIR   Output directory (default: generated/)
+  --help      Show this help
+EOF
+  exit 0
+}
+
+# --- Frontmatter helpers ---
+get_field() {
+  local field="$1" file="$2"
+  awk -v f="$field" '
+    /^---$/ { fm++; next }
+    fm == 1 && $0 ~ "^" f ": " { sub("^" f ": ", ""); print; exit }
+  ' "$file"
+}
+
+get_body() {
+  awk 'BEGIN{fm=0} /^---$/{fm++; next} fm>=2{print}' "$1"
+}
+
+slugify() {
+  echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//'
+}
+
+# --- Per-tool converters ---
+
+convert_openclaw() {
+  local file="$1"
+  local name description slug outdir body
+  local soul_content="" agents_content=""
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  slug="officebot-$(slugify "$name")"
+  body="$(get_body "$file")"
+
+  outdir="$OUT_DIR/openclaw/$slug"
+  mkdir -p "$outdir"
+
+  local current_target="agents"
+  local current_section=""
+
+  while IFS= read -r line; do
+    if [[ "$line" =~ ^##[[:space]] ]]; then
+      if [[ -n "$current_section" ]]; then
+        if [[ "$current_target" == "soul" ]]; then
+          soul_content+="$current_section"
+        else
+          agents_content+="$current_section"
+        fi
+      fi
+      current_section=""
+      local header_lower
+      header_lower="$(echo "$line" | tr '[:upper:]' '[:lower:]')"
+      if [[ "$header_lower" =~ identity ]] ||
+         [[ "$header_lower" =~ communication ]] ||
+         [[ "$header_lower" =~ style ]] ||
+         [[ "$header_lower" =~ critical.rule ]] ||
+         [[ "$header_lower" =~ rules.you.must.follow ]]; then
+        current_target="soul"
+      else
+        current_target="agents"
+      fi
+    fi
+    current_section+="$line"$'\n'
+  done <<< "$body"
+
+  if [[ -n "$current_section" ]]; then
+    if [[ "$current_target" == "soul" ]]; then
+      soul_content+="$current_section"
+    else
+      agents_content+="$current_section"
+    fi
+  fi
+
+  cat > "$outdir/SOUL.md" <<HEREDOC
+${soul_content}
+HEREDOC
+
+  cat > "$outdir/AGENTS.md" <<HEREDOC
+# ${PREFIX} — ${name}
+
+${agents_content}
+HEREDOC
+
+  local emoji vibe
+  emoji="$(get_field "emoji" "$file")"
+  vibe="$(get_field "vibe" "$file")"
+
+  if [[ -n "$emoji" && -n "$vibe" ]]; then
+    cat > "$outdir/IDENTITY.md" <<HEREDOC
+# ${emoji} ${PREFIX} ${name}
+${vibe}
+HEREDOC
+  else
+    cat > "$outdir/IDENTITY.md" <<HEREDOC
+# ${PREFIX} ${name}
+${description}
+HEREDOC
+  fi
+}
+
+convert_cursor() {
+  local file="$1"
+  local name description slug outfile body
+
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  slug="officebot-$(slugify "$name")"
+  body="$(get_body "$file")"
+
+  outfile="$OUT_DIR/cursor/rules/${slug}.mdc"
+  mkdir -p "$OUT_DIR/cursor/rules"
+
+  cat > "$outfile" <<HEREDOC
+---
+description: ${PREFIX} ${description}
+globs: ""
+alwaysApply: false
+---
+${body}
+HEREDOC
+}
+
+# Accumulators for single-file formats
+AIDER_TMP="$(mktemp)"
+WINDSURF_TMP="$(mktemp)"
+trap 'rm -f "$AIDER_TMP" "$WINDSURF_TMP"' EXIT
+
+cat > "$AIDER_TMP" <<'HEREDOC'
+# OfficeBot — AI Agent Conventions
+#
+# Full roster of OfficeBot specialized AI agents (based on The Agency).
+# Reference an agent by name in your Aider session prompt.
+#
+# Generated by scripts/convert.sh — do not edit manually.
+
+HEREDOC
+
+cat > "$WINDSURF_TMP" <<'HEREDOC'
+# OfficeBot — AI Agent Rules for Windsurf
+#
+# Full roster of OfficeBot specialized AI agents.
+# Reference an agent by name in your Windsurf conversation.
+#
+# Generated by scripts/convert.sh — do not edit manually.
+
+HEREDOC
+
+accumulate_aider() {
+  local file="$1"
+  local name description body
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  body="$(get_body "$file")"
+
+  cat >> "$AIDER_TMP" <<HEREDOC
+
+---
+
+## ${PREFIX} ${name}
+
+> ${description}
+
+${body}
+HEREDOC
+}
+
+accumulate_windsurf() {
+  local file="$1"
+  local name description body
+  name="$(get_field "name" "$file")"
+  description="$(get_field "description" "$file")"
+  body="$(get_body "$file")"
+
+  cat >> "$WINDSURF_TMP" <<HEREDOC
+
+================================================================================
+## ${PREFIX} ${name}
+${description}
+================================================================================
+
+${body}
+
+HEREDOC
+}
+
+# --- Main loop ---
+
+run_conversions() {
+  local tool="$1"
+  local count=0
+
+  for dir in "${AGENT_DIRS[@]}"; do
+    local dirpath="$REPO_ROOT/$dir"
+    [[ -d "$dirpath" ]] || continue
+
+    while IFS= read -r -d '' file; do
+      local first_line
+      first_line="$(head -1 "$file")"
+      [[ "$first_line" == "---" ]] || continue
+
+      local name
+      name="$(get_field "name" "$file")"
+      [[ -n "$name" ]] || continue
+
+      case "$tool" in
+        openclaw)  convert_openclaw  "$file" ;;
+        cursor)    convert_cursor    "$file" ;;
+        aider)     accumulate_aider  "$file" ;;
+        windsurf)  accumulate_windsurf "$file" ;;
+      esac
+
+      (( count++ )) || true
+    done < <(find "$dirpath" -name "*.md" -type f -print0 | sort -z)
+  done
+
+  echo "$count"
+}
+
+main() {
+  local tool="all"
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --tool)  tool="${2:?'--tool requires a value'}"; shift 2 ;;
+      --out)   OUT_DIR="${2:?'--out requires a value'}"; shift 2 ;;
+      --help|-h) usage ;;
+      *)       error "Unknown option: $1"; usage ;;
+    esac
+  done
+
+  local valid_tools=("openclaw" "cursor" "aider" "windsurf" "all")
+  local valid=false
+  for t in "${valid_tools[@]}"; do [[ "$t" == "$tool" ]] && valid=true && break; done
+  if ! $valid; then
+    error "Unknown tool '$tool'. Valid: ${valid_tools[*]}"
+    exit 1
+  fi
+
+  header "OfficeBot — Converting agents to tool-specific formats"
+  echo "  Repo:   $REPO_ROOT"
+  echo "  Output: $OUT_DIR"
+  echo "  Tool:   $tool"
+  echo "  Prefix: $PREFIX"
+  echo "  Date:   $TODAY"
+
+  local tools_to_run=()
+  if [[ "$tool" == "all" ]]; then
+    tools_to_run=("openclaw" "cursor" "aider" "windsurf")
+  else
+    tools_to_run=("$tool")
+  fi
+
+  local total=0
+  for t in "${tools_to_run[@]}"; do
+    header "Converting: $t"
+    local count
+    count="$(run_conversions "$t")"
+    total=$(( total + count ))
+    info "Converted $count agents for $t"
+  done
+
+  # Write single-file outputs
+  if [[ "$tool" == "all" || "$tool" == "aider" ]]; then
+    mkdir -p "$OUT_DIR/aider"
+    cp "$AIDER_TMP" "$OUT_DIR/aider/CONVENTIONS.md"
+    info "Wrote generated/aider/CONVENTIONS.md"
+  fi
+  if [[ "$tool" == "all" || "$tool" == "windsurf" ]]; then
+    mkdir -p "$OUT_DIR/windsurf"
+    cp "$WINDSURF_TMP" "$OUT_DIR/windsurf/.windsurfrules"
+    info "Wrote generated/windsurf/.windsurfrules"
+  fi
+
+  echo ""
+  info "Done. Total conversions: $total"
+}
+
+main "$@"

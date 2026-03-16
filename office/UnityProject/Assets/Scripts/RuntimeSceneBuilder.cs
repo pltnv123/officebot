@@ -24,19 +24,19 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private readonly Color[] _columnHighlightColors = new Color[4];
     private TextMesh _wipText, _queueText, _blockersText, _throughputText;
     private float _t;
-    private readonly string[] _agentRoles = { "chief", "planner", "worker", "reviewer", "builder" };
+    private readonly string[] _agentRoles = { "worker", "planner", "reviewer" };
     private static readonly Color _boardCardBaseColor = new Color(0.28f, 0.28f, 0.28f);
     private static readonly Dictionary<string, int> StatusToColumn = new(System.StringComparer.OrdinalIgnoreCase)
     {
         ["inbox"] = 0,
-        ["queue"] = 0,
-        ["plan"] = 1,
-        ["planning"] = 1,
-        ["work"] = 2,
-        ["doing"] = 2,
-        ["review"] = 2,
-        ["rework"] = 2,
-        ["done"] = 3
+        ["queue"] = 1,
+        ["plan"] = 2,
+        ["planning"] = 2,
+        ["work"] = 3,
+        ["doing"] = 3,
+        ["review"] = 4,
+        ["rework"] = 4,
+        ["done"] = 5
     };
 
     [SerializeField] private string taskStateUrl = "/api/state";
@@ -52,7 +52,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         BuildRoom();
         BuildBoard();
         BuildZones();
-        BuildAgents();
+        BuildDivisionZones();
+        BuildPixarRobots();
         BuildRuntimeNavMesh();
         BuildLighting();
         WireBackend();
@@ -121,9 +122,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         if (mainCamera == null) return;
 
         mainCamera.orthographic = false;
-        mainCamera.fieldOfView = 40f;
-        mainCamera.transform.position = new Vector3(0f, 3.5f, -7.0f);
-        mainCamera.transform.rotation = Quaternion.Euler(18.0f, 0.0f, 0.0f);
+        mainCamera.fieldOfView = 50f;
+        mainCamera.transform.position = new Vector3(0f, 2.5f, -5.5f);
+        mainCamera.transform.rotation = Quaternion.Euler(25.0f, 0.0f, 0.0f);
         mainCamera.clearFlags = CameraClearFlags.SolidColor;
         mainCamera.backgroundColor = new Color(0.08f, 0.07f, 0.06f);
         mainCamera.nearClipPlane = 0.3f;
@@ -147,7 +148,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
     private void BuildRoom()
     {
 
-        var floor = Mat(new Color(0.68f, 0.62f, 0.52f, 1f), 0.30f);
+        var floor = Mat(new Color(0.86f, 0.78f, 0.69f, 1f), 0.30f);
         Cube("Floor", new Vector3(0f, -0.05f, 3f), new Vector3(24f, 0.1f, 18f), floor);
         Cube("FloorCenterPanel", new Vector3(0f, -0.045f, 3f), new Vector3(18f, 0.02f, 13f), Mat(new Color(0.72f, 0.66f, 0.56f, 1f), 0.30f));
         Cube("FloorTileBandA", new Vector3(-4.5f, -0.043f, 3f), new Vector3(3.6f, 0.02f, 13f), Mat(new Color(0.70f, 0.64f, 0.54f, 1f), 0.30f));
@@ -329,8 +330,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         string[] columnTitles =
         {
             "INBOX",
+            "QUEUE",
             "PLAN",
-            "WORK",
+            "REVIEW",
+            "REVIEW",
             "DONE"
         };
         float columnWidth = 2.40f;
@@ -689,40 +692,409 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
 
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // DIVISION ZONES — 7 colored floor areas for agency divisions
+    // ═══════════════════════════════════════════════════════════════
+    private void BuildDivisionZones()
+    {
+        // Division zone definitions: name, position, color, label color
+        var divisions = new (string name, Vector3 pos, Color floorColor, Color labelColor)[]
+        {
+            ("ENGINEERING",   new Vector3(-6.0f, 0.015f, 4.0f),  new Color(0.15f, 0.35f, 0.65f, 0.55f), new Color(0.30f, 0.70f, 1.00f)),
+            ("DESIGN",        new Vector3( 4.5f, 0.015f, 4.5f),  new Color(0.55f, 0.20f, 0.65f, 0.55f), new Color(0.80f, 0.40f, 1.00f)),
+            ("GAME DEV",      new Vector3( 7.8f, 0.015f, 4.5f),  new Color(0.60f, 0.30f, 0.90f, 0.55f), new Color(0.75f, 0.45f, 1.00f)),
+            ("PRODUCT",       new Vector3(-4.5f, 0.015f,-2.5f),  new Color(0.85f, 0.45f, 0.10f, 0.55f), new Color(1.00f, 0.65f, 0.20f)),
+            ("MARKETING",     new Vector3( 4.5f, 0.015f,-2.5f),  new Color(0.75f, 0.30f, 0.15f, 0.55f), new Color(1.00f, 0.50f, 0.25f)),
+            ("SALES",         new Vector3(-7.0f, 0.015f,-1.5f),  new Color(0.80f, 0.65f, 0.10f, 0.55f), new Color(1.00f, 0.85f, 0.20f)),
+            ("PM",            new Vector3( 0.0f, 0.015f,-3.5f),  new Color(0.60f, 0.45f, 0.15f, 0.55f), new Color(0.90f, 0.70f, 0.30f)),
+            ("TESTING",       new Vector3( 6.5f, 0.015f, 1.5f),  new Color(0.20f, 0.60f, 0.35f, 0.55f), new Color(0.30f, 0.95f, 0.55f)),
+        };
+
+        foreach (var (name, pos, floorColor, labelColor) in divisions)
+        {
+            var root = new GameObject($"DivisionZone_{name}");
+
+            // Floor panel
+            var floor = Cube(
+                $"DivFloor_{name}",
+                pos,
+                new Vector3(3.4f, 0.02f, 3.0f),
+                Emissive(
+                    new Color(floorColor.r * 0.3f, floorColor.g * 0.3f, floorColor.b * 0.3f),
+                    floorColor,
+                    1.8f));
+            floor.transform.SetParent(root.transform, false);
+
+            // Border lines (4 thin cubes around the zone)
+            float bx = 1.72f, bz = 1.52f, bh = 0.025f, bt = 0.04f;
+            var borderMat = Emissive(
+                new Color(labelColor.r * 0.2f, labelColor.g * 0.2f, labelColor.b * 0.2f),
+                labelColor * 0.7f,
+                2.2f);
+
+            Cube($"DivBorderN_{name}", pos + new Vector3(0f, bh, bz), new Vector3(3.5f, bt, bt), borderMat).transform.SetParent(root.transform, false);
+            Cube($"DivBorderS_{name}", pos + new Vector3(0f, bh, -bz), new Vector3(3.5f, bt, bt), borderMat).transform.SetParent(root.transform, false);
+            Cube($"DivBorderE_{name}", pos + new Vector3(bx, bh, 0f), new Vector3(bt, bt, 3.1f), borderMat).transform.SetParent(root.transform, false);
+            Cube($"DivBorderW_{name}", pos + new Vector3(-bx, bh, 0f), new Vector3(bt, bt, 3.1f), borderMat).transform.SetParent(root.transform, false);
+
+            // Label (floating above zone)
+            var label = Txt(
+                $"DivLabel_{name}",
+                name,
+                pos + new Vector3(0f, 0.08f, 0f),
+                14,
+                0.18f,
+                labelColor,
+                FontStyle.Bold);
+            label.transform.SetParent(root.transform, false);
+            _labelXforms.Add(label.transform);
+        }
+    }
+
+
+    // ═══════════════════════════════════════════════════════════════
+    // PIXAR-STYLE ROBOTS — Detailed, charming, optimized for WebGL
+    // ═══════════════════════════════════════════════════════════════
+
+    private void BuildPixarRobots()
+    {
+        // 3 Pixar-style robots with unique personalities
+        // WORKER (left, blue, medium, engineering)
+        // PLANNER (center, yellow, stout, planner)
+        // REVIEWER (right, red, tall, critic)
+
+        BuildPixarRobot(
+            new Vector3(-3.20f, 0.0f, 0.50f),
+            "WORKER",
+            new RobotConfig
+            {
+                BodyColor = new Color(0.20f, 0.45f, 0.85f),    // Blue
+                AccentColor = new Color(0.15f, 0.35f, 0.70f),   // Darker blue
+                EyeColor = new Color(0.00f, 0.85f, 1.00f),      // Cyan glow
+                BodyWidth = 0.82f,
+                BodyHeight = 0.95f,
+                BodyDepth = 0.58f,
+                HeadSize = 0.52f,
+                HeadHeight = 1.60f,
+                EyeSize = 0.18f,
+                EyeSpacing = 0.14f,
+                LegLength = 0.30f,
+                ArmLength = 0.40f,
+                Scale = 0.88f,
+                AntennaStyle = 0,  // Straight
+            });
+
+        BuildPixarRobot(
+            new Vector3(0.00f, 0.0f, -1.50f),
+            "PLANNER",
+            new RobotConfig
+            {
+                BodyColor = new Color(0.95f, 0.78f, 0.15f),    // Yellow/Gold
+                AccentColor = new Color(0.80f, 0.62f, 0.10f),   // Darker gold
+                EyeColor = new Color(0.00f, 0.95f, 0.60f),      // Green-cyan
+                BodyWidth = 1.00f,
+                BodyHeight = 0.80f,
+                BodyDepth = 0.72f,
+                HeadSize = 0.58f,
+                HeadHeight = 1.48f,
+                EyeSize = 0.20f,
+                EyeSpacing = 0.16f,
+                LegLength = 0.22f,
+                ArmLength = 0.35f,
+                Scale = 0.92f,
+                AntennaStyle = 1,  // Ball-tipped
+            });
+
+        BuildPixarRobot(
+            new Vector3(3.20f, 0.0f, 0.50f),
+            "REVIEWER",
+            new RobotConfig
+            {
+                BodyColor = new Color(0.85f, 0.20f, 0.15f),    // Red
+                AccentColor = new Color(0.65f, 0.12f, 0.10f),   // Darker red
+                EyeColor = new Color(1.00f, 0.30f, 0.15f),      // Orange-red
+                BodyWidth = 0.65f,
+                BodyHeight = 1.10f,
+                BodyDepth = 0.48f,
+                HeadSize = 0.46f,
+                HeadHeight = 1.72f,
+                EyeSize = 0.16f,
+                EyeSpacing = 0.12f,
+                LegLength = 0.38f,
+                ArmLength = 0.48f,
+                Scale = 0.90f,
+                AntennaStyle = 2,  // Dish
+            });
+    }
+
+    private struct RobotConfig
+    {
+        public Color BodyColor;
+        public Color AccentColor;
+        public Color EyeColor;
+        public float BodyWidth;
+        public float BodyHeight;
+        public float BodyDepth;
+        public float HeadSize;
+        public float HeadHeight;
+        public float EyeSize;
+        public float EyeSpacing;
+        public float LegLength;
+        public float ArmLength;
+        public float Scale;
+        public int AntennaStyle;
+    }
+
+    private void BuildPixarRobot(Vector3 pos, string role, RobotConfig cfg)
+    {
+        var root = new GameObject(role);
+        root.transform.position = pos;
+        root.transform.localScale = Vector3.one * cfg.Scale;
+
+        // Pixar-style materials
+        var bodyMat = PixarMetallic(cfg.BodyColor, 0.75f, 0.88f);
+        var accentMat = PixarMetallic(cfg.AccentColor, 0.60f, 0.82f);
+        var darkMat = PixarMetallic(new Color(0.12f, 0.12f, 0.14f), 0.40f, 0.60f);
+        var eyeMat = PixarEmissive(cfg.EyeColor * 0.3f, cfg.EyeColor, 3.0f);
+        var jointMat = PixarMetallic(new Color(0.25f, 0.25f, 0.28f), 0.50f, 0.75f);
+        var detailMat = PixarMetallic(new Color(0.45f, 0.45f, 0.50f), 0.55f, 0.70f);
+        var ventMat = PixarEmissive(cfg.AccentColor * 0.2f, cfg.AccentColor * 0.5f, 1.5f);
+
+        // ── FEET (flat rounded pads) ──
+        float footY = 0.08f;
+        float legBaseY = footY + cfg.LegLength * 0.5f + 0.06f;
+        Go(root, PrimitiveType.Cube, "FootL", new Vector3(-0.14f, footY, 0.04f), new Vector3(0.22f, 0.12f, 0.30f), darkMat);
+        Go(root, PrimitiveType.Cube, "FootR", new Vector3(0.14f, footY, 0.04f), new Vector3(0.22f, 0.12f, 0.30f), darkMat);
+        // Foot pads (emissive strips)
+        Go(root, PrimitiveType.Cube, "FootPadL", new Vector3(-0.14f, footY + 0.065f, 0.04f), new Vector3(0.18f, 0.02f, 0.24f), ventMat);
+        Go(root, PrimitiveType.Cube, "FootPadR", new Vector3(0.14f, footY + 0.065f, 0.04f), new Vector3(0.18f, 0.02f, 0.24f), ventMat);
+
+        // ── LEGS (articulated capsules) ──
+        Go(root, PrimitiveType.Capsule, "LegL", new Vector3(-0.14f, legBaseY, 0f), new Vector3(0.10f, cfg.LegLength * 0.5f, 0.10f), bodyMat);
+        Go(root, PrimitiveType.Capsule, "LegR", new Vector3(0.14f, legBaseY, 0f), new Vector3(0.10f, cfg.LegLength * 0.5f, 0.10f), bodyMat);
+        // Knee joints
+        float kneeY = legBaseY + cfg.LegLength * 0.5f + 0.04f;
+        Go(root, PrimitiveType.Sphere, "KneeL", new Vector3(-0.14f, kneeY, 0f), new Vector3(0.12f, 0.12f, 0.12f), jointMat);
+        Go(root, PrimitiveType.Sphere, "KneeR", new Vector3(0.14f, kneeY, 0f), new Vector3(0.12f, 0.12f, 0.12f), jointMat);
+
+        // ── BODY (rounded capsule with panels) ──
+        float bodyBottomY = kneeY + 0.10f;
+        float bodyCenterY = bodyBottomY + cfg.BodyHeight * 0.5f;
+        Go(root, PrimitiveType.Capsule, "Body", new Vector3(0f, bodyCenterY, 0f), new Vector3(cfg.BodyWidth, cfg.BodyHeight * 0.5f, cfg.BodyDepth), bodyMat);
+
+        // Body chest panel (accent)
+        Go(root, PrimitiveType.Cube, "ChestPanel", new Vector3(0f, bodyCenterY + 0.08f, cfg.BodyDepth * 0.48f), new Vector3(cfg.BodyWidth * 0.70f, cfg.BodyHeight * 0.35f, 0.04f), accentMat);
+
+        // Chest detail: small vents (emissive)
+        for (int i = -1; i <= 1; i++)
+        {
+            Go(root, PrimitiveType.Cube, $"ChestVent_{i}",
+                new Vector3(i * 0.10f, bodyCenterY + 0.12f, cfg.BodyDepth * 0.51f),
+                new Vector3(0.06f, 0.02f, 0.02f), ventMat);
+        }
+
+        // Chest "heart" indicator (bright dot)
+        Go(root, PrimitiveType.Sphere, "ChestHeart",
+            new Vector3(0f, bodyCenterY + 0.02f, cfg.BodyDepth * 0.51f),
+            new Vector3(0.06f, 0.06f, 0.03f),
+            PixarEmissive(cfg.EyeColor * 0.5f, cfg.EyeColor, 4.0f));
+
+        // Belt/waist band
+        Go(root, PrimitiveType.Cylinder, "WaistBelt",
+            new Vector3(0f, bodyBottomY + 0.04f, 0f),
+            new Vector3(cfg.BodyWidth * 0.88f, 0.04f, cfg.BodyDepth * 0.88f), jointMat);
+
+        // Back panel detail
+        Go(root, PrimitiveType.Cube, "BackPack", new Vector3(0f, bodyCenterY + 0.06f, -cfg.BodyDepth * 0.52f),
+            new Vector3(cfg.BodyWidth * 0.55f, cfg.BodyHeight * 0.30f, 0.08f), accentMat);
+        // Backpack vents
+        for (int i = -1; i <= 1; i++)
+        {
+            Go(root, PrimitiveType.Cube, $"BackVent_{i}",
+                new Vector3(i * 0.08f, bodyCenterY + 0.10f, -cfg.BodyDepth * 0.57f),
+                new Vector3(0.04f, 0.015f, 0.02f), ventMat);
+        }
+
+        // Shoulder bolts
+        float shoulderY = bodyCenterY + cfg.BodyHeight * 0.35f;
+        Go(root, PrimitiveType.Sphere, "ShoulderBoltL", new Vector3(-cfg.BodyWidth * 0.48f, shoulderY, 0f), new Vector3(0.07f, 0.07f, 0.07f), detailMat);
+        Go(root, PrimitiveType.Sphere, "ShoulderBoltR", new Vector3(cfg.BodyWidth * 0.48f, shoulderY, 0f), new Vector3(0.07f, 0.07f, 0.07f), detailMat);
+
+        // Hip bolts
+        float hipY = bodyBottomY + 0.08f;
+        Go(root, PrimitiveType.Sphere, "HipBoltL", new Vector3(-cfg.BodyWidth * 0.38f, hipY, 0f), new Vector3(0.05f, 0.05f, 0.05f), detailMat);
+        Go(root, PrimitiveType.Sphere, "HipBoltR", new Vector3(cfg.BodyWidth * 0.38f, hipY, 0f), new Vector3(0.05f, 0.05f, 0.05f), detailMat);
+
+        // ── NECK ──
+        float neckY = bodyCenterY + cfg.BodyHeight * 0.5f + 0.06f;
+        Go(root, PrimitiveType.Cylinder, "Neck", new Vector3(0f, neckY, 0f), new Vector3(0.14f, 0.06f, 0.14f), jointMat);
+
+        // ── HEAD (sphere with face) ──
+        float headCenterY = neckY + 0.10f + cfg.HeadSize * 0.5f;
+        var head = Go(root, PrimitiveType.Sphere, "Head", new Vector3(0f, headCenterY, 0f), new Vector3(cfg.HeadSize, cfg.HeadSize * 0.92f, cfg.HeadSize * 0.95f), bodyMat);
+
+        // Face plate (darker inset)
+        Go(root, PrimitiveType.Cube, "FacePlate", new Vector3(0f, headCenterY - 0.02f, cfg.HeadSize * 0.40f), new Vector3(cfg.HeadSize * 0.72f, cfg.HeadSize * 0.52f, 0.04f), darkMat);
+
+        // ── EYES (big, round, glowing — Pixar signature!) ──
+        float eyeY = headCenterY + 0.04f;
+        var eyeL = Go(root, PrimitiveType.Sphere, "EyeL",
+            new Vector3(-cfg.EyeSpacing, eyeY, cfg.HeadSize * 0.44f),
+            new Vector3(cfg.EyeSize, cfg.EyeSize, cfg.EyeSize * 0.40f), eyeMat);
+        var eyeR = Go(root, PrimitiveType.Sphere, "EyeR",
+            new Vector3(cfg.EyeSpacing, eyeY, cfg.HeadSize * 0.44f),
+            new Vector3(cfg.EyeSize, cfg.EyeSize, cfg.EyeSize * 0.40f), eyeMat);
+
+        // Eye rims (metallic rings via thin squished spheres)
+        Go(root, PrimitiveType.Sphere, "EyeRimL",
+            new Vector3(-cfg.EyeSpacing, eyeY, cfg.HeadSize * 0.46f),
+            new Vector3(cfg.EyeSize * 1.30f, cfg.EyeSize * 1.30f, 0.04f), detailMat);
+        Go(root, PrimitiveType.Sphere, "EyeRimR",
+            new Vector3(cfg.EyeSpacing, eyeY, cfg.HeadSize * 0.46f),
+            new Vector3(cfg.EyeSize * 1.30f, cfg.EyeSize * 1.30f, 0.04f), detailMat);
+
+        // Pupils (tiny black dots)
+        Go(root, PrimitiveType.Sphere, "PupilL",
+            new Vector3(-cfg.EyeSpacing, eyeY + 0.01f, cfg.HeadSize * 0.47f),
+            new Vector3(cfg.EyeSize * 0.35f, cfg.EyeSize * 0.35f, 0.02f), darkMat);
+        Go(root, PrimitiveType.Sphere, "PupilR",
+            new Vector3(cfg.EyeSpacing, eyeY + 0.01f, cfg.HeadSize * 0.47f),
+            new Vector3(cfg.EyeSize * 0.35f, cfg.EyeSize * 0.35f, 0.02f), darkMat);
+
+        // Mouth (simple curved line via small cube)
+        Go(root, PrimitiveType.Cube, "Mouth",
+            new Vector3(0f, headCenterY - 0.08f, cfg.HeadSize * 0.44f),
+            new Vector3(0.10f, 0.025f, 0.03f), darkMat);
+
+        // ── ANTENNA ──
+        float antennaBaseY = headCenterY + cfg.HeadSize * 0.42f;
+        if (cfg.AntennaStyle == 0)
+        {
+            // Straight antenna
+            Go(root, PrimitiveType.Capsule, "Antenna", new Vector3(0f, antennaBaseY + 0.12f, 0f), new Vector3(0.03f, 0.10f, 0.03f), detailMat);
+            Go(root, PrimitiveType.Sphere, "AntennaBall", new Vector3(0f, antennaBaseY + 0.26f, 0f), new Vector3(0.06f, 0.06f, 0.06f),
+                PixarEmissive(cfg.EyeColor * 0.4f, cfg.EyeColor, 3.5f));
+        }
+        else if (cfg.AntennaStyle == 1)
+        {
+            // Ball-tipped with slight bend
+            Go(root, PrimitiveType.Capsule, "Antenna", new Vector3(0.04f, antennaBaseY + 0.10f, 0f), new Vector3(0.03f, 0.08f, 0.03f), detailMat);
+            Go(root, PrimitiveType.Sphere, "AntennaBall", new Vector3(0.06f, antennaBaseY + 0.22f, 0f), new Vector3(0.08f, 0.08f, 0.08f),
+                PixarEmissive(cfg.EyeColor * 0.4f, cfg.EyeColor, 3.5f));
+        }
+        else
+        {
+            // Dish antenna
+            Go(root, PrimitiveType.Capsule, "AntennaStem", new Vector3(0f, antennaBaseY + 0.08f, 0f), new Vector3(0.025f, 0.06f, 0.025f), detailMat);
+            Go(root, PrimitiveType.Cylinder, "AntennaDish", new Vector3(0f, antennaBaseY + 0.18f, 0f), new Vector3(0.12f, 0.02f, 0.12f),
+                PixarMetallic(cfg.AccentColor, 0.65f, 0.85f));
+        }
+
+        // ── ARMS (articulated with hands) ──
+        float armPivotY = shoulderY;
+        // Left arm
+        Go(root, PrimitiveType.Capsule, "ArmL", new Vector3(-cfg.BodyWidth * 0.58f, armPivotY - cfg.ArmLength * 0.45f, 0f), new Vector3(0.09f, cfg.ArmLength * 0.45f, 0.09f), bodyMat);
+        Go(root, PrimitiveType.Sphere, "ElbowL", new Vector3(-cfg.BodyWidth * 0.58f, armPivotY - cfg.ArmLength * 0.88f, 0f), new Vector3(0.11f, 0.11f, 0.11f), jointMat);
+        // Left hand (pincer-style)
+        float handLY = armPivotY - cfg.ArmLength - 0.06f;
+        Go(root, PrimitiveType.Sphere, "HandL", new Vector3(-cfg.BodyWidth * 0.58f, handLY, 0f), new Vector3(0.10f, 0.10f, 0.10f), accentMat);
+        // Fingers
+        Go(root, PrimitiveType.Capsule, "FingerL1", new Vector3(-cfg.BodyWidth * 0.58f - 0.04f, handLY - 0.06f, 0.03f), new Vector3(0.025f, 0.04f, 0.025f), detailMat);
+        Go(root, PrimitiveType.Capsule, "FingerL2", new Vector3(-cfg.BodyWidth * 0.58f + 0.04f, handLY - 0.06f, 0.03f), new Vector3(0.025f, 0.04f, 0.025f), detailMat);
+        Go(root, PrimitiveType.Capsule, "ThumbL", new Vector3(-cfg.BodyWidth * 0.58f, handLY - 0.04f, -0.05f), new Vector3(0.025f, 0.03f, 0.025f), detailMat);
+
+        // Right arm
+        Go(root, PrimitiveType.Capsule, "ArmR", new Vector3(cfg.BodyWidth * 0.58f, armPivotY - cfg.ArmLength * 0.45f, 0f), new Vector3(0.09f, cfg.ArmLength * 0.45f, 0.09f), bodyMat);
+        Go(root, PrimitiveType.Sphere, "ElbowR", new Vector3(cfg.BodyWidth * 0.58f, armPivotY - cfg.ArmLength * 0.88f, 0f), new Vector3(0.11f, 0.11f, 0.11f), jointMat);
+        // Right hand
+        float handRY = armPivotY - cfg.ArmLength - 0.06f;
+        Go(root, PrimitiveType.Sphere, "HandR", new Vector3(cfg.BodyWidth * 0.58f, handRY, 0f), new Vector3(0.10f, 0.10f, 0.10f), accentMat);
+        // Fingers
+        Go(root, PrimitiveType.Capsule, "FingerR1", new Vector3(cfg.BodyWidth * 0.58f - 0.04f, handRY - 0.06f, 0.03f), new Vector3(0.025f, 0.04f, 0.025f), detailMat);
+        Go(root, PrimitiveType.Capsule, "FingerR2", new Vector3(cfg.BodyWidth * 0.58f + 0.04f, handRY - 0.06f, 0.03f), new Vector3(0.025f, 0.04f, 0.025f), detailMat);
+        Go(root, PrimitiveType.Capsule, "ThumbR", new Vector3(cfg.BodyWidth * 0.58f, handRY - 0.04f, -0.05f), new Vector3(0.025f, 0.03f, 0.025f), detailMat);
+
+        // ── LABEL (floating role name) ──
+        var labelRoot = new GameObject("Label");
+        labelRoot.transform.SetParent(root.transform, false);
+        labelRoot.transform.localPosition = new Vector3(0f, cfg.HeadHeight + 0.60f, 0f);
+        labelRoot.transform.localScale = Vector3.one * 0.16f;
+        var tm = labelRoot.AddComponent<TextMesh>();
+        tm.text = role;
+        tm.fontSize = 30;
+        tm.characterSize = 0.16f;
+        tm.color = Color.white;
+        tm.anchor = TextAnchor.MiddleCenter;
+        tm.alignment = TextAlignment.Center;
+        tm.fontStyle = FontStyle.Bold;
+
+        _labelXforms.Add(labelRoot.transform);
+        _agentHeads.Add(head.transform);
+        var eyeRenderer = eyeL.GetComponent<Renderer>();
+        _agentEyeRenderers.Add(eyeRenderer);
+        _agentEyeBaseColors.Add(cfg.EyeColor);
+        _agentWorkBlend.Add(0f);
+        _agentWorkingTarget.Add(false);
+        _agents.Add(root);
+        _agentIdle.Add(pos);
+    }
+
+    // Pixar-style material: metallic with high smoothness
+    private static Material PixarMetallic(Color c, float metallic, float smoothness)
+    {
+        var shader = Shader.Find("Universal Render Pipeline/Lit") ??
+                     Shader.Find("Standard") ??
+                     Shader.Find("Sprites/Default");
+        var m = new Material(shader);
+        m.color = c;
+        if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", c);
+        if (m.HasProperty("_Metallic")) m.SetFloat("_Metallic", metallic);
+        if (m.HasProperty("_Smoothness")) m.SetFloat("_Smoothness", smoothness);
+        return m;
+    }
+
+    // Pixar-style emissive material for eyes and lights
+    private static Material PixarEmissive(Color baseColor, Color emit, float intensity)
+    {
+        var shader = Shader.Find("Universal Render Pipeline/Lit") ??
+                     Shader.Find("Standard") ??
+                     Shader.Find("Sprites/Default");
+        var m = new Material(shader);
+        var col = Color.Lerp(baseColor, emit, 0.5f);
+        m.color = col;
+        if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", col);
+        if (m.HasProperty("_EmissionColor"))
+        {
+            m.EnableKeyword("_EMISSION");
+            m.SetColor("_EmissionColor", emit * Mathf.Max(1f, intensity));
+        }
+        if (m.HasProperty("_Metallic")) m.SetFloat("_Metallic", 0.1f);
+        if (m.HasProperty("_Smoothness")) m.SetFloat("_Smoothness", 0.6f);
+        return m;
+    }
 
     private void BuildAgents()
     {
-        // 5-agent system: CHIEF (center-back, gold), PLANNER (left, orange),
-        // WORKER (left-front, blue), REVIEWER (right-front, yellow), BUILDER (right, green)
+        // 3 robots matching reference: white bodies, cyan eyes
+        // WORKER (left), PLANNER (center), REVIEWER (right)
+        Color cyanEyes = new Color(0f, 0.71f, 1.00f, 1f); // RGB(0,180,255)
 
         BuildAgent(
-            new Vector3(0.00f, 0.0f, -1.20f),
-            "CHIEF",
-            new Color(1.00f, 0.84f, 0.00f, 1f),
-            0f);
-
-        BuildAgent(
-            new Vector3(-3.80f, 0.0f, 0.05f),
-            "PLANNER",
-            new Color(1.00f, 0.55f, 0.15f, 1f),
-            0f);
-
-        BuildAgent(
-            new Vector3(-1.50f, 0.0f, 0.40f),
+            new Vector3(-3.20f, 0.0f, 0.50f),
             "WORKER",
-            new Color(0.20f, 0.60f, 1.00f, 1f),
+            cyanEyes,
             0f);
 
         BuildAgent(
-            new Vector3(1.50f, 0.0f, 0.40f),
+            new Vector3(0.00f, 0.0f, -1.50f),
+            "PLANNER",
+            cyanEyes,
+            0f);
+
+        BuildAgent(
+            new Vector3(3.20f, 0.0f, 0.50f),
             "REVIEWER",
-            new Color(0.90f, 0.85f, 0.20f, 1f),
-            0f);
-
-        BuildAgent(
-            new Vector3(3.80f, 0.0f, 0.05f),
-            "BUILDER",
-            new Color(0.20f, 1.00f, 0.40f, 1f),
+            cyanEyes,
             0f);
     }
 
@@ -734,7 +1106,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         root.transform.localScale = new Vector3(0.88f, 0.88f, 0.88f);
 
         // Tint body slightly toward eye color for role recognition
-        Color body = Color.Lerp(new Color(0.85f, 0.85f, 0.88f), eyeCol, 0.35f);
+        Color body = new Color(0.90f, 0.90f, 0.90f);
         Color dark = new Color(0.10f, 0.10f, 0.12f);
 
         Go(root, PrimitiveType.Cylinder, "Base", new Vector3(0f, 0.16f, 0f), new Vector3(0.6f, 0.10f, 0.6f), Mat(dark));
@@ -778,7 +1150,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             0.92f,
             0.78f,
             1.00f);
-        RenderSettings.ambientIntensity = 1.2f;
+        RenderSettings.ambientIntensity = 1.5f;
         RenderSettings.fog = false;
 
         var def = GameObject.Find("Directional Light");
