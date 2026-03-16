@@ -11,7 +11,7 @@ if [ -n "$DIVISION" ]; then
     DIV_DIR="$AGENCY_DIR/$DIVISION"
     if [ ! -d "$DIV_DIR" ]; then
         echo "❌ Division '$DIVISION' not found."
-        echo "Available: academic design engineering game-development marketing paid-media product project-management sales testing"
+        echo "Available: design engineering game-development marketing paid-media product project-management sales testing"
         exit 1
     fi
     
@@ -44,7 +44,7 @@ else
     echo ""
     
     total=0
-    for div in academic design engineering game-development marketing paid-media product project-management sales testing; do
+    for div in design engineering game-development marketing paid-media product project-management sales testing; do
         DIV_DIR="$AGENCY_DIR/$div"
         [ -d "$DIV_DIR" ] || continue
         
@@ -52,7 +52,6 @@ else
         total=$((total + count))
         
         case $div in
-            academic) emoji="🎓" ;;
             design) emoji="🎨" ;;
             engineering) emoji="⚙️" ;;
             game-development) emoji="🎮" ;;
@@ -70,8 +69,8 @@ else
     
     echo ""
     echo "---"
-    echo "🤖 **Total: $total agents** across 10 divisions"
+    echo "🤖 **Total: $total agents** across 9 divisions"
     echo ""
     echo "Use: \`agents_list.sh <division>\` for details"
-    echo "Divisions: academic | design | engineering | game-development | marketing | paid-media | product | project-management | sales | testing"
+    echo "Divisions: design | engineering | game-development | marketing | paid-media | product | project-management | sales | testing"
 fi

@@ -1,4 +1,4 @@
-# Agency-Agents → OfficeBot Mapping (117 agents)
+# Agency-Agents → OfficeBot Mapping (112 agents)
 > Complete 1:1 mapping of all agency-agents to OfficeBot Unity system
 > Source: https://github.com/msitarzewski/agency-agents (MIT)
 > Last updated: 2026-03-16
@@ -24,7 +24,6 @@
 | Sales | SALES | Gold | CHIEF | `sales` | Direct to Anton |
 | Project Management | PM | Brown-Orange | PLANNER | `pm` | → CHIEF |
 | Testing | TESTING | Green | REVIEWER | `testing` | → WORKER → CHIEF |
-| Academic | PRODUCT (shared) | Orange | PLANNER | `academic` | → CHIEF |
 | Paid Media | PRODUCT (shared) | Orange | PLANNER | `paid-media` | → CHIEF |
 | Game Dev | GAME DEV | Purple | WORKER | `game-dev` | → REVIEWER → CHIEF |
 
@@ -162,16 +161,6 @@
 | 96 | `marketing-xiaohongshu-specialist` | Xiaohongshu (RED) marketing | `xiaohongshu`, `red` | INTEGRATION.md |
 | 97 | `marketing-zhihu-strategist` | Zhihu content strategy | `zhihu`, `china-qa` | INTEGRATION.md |
 
-### 🟠 PLANNER Robot — Academic (5 agents)
-
-| # | Agent | Specialization | Tags | Integration |
-|---|-------|---------------|------|-------------|
-| 98 | `academic-anthropologist` | Cultural analysis, user behavior patterns | `research`, `culture` | INTEGRATION.md |
-| 99 | `academic-geographer` | Spatial analysis, location intelligence | `location`, `spatial` | INTEGRATION.md |
-| 100 | `academic-historian` | Historical context, precedent research | `history`, `context` | INTEGRATION.md |
-| 101 | `academic-narratologist` | Story structure, narrative design | `story`, `narrative` | INTEGRATION.md |
-| 102 | `academic-psychologist` | User psychology, behavioral design | `psychology`, `ux-research` | INTEGRATION.md |
-
 ### 🟠 PLANNER Robot — Paid Media (7 agents)
 
 | # | Agent | Specialization | Tags | Integration |
@@ -202,11 +191,11 @@
 | Robot | Agents | Divisions Covered | Percentage |
 |-------|--------|-------------------|------------|
 | ⚪ CHIEF | 8 (+ orchestration) | Sales | 6.8% |
-| 🟠 PLANNER | 56 | Product, PM, Marketing, Academic, Paid Media | 47.9% |
+| 🟠 PLANNER | 51 | Product, PM, Marketing, Paid Media | 45.5% |
 | 🔵 WORKER | 43 | Engineering, Game Development | 36.8% |
 | 🟡 REVIEWER | 16 | Design, Testing | 13.7% |
 | 🟢 BUILDER | 0 (shared from Engineering) | DevOps/SRE via WORKER | 0% (embedded) |
-| **TOTAL** | **117** | **10 divisions** | **100%** |
+| **TOTAL** | **112** | **9 divisions** | **100%** |
 
 ## Telegram Command Reference
 
