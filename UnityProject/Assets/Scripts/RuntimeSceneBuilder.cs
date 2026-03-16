@@ -121,9 +121,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         if (mainCamera == null) return;
 
         mainCamera.orthographic = false;
-        mainCamera.fieldOfView = 35f;
-        mainCamera.transform.position = new Vector3(0f, 8.85f, -8.30f);
-        mainCamera.transform.rotation = Quaternion.Euler(43.0f, 0.0f, 0.0f);
+        mainCamera.fieldOfView = 40f;
+        mainCamera.transform.position = new Vector3(0f, 3.5f, -7.0f);
+        mainCamera.transform.rotation = Quaternion.Euler(18.0f, 0.0f, 0.0f);
         mainCamera.clearFlags = CameraClearFlags.SolidColor;
         mainCamera.backgroundColor = new Color(0.08f, 0.07f, 0.06f);
         mainCamera.nearClipPlane = 0.3f;
@@ -156,15 +156,15 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         var pathAmber = Emissive(
             new Color(0.38f, 0.2f, 0.04f),
             new Color(1.00f, 0.56f, 0.10f, 1f),
-            3.4f);
+            8.0f);
         var pathBlue = Emissive(
             new Color(0.12f, 0.20f, 0.35f),
             new Color(0.31f, 0.75f, 1.00f, 1f),
-            3.4f);
+            8.0f);
         var pathGreen = Emissive(
             new Color(0.08f, 0.25f, 0.14f),
             new Color(0.20f, 1.00f, 0.74f, 1f),
-            3.4f);
+            8.0f);
 
         float dotStep = 0.42f;
         Vector3 dotScale = new Vector3(
@@ -239,7 +239,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         var pathDesk = Emissive(
             new Color(0.40f, 0.20f, 0.05f),
             new Color(1.00f, 0.62f, 0.18f, 1f),
-            3.4f);
+            8.0f);
         for (int i = 0; i < 16; i++)
         {
             float angle = (Mathf.PI * 2f * i) / 16f;
@@ -265,7 +265,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         var pathYellow = Emissive(
             new Color(0.45f, 0.32f, 0.08f),
             new Color(1.00f, 0.82f, 0.22f, 1f),
-            1.8f
+            8.0f
         );
         PathDots(
             "PathRoom2LinkDot_",
@@ -298,7 +298,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         Vector3 taskBoardPos = new Vector3(
             0.00f,
             2.70f,
-            8.82f);
+            8.50f);
         Vector3 taskBoardScale = new Vector3(
             10.90f,
             3.45f,
@@ -733,7 +733,8 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         root.transform.rotation = Quaternion.Euler(0f, rotY, 0f);
         root.transform.localScale = new Vector3(0.88f, 0.88f, 0.88f);
 
-        Color body = new Color(0.85f, 0.85f, 0.88f);
+        // Tint body slightly toward eye color for role recognition
+        Color body = Color.Lerp(new Color(0.85f, 0.85f, 0.88f), eyeCol, 0.35f);
         Color dark = new Color(0.10f, 0.10f, 0.12f);
 
         Go(root, PrimitiveType.Cylinder, "Base", new Vector3(0f, 0.16f, 0f), new Vector3(0.6f, 0.10f, 0.6f), Mat(dark));
@@ -777,6 +778,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             0.92f,
             0.78f,
             1.00f);
+        RenderSettings.ambientIntensity = 1.2f;
         RenderSettings.fog = false;
 
         var def = GameObject.Find("Directional Light");
@@ -789,8 +791,15 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
             "WarmKey",
             new Vector3(0.00f, 5.40f, 0.80f),
             new Color(1.00f, 0.70f, 0.38f, 1.00f),
-            8.60f,
+            10.00f,
             26.00f);
+
+        CreatePointLight(
+            "FillLight",
+            new Vector3(-5.00f, 4.80f, 1.00f),
+            new Color(0.80f, 0.85f, 1.00f, 1.00f),
+            6.00f,
+            22.00f);
 
         CreatePointLight(
             "DeskLight",
