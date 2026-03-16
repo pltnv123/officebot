@@ -225,3 +225,9 @@
 - Screenshot: `node scripts/screenshot.js`
 - Healthcheck: `bash scripts/ops/office_healthcheck.sh`
 - CI status: `cd office && gh run list --limit 3`
+
+## Academic (restored — UX psychology only)
+
+| # | Agent | OfficeBot Role | Robot | Zone | Telegram |
+|---|-------|---------------|-------|------|----------|
+| 113 | academic-psychologist | REVIEWER/psych | REVIEWER | DESIGN / Purple | reviewer |
