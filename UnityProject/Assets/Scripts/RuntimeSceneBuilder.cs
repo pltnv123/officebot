@@ -1113,10 +1113,10 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         {
             var plant = new GameObject(name);
             plant.transform.position = pos;
-            Go(plant, name + "_Pot", Vector3.zero, new Vector3(0.3f, 0.25f, 0.3f), potMat);
-            Go(plant, name + "_Leaf1", new Vector3(0f, 0.3f, 0f), new Vector3(0.4f, 0.35f, 0.4f), plantGreen);
-            Go(plant, name + "_Leaf2", new Vector3(0.15f, 0.45f, 0.1f), new Vector3(0.3f, 0.28f, 0.3f), plantGreen);
-            Go(plant, name + "_Leaf3", new Vector3(-0.12f, 0.40f, -0.08f), new Vector3(0.25f, 0.25f, 0.25f), plantGreen);
+            Go(plant, PrimitiveType.Cylinder, name + "_Pot", Vector3.zero, new Vector3(0.3f, 0.25f, 0.3f), potMat);
+            Go(plant, PrimitiveType.Sphere, name + "_Leaf1", new Vector3(0f, 0.3f, 0f), new Vector3(0.4f, 0.35f, 0.4f), plantGreen);
+            Go(plant, PrimitiveType.Sphere, name + "_Leaf2", new Vector3(0.15f, 0.45f, 0.1f), new Vector3(0.3f, 0.28f, 0.3f), plantGreen);
+            Go(plant, PrimitiveType.Sphere, name + "_Leaf3", new Vector3(-0.12f, 0.40f, -0.08f), new Vector3(0.25f, 0.25f, 0.25f), plantGreen);
         }
         MakePlant("Plant1", new Vector3(-5.5f, 0f, 5.0f));
         MakePlant("Plant2", new Vector3(5.5f, 0f, 5.0f));
@@ -1128,9 +1128,9 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         {
             var chair = new GameObject(name);
             chair.transform.position = pos;
-            Go(chair, name + "_Seat", Vector3.zero, new Vector3(0.5f, 0.08f, 0.5f), metalMat);
-            Go(chair, name + "_Back", new Vector3(0f, 0.35f, -0.22f), new Vector3(0.5f, 0.6f, 0.06f), metalMat);
-            Go(chair, name + "_Leg", new Vector3(0f, -0.25f, 0f), new Vector3(0.06f, 0.4f, 0.06f), metalMat);
+            Go(chair, PrimitiveType.Cube, name + "_Seat", Vector3.zero, new Vector3(0.5f, 0.08f, 0.5f), metalMat);
+            Go(chair, PrimitiveType.Cube, name + "_Back", new Vector3(0f, 0.35f, -0.22f), new Vector3(0.5f, 0.6f, 0.06f), metalMat);
+            Go(chair, PrimitiveType.Cylinder, name + "_Leg", new Vector3(0f, -0.25f, 0f), new Vector3(0.06f, 0.4f, 0.06f), metalMat);
         }
         MakeChair("ChairWorker", new Vector3(-3.2f, 0.45f, 0.2f));
         MakeChair("ChairPlanner", new Vector3(0.0f, 0.45f, -1.8f));
