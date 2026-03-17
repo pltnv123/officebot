@@ -1,0 +1,8 @@
+# Telegram Bot
+python-telegram-bot>=20.0
+
+# HTTP Client
+aiohttp>=3.8.0
+
+# Database (built-in)
+# sqlite3
