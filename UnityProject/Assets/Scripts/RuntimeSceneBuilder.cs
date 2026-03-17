@@ -1111,11 +1111,12 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         // === PLANTS (corners) ===
         void MakePlant(string name, Vector3 pos)
         {
-            var pot = Go(GameObject.CreatePrimitive(PrimitiveType.Cylinder), name + "_Pot", pos, new Vector3(0.3f, 0.25f, 0.3f), potMat);
-            // Plant leaves (spheres)
-            Go(pot, name + "_Leaf1", new Vector3(0f, 0.4f, 0f), new Vector3(0.4f, 0.35f, 0.4f), plantGreen);
-            Go(pot, name + "_Leaf2", new Vector3(0.15f, 0.55f, 0.1f), new Vector3(0.3f, 0.28f, 0.3f), plantGreen);
-            Go(pot, name + "_Leaf3", new Vector3(-0.12f, 0.50f, -0.08f), new Vector3(0.25f, 0.25f, 0.25f), plantGreen);
+            var plant = new GameObject(name);
+            plant.transform.position = pos;
+            Go(plant, name + "_Pot", Vector3.zero, new Vector3(0.3f, 0.25f, 0.3f), potMat);
+            Go(plant, name + "_Leaf1", new Vector3(0f, 0.3f, 0f), new Vector3(0.4f, 0.35f, 0.4f), plantGreen);
+            Go(plant, name + "_Leaf2", new Vector3(0.15f, 0.45f, 0.1f), new Vector3(0.3f, 0.28f, 0.3f), plantGreen);
+            Go(plant, name + "_Leaf3", new Vector3(-0.12f, 0.40f, -0.08f), new Vector3(0.25f, 0.25f, 0.25f), plantGreen);
         }
         MakePlant("Plant1", new Vector3(-5.5f, 0f, 5.0f));
         MakePlant("Plant2", new Vector3(5.5f, 0f, 5.0f));
