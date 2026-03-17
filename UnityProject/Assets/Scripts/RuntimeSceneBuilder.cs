@@ -54,6 +54,7 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         BuildZones();
         BuildDivisionZones();
         BuildPixarRobots();
+        BuildEnvironment();
         BuildRuntimeNavMesh();
         BuildLighting();
         WireBackend();
@@ -1071,6 +1072,72 @@ public sealed class RuntimeSceneBuilder : MonoBehaviour
         if (m.HasProperty("_Metallic")) m.SetFloat("_Metallic", 0.1f);
         if (m.HasProperty("_Smoothness")) m.SetFloat("_Smoothness", 0.6f);
         return m;
+    }
+
+    // Build office environment: desks, plants, screens, decorations
+    private void BuildEnvironment()
+    {
+        var woodMat = Mat(new Color(0.55f, 0.35f, 0.20f), 0.30f);
+        var metalMat = Mat(new Color(0.60f, 0.60f, 0.65f), 0.80f);
+        var screenMat = Emissive(new Color(0.1f, 0.1f, 0.15f), new Color(0.2f, 0.5f, 1.0f), 1.5f);
+        var plantGreen = Mat(new Color(0.20f, 0.55f, 0.25f), 0.10f);
+        var potMat = Mat(new Color(0.60f, 0.45f, 0.30f), 0.20f);
+        var glassMat = Mat(new Color(0.85f, 0.92f, 0.95f, 0.4f), 0.10f);
+
+        // === DESKS for each robot ===
+        // Worker desk (left)
+        Cube("DeskWorker", new Vector3(-3.2f, 0.45f, -0.8f), new Vector3(1.8f, 0.08f, 0.9f), woodMat);
+        Cube("DeskWorkerLeg1", new Vector3(-3.9f, 0.22f, -1.1f), new Vector3(0.08f, 0.44f, 0.08f), metalMat);
+        Cube("DeskWorkerLeg2", new Vector3(-2.5f, 0.22f, -1.1f), new Vector3(0.08f, 0.44f, 0.08f), metalMat);
+        Cube("DeskWorkerLeg3", new Vector3(-3.9f, 0.22f, -0.5f), new Vector3(0.08f, 0.44f, 0.08f), metalMat);
+        Cube("DeskWorkerLeg4", new Vector3(-2.5f, 0.22f, -0.5f), new Vector3(0.08f, 0.44f, 0.08f), metalMat);
+        // Screen on desk
+        Cube("ScreenWorker", new Vector3(-3.2f, 0.95f, -1.1f), new Vector3(1.2f, 0.7f, 0.05f), screenMat);
+
+        // Planner desk (center)
+        Cube("DeskPlanner", new Vector3(0.0f, 0.45f, -2.8f), new Vector3(2.2f, 0.08f, 1.0f), woodMat);
+        Cube("DeskPlannerLeg1", new Vector3(-1.0f, 0.22f, -3.2f), new Vector3(0.08f, 0.44f, 0.08f), metalMat);
+        Cube("DeskPlannerLeg2", new Vector3(1.0f, 0.22f, -3.2f), new Vector3(0.08f, 0.44f, 0.08f), metalMat);
+        // Screen on desk (wider)
+        Cube("ScreenPlanner", new Vector3(0.0f, 0.95f, -3.2f), new Vector3(1.6f, 0.8f, 0.05f), screenMat);
+
+        // Reviewer desk (right)
+        Cube("DeskReviewer", new Vector3(3.2f, 0.45f, -0.8f), new Vector3(1.6f, 0.08f, 0.8f), woodMat);
+        Cube("DeskReviewerLeg1", new Vector3(2.5f, 0.22f, -1.1f), new Vector3(0.08f, 0.44f, 0.08f), metalMat);
+        Cube("DeskReviewerLeg2", new Vector3(3.9f, 0.22f, -1.1f), new Vector3(0.08f, 0.44f, 0.08f), metalMat);
+        // Screen on desk
+        Cube("ScreenReviewer", new Vector3(3.2f, 0.95f, -1.1f), new Vector3(1.0f, 0.65f, 0.05f), screenMat);
+
+        // === PLANTS (corners) ===
+        void MakePlant(string name, Vector3 pos)
+        {
+            var pot = Go(GameObject.CreatePrimitive(PrimitiveType.Cylinder), name + "_Pot", pos, new Vector3(0.3f, 0.25f, 0.3f), potMat);
+            // Plant leaves (spheres)
+            Go(pot, name + "_Leaf1", new Vector3(0f, 0.4f, 0f), new Vector3(0.4f, 0.35f, 0.4f), plantGreen);
+            Go(pot, name + "_Leaf2", new Vector3(0.15f, 0.55f, 0.1f), new Vector3(0.3f, 0.28f, 0.3f), plantGreen);
+            Go(pot, name + "_Leaf3", new Vector3(-0.12f, 0.50f, -0.08f), new Vector3(0.25f, 0.25f, 0.25f), plantGreen);
+        }
+        MakePlant("Plant1", new Vector3(-5.5f, 0f, 5.0f));
+        MakePlant("Plant2", new Vector3(5.5f, 0f, 5.0f));
+        MakePlant("Plant3", new Vector3(-5.5f, 0f, -4.0f));
+        MakePlant("Plant4", new Vector3(5.5f, 0f, -4.0f));
+
+        // === CHAIRS (simple) ===
+        void MakeChair(string name, Vector3 pos)
+        {
+            var chair = new GameObject(name);
+            chair.transform.position = pos;
+            Go(chair, name + "_Seat", Vector3.zero, new Vector3(0.5f, 0.08f, 0.5f), metalMat);
+            Go(chair, name + "_Back", new Vector3(0f, 0.35f, -0.22f), new Vector3(0.5f, 0.6f, 0.06f), metalMat);
+            Go(chair, name + "_Leg", new Vector3(0f, -0.25f, 0f), new Vector3(0.06f, 0.4f, 0.06f), metalMat);
+        }
+        MakeChair("ChairWorker", new Vector3(-3.2f, 0.45f, 0.2f));
+        MakeChair("ChairPlanner", new Vector3(0.0f, 0.45f, -1.8f));
+        MakeChair("ChairReviewer", new Vector3(3.2f, 0.45f, 0.2f));
+
+        // === DECORATIVE PANELS on walls ===
+        Cube("WallPanelLeft", new Vector3(-8.0f, 2.5f, 0f), new Vector3(0.1f, 2.0f, 4.0f), glassMat);
+        Cube("WallPanelRight", new Vector3(8.0f, 2.5f, 0f), new Vector3(0.1f, 2.0f, 4.0f), glassMat);
     }
 
     private void BuildAgents()
