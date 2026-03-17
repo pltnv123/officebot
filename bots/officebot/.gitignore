@@ -1,0 +1,6 @@
+# OfficeBot
+__pycache__/
+*.pyc
+*.db
+*.log
+*.pid
