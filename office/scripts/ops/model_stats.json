@@ -1,0 +1,11 @@
+{
+  "date": "2026-03-17",
+  "models": {
+    "openai-codex:default": {"requests": 0, "errors": 0, "last_used": null},
+    "openai-codex:account2": {"requests": 0, "errors": 0, "last_used": null},
+    "openrouter/hunter-alpha": {"requests": 0, "errors": 0, "last_used": null},
+    "openrouter/free": {"requests": 0, "errors": 0, "last_used": null}
+  },
+  "response_times": [],
+  "errors": []
+}
