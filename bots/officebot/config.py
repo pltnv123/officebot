@@ -7,7 +7,7 @@ import os
 # ─── Telegram Bot Token ───
 BOT_TOKEN = os.getenv(
     "OFFICEBOT_TOKEN",
-    "8642936151:AAFvKt0MY3XAlYst6SP6ek5REaul8D_JgUs"
+    "8240980129:AAGKefo5bd2wgHWiDdic1Sk-Kzjx-N9f3p4"
 )
 
 # ─── OpenRouter API ───

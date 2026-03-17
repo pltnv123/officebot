@@ -1,0 +1,13 @@
+# Instagram Bot для Platonov.AI
+
+# Основные зависимости
+Pillow>=10.0.0          # Генерация изображений
+requests>=2.31.0        # HTTP запросы
+
+# Instagram API (раскомментировать для реального использования)
+# instagrapi>=1.19.0    # Instagram Private API
+# instaloader>=4.10     # Instagram Loader
+
+# Опционально
+# python-dotenv>=1.0.0  # Переменные окружения из .env
+# schedule>=1.2.0       # Планировщик задач
