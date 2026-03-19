@@ -21,7 +21,7 @@ PluginImporter:
     isReadOnly: false
   - name: WebGL
     settings:
-      { }
+      enabled: 1
     isReadOnly: false
   - name: XboxOne
     settings: { }
