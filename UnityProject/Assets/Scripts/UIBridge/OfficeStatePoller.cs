@@ -56,5 +56,24 @@ namespace OfficeHub.UIBridge
                 yield return new WaitForSeconds(pollIntervalSeconds);
             }
         }
+
+        public void SetPollingEnabled(bool enabled)
+        {
+            if (enabled)
+            {
+                if (isActiveAndEnabled && _pollRoutine == null)
+                {
+                    _pollRoutine = StartCoroutine(PollLoop());
+                }
+            }
+            else
+            {
+                if (_pollRoutine != null)
+                {
+                    StopCoroutine(_pollRoutine);
+                    _pollRoutine = null;
+                }
+            }
+        }
     }
 }

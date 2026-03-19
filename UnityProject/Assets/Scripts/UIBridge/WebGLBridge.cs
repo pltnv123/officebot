@@ -43,5 +43,19 @@ namespace OfficeHub.UIBridge
                 Debug.LogWarning($"WebGLBridge.OnStateJson parse failed: {ex.Message}");
             }
         }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        public static extern void WebSocketSetTarget(string target);
+
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        public static extern void WebSocketConnect(string url);
+
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        public static extern void WebSocketClose();
+
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        public static extern int WebSocketIsConnected();
+#endif
     }
 }
