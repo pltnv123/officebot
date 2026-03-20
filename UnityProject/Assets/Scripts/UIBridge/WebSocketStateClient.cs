@@ -203,11 +203,14 @@ namespace OfficeHub.UIBridge
                     {
                         if (child.name.ToLower().Contains("eye"))
                         {
-                            var mat = new Material(Shader.Find("Standard"));
-                            mat.EnableKeyword("_EMISSION");
-                            mat.SetColor("_EmissionColor", new Color(0.2f, 0.9f, 1.0f));
-                            mat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
-                            child.GetComponent<Renderer>().material = mat;
+                            var childRend = child.GetComponent<Renderer>();
+                            if (childRend != null)
+                            {
+                                var mat = new Material(Shader.Find("Standard"));
+                                mat.EnableKeyword("_EMISSION");
+                                mat.SetColor("_EmissionColor", new Color(0.2f, 0.9f, 1.0f));
+                                childRend.material = mat;
+                            }
                             break;
                         }
                     }

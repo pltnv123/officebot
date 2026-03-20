@@ -21,6 +21,6 @@ public class ZoneGlowPulse : MonoBehaviour
         float t = (Mathf.Sin(Time.time * pulseSpeed) + 1f) / 2f;
         float intensity = Mathf.Lerp(minIntensity, maxIntensity, t);
         _mat.SetColor("_EmissionColor", baseColor * intensity);
-        DynamicGI.SetEmissive(GetComponent<Renderer>(), _mat.GetColor("_EmissionColor"));
+        // DynamicGI.SetEmissive may not be supported on all platforms; skip
     }
 }
