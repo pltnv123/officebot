@@ -35,6 +35,8 @@ namespace OfficeHub.UIBridge
 
             if (store == null) store = FindObjectOfType<OfficeStateStore>();
             if (poller == null) poller = GetComponent<OfficeStatePoller>();
+
+            ConfigureWarmLighting();
         }
 
         private void OnEnable()
@@ -167,6 +169,71 @@ namespace OfficeHub.UIBridge
                 Debug.LogWarning($"[WebSocketStateClient] {message}");
                 _lastWarningTime = now;
             }
+        }
+
+        private void ConfigureWarmLighting()
+        {
+            // Set warm orange ambient to match reference
+            RenderSettings.ambientLight = new Color(1.0f, 0.88f, 0.65f);
+            RenderSettings.ambientMode = AmbientMode.Trilight;
+            // Add a warm directional light for consistency
+            var lightGO = new GameObject("WarmDirectional");
+            var light = lightGO.AddComponent<Light>();
+            light.type = LightType.Directional;
+            light.color = new Color(1.0f, 0.9f, 0.7f);
+            light.intensity = 0.6f;
+            light.shadows = LightShadows.Soft;
+            light.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
+
+            // Start camera cruise if present
+            var cam = Camera.main;
+            if (cam != null && cam.GetComponent<CameraCruise>() == null)
+                cam.gameObject.AddComponent<CameraCruise>();
+
+            // Add emissive eye effects to agents
+            foreach (var rend in FindObjectsOfType<Renderer>())
+            {
+                var name = rend.gameObject.name.ToLower();
+                if (name.Contains("worker") || name.Contains("planner") || name.Contains("reviewer"))
+                {
+                    foreach (Transform child in rend.transform)
+                    {
+                        if (child.name.ToLower().Contains("eye"))
+                        {
+                            var mat = new Material(Shader.Find("Standard"));
+                            mat.EnableKeyword("_EMISSION");
+                            mat.SetColor("_EmissionColor", new Color(0.2f, 0.9f, 1.0f));
+                            mat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
+                            child.GetComponent<Renderer>().material = mat;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Create dispatch zone glow (orange, pulsing)
+            var dispatchGlow = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            dispatchGlow.name = "DispatchGlow";
+            dispatchGlow.transform.position = new Vector3(-1.5f, 0.1f, 2.5f);
+            dispatchGlow.transform.rotation = Quaternion.Euler(90f, 0, 0);
+            dispatchGlow.transform.localScale = new Vector3(2f, 2f, 1f);
+            var dispatchMat = new Material(Shader.Find("Standard"));
+            dispatchMat.EnableKeyword("_EMISSION");
+            dispatchMat.SetColor("_EmissionColor", new Color(1f, 0.6f, 0.2f));
+            dispatchGlow.GetComponent<Renderer>().material = dispatchMat;
+            dispatchGlow.AddComponent<ZoneGlowPulse>().baseColor = new Color(1f, 0.6f, 0.2f);
+
+            // Create monitoring zone glow (green, stable pulse)
+            var monitorGlow = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            monitorGlow.name = "MonitorGlow";
+            monitorGlow.transform.position = new Vector3(4f, 0.1f, 2.5f);
+            monitorGlow.transform.rotation = Quaternion.Euler(90f, 0, 0);
+            monitorGlow.transform.localScale = new Vector3(2f, 2f, 1f);
+            var monitorMat = new Material(Shader.Find("Standard"));
+            monitorMat.EnableKeyword("_EMISSION");
+            monitorMat.SetColor("_EmissionColor", new Color(0.2f, 1.0f, 0.4f));
+            monitorGlow.GetComponent<Renderer>().material = monitorMat;
+            monitorGlow.AddComponent<ZoneGlowPulse>().baseColor = new Color(0.2f, 1.0f, 0.4f);
         }
 
         private class MessageWrapper
