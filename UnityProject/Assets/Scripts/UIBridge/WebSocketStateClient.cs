@@ -35,7 +35,10 @@ namespace OfficeHub.UIBridge
 
             if (store == null) store = FindObjectOfType<OfficeStateStore>();
             if (poller == null) poller = GetComponent<OfficeStatePoller>();
+        }
 
+        private void Start()
+        {
             ConfigureWarmLighting();
         }
 
