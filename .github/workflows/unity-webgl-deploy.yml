@@ -150,6 +150,25 @@ jobs:
           echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+      - name: Backup current production
+        run: |
+          set -euo pipefail
+          echo "Creating backup..."
+          TIMESTAMP=$(date +%s)
+          BACKUP_DIR="/var/www/office_backups"
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p $BACKUP_DIR"
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "tar -czf $BACKUP_DIR/backup_$TIMESTAMP.tar.gz -C / var/www/office"
+          echo "Backup created: $BACKUP_DIR/backup_$TIMESTAMP.tar.gz"
+      - name: Prune old backups
+        run: |
+          set -euo pipefail
+          echo "Pruning old backups (keeping latest 10)..."
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} '
+            BACKUP_DIR="/var/www/office_backups"
+            cd "$BACKUP_DIR"
+            ls -t backup_*.tar.gz 2>/dev/null | tail -n +11 | xargs -r rm -f
+            echo "Pruned old backups"
+          '
       - name: Deploy Build
         run: |
           set -euo pipefail
@@ -180,8 +199,20 @@ jobs:
           if [ -n "$TPL_SRC" ]; then
             rsync $RSYNC_FLAGS "$TPL_SRC/" ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/office/TemplateData/
           fi
-      - name: Smoke check
+      - name: Health check
         run: |
-          curl -fsS "http://${{ secrets.VPS_HOST }}/office/index.html" >/dev/null
-          echo "Deploy smoke-check passed"
+          set -euo pipefail
+          echo "Checking health endpoint..."
+          RESPONSE=$(curl -fsS "http://${{ secrets.VPS_HOST }}/healthz")
+          echo "Health response: $RESPONSE"
+          echo "$RESPONSE" | grep -q '"status":"ok"'
+      - name: Rollback on health failure
+        if: failure()
+        run: |
+          set -euo pipefail
+          echo "Health check failed; initiating rollback"
+          LATEST=$(ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'ls -t /var/www/office_backups/backup_*.tar.gz | head -1')
+          echo "Restoring backup $LATEST"
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "tar -xzf '$LATEST' -C /"
+          echo "Rollback completed"
 
