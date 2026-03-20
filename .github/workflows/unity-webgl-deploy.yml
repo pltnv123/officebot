@@ -2,6 +2,12 @@ name: Unity WebGL Build & Deploy
 
 on:
   workflow_dispatch:
+    inputs:
+      test_backup_rotation:
+        description: Test backup rotation policy safely
+        required: false
+        type: boolean
+        default: false
   push:
     branches: [ main ]
     paths-ignore:
@@ -215,4 +221,41 @@ jobs:
           echo "Restoring backup $LATEST"
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "tar -xzf '$LATEST' -C /"
           echo "Rollback completed"
+
+  test-backup-rotation:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.test_backup_rotation == 'true' }}
+    steps:
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+      - name: Create test directory and dummy backups
+        run: |
+          TEST_DIR="/var/www/office_backups_test_$(date +%s)"
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p $TEST_DIR"
+          # Create 12 dummy backup files with unique names
+          for i in $(seq 1 12); do
+            ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "touch $TEST_DIR/backup_$(date +%s).tar.gz"
+          done
+          echo "Created 12 dummy backups in $TEST_DIR"
+          echo "TEST_DIR=$TEST_DIR" >> $GITHUB_ENV
+      - name: Run prune logic
+        run: |
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} '
+            set -euo pipefail
+            cd "${{ env.TEST_DIR }}"
+            ls -t backup_*.tar.gz 2>/dev/null | tail -n +11 | xargs -r rm -f
+            REMAINING=$(ls -1 backup_*.tar.gz 2>/dev/null | wc -l)
+            echo "Remaining backups: $REMAINING"
+            if [ "$REMAINING" -ne 10 ]; then
+              echo "ERROR: Expected 10 backups, got $REMAINING"
+              exit 1
+            fi
+          '
+      - name: Cleanup test directory
+        run: |
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "rm -rf ${{ env.TEST_DIR }}"
 
