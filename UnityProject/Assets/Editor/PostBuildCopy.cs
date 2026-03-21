@@ -1,11 +1,11 @@
+#if UNITY_EDITOR && !CI
 using UnityEditor;
-using UnityEditor.Build;
 using UnityEngine;
 using System.IO;
 
 public class PostBuildCopy
 {
-    [UnityEditor.PostProcessBuild]
+    [PostProcessBuild]
     public static void OnPostprocessBuild(BuildTarget target, string path)
     {
         if (target == BuildTarget.WebGL)
@@ -24,3 +24,4 @@ public class PostBuildCopy
         }
     }
 }
+#endif
