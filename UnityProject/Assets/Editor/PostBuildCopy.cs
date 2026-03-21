@@ -5,7 +5,7 @@ using System.IO;
 
 public class PostBuildCopy
 {
-    [PostProcessBuild]
+    [UnityEditor.PostProcessBuild]
     public static void OnPostprocessBuild(BuildTarget target, string path)
     {
         if (target == BuildTarget.WebGL)
