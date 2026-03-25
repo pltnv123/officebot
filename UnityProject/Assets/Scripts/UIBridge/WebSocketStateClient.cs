@@ -6,7 +6,7 @@ namespace OfficeHub.UIBridge
 {
     public class WebSocketStateClient : MonoBehaviour
     {
-        [SerializeField] private string wsUrl = "ws://5.45.115.12:8081/ws";
+        [SerializeField] private string wsUrl = "ws://5.45.115.12:8787/ws";
         [SerializeField] private OfficeStateStore store;
         [SerializeField] private OfficeStatePoller poller;
 
