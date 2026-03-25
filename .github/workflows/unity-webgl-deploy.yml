@@ -164,7 +164,7 @@ jobs:
           BACKUP_DIR="/var/www/office_backups"
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo mkdir -p $BACKUP_DIR"
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo tar -czf $BACKUP_DIR/backup_$TIMESTAMP.tar.gz -C / var/www/office"
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd $BACKUP_DIR && ls -1t backup_*.tar.gz | tail -n +6 | xargs -r rm"
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd $BACKUP_DIR && ls -1t backup_*.tar.gz | tail -n +6 | xargs -r sudo rm"
           echo "Backup created: $BACKUP_DIR/backup_$TIMESTAMP.tar.gz"
           echo "BACKUP_PATH=$BACKUP_DIR/backup_$TIMESTAMP.tar.gz" >> $GITHUB_ENV
       - name: Verify backup hashes
