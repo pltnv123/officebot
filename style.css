@@ -45,3 +45,4 @@ html,body{margin:0;height:100%;background:#090f1d;color:#f0f3ff;font-family:Inte
 .conversion-sub{margin-top:4px;font-size:.9rem;color:#c1d6ff}
 .conversion-cta{display:inline-block;margin-top:8px;padding:8px 16px;border-radius:999px;background:linear-gradient(90deg,#5db0ff,#2dcac5);color:#0d111f;font-weight:600;text-decoration:none;box-shadow:0 8px 20px rgba(45,202,197,.35)}
 .conversion-cta:hover{filter:brightness(1.05)}
+.onboarding-hint{margin:8px 0 6px;font-size:.85rem;color:#c4d3ff;opacity:.85}
