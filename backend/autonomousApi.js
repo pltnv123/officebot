@@ -40,6 +40,9 @@ async function addTask(req, res) {
 
     res.status(201).json({ ok: true, task });
   } catch (e) {
+    if (e.code === 'DUPLICATE_PENDING') {
+      return res.status(400).json({ ok: false, error: e.message, code: e.code });
+    }
     res.status(500).json({ ok: false, error: e.message });
   }
 }

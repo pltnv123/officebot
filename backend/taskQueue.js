@@ -8,6 +8,10 @@ function mkTaskId() {
   return 'QUEUE-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
 }
 
+function normalizeTitleForQueue(title) {
+  return String(title || '').trim().toLowerCase();
+}
+
 function nowIso() {
   return new Date().toISOString();
 }
@@ -44,6 +48,20 @@ class TaskQueue {
    */
   async add(title, priority = 3, agent = null, extra = {}) {
     await this._ensureLoaded();
+    const normalizedTitle = normalizeTitleForQueue(title);
+    const agentKey = agent ? agent.toLowerCase() : '';
+    const normalizedPriority = Number(priority || 3);
+    const duplicate = this.tasks.some(t =>
+      t.status === 'pending' &&
+      normalizeTitleForQueue(t.title) === normalizedTitle &&
+      ((t.agent || '').toLowerCase() === agentKey) &&
+      Number(t.priority) === normalizedPriority
+    );
+    if (duplicate) {
+      const err = new Error(`duplicate pending task "${title}" (agent=${agentKey || '<none>'} priority=${normalizedPriority})`);
+      err.code = 'DUPLICATE_PENDING';
+      throw err;
+    }
     const task = {
       id: mkTaskId(),
       title,
