@@ -170,7 +170,7 @@ jobs:
         run: |
           set -euo pipefail
           BACKUP_PATH="${{ env.BACKUP_PATH }}"
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "BACKUP_PATH='$BACKUP_PATH' bash -lc '
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} BACKUP_PATH="$BACKUP_PATH" bash -s <<'EOF'
             set -euo pipefail
             compare_hash() {
               local live="$1"
@@ -188,7 +188,7 @@ jobs:
             }
             compare_hash /var/www/office/Build/office.loader.js var/www/office/Build/office.loader.js
             compare_hash /var/www/office/Build/office.framework.js var/www/office/Build/office.framework.js
-          '"
+          EOF
       - name: Deploy Build
         run: |
           set -euo pipefail
