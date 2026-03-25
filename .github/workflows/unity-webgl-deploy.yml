@@ -178,7 +178,7 @@ jobs:
               local live_hash
               live_hash=$(sha256sum "$live" | { read -r hash rest; printf "%s" "$hash"; })
               local backup_hash
-              backup_hash=$(sudo tar -xOf "$BACKUP_PATH" "$entry" | { read -r hash rest; printf "%s" "$hash"; })
+              backup_hash=$(sudo tar -xOf "$BACKUP_PATH" "$entry" | sha256sum | { read -r hash rest; printf "%s" "$hash"; })
               echo "[backup-hash] live $live: $live_hash"
               echo "[backup-hash] backup $entry: $backup_hash"
               if [ "$live_hash" != "$backup_hash" ]; then
