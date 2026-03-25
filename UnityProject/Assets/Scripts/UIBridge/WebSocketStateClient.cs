@@ -95,6 +95,11 @@ namespace OfficeHub.UIBridge
                     var snapshot = OfficeStateSnapshot.FromJson(wrapper.payload);
                     if (snapshot != null)
                     {
+                        if (store == null)
+                        {
+                            Debug.LogWarning("[WebSocketStateClient] Store missing; skipping state update");
+                            return;
+                        }
                         store.ApplySnapshot(snapshot);
                         _lastStateAppliedTime = Time.time;
                         if (!_isValidated)

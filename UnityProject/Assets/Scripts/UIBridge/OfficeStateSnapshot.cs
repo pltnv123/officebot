@@ -59,13 +59,26 @@ namespace OfficeHub.UIBridge
                 var envelope = JsonUtility.FromJson<OfficeStateEnvelope>(json);
                 if (envelope == null) return Empty;
 
+                object tasksCandidate = envelope.tasks ?? envelope.taskState?.tasks;
+                if (tasksCandidate == null)
+                {
+                    Debug.LogWarning("[OfficeStateSnapshot] Missing tasks array in payload");
+                    return Empty;
+                }
+                var typedTasks = tasksCandidate as List<OfficeStateTask>;
+                if (typedTasks == null)
+                {
+                    Debug.LogWarning("[OfficeStateSnapshot] Tasks array has invalid type");
+                    return Empty;
+                }
+
                 var snapshot = new OfficeStateSnapshot
                 {
                     UpdatedAt = string.IsNullOrWhiteSpace(envelope.updatedAt) ? envelope.timestamp : envelope.updatedAt,
-                    Tasks = envelope.tasks ?? envelope.taskState?.tasks ?? new List<OfficeStateTask>(),
+                    Tasks = typedTasks,
                     Agents = envelope.agents ?? new List<OfficeStateAgent>(),
                     Events = envelope.events ?? new List<OfficeStateEvent>(),
-                    Board = envelope.board ?? OfficeStateBoard.FromTasks(envelope.tasks ?? envelope.taskState?.tasks),
+                    Board = envelope.board ?? OfficeStateBoard.FromTasks(typedTasks),
                 };
 
                 if (snapshot.Board == null)
