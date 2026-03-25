@@ -46,3 +46,9 @@ html,body{margin:0;height:100%;background:#090f1d;color:#f0f3ff;font-family:Inte
 .conversion-cta{display:inline-block;margin-top:8px;padding:8px 16px;border-radius:999px;background:linear-gradient(90deg,#5db0ff,#2dcac5);color:#0d111f;font-weight:600;text-decoration:none;box-shadow:0 8px 20px rgba(45,202,197,.35)}
 .conversion-cta:hover{filter:brightness(1.05)}
 .onboarding-hint{margin:8px 0 6px;font-size:.85rem;color:#c4d3ff;opacity:.85}
+.capture-form{margin-top:10px;text-align:left}
+.capture-form label{font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;color:#9fb4ff}
+.capture-row{display:flex;gap:6px;margin-top:6px}
+.capture-row input{flex:1;background:rgba(255,255,255,.05);border:1px solid #2d4068;border-radius:8px;padding:8px;font-size:.95rem;color:#fff}
+.capture-row .capture-btn{background:linear-gradient(90deg,#19c2f5,#4fe6c2);border:none;border-radius:8px;padding:8px 16px;font-weight:600;color:#0a1117;cursor:pointer}
+.capture-note{margin-top:6px;font-size:.8rem;color:#a9c6ff;opacity:.9}
