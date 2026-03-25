@@ -235,6 +235,12 @@ jobs:
             cat "$OUT"
             exit 1
           fi
+      - name: Check ws service post-deploy
+        run: |
+          set -euo pipefail
+          echo "Checking ws.service status..."
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "systemctl is-active ws.service"
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "systemctl status ws.service --no-pager -n 20"
 
   test-backup-rotation:
     runs-on: ubuntu-latest
