@@ -39,3 +39,9 @@ html,body{margin:0;height:100%;background:#090f1d;color:#f0f3ff;font-family:Inte
 .task-progress-fill{height:100%;background:linear-gradient(90deg,#56b875,#4fd8a5);transition:width .3s}
 .task-progress-label{text-align:right;font-size:.8em;color:#bcd4ff;margin-bottom:4px}
 @media (max-width:980px){#app{grid-template-columns:1fr;grid-template-rows:1fr auto}}
+
+.conversion-focus{margin-bottom:12px;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,0.12);background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.005));text-align:center}
+.conversion-label{font-size:1rem;font-weight:600;color:#ffd966}
+.conversion-sub{margin-top:4px;font-size:.9rem;color:#c1d6ff}
+.conversion-cta{display:inline-block;margin-top:8px;padding:8px 16px;border-radius:999px;background:linear-gradient(90deg,#5db0ff,#2dcac5);color:#0d111f;font-weight:600;text-decoration:none;box-shadow:0 8px 20px rgba(45,202,197,.35)}
+.conversion-cta:hover{filter:brightness(1.05)}
