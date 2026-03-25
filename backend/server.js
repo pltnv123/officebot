@@ -2,6 +2,8 @@ const express = require('express');
 const fs = require('fs/promises');
 const path = require('path');
 const { spawn } = require('child_process');
+const http = require('http');
+const { WebSocketServer } = require('ws');
 const { runOrchestrator, tickFirstDoingTask } = require('./taskOrchestrator');
 
 // ═══ Autonomous Agent System ═══
@@ -272,6 +274,24 @@ app.post('/api/autonomous/tick', autoTick);      // POST /api/autonomous/tick �
 // ═══════════════════════════════════
 
 const PORT = Number(process.env.PORT || 8787);
-app.listen(PORT, () => {
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server, path: '/ws' });
+
+wss.on('connection', (ws) => {
+  console.log('[office-backend] ws connected');
+  ws.send(JSON.stringify({ type: 'state', ts: nowIso() }));
+});
+
+setInterval(async () => {
+  const state = await readJsonSafe(STATE_PATH, { taskState: { tasks: [] } });
+  const payload = { type: 'state', ts: nowIso(), tasks: state.taskState?.tasks || [] };
+  wss.clients.forEach((client) => {
+    if (client.readyState === 1) {
+      client.send(JSON.stringify(payload));
+    }
+  });
+}, 5000);
+
+server.listen(PORT, () => {
   console.log(`[office-backend] listening on :${PORT}`);
 });
