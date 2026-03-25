@@ -52,3 +52,4 @@ html,body{margin:0;height:100%;background:#090f1d;color:#f0f3ff;font-family:Inte
 .capture-row input{flex:1;background:rgba(255,255,255,.05);border:1px solid #2d4068;border-radius:8px;padding:8px;font-size:.95rem;color:#fff}
 .capture-row .capture-btn{background:linear-gradient(90deg,#19c2f5,#4fe6c2);border:none;border-radius:8px;padding:8px 16px;font-weight:600;color:#0a1117;cursor:pointer}
 .capture-note{margin-top:6px;font-size:.8rem;color:#a9c6ff;opacity:.9}
+.capture-note{margin-top:6px;font-size:.85rem;color:#bfe6ff;opacity:.9}
