@@ -1,1 +1,5 @@
 node_modules/
+
+engineering_status.json
+logs/
+watchdog.log
