@@ -224,6 +224,16 @@ jobs:
           set -euo pipefail
           echo "Checking health endpoint..."
           curl -fsS "http://${{ secrets.VPS_HOST }}/healthz" >/dev/null || true
+      - name: Verify /office landing page
+        run: |
+          set -euo pipefail
+          OUT=/tmp/office.html
+          curl -fsSL "http://${{ secrets.VPS_HOST }}/office" -o "$OUT"
+          if ! grep -q -E "UnityLoader|office\.framework\.js" "$OUT"; then
+            echo "[office-verify] missing Unity loader" >&2
+            cat "$OUT"
+            exit 1
+          fi
 
   test-backup-rotation:
     runs-on: ubuntu-latest
