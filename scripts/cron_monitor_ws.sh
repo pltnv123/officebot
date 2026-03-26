@@ -16,6 +16,12 @@ if "$NODE_BIN" scripts/verify_ws.js; then
   if [ -n "$WATCHDOG_OUT" ]; then
     log "watchdog: $WATCHDOG_OUT"
   fi
+  HEALTH_OUT=$("$NODE_BIN" scripts/queue_health.js 2>&1)
+  PENDING=$(echo "$HEALTH_OUT" | awk '/pendingCount/ {gsub(/,/, "", $2); print $2}')
+  if [ -n "$PENDING" ] && [ "$PENDING" -gt 0 ]; then
+    OLDEST=$(echo "$HEALTH_OUT" | awk '/oldestPendingSeconds/ {gsub(/,/, "", $2); print $2}')
+    log "queue health pending=${PENDING} oldest=${OLDEST}s"
+  fi
 else
   log "verify_ws FAIL"
   JOURNAL=$(journalctl -u ws.service -n 20 --no-pager)
