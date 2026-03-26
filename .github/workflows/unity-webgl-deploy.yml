@@ -196,7 +196,12 @@ jobs:
           BACKUP_PATH="${{ env.BACKUP_PATH }}"
           TMPDIR=$(ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} mktemp -d /tmp/office_backup_test.XXXXXX)
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} sh -c "export TMPDIR='$TMPDIR' && sudo mkdir -p '$TMPDIR' && sudo tar -xzf '$BACKUP_PATH' -C '$TMPDIR'"
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} sh -c 'if [ ! -f "$TMPDIR/Build/office.loader.js" ] || [ ! -f "$TMPDIR/Build/office.framework.js" ]; then echo "archive missing required files" >&2; exit 1; fi' 
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} sh -c <<'EOF'
+            if [ ! -f "$TMPDIR/Build/office.loader.js" ] || [ ! -f "$TMPDIR/Build/office.framework.js" ]; then
+              echo "archive missing required files" >&2
+              exit 1
+            fi
+          EOF
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} sh -c "sudo rm -rf '$TMPDIR'"
       - name: Deploy Build
         run: |
