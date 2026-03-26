@@ -5,10 +5,24 @@ NODE_BIN="/home/antonbot/.nvm/versions/node/v22.22.0/bin/node"
 LOG_DIR="$BASE_DIR/logs"
 LOG_FILE="$LOG_DIR/cron_monitor_ws.log"
 STATUS_FILE="$BASE_DIR/engineering_status.json"
+LOG_ROTATE_LIMIT=200000
 mkdir -p "$LOG_DIR"
 cd "$BASE_DIR"
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-log(){ echo "[$TIMESTAMP] $1" >> "$LOG_FILE"; }
+log(){
+  echo "[$TIMESTAMP] $1" >> "$LOG_FILE"
+}
+rotate_log(){
+  if [ -f "$LOG_FILE" ]; then
+    size=$(stat -c %s "$LOG_FILE")
+    if [ "$size" -ge "$LOG_ROTATE_LIMIT" ]; then
+      mv "$LOG_FILE" "$LOG_FILE.$TIMESTAMP"
+      touch "$LOG_FILE"
+      echo "[$TIMESTAMP] log rotated" >> "$LOG_FILE"
+    fi
+  fi
+}
+rotate_log
 log "Starting verify_ws"
 if "$NODE_BIN" scripts/verify_ws.js; then
   log "verify_ws PASS"
