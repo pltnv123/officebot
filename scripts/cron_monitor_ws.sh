@@ -12,5 +12,7 @@ if "$NODE_BIN" scripts/verify_ws.js; then
   echo "[$TIMESTAMP] verify_ws PASS" >> "$LOG_FILE"
 else
   echo "[$TIMESTAMP] verify_ws FAIL" >> "$LOG_FILE"
+  echo "[$TIMESTAMP] ws.service journal snippet:" >> "$LOG_FILE"
+  journalctl -u ws.service -n 20 --no-pager >> "$LOG_FILE"
   exit 1
 fi
