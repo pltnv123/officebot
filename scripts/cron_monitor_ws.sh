@@ -35,6 +35,9 @@ if "$NODE_BIN" scripts/verify_ws.js; then
   if [ -n "$PENDING" ] && [ "$PENDING" -gt 0 ]; then
     OLDEST=$(echo "$HEALTH_OUT" | awk '/oldestPendingSeconds/ {gsub(/,/, "", $2); print $2}')
     log "queue health pending=${PENDING} oldest=${OLDEST}s"
+    if [ "$PENDING" -ge 5 ]; then
+      log "queue health alert: ${PENDING} pending tasks >= threshold"
+    fi
   fi
 else
   log "verify_ws FAIL"
