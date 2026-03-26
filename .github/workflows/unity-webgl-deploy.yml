@@ -194,10 +194,15 @@ jobs:
         run: |
           set -euo pipefail
           BACKUP_PATH="${{ env.BACKUP_PATH }}"
-          TMPDIR=$(ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} mktemp -d /tmp/office_backup_test.XXXXXX)
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} sh -c "export TMPDIR='$TMPDIR' && sudo mkdir -p '$TMPDIR' && sudo tar -xzf '$BACKUP_PATH' -C '$TMPDIR'"
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} sh -c "TMPDIR='$TMPDIR'; if ! find '$TMPDIR' -path '*office.loader.js' -print -quit >/dev/null; then echo 'archive missing office.loader.js' >&2; exit 1; fi; if ! find '$TMPDIR' -path '*office.framework.js' -print -quit >/dev/null; then echo 'archive missing office.framework.js' >&2; exit 1; fi"
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} sh -c "sudo rm -rf '$TMPDIR'"
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} <<'EOF'
+            set -euo pipefail
+            TMPDIR=$(mktemp -d /tmp/office_backup_test.XXXXXX)
+            sudo mkdir -p "$TMPDIR"
+            sudo tar -xzf "$BACKUP_PATH" -C "$TMPDIR"
+            test -f "$TMPDIR/var/www/office/Build/office.loader.js"
+            test -f "$TMPDIR/var/www/office/Build/office.framework.js"
+            sudo rm -rf "$TMPDIR"
+          EOF
       - name: Deploy Build
         run: |
           set -euo pipefail
