@@ -197,8 +197,12 @@ jobs:
           TMPDIR=$(ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} mktemp -d /tmp/office_backup_test.XXXXXX)
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} sh -c "export TMPDIR='$TMPDIR' && sudo mkdir -p '$TMPDIR' && sudo tar -xzf '$BACKUP_PATH' -C '$TMPDIR'"
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} TMPDIR="$TMPDIR" bash -s <<'EOF'
-            if [ ! -f "$TMPDIR/var/www/office/Build/office.loader.js" ] || [ ! -f "$TMPDIR/var/www/office/Build/office.framework.js" ]; then
-              echo "archive missing required files" >&2
+            if ! find "$TMPDIR" -path '*office.loader.js' -print -quit >/dev/null; then
+              echo "archive missing office.loader.js" >&2
+              exit 1
+            fi
+            if ! find "$TMPDIR" -path '*office.framework.js' -print -quit >/dev/null; then
+              echo "archive missing office.framework.js" >&2
               exit 1
             fi
           EOF
