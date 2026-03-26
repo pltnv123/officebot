@@ -4,6 +4,7 @@ const fs = require('fs');
 (async () => {
  const url = process.argv[2] || 'http://5.45.115.12/office/';
  const outPath = process.argv[3] || '/tmp/scene_screenshot.png';
+ const waitMs = Number(process.env.SCREENSHOT_WAIT_MS || 10000);
  
  const browser = await chromium.launch({
  headless: true,
@@ -13,7 +14,7 @@ const fs = require('fs');
  const page = await browser.newPage();
  await page.setViewportSize({ width: 1280, height: 720 });
  await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
- await page.waitForTimeout(10000);
+ await page.waitForTimeout(waitMs);
  await page.screenshot({ path: outPath });
  await browser.close();
  
