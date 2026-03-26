@@ -20,8 +20,12 @@ namespace OfficeHub.UIBridge
         private bool _watchdogActive = false;
         private Coroutine _watchdogCoroutine;
         private float _lastWarningTime;
+        private bool _firstStateReceived = false;
+        private bool _recoveryTriggered = false;
+        private float _watchdogStartTime;
 
         private const float WATCHDOG_INTERVAL = 30f;
+        private const float FIRST_STATE_WAIT = 15f;
         private const float WS_SILENCE_THRESHOLD = 60f;
         private const float STATE_STALE_THRESHOLD = 90f;
         private const float CALLBACK_LOSS_THRESHOLD = 90f;
@@ -45,6 +49,7 @@ namespace OfficeHub.UIBridge
 
         private void OnEnable()
         {
+            _watchdogStartTime = Time.time;
             StartWatchdog();
 #if UNITY_WEBGL && !UNITY_EDITOR
             WebGLBridge.WebSocketSetTarget(gameObject.name);
@@ -95,6 +100,7 @@ namespace OfficeHub.UIBridge
                     var snapshot = OfficeStateSnapshot.FromJson(wrapper.payload);
                     if (snapshot != null)
                     {
+                        _firstStateReceived = true;
                         if (store == null)
                         {
                             Debug.LogWarning("[WebSocketStateClient] Store missing; skipping state update");
@@ -161,6 +167,13 @@ namespace OfficeHub.UIBridge
                     poller?.SetPollingEnabled(true);
                 }
 
+                if (!_firstStateReceived && !_recoveryTriggered && (now - _watchdogStartTime > FIRST_STATE_WAIT))
+                {
+                    LogWarningOnce("Watchdog: initial state timeout; reloading once");
+                    _recoveryTriggered = true;
+                    TriggerRecoveryReload();
+                }
+
                 if (_isConnected && _isValidated && (now - _lastJsActivityTime < CALLBACK_LOSS_THRESHOLD) && (now - _lastStateAppliedTime > CALLBACK_LOSS_THRESHOLD))
                 {
                     LogWarningOnce("Watchdog: JS active but no state applied; probable SendMessage callback loss; re-enabling polling");
@@ -168,6 +181,16 @@ namespace OfficeHub.UIBridge
                     poller?.SetPollingEnabled(true);
                 }
             }
+        }
+
+        private void TriggerRecoveryReload()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            Debug.Log("[WebSocketStateClient] Triggering reload due to missing state");
+            Application.OpenURL(Application.absoluteURL);
+#else
+            Debug.Log("[WebSocketStateClient] Reload skipped (non-WebGL)");
+#endif
         }
 
         private void LogWarningOnce(string message)
