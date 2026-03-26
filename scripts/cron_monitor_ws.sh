@@ -18,7 +18,9 @@ rotate_log(){
     if [ "$size" -ge "$LOG_ROTATE_LIMIT" ]; then
       mv "$LOG_FILE" "$LOG_FILE.$TIMESTAMP"
       touch "$LOG_FILE"
-      echo "[$TIMESTAMP] log rotated" >> "$LOG_FILE"
+  echo "[$TIMESTAMP] log rotated" >> "$LOG_FILE"
+  "$NODE_BIN" scripts/prune_cron_logs.sh
+
     fi
   fi
 }
