@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Rendering;
+using System;
+using System.Globalization;
 
 namespace OfficeHub.UIBridge
 {
@@ -23,6 +25,7 @@ namespace OfficeHub.UIBridge
         private bool _firstStateReceived = false;
         private bool _recoveryTriggered = false;
         private float _watchdogStartTime;
+        private DateTime? _lastStateTimestamp;
 
         private const float WATCHDOG_INTERVAL = 30f;
         private const float FIRST_STATE_WAIT = 15f;
@@ -101,7 +104,19 @@ namespace OfficeHub.UIBridge
                     Debug.Log(snapshot == null ? "[WebSocketStateClient] snapshot parse returned null" : $"[WebSocketStateClient] snapshot tasks={snapshot.Tasks?.Count ?? 0} updatedAt={snapshot.UpdatedAt}");
                     if (snapshot != null)
                     {
-                        _firstStateReceived = true;
+                        bool isFirstState = !_firstStateReceived;
+                        DateTime parsedTimestamp;
+                        var hasTimestamp = !string.IsNullOrEmpty(snapshot.UpdatedAt) && DateTime.TryParse(snapshot.UpdatedAt, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out parsedTimestamp);
+                        if (!isFirstState && hasTimestamp && _lastStateTimestamp.HasValue && parsedTimestamp <= _lastStateTimestamp.Value)
+                        {
+                            Debug.LogWarning($"[WebSocketStateClient] Drop stale state ({parsedTimestamp:o} <= {_lastStateTimestamp.Value:o})");
+                            return;
+                        }
+                        if (hasTimestamp)
+                        {
+                            _lastStateTimestamp = parsedTimestamp;
+                            Debug.Log($"[WebSocketStateClient] Observed timestamp {parsedTimestamp:o}");
+                        }
                         if (store == null)
                         {
                             Debug.LogWarning("[WebSocketStateClient] Store missing; skipping state update");
@@ -109,6 +124,7 @@ namespace OfficeHub.UIBridge
                         }
                         Debug.Log("[WebSocketStateClient] Applying snapshot state");
                         store.ApplySnapshot(snapshot);
+                        _firstStateReceived = true;
                         _lastStateAppliedTime = Time.time;
                         if (!_isValidated)
                         {
