@@ -194,7 +194,7 @@ jobs:
         run: |
           set -euo pipefail
           BACKUP_PATH="${{ env.BACKUP_PATH }}"
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} <<'EOF'
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} BACKUP_PATH="$BACKUP_PATH" bash -s <<'EOF'
             set -euo pipefail
             TMPDIR=$(mktemp -d /tmp/office_backup_test.XXXXXX)
             sudo mkdir -p "$TMPDIR"
