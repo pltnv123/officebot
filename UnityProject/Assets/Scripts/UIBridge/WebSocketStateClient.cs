@@ -98,6 +98,7 @@ namespace OfficeHub.UIBridge
                 if (wrapper != null && wrapper.type == "state" && !string.IsNullOrEmpty(wrapper.payload))
                 {
                     var snapshot = OfficeStateSnapshot.FromJson(wrapper.payload);
+                    Debug.Log(snapshot == null ? "[WebSocketStateClient] snapshot parse returned null" : $"[WebSocketStateClient] snapshot tasks={snapshot.Tasks?.Count ?? 0} updatedAt={snapshot.UpdatedAt}");
                     if (snapshot != null)
                     {
                         _firstStateReceived = true;
@@ -106,6 +107,7 @@ namespace OfficeHub.UIBridge
                             Debug.LogWarning("[WebSocketStateClient] Store missing; skipping state update");
                             return;
                         }
+                        Debug.Log("[WebSocketStateClient] Applying snapshot state");
                         store.ApplySnapshot(snapshot);
                         _lastStateAppliedTime = Time.time;
                         if (!_isValidated)
