@@ -106,7 +106,7 @@ class TaskQueue {
   async start(taskId, agent) {
     await this._ensureLoaded();
     const task = this.tasks.find(t => t.id === taskId);
-    if (!task) return null;
+    if (!task || task.status !== 'pending') return null;
     task.status = 'in_progress';
     task.agent = agent;
     task.started_at = nowIso();
