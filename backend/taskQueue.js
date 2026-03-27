@@ -3,6 +3,8 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 const QUEUE_PATH = path.join(ROOT, 'task_queue.json');
+const queueLock = require('./queueLock');
+
 
 function mkTaskId() {
   return 'QUEUE-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
@@ -104,6 +106,10 @@ class TaskQueue {
    * @returns {object|null}
    */
   async start(taskId, agent) {
+    return queueLock.withLock(() => this._startUnlocked(taskId, agent));
+  }
+
+  async _startUnlocked(taskId, agent) {
     await this._ensureLoaded();
     const task = this.tasks.find(t => t.id === taskId);
     if (!task || task.status !== 'pending') return null;
