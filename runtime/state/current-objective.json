@@ -1,6 +1,6 @@
 {
   "title": "Document supervisor cycle",
-  "description": "QA lead summarizes the prior cycle findings.",
+  "description": "QA lead finalizes supervisor summary for delayed run.",
   "assignedRole": "qa-lead",
   "status": "completed"
 }

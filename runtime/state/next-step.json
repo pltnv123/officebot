@@ -1,6 +1,6 @@
 {
-  "title": "Document supervisor cycle",
-  "description": "Summarize the cycle and set up the next confirmation work.",
+  "title": "Prepare QA verification brief",
+  "description": "QA lead plans the upcoming verification checkpoint for the release team.",
   "assignedRole": "qa-lead",
   "status": "queued"
 }
