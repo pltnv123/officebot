@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "title": "Publish supervisor plan and state model",
+    "description": "Document the state/supervisor foundation for supervisors and make sure the files are committed.",
+    "priority": 1,
+    "role": "technical-director"
+  },
+  {
+    "title": "Validate activation bridge",
+    "description": "Run the loader to ensure core roles stay limited to the registry.",
+    "priority": 2,
+    "role": "lead-programmer"
+  }
+]

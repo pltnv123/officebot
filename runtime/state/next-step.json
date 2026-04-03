@@ -1,1 +1,6 @@
-{}
+{
+  "title": "Confirm release readiness",
+  "description": "Ensure release manager, QA lead, and devops engineer have aligned on checkpoints.",
+  "assignedRole": "technical-director",
+  "status": "queued"
+}

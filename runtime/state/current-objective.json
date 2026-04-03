@@ -1,6 +1,6 @@
 {
-  "title": "",
-  "description": "",
-  "assignedRole": null,
-  "status": "pending"
+  "title": "Establish Phase 1 activation foundation",
+  "description": "Coordinate release and QA readiness while confirming infrastructure stability for the core five roles.",
+  "assignedRole": "release-manager",
+  "status": "in-progress"
 }
