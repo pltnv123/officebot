@@ -1,0 +1,11 @@
+{
+  "activationRegistry": "docs/ops/activation-registry.md",
+  "mappedRoles": [
+    "technical-director",
+    "release-manager",
+    "qa-lead",
+    "devops-engineer",
+    "lead-programmer"
+  ],
+  "description": "Minimal bridge for runtime to reference the activation registry for the Phase 1 families. Runtime is expected to read this file when ready."
+}

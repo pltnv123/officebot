@@ -1,17 +1,17 @@
 # First Runtime Verification Plan
 
 ## Real Mapping
-- Activation registry introduced at `docs/ops/activation-registry.md` linking each of the Phase 1 families to their CCGS agent spec files.
+- Activation bridge at `runtime/activation-bridge.json` references the activation registry for the Phase 1 families.
 
 ## Reachability Verification
-- Check `ls docs/ops/activation-registry.md` to confirm the registry exists.
-- Run `git status --short` to ensure only planned docs are tracked.
+- Check `ls runtime/activation-bridge.json docs/ops/activation-registry.md` to confirm the bridge and registry exist.
+- Run `git status --short` to ensure only planned docs and bridge file appear.
 
-## No Extra Roles Activated
-- The registry lists only technical-director, release-manager, qa-lead, devops-engineer, lead-programmer; no other roles appear.
-- Third-party directories remain untouched by this doc-only wiring.
+## Only 5 Roles Covered
+- The bridge lists technical-director, release-manager, qa-lead, devops-engineer, lead-programmer.
+- No other roles are included.
 
 ## Rollback Steps
-1. Restore `docs/ops/first-runtime-verification.md` to the earlier version if needed.
-2. Remove `docs/ops/activation-registry.md` or revert it.
-3. Re-run the verification commands to confirm cleanup.
+1. Remove or revert `runtime/activation-bridge.json`.
+2. Restore registry or verification docs to previous states.
+3. Repeat verification commands.
