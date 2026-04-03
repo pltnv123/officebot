@@ -1,1 +1,1 @@
-{"title":"Define live task card integration","description":"Technical director commits to a bounded next step: wire the task board to the backend API so cards update in place with id, title, and assignee dot data for FUNC-001.","assignedRole":"technical-director","status":"queued"}
+{"title":"Plan QA verification for live task cards","description":"QA lead outlines the verification checklist ensuring FUNC-001 shows id, title, and assignee dot while talking to the backend API.","assignedRole":"qa-lead","status":"queued"}
