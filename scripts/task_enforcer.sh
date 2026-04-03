@@ -45,31 +45,15 @@ with open('$TASKS','w') as f: json.dump(data,f,indent=2)
   fi
 done
 echo "ENFORCER: complete" >> $LOG
+
 if [[ -f "$LOG" ]]; then
-  echo "ENFORCER: attempting guarded manual tick" >> "$LOG"
+  echo "ENFORCER: guarded manual tick hook" >> "$LOG"
 else
-  echo "ENFORCER: attempting guarded manual tick"
-fi
-if bash scripts/manual_tick.sh &>/dev/null; then
-  echo "ENFORCER: guarded manual tick executed" >> "$LOG"
-else
-  echo "ENFORCER: guarded manual tick skipped" >> "$LOG"
-fi
-if [[ -f "$LOG" ]]; then
-  echo "ENFORCER: attempting scheduled guarded manual tick" >> "$LOG"
-else
-  echo "ENFORCER: attempting scheduled guarded manual tick"
-fi
-if bash scripts/manual_tick.sh &>/dev/null; then
-  echo "ENFORCER: scheduled guarded tick executed" >> "$LOG"
-else
-  echo "ENFORCER: scheduled guarded tick skipped" >> "$LOG"
+  echo "ENFORCER: guarded manual tick hook"
 fi
 
-echo "ENFORCER: guarded manual tick hook" >> $LOG
-if [ -x "/home/antonbot/.openclaw/workspace/office/scripts/manual_tick.sh" ]; then
-  /home/antonbot/.openclaw/workspace/office/scripts/manual_tick.sh >> $LOG 2>&1 || \
-  echo "ENFORCER: manual tick no-op or blocked" >> $LOG
+if bash scripts/manual_tick.sh >> "$LOG" 2>&1; then
+  echo "ENFORCER: manual tick executed" >> "$LOG"
 else
-  echo "ENFORCER: manual_tick.sh missing or not executable" >> $LOG
+  echo "ENFORCER: manual tick skipped or blocked" >> "$LOG"
 fi
