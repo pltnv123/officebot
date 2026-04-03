@@ -52,7 +52,7 @@ else
   echo "ENFORCER: guarded manual tick hook"
 fi
 
-if bash scripts/manual_tick.sh >> "$LOG" 2>&1; then
+if bash /home/antonbot/.openclaw/workspace/office/scripts/manual_tick.sh >> "$LOG" 2>&1; then
   echo "ENFORCER: manual tick executed" >> "$LOG"
 else
   echo "ENFORCER: manual tick skipped or blocked" >> "$LOG"
