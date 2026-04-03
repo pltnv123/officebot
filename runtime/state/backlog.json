@@ -1,14 +1,8 @@
 [
   {
-    "title": "Publish supervisor plan and state model",
-    "description": "Document the state/supervisor foundation for supervisors and make sure the files are committed.",
+    "title": "Plan next QA verification",
+    "description": "QA lead prepares the next set of confirmation steps for the release-manager.",
     "priority": 1,
-    "role": "technical-director"
-  },
-  {
-    "title": "Validate activation bridge",
-    "description": "Run the loader to ensure core roles stay limited to the registry.",
-    "priority": 2,
-    "role": "lead-programmer"
+    "role": "qa-lead"
   }
 ]
