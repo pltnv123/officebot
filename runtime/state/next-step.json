@@ -1,6 +1,1 @@
-{
-  "title": "Rebuild bounded backlog",
-  "description": "Technical director defines one new bounded next step from current state so guarded loop can continue.",
-  "assignedRole": "technical-director",
-  "status": "queued"
-}
+{"title":"planner required","description":"No queued tasks","assignedRole":"technical-director","status":"pending"}

@@ -2,5 +2,5 @@
   "title": "Rebuild bounded backlog",
   "description": "Technical director defines one new bounded next step from current state so guarded loop can continue.",
   "assignedRole": "technical-director",
-  "status": "queued"
+  "status": "completed"
 }

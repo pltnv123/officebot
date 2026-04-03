@@ -5,3 +5,4 @@
 {"title": "Prepare QA verification brief", "description": "QA lead outlines the verification checkpoints for release readiness.", "role": "qa-lead", "completedAt": "2026-04-03T15:10:00Z"}
 {"title":"Confirm DevOps checkpoints","description":"DevOps engineer verifies pipeline readiness before the next release.","assignedRole":"devops-engineer","status":"queued","completedAt":"2026-04-03T17:05:13+00:00"}
 {"title":"Plan next QA verification","description":"QA lead prepares the next set of confirmation steps for the release-manager.","assignedRole":"qa-lead","status":"queued","completedAt":"2026-04-03T17:06:25+00:00"}
+{"title":"Rebuild bounded backlog","description":"Technical director defines one new bounded next step from current state so guarded loop can continue.","assignedRole":"technical-director","status":"queued","completedAt":"2026-04-03T17:19:11+00:00"}
