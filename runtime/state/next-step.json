@@ -1,6 +1,6 @@
 {
-  "title": "Confirm release readiness",
-  "description": "Ensure release manager, QA lead, and devops engineer have aligned on checkpoints.",
-  "assignedRole": "technical-director",
+  "title": "Document supervisor cycle",
+  "description": "Summarize the cycle and set up the next confirmation work.",
+  "assignedRole": "qa-lead",
   "status": "queued"
 }
