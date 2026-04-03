@@ -1,6 +1,6 @@
 {
-  "title": "Prepare QA verification brief",
-  "description": "QA lead plans the upcoming verification checkpoint for the release team.",
-  "assignedRole": "qa-lead",
+  "title": "Confirm DevOps checkpoints",
+  "description": "DevOps engineer verifies pipeline readiness before the next release.",
+  "assignedRole": "devops-engineer",
   "status": "queued"
 }
