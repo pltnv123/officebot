@@ -1,1 +1,1 @@
-{"title":"planner required","description":"No queued tasks","assignedRole":"technical-director","status":"pending"}
+{"title":"Define live task card integration","description":"Technical director commits to a bounded next step: wire the task board to the backend API so cards update in place with id, title, and assignee dot data for FUNC-001.","assignedRole":"technical-director","status":"queued"}
