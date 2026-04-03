@@ -12,9 +12,11 @@ if [[ ! -s $next_step ]]; then
   echo "next-step missing or empty" >&2
   exit 1
 fi
-if [[ -f $blockers && -s $blockers ]]; then
-  echo "blockers present, abort" >&2
-  exit 1
+if [[ -f $blockers ]]; then
+  if jq -e 'type=="array" and length>0' "$blockers" >/dev/null 2>&1; then
+    echo "blockers present, abort" >&2
+    exit 1
+  fi
 fi
 role=$(jq -r '.assignedRole' "$next_step")
 case "$role" in
@@ -25,7 +27,7 @@ case "$role" in
     exit 1
     ;;
 esac
-echo "$step" > runtime/state/current-objective.json
+cat "$next_step" > runtime/state/current-objective.json
 tmp=$(mktemp)
 jq '.status="completed"' runtime/state/current-objective.json > "$tmp" && mv "$tmp" runtime/state/current-objective.json
 now=$(date --iso-8601=seconds)
