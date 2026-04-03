@@ -1,6 +1,6 @@
 {
-  "title": "Plan next QA verification",
-  "description": "QA lead prepares the next set of confirmation steps for the release-manager.",
-  "assignedRole": "qa-lead",
-  "status": "completed"
+  "title": "Rebuild bounded backlog",
+  "description": "Technical director defines one new bounded next step from current state so guarded loop can continue.",
+  "assignedRole": "technical-director",
+  "status": "queued"
 }
