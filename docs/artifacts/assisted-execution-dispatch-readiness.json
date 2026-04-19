@@ -1,0 +1,82 @@
+{
+  "updatedAt": "2026-04-19T23:48:49.755Z",
+  "actor_role": "cto",
+  "readiness_kind": "assisted-execution-dispatch-readiness",
+  "assignment_readiness_checks": [
+    {
+      "task_id": "READY-1",
+      "suggested_target": "CTO",
+      "ready": true,
+      "blockers": [
+        "approval_pending"
+      ]
+    },
+    {
+      "task_id": "READY-2",
+      "suggested_target": "CTO",
+      "ready": false,
+      "blockers": [
+        "approval_pending",
+        "escalated_task",
+        "lock_conflict"
+      ]
+    },
+    {
+      "task_id": "READY-3",
+      "suggested_target": "iOS",
+      "ready": true,
+      "blockers": []
+    }
+  ],
+  "lane_saturation_signals": [
+    {
+      "lane": "CTO",
+      "total": 2,
+      "saturated": true
+    },
+    {
+      "lane": "Backend",
+      "total": 0,
+      "saturated": false
+    },
+    {
+      "lane": "QA",
+      "total": 0,
+      "saturated": false
+    },
+    {
+      "lane": "iOS",
+      "total": 1,
+      "saturated": false
+    },
+    {
+      "lane": "ORCHESTRATOR",
+      "total": 0,
+      "saturated": false
+    }
+  ],
+  "handoff_blockers": [
+    {
+      "task_id": "READY-2",
+      "blocker_type": "stuck_conflict_followup",
+      "action": "orchestrator_resolve_lock",
+      "level": "high"
+    }
+  ],
+  "dispatch_go_no_go_summary": {
+    "status": "no_go",
+    "reason": "dispatch_blockers_present",
+    "blocker_total": 1,
+    "saturated_lanes": [
+      "CTO"
+    ],
+    "suggested_owner": "cto"
+  },
+  "readiness_payload": {
+    "actor_role": "cto",
+    "read_only": true,
+    "maintenance_pending": 4,
+    "approval_pending": 2,
+    "escalated": 1
+  }
+}
