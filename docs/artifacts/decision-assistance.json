@@ -1,0 +1,117 @@
+{
+  "updatedAt": "2026-04-19T13:30:48.835Z",
+  "actor_role": "cto",
+  "assistance_kind": "decision-assisted-workflows",
+  "routing_recommendations": [
+    {
+      "kind": "approval_review",
+      "priority": "high",
+      "owner": "cto",
+      "reason": "approval_pending_tasks_present"
+    },
+    {
+      "kind": "escalation_review",
+      "priority": "high",
+      "owner": "cto",
+      "reason": "escalated_tasks_present"
+    },
+    {
+      "kind": "retry_retrieval",
+      "priority": "medium",
+      "owner": "orchestrator",
+      "reason": "retry_queue_present"
+    }
+  ],
+  "operator_decision_hints": {
+    "approval_attention": 1,
+    "retry_attention": 1,
+    "escalation_attention": 1,
+    "maintenance_attention": 4,
+    "top_recommendations": [
+      {
+        "task_id": "ASSIST-1",
+        "action": "approve_task",
+        "label": "Подтвердить выполнение",
+        "group": "approval"
+      },
+      {
+        "task_id": "ASSIST-1",
+        "action": "reject_task",
+        "label": "Отклонить выполнение",
+        "group": "approval"
+      },
+      {
+        "task_id": "ASSIST-1",
+        "action": "requeue_task",
+        "label": "Вернуть задачу в повторную обработку",
+        "group": "repair"
+      },
+      {
+        "task_id": "ASSIST-2",
+        "action": "resolve_lock_conflict",
+        "label": "Исправить конфликт блокировки",
+        "group": "repair"
+      },
+      {
+        "task_id": "ASSIST-2",
+        "action": "acknowledge_escalation",
+        "label": "acknowledge_escalation",
+        "group": "repair"
+      },
+      {
+        "task_id": "ASSIST-2",
+        "action": "request_approval",
+        "label": "request_approval",
+        "group": "approval"
+      }
+    ]
+  },
+  "planning_output": {
+    "suggested_owner": "cto",
+    "routing_focus": "review_attention",
+    "hint_kinds": [
+      "runtime_source_of_truth",
+      "retrieval_context",
+      "memory_context",
+      "approval_attention",
+      "retry_retrieval",
+      "escalation_memory"
+    ],
+    "top_memory_queries": [
+      "task ASSIST-1",
+      "Plan routing recommendations for operator review",
+      "approval pending decision"
+    ],
+    "top_retrieval_queries": [
+      "Plan routing recommendations for operator review",
+      "ASSIST-1 architecture",
+      "ASSIST-1 owner handoff"
+    ]
+  },
+  "compact_assistance_surface": {
+    "suggested_owner": "cto",
+    "routing_focus": "review_attention",
+    "routing_recommendation_kinds": [
+      "approval_review",
+      "escalation_review",
+      "retry_retrieval"
+    ],
+    "top_operator_actions": [
+      "approve_task",
+      "reject_task",
+      "requeue_task",
+      "resolve_lock_conflict",
+      "acknowledge_escalation",
+      "request_approval"
+    ],
+    "analytics_alignment": {
+      "approval_pending": 1,
+      "retry_total": 1,
+      "escalated": 1
+    },
+    "snapshot_safe": {
+      "reconnect_safe": true,
+      "backfill_safe": true
+    }
+  }
+}
