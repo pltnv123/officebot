@@ -44,6 +44,14 @@
   const exportIndexEndpointsEl = document.getElementById('export-index-endpoints');
   const exportIndexArtifactsEl = document.getElementById('export-index-artifacts');
   const exportIndexPayloadEl = document.getElementById('export-index-payload');
+  const deliveryPackPanelEl = document.getElementById('delivery-pack-panel');
+  const deliveryPackBadgeEl = document.getElementById('delivery-pack-badge');
+  const deliveryPackBriefEl = document.getElementById('delivery-pack-brief');
+  const deliveryPackLandingEl = document.getElementById('delivery-pack-landing');
+  const deliveryPackManifestEl = document.getElementById('delivery-pack-manifest');
+  const deliveryPackHumanEl = document.getElementById('delivery-pack-human');
+  const deliveryPackLinksEl = document.getElementById('delivery-pack-links');
+  const deliveryPackPayloadEl = document.getElementById('delivery-pack-payload');
   const gatewayStateEl = document.getElementById('gateway-state');
   const stateTsEl = document.getElementById('state-ts');
   const opsTasksEl = document.getElementById('ops-tasks');
@@ -468,6 +476,50 @@
     }
   }
 
+  function renderDeliveryPackPanel() {
+    if (!deliveryPackPanelEl) return;
+    const pack = lastClientPayload?.delivery_pack || null;
+    if (!pack) {
+      if (deliveryPackBadgeEl) deliveryPackBadgeEl.textContent = 'entry: --';
+      if (deliveryPackBriefEl) deliveryPackBriefEl.textContent = 'Curated delivery pack is waiting for payload…';
+      if (deliveryPackLandingEl) deliveryPackLandingEl.textContent = 'landing_report: --';
+      if (deliveryPackManifestEl) deliveryPackManifestEl.textContent = 'distribution_manifest: --';
+      if (deliveryPackHumanEl) deliveryPackHumanEl.textContent = 'human_handoff_summary: --';
+      if (deliveryPackLinksEl) deliveryPackLinksEl.textContent = 'links_and_pointers: --';
+      if (deliveryPackPayloadEl) deliveryPackPayloadEl.textContent = 'waiting…';
+      return;
+    }
+
+    if (deliveryPackBadgeEl) deliveryPackBadgeEl.textContent = `entry: ${pack.landing_report?.recommended_entry || '--'}`;
+    if (deliveryPackBriefEl) deliveryPackBriefEl.textContent = pack.landing_report?.subhead || 'Delivery pack brief unavailable';
+    if (deliveryPackLandingEl) {
+      const l = pack.landing_report || {};
+      deliveryPackLandingEl.textContent = `landing_report: headline=${l.headline || '--'} | surfaces=${(l.surfaces_ready || []).join(', ') || 'none'}`;
+    }
+    if (deliveryPackManifestEl) {
+      const m = pack.distribution_manifest || {};
+      deliveryPackManifestEl.textContent = `distribution_manifest: endpoints=${(m.endpoints || []).length} | artifacts=${(m.artifacts || []).length} | path=${(m.recommended_path || []).join(' -> ') || 'none'}`;
+    }
+    if (deliveryPackHumanEl) {
+      const h = pack.human_handoff_summary || {};
+      deliveryPackHumanEl.textContent = `human_handoff_summary: owner=${h.suggested_owner || '--'} | focus=${h.stakeholder_focus || '--'} | recommendations=${(h.top_recommendations || []).slice(0, 2).join(', ') || 'none'}`;
+    }
+    if (deliveryPackLinksEl) {
+      const keys = Object.keys(pack.links_and_pointers || {});
+      deliveryPackLinksEl.textContent = `links_and_pointers: ${keys.join(', ') || 'none'}`;
+    }
+    if (deliveryPackPayloadEl) {
+      const p = pack.machine_readable_manifest || {};
+      deliveryPackPayloadEl.innerHTML = [
+        `<span class="decision-chip">pack: ${p.pack_kind || '--'}</span>`,
+        `<span class="decision-chip">surfaces: ${(p.available_surfaces || []).length}</span>`,
+        `<span class="decision-chip">owner: ${p.suggested_owner || '--'}</span>`,
+        `<span class="decision-chip">endpoints: ${(p.top_endpoints || []).length}</span>`,
+        `<span class="decision-chip">artifacts: ${(p.top_artifacts || []).length}</span>`,
+      ].join('');
+    }
+  }
+
   function renderAnalyticsPanel() {
     if (!analyticsPanelEl) return;
     const analytics = lastClientPayload?.analytics || {};
@@ -521,6 +573,7 @@
     renderExecutivePanel();
     renderHandoffPanel();
     renderExportIndexPanel();
+    renderDeliveryPackPanel();
   }
 
   function renderOperatorFeed(tasks) {

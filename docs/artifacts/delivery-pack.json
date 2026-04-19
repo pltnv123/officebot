@@ -1,0 +1,98 @@
+{
+  "updatedAt": "2026-04-19T13:26:01.914Z",
+  "actor_role": "cto",
+  "pack_kind": "delivery-pack",
+  "landing_report": {
+    "headline": "Curated stakeholder delivery pack",
+    "subhead": "Single read-only handoff surface for executive review, routing context, and export navigation.",
+    "recommended_entry": "stakeholder_handoff",
+    "surfaces_ready": [
+      "executive_summary",
+      "stakeholder_handoff",
+      "decision_context",
+      "external_reporting",
+      "operator_clone_report",
+      "knowledge_context"
+    ]
+  },
+  "distribution_manifest": {
+    "recommended_path": [
+      "/api/export/stakeholder-handoff",
+      "/api/export/executive-summary",
+      "/api/export/export-index"
+    ],
+    "artifacts": [
+      "docs/artifacts/decision-context.json",
+      "docs/artifacts/executive-summary.json",
+      "docs/artifacts/external-reporting-layer.json",
+      "docs/artifacts/knowledge-aware-context.json",
+      "docs/artifacts/operator-clone-acceptance-report.json",
+      "docs/artifacts/stakeholder-handoff-bundle.json",
+      "docs/artifacts/export-index.json"
+    ],
+    "endpoints": [
+      "/api/export/operator-snapshot",
+      "/api/export/knowledge-aware-context",
+      "/api/export/decision-context",
+      "/api/export/executive-summary",
+      "/api/export/stakeholder-handoff",
+      "/api/export/export-index"
+    ]
+  },
+  "human_handoff_summary": {
+    "executive_brief": "CTO review is recommended before further routing changes.",
+    "stakeholder_focus": "review_attention",
+    "suggested_owner": "cto",
+    "top_recommendations": [
+      "Подтвердить выполнение",
+      "Отклонить выполнение",
+      "Вернуть задачу в повторную обработку",
+      "Исправить конфликт блокировки",
+      "acknowledge_escalation"
+    ]
+  },
+  "links_and_pointers": {
+    "executive_summary": {
+      "artifact": "docs/artifacts/executive-summary.json",
+      "endpoint": "/api/export/executive-summary"
+    },
+    "stakeholder_handoff": {
+      "artifact": "docs/artifacts/stakeholder-handoff-bundle.json",
+      "endpoint": "/api/export/stakeholder-handoff"
+    },
+    "decision_context": {
+      "artifact": "docs/artifacts/decision-context.json",
+      "endpoint": "/api/export/decision-context"
+    },
+    "reporting_exports": {
+      "artifact": "docs/artifacts/external-reporting-layer.json",
+      "endpoint": "/api/export/operator-snapshot"
+    },
+    "export_index": {
+      "artifact": "docs/artifacts/export-index.json",
+      "endpoint": "/api/export/export-index"
+    }
+  },
+  "machine_readable_manifest": {
+    "pack_kind": "delivery-pack",
+    "available_surfaces": [
+      "executive_summary",
+      "stakeholder_handoff",
+      "decision_context",
+      "external_reporting",
+      "operator_clone_report",
+      "knowledge_context"
+    ],
+    "top_endpoints": [
+      "/api/export/stakeholder-handoff",
+      "/api/export/executive-summary",
+      "/api/export/decision-context"
+    ],
+    "top_artifacts": [
+      "docs/artifacts/stakeholder-handoff-bundle.json",
+      "docs/artifacts/executive-summary.json",
+      "docs/artifacts/export-index.json"
+    ],
+    "suggested_owner": "cto"
+  }
+}
