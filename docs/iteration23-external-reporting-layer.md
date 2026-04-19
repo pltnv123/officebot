@@ -20,6 +20,7 @@ A compact external-facing reporting layer is now available as a read-only export
 - no backend contract changes
 - no workflow/source-of-truth semantic changes
 - built on top of existing analytics/export/clone-report data
+- follows `docs/standing-operating-policy.md` for autonomous package execution and milestone handling
 
 ## Export shape
 The reporting artifact includes:
