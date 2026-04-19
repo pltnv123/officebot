@@ -20,6 +20,7 @@ const { buildAssistedExecutionPresentation } = require('./assistedExecutionPrese
 const { buildAssistedExecutionDeliveryBundle } = require('./assistedExecutionDeliveryLayer');
 const { buildAssistedExecutionBundleIndex } = require('./assistedExecutionBundleIndexLayer');
 const { buildAssistedExecutionPublishingPack } = require('./assistedExecutionPublishingPackLayer');
+const { buildAssistedExecutionStakeholderPackage } = require('./assistedExecutionStakeholderPackageLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -266,6 +267,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.assisted_execution_publishing_pack = buildAssistedExecutionPublishingPack({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.assisted_execution_stakeholder_package = buildAssistedExecutionStakeholderPackage({
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
@@ -537,6 +542,21 @@ app.get('/api/export/assisted-execution-publishing-pack', async (req, res) => {
     actor_role: actorRole,
     storage: enriched.storage,
     assisted_execution_publishing_pack: buildAssistedExecutionPublishingPack({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/assisted-execution-stakeholder-package', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    assisted_execution_stakeholder_package: buildAssistedExecutionStakeholderPackage({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),

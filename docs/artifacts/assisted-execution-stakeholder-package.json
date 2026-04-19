@@ -1,0 +1,146 @@
+{
+  "updatedAt": "2026-04-19T23:14:50.417Z",
+  "actor_role": "cto",
+  "package_kind": "assisted-execution-stakeholder-package",
+  "curated_audience_summaries": {
+    "cto": {
+      "headline": "CTO delivery summary",
+      "recommended_surface": "assisted_execution_delivery",
+      "suggested_owner": "cto"
+    },
+    "orchestrator": {
+      "headline": "Orchestrator execution summary",
+      "recommended_surface": "assisted_execution_presentation",
+      "suggested_owner": "cto"
+    },
+    "stakeholder": {
+      "headline": "Stakeholder publishing summary",
+      "recommended_surface": "assisted_execution_delivery",
+      "suggested_owner": "cto"
+    }
+  },
+  "delivery_slices": {
+    "executive_slice": {
+      "entry": "assisted_execution_delivery",
+      "artifact": "docs/artifacts/assisted-execution-delivery.json",
+      "endpoint": "/api/export/assisted-execution-delivery"
+    },
+    "presentation_slice": {
+      "entry": "assisted_execution_presentation",
+      "endpoint": "/api/export/assisted-execution-presentation"
+    },
+    "publishing_slice": {
+      "entry": "assisted_execution_publishing_pack",
+      "artifact": "docs/artifacts/assisted-execution-publishing-pack.json",
+      "endpoint": "/api/export/assisted-execution-publishing-pack"
+    }
+  },
+  "recipient_specific_routing": {
+    "cto_route": "assisted_execution_delivery",
+    "orchestrator_route": "assisted_execution_presentation",
+    "stakeholder_route": "assisted_execution_publishing_pack",
+    "read_only": true
+  },
+  "stakeholder_summary_payload": {
+    "recommended_entry": "assisted_execution_delivery",
+    "top_guidance": [
+      "approval_review",
+      "escalation_review",
+      "retry_retrieval"
+    ],
+    "routing_recommendations": [
+      "approval_review",
+      "escalation_review",
+      "retry_retrieval"
+    ],
+    "consumer_ready": true
+  },
+  "audience_surface_pointers": {
+    "cto": {
+      "endpoint": "/api/export/assisted-execution-delivery",
+      "summary": {
+        "suggested_owner": "cto",
+        "handoff_kind": "approval_review",
+        "readiness_ready_total": 3,
+        "next_actions_total": 3,
+        "top_guidance": [
+          "approval_review",
+          "escalation_review",
+          "retry_retrieval"
+        ]
+      }
+    },
+    "orchestrator": {
+      "endpoint": "/api/export/assisted-execution-presentation",
+      "summary": {
+        "suggested_owner": "cto",
+        "handoff_kind": "approval_review",
+        "readiness_ready_total": 3,
+        "next_actions_total": 3,
+        "top_guidance": [
+          "approval_review",
+          "escalation_review",
+          "retry_retrieval"
+        ]
+      }
+    },
+    "stakeholder": {
+      "endpoint": "/api/export/assisted-execution-publishing-pack",
+      "artifact": "docs/artifacts/assisted-execution-publishing-pack.json",
+      "summary": {
+        "actor_role": "cto",
+        "top_entry": "assisted_execution_delivery",
+        "consumer_ready": true,
+        "available_surfaces": [
+          "handoff",
+          "presentation",
+          "delivery",
+          "index"
+        ],
+        "distribution_map": [
+          "cto -> assisted_execution_delivery",
+          "orchestrator -> assisted_execution_presentation"
+        ]
+      }
+    },
+    "index": {
+      "endpoint": "/api/export/assisted-execution-bundle-index",
+      "artifact": "docs/artifacts/assisted-execution-bundle-index.json",
+      "summary": {
+        "actor_role": "cto",
+        "available_surfaces": [
+          "assisted_execution_handoff",
+          "assisted_execution_presentation",
+          "assisted_execution_delivery"
+        ],
+        "recommended_entry": "assisted_execution_delivery",
+        "top_endpoints": [
+          "/api/export/assisted-execution-delivery",
+          "/api/export/assisted-execution-presentation"
+        ],
+        "distribution_map": [
+          "cto -> assisted_execution_delivery",
+          "orchestrator -> assisted_execution_presentation"
+        ]
+      }
+    }
+  },
+  "stakeholder_delivery_payload": {
+    "actor_role": "cto",
+    "audiences": [
+      "cto",
+      "orchestrator",
+      "stakeholder"
+    ],
+    "preferred_routes": {
+      "cto": "assisted_execution_delivery",
+      "orchestrator": "assisted_execution_presentation",
+      "stakeholder": "assisted_execution_publishing_pack"
+    },
+    "compact_distribution_map": [
+      "cto -> assisted_execution_delivery",
+      "orchestrator -> assisted_execution_presentation",
+      "stakeholder -> assisted_execution_publishing_pack"
+    ]
+  }
+}

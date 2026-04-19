@@ -88,6 +88,15 @@
   const assistedPackPointersEl = document.getElementById('assisted-pack-pointers');
   const assistedPackCtoEl = document.getElementById('assisted-pack-cto');
   const assistedPackPayloadEl = document.getElementById('assisted-pack-payload');
+  const assistedStakeholderPanelEl = document.getElementById('assisted-stakeholder-panel');
+  const assistedStakeholderBadgeEl = document.getElementById('assisted-stakeholder-badge');
+  const assistedStakeholderBriefEl = document.getElementById('assisted-stakeholder-brief');
+  const assistedStakeholderAudiencesEl = document.getElementById('assisted-stakeholder-audiences');
+  const assistedStakeholderSlicesEl = document.getElementById('assisted-stakeholder-slices');
+  const assistedStakeholderRoutingEl = document.getElementById('assisted-stakeholder-routing');
+  const assistedStakeholderSummaryEl = document.getElementById('assisted-stakeholder-summary');
+  const assistedStakeholderPointersEl = document.getElementById('assisted-stakeholder-pointers');
+  const assistedStakeholderPayloadEl = document.getElementById('assisted-stakeholder-payload');
   const gatewayStateEl = document.getElementById('gateway-state');
   const stateTsEl = document.getElementById('state-ts');
   const opsTasksEl = document.getElementById('ops-tasks');
@@ -735,6 +744,51 @@
     }
   }
 
+  function renderAssistedStakeholderPanel() {
+    if (!assistedStakeholderPanelEl) return;
+    const pkg = lastClientPayload?.assisted_execution_stakeholder_package || null;
+    if (!pkg) {
+      if (assistedStakeholderBadgeEl) assistedStakeholderBadgeEl.textContent = 'route: --';
+      if (assistedStakeholderBriefEl) assistedStakeholderBriefEl.textContent = 'Assisted execution stakeholder package is waiting for payload…';
+      if (assistedStakeholderAudiencesEl) assistedStakeholderAudiencesEl.textContent = 'curated_audience_summaries: --';
+      if (assistedStakeholderSlicesEl) assistedStakeholderSlicesEl.textContent = 'delivery_slices: --';
+      if (assistedStakeholderRoutingEl) assistedStakeholderRoutingEl.textContent = 'recipient_specific_routing: --';
+      if (assistedStakeholderSummaryEl) assistedStakeholderSummaryEl.textContent = 'stakeholder_summary_payload: --';
+      if (assistedStakeholderPointersEl) assistedStakeholderPointersEl.textContent = 'audience_surface_pointers: --';
+      if (assistedStakeholderPayloadEl) assistedStakeholderPayloadEl.textContent = 'waiting…';
+      return;
+    }
+
+    if (assistedStakeholderBadgeEl) assistedStakeholderBadgeEl.textContent = `route: ${pkg.recipient_specific_routing?.stakeholder_route || '--'}`;
+    if (assistedStakeholderBriefEl) assistedStakeholderBriefEl.textContent = pkg.curated_audience_summaries?.stakeholder?.headline || 'Stakeholder package unavailable';
+    if (assistedStakeholderAudiencesEl) {
+      assistedStakeholderAudiencesEl.textContent = `curated_audience_summaries: ${Object.keys(pkg.curated_audience_summaries || {}).join(', ') || 'none'}`;
+    }
+    if (assistedStakeholderSlicesEl) {
+      assistedStakeholderSlicesEl.textContent = `delivery_slices: ${Object.keys(pkg.delivery_slices || {}).join(', ') || 'none'}`;
+    }
+    if (assistedStakeholderRoutingEl) {
+      const r = pkg.recipient_specific_routing || {};
+      assistedStakeholderRoutingEl.textContent = `recipient_specific_routing: cto=${r.cto_route || '--'} | orchestrator=${r.orchestrator_route || '--'} | stakeholder=${r.stakeholder_route || '--'}`;
+    }
+    if (assistedStakeholderSummaryEl) {
+      const s = pkg.stakeholder_summary_payload || {};
+      assistedStakeholderSummaryEl.textContent = `stakeholder_summary_payload: entry=${s.recommended_entry || '--'} | guidance=${(s.top_guidance || []).join(', ') || 'none'} | consumer_ready=${String(s.consumer_ready)}`;
+    }
+    if (assistedStakeholderPointersEl) {
+      assistedStakeholderPointersEl.textContent = `audience_surface_pointers: ${Object.keys(pkg.audience_surface_pointers || {}).join(', ') || 'none'}`;
+    }
+    if (assistedStakeholderPayloadEl) {
+      const p = pkg.stakeholder_delivery_payload || {};
+      assistedStakeholderPayloadEl.innerHTML = [
+        `<span class="decision-chip">audiences: ${(p.audiences || []).join(', ') || 'none'}</span>`,
+        `<span class="decision-chip">cto: ${p.preferred_routes?.cto || '--'}</span>`,
+        `<span class="decision-chip">orchestrator: ${p.preferred_routes?.orchestrator || '--'}</span>`,
+        `<span class="decision-chip">stakeholder: ${p.preferred_routes?.stakeholder || '--'}</span>`,
+      ].join('');
+    }
+  }
+
   function renderAnalyticsPanel() {
     if (!analyticsPanelEl) return;
     const analytics = lastClientPayload?.analytics || {};
@@ -793,6 +847,7 @@
     renderAssistedDeliveryPanel();
     renderAssistedIndexPanel();
     renderAssistedPackPanel();
+    renderAssistedStakeholderPanel();
   }
 
   function renderOperatorFeed(tasks) {
