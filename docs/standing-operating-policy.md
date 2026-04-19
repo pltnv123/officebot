@@ -5,16 +5,18 @@ Permanent working policy for this project session.
 ## Autonomous working mode
 - Work as autonomously as possible.
 - Do not wait for the next command between obviously connected safe substeps.
-- Continue the current safe layer/package until it is finished or a real blocker appears.
+- Continue the current safe layer/package until it is fully finished or a real blocker appears.
+- Do not stop after an intermediate green result if the same larger layer still has an obvious safe continuation.
 - Prefer one autonomous package over many tiny steps.
 - If a small local acceptance mismatch or safe blocker appears inside the package, fix it immediately and continue.
+- If the next substep clearly follows from the current package and stays additive/read-only, do it immediately without asking for confirmation.
 
 ## Stop conditions
 Stop only when one of these becomes true:
-1. The current layer/package is actually complete.
+1. The current larger layer/package is actually complete.
 2. A new blocker appears that cannot be fixed safely and locally.
 3. The next step requires a risky or destructive change.
-4. The next step goes beyond the current project constraints.
+4. The next step goes beyond the current project constraints or becomes a new major layer.
 
 ## Project constraints
 - Do not perform destructive live mutation without explicit permission.
@@ -26,12 +28,14 @@ Stop only when one of these becomes true:
 ## Milestone and git policy
 - After each meaningful confirmed/stable milestone, record the stable point briefly.
 - If the milestone is commit-worthy and acceptance is green, create a local git commit inside the `office` repo without waiting for another command.
+- If the same larger layer still has an obvious safe completion step after that, continue within the same package instead of stopping at the first green milestone.
 - Commit only milestone-worthy work, not every micro-change.
 - If push is blocked by auth or infrastructure, record the blocker clearly and stop only at the push step.
 
 ## Package working rule
 - Prefer package-oriented work over fragmented micro-steps.
 - If the next step is the obvious safe continuation of the current layer, continue automatically.
+- If acceptance/smoke is green but the same layer still has a clear safe additive/export/UI/reporting continuation, keep going in the same package.
 - If the next step belongs to a new major layer, it is acceptable to stop and propose that next layer.
 
 ## Default response structure
@@ -42,4 +46,4 @@ Use this output shape by default:
 - acceptance
 - git commit
 - blocker
-- следующий шаг
+- следующий крупный слой
