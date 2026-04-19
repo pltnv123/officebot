@@ -12,6 +12,7 @@ const { buildOperatorSurface } = require('./operatorLayer');
 const { buildKnowledgeAwareContext, buildDecisionConsumerSurface } = require('./knowledgeAwareLayer');
 const { buildExecutiveSummary } = require('./executiveSummaryLayer');
 const { buildStakeholderHandoffBundle } = require('./stakeholderHandoffLayer');
+const { buildExportIndex } = require('./exportIndexLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -229,6 +230,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.export_index = buildExportIndex({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.storage = remote.source;
   enriched.board = {
     inboxCount: columnTaskCounts[0],
@@ -377,6 +382,21 @@ app.get('/api/export/stakeholder-handoff', async (req, res) => {
     actor_role: actorRole,
     storage: enriched.storage,
     stakeholder_handoff: buildStakeholderHandoffBundle({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/export-index', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    export_index: buildExportIndex({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),

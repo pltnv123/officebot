@@ -37,6 +37,13 @@
   const handoffMaintenanceEl = document.getElementById('handoff-maintenance');
   const handoffCloneEl = document.getElementById('handoff-clone');
   const handoffPayloadEl = document.getElementById('handoff-payload');
+  const exportIndexPanelEl = document.getElementById('export-index-panel');
+  const exportIndexBadgeEl = document.getElementById('export-index-badge');
+  const exportIndexBriefEl = document.getElementById('export-index-brief');
+  const exportIndexSurfacesEl = document.getElementById('export-index-surfaces');
+  const exportIndexEndpointsEl = document.getElementById('export-index-endpoints');
+  const exportIndexArtifactsEl = document.getElementById('export-index-artifacts');
+  const exportIndexPayloadEl = document.getElementById('export-index-payload');
   const gatewayStateEl = document.getElementById('gateway-state');
   const stateTsEl = document.getElementById('state-ts');
   const opsTasksEl = document.getElementById('ops-tasks');
@@ -431,6 +438,36 @@
     }
   }
 
+  function renderExportIndexPanel() {
+    if (!exportIndexPanelEl) return;
+    const index = lastClientPayload?.export_index || null;
+    if (!index) {
+      if (exportIndexBadgeEl) exportIndexBadgeEl.textContent = 'entry: --';
+      if (exportIndexBriefEl) exportIndexBriefEl.textContent = 'Export index is waiting for payload…';
+      if (exportIndexSurfacesEl) exportIndexSurfacesEl.textContent = 'surfaces: --';
+      if (exportIndexEndpointsEl) exportIndexEndpointsEl.textContent = 'endpoints: --';
+      if (exportIndexArtifactsEl) exportIndexArtifactsEl.textContent = 'artifacts: --';
+      if (exportIndexPayloadEl) exportIndexPayloadEl.textContent = 'waiting…';
+      return;
+    }
+
+    if (exportIndexBadgeEl) exportIndexBadgeEl.textContent = `entry: ${index.delivery_payload?.recommended_entry || '--'}`;
+    if (exportIndexBriefEl) exportIndexBriefEl.textContent = `Available surfaces: ${(index.delivery_payload?.available_surfaces || []).join(', ') || 'none'}`;
+    if (exportIndexSurfacesEl) exportIndexSurfacesEl.textContent = `surfaces: ${Object.keys(index.surfaces || {}).join(', ') || 'none'}`;
+    if (exportIndexEndpointsEl) exportIndexEndpointsEl.textContent = `endpoints: ${(index.endpoints || []).join(' | ') || 'none'}`;
+    if (exportIndexArtifactsEl) exportIndexArtifactsEl.textContent = `artifacts: ${(index.artifacts || []).join(' | ') || 'none'}`;
+    if (exportIndexPayloadEl) {
+      const p = index.delivery_payload || {};
+      exportIndexPayloadEl.innerHTML = [
+        `<span class="decision-chip">actor: ${p.actor_role || '--'}</span>`,
+        `<span class="decision-chip">entry: ${p.recommended_entry || '--'}</span>`,
+        `<span class="decision-chip">surfaces: ${(p.available_surfaces || []).length}</span>`,
+        `<span class="decision-chip">top endpoints: ${(p.top_endpoints || []).length}</span>`,
+        `<span class="decision-chip">top artifacts: ${(p.top_artifacts || []).length}</span>`,
+      ].join('');
+    }
+  }
+
   function renderAnalyticsPanel() {
     if (!analyticsPanelEl) return;
     const analytics = lastClientPayload?.analytics || {};
@@ -483,6 +520,7 @@
     renderDecisionPanel();
     renderExecutivePanel();
     renderHandoffPanel();
+    renderExportIndexPanel();
   }
 
   function renderOperatorFeed(tasks) {

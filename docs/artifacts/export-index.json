@@ -1,0 +1,189 @@
+{
+  "updatedAt": "2026-04-19T13:02:29.106Z",
+  "actor_role": "cto",
+  "index_kind": "export-index",
+  "surfaces": {
+    "executive_summary": {
+      "kind": "executive-summary",
+      "artifact": "docs/artifacts/executive-summary.json",
+      "endpoint": "/api/export/executive-summary",
+      "summary": {
+        "actor_role": "cto",
+        "total_tasks": 3,
+        "suggested_owner": "cto",
+        "routing_focus": "review_attention",
+        "urgent_total": 1,
+        "anomaly_flags": [
+          "urgent_maintenance",
+          "lock_conflicts",
+          "stale_runtime"
+        ]
+      }
+    },
+    "stakeholder_handoff": {
+      "kind": "stakeholder-handoff",
+      "artifact": "docs/artifacts/stakeholder-handoff-bundle.json",
+      "endpoint": "/api/export/stakeholder-handoff",
+      "summary": {
+        "actor_role": "cto",
+        "total_tasks": 3,
+        "suggested_owner": "cto",
+        "routing_focus": "review_attention",
+        "anomaly_flags": [
+          "urgent_maintenance",
+          "lock_conflicts",
+          "stale_runtime"
+        ],
+        "top_recommendations": [
+          "Подтвердить выполнение",
+          "Отклонить выполнение",
+          "Вернуть задачу в повторную обработку",
+          "Исправить конфликт блокировки",
+          "acknowledge_escalation"
+        ]
+      }
+    },
+    "decision_context": {
+      "kind": "decision-context",
+      "artifact": "docs/artifacts/decision-context.json",
+      "endpoint": "/api/export/decision-context",
+      "summary": {
+        "actor_role": "cto",
+        "suggested_owner": "cto",
+        "routing_focus": "review_attention",
+        "hint_kinds": [
+          "runtime_source_of_truth",
+          "retrieval_context",
+          "memory_context",
+          "approval_attention",
+          "retry_retrieval",
+          "escalation_memory"
+        ],
+        "top_task_ids": [
+          "INDEX-1",
+          "INDEX-2",
+          "INDEX-3"
+        ]
+      }
+    },
+    "external_reporting": {
+      "kind": "external-reporting",
+      "artifact": "docs/artifacts/external-reporting-layer.json",
+      "endpoint": "/api/export/operator-snapshot",
+      "summary": {
+        "by_live_state": {
+          "retry": 1,
+          "executing": 1,
+          "queued": 1
+        },
+        "approvals": 1,
+        "retries": 1,
+        "escalations": 1,
+        "stale": 3,
+        "conflicts": 1,
+        "read_only_cards": 3
+      }
+    },
+    "operator_clone_report": {
+      "kind": "operator-clone-report",
+      "artifact": "docs/artifacts/operator-clone-acceptance-report.json",
+      "endpoint": null,
+      "summary": {
+        "runtime_tasks": 3,
+        "export_ready": true,
+        "by_live_state": {
+          "retry": 1,
+          "executing": 1,
+          "queued": 1
+        }
+      }
+    },
+    "knowledge_context": {
+      "kind": "knowledge-aware-context",
+      "artifact": "docs/artifacts/knowledge-aware-context.json",
+      "endpoint": "/api/export/knowledge-aware-context",
+      "summary": {
+        "actor_role": "cto",
+        "suggested_owner": "cto",
+        "planning_hints": [
+          {
+            "kind": "runtime_source_of_truth",
+            "system": "supabase",
+            "priority": "high"
+          },
+          {
+            "kind": "retrieval_context",
+            "system": "qmd",
+            "priority": "medium"
+          },
+          {
+            "kind": "memory_context",
+            "system": "lossless-claw",
+            "priority": "medium"
+          },
+          {
+            "kind": "approval_attention",
+            "system": "cto",
+            "priority": "high"
+          },
+          {
+            "kind": "retry_retrieval",
+            "system": "qmd",
+            "priority": "medium"
+          },
+          {
+            "kind": "escalation_memory",
+            "system": "lossless-claw",
+            "priority": "high"
+          }
+        ],
+        "routing_counts": {
+          "total_tasks": 3,
+          "pending_review": 3,
+          "retry_queue": 1,
+          "escalated": 1,
+          "approval_pending": 1
+        }
+      }
+    }
+  },
+  "endpoints": [
+    "/api/export/operator-snapshot",
+    "/api/export/knowledge-aware-context",
+    "/api/export/decision-context",
+    "/api/export/executive-summary",
+    "/api/export/stakeholder-handoff",
+    "/api/export/export-index"
+  ],
+  "artifacts": [
+    "docs/artifacts/decision-context.json",
+    "docs/artifacts/executive-summary.json",
+    "docs/artifacts/external-reporting-layer.json",
+    "docs/artifacts/knowledge-aware-context.json",
+    "docs/artifacts/operator-clone-acceptance-report.json",
+    "docs/artifacts/stakeholder-handoff-bundle.json",
+    "docs/artifacts/export-index.json"
+  ],
+  "delivery_payload": {
+    "actor_role": "cto",
+    "available_surfaces": [
+      "executive_summary",
+      "stakeholder_handoff",
+      "decision_context",
+      "external_reporting",
+      "operator_clone_report",
+      "knowledge_context"
+    ],
+    "recommended_entry": "stakeholder_handoff",
+    "top_endpoints": [
+      "/api/export/stakeholder-handoff",
+      "/api/export/executive-summary",
+      "/api/export/decision-context"
+    ],
+    "top_artifacts": [
+      "docs/artifacts/stakeholder-handoff-bundle.json",
+      "docs/artifacts/executive-summary.json",
+      "docs/artifacts/export-index.json"
+    ]
+  }
+}
