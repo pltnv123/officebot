@@ -1,0 +1,142 @@
+{
+  "updatedAt": "2026-04-19T21:03:25.834Z",
+  "actor_role": "cto",
+  "pack_kind": "assisted-execution-publishing-pack",
+  "consumer_handoff_manifest": {
+    "headline": "Assisted execution publishing pack",
+    "subhead": "Single read-only publishing and delivery surface for CTO and orchestrator consumption.",
+    "suggested_owner": "cto",
+    "recommended_entry": "assisted_execution_delivery",
+    "pack_ready": true
+  },
+  "distribution_priorities": {
+    "cto_priority": "assisted_execution_delivery",
+    "orchestrator_priority": "assisted_execution_presentation",
+    "top_guidance": [
+      "approval_review",
+      "escalation_review",
+      "retry_retrieval"
+    ],
+    "routing_recommendations": [
+      {
+        "owner": "cto",
+        "kind": "approval_review",
+        "priority": "high"
+      },
+      {
+        "owner": "cto",
+        "kind": "escalation_review",
+        "priority": "high"
+      },
+      {
+        "owner": "orchestrator",
+        "kind": "retry_retrieval",
+        "priority": "medium"
+      }
+    ]
+  },
+  "curated_entry_routing": {
+    "recommended_entry": "assisted_execution_delivery",
+    "entry_reason": "consumer_ready_delivery_surface",
+    "cto_route": "assisted_execution_delivery",
+    "orchestrator_route": "assisted_execution_presentation",
+    "read_only": true
+  },
+  "surface_pointers": {
+    "handoff": {
+      "endpoint": "/api/export/assisted-execution-handoff",
+      "summary": {
+        "suggested_owner": "cto",
+        "handoff_kind": "approval_review",
+        "readiness_ready_total": 3,
+        "analytics_alignment": {
+          "approval_pending": 1,
+          "retry_total": 1,
+          "escalated": 1
+        },
+        "role_aware": {
+          "actor_role": "cto",
+          "visible_actions_total": 8,
+          "read_only_cards": 3
+        },
+        "snapshot_safe": {
+          "reconnect_safe": true,
+          "backfill_safe": true
+        }
+      }
+    },
+    "presentation": {
+      "endpoint": "/api/export/assisted-execution-presentation",
+      "summary": {
+        "suggested_owner": "cto",
+        "handoff_kind": "approval_review",
+        "readiness_ready_total": 3,
+        "next_actions_total": 3,
+        "top_guidance": [
+          "approval_review",
+          "escalation_review",
+          "retry_retrieval"
+        ]
+      }
+    },
+    "delivery": {
+      "endpoint": "/api/export/assisted-execution-delivery",
+      "artifact": "docs/artifacts/assisted-execution-delivery.json",
+      "summary": {
+        "actor_role": "cto",
+        "suggested_owner": "cto",
+        "readiness_ready_total": 3,
+        "next_actions_total": 3,
+        "presentation_ready": true,
+        "top_guidance": [
+          "approval_review",
+          "escalation_review",
+          "retry_retrieval"
+        ]
+      }
+    },
+    "index": {
+      "endpoint": "/api/export/assisted-execution-bundle-index",
+      "artifact": "docs/artifacts/assisted-execution-bundle-index.json",
+      "summary": {
+        "actor_role": "cto",
+        "available_surfaces": [
+          "assisted_execution_handoff",
+          "assisted_execution_presentation",
+          "assisted_execution_delivery"
+        ],
+        "recommended_entry": "assisted_execution_delivery",
+        "top_endpoints": [
+          "/api/export/assisted-execution-delivery",
+          "/api/export/assisted-execution-presentation"
+        ],
+        "distribution_map": [
+          "cto -> assisted_execution_delivery",
+          "orchestrator -> assisted_execution_presentation"
+        ]
+      }
+    }
+  },
+  "cto_orchestrator_consumption_summary": {
+    "suggested_owner": "cto",
+    "handoff_kind": "approval_review",
+    "readiness_ready_total": 3,
+    "next_actions_total": 3,
+    "recommended_entry": "assisted_execution_delivery"
+  },
+  "publishing_payload": {
+    "actor_role": "cto",
+    "top_entry": "assisted_execution_delivery",
+    "consumer_ready": true,
+    "available_surfaces": [
+      "handoff",
+      "presentation",
+      "delivery",
+      "index"
+    ],
+    "distribution_map": [
+      "cto -> assisted_execution_delivery",
+      "orchestrator -> assisted_execution_presentation"
+    ]
+  }
+}

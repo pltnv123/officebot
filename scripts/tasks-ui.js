@@ -79,6 +79,15 @@
   const assistedIndexEndpointsEl = document.getElementById('assisted-index-endpoints');
   const assistedIndexArtifactsEl = document.getElementById('assisted-index-artifacts');
   const assistedIndexPayloadEl = document.getElementById('assisted-index-payload');
+  const assistedPackPanelEl = document.getElementById('assisted-pack-panel');
+  const assistedPackBadgeEl = document.getElementById('assisted-pack-badge');
+  const assistedPackBriefEl = document.getElementById('assisted-pack-brief');
+  const assistedPackManifestEl = document.getElementById('assisted-pack-manifest');
+  const assistedPackPrioritiesEl = document.getElementById('assisted-pack-priorities');
+  const assistedPackRoutingEl = document.getElementById('assisted-pack-routing');
+  const assistedPackPointersEl = document.getElementById('assisted-pack-pointers');
+  const assistedPackCtoEl = document.getElementById('assisted-pack-cto');
+  const assistedPackPayloadEl = document.getElementById('assisted-pack-payload');
   const gatewayStateEl = document.getElementById('gateway-state');
   const stateTsEl = document.getElementById('state-ts');
   const opsTasksEl = document.getElementById('ops-tasks');
@@ -678,6 +687,54 @@
     }
   }
 
+  function renderAssistedPackPanel() {
+    if (!assistedPackPanelEl) return;
+    const pack = lastClientPayload?.assisted_execution_publishing_pack || null;
+    if (!pack) {
+      if (assistedPackBadgeEl) assistedPackBadgeEl.textContent = 'entry: --';
+      if (assistedPackBriefEl) assistedPackBriefEl.textContent = 'Assisted execution publishing pack is waiting for payload…';
+      if (assistedPackManifestEl) assistedPackManifestEl.textContent = 'consumer_handoff_manifest: --';
+      if (assistedPackPrioritiesEl) assistedPackPrioritiesEl.textContent = 'distribution_priorities: --';
+      if (assistedPackRoutingEl) assistedPackRoutingEl.textContent = 'curated_entry_routing: --';
+      if (assistedPackPointersEl) assistedPackPointersEl.textContent = 'surface_pointers: --';
+      if (assistedPackCtoEl) assistedPackCtoEl.textContent = 'cto_orchestrator_consumption_summary: --';
+      if (assistedPackPayloadEl) assistedPackPayloadEl.textContent = 'waiting…';
+      return;
+    }
+
+    if (assistedPackBadgeEl) assistedPackBadgeEl.textContent = `entry: ${pack.curated_entry_routing?.recommended_entry || '--'}`;
+    if (assistedPackBriefEl) assistedPackBriefEl.textContent = pack.consumer_handoff_manifest?.headline || 'Publishing pack unavailable';
+    if (assistedPackManifestEl) {
+      const m = pack.consumer_handoff_manifest || {};
+      assistedPackManifestEl.textContent = `consumer_handoff_manifest: owner=${m.suggested_owner || '--'} | entry=${m.recommended_entry || '--'} | ready=${String(m.pack_ready)}`;
+    }
+    if (assistedPackPrioritiesEl) {
+      const p = pack.distribution_priorities || {};
+      assistedPackPrioritiesEl.textContent = `distribution_priorities: cto=${p.cto_priority || '--'} | orchestrator=${p.orchestrator_priority || '--'} | guidance=${(p.top_guidance || []).join(', ') || 'none'}`;
+    }
+    if (assistedPackRoutingEl) {
+      const r = pack.curated_entry_routing || {};
+      assistedPackRoutingEl.textContent = `curated_entry_routing: recommended=${r.recommended_entry || '--'} | cto=${r.cto_route || '--'} | orchestrator=${r.orchestrator_route || '--'}`;
+    }
+    if (assistedPackPointersEl) {
+      const pointers = Object.keys(pack.surface_pointers || {});
+      assistedPackPointersEl.textContent = `surface_pointers: ${pointers.join(', ') || 'none'}`;
+    }
+    if (assistedPackCtoEl) {
+      const c = pack.cto_orchestrator_consumption_summary || {};
+      assistedPackCtoEl.textContent = `cto_orchestrator_consumption_summary: owner=${c.suggested_owner || '--'} | handoff=${c.handoff_kind || '--'} | entry=${c.recommended_entry || '--'}`;
+    }
+    if (assistedPackPayloadEl) {
+      const p = pack.publishing_payload || {};
+      assistedPackPayloadEl.innerHTML = [
+        `<span class="decision-chip">entry: ${p.top_entry || '--'}</span>`,
+        `<span class="decision-chip">consumer ready: ${String(p.consumer_ready)}</span>`,
+        `<span class="decision-chip">surfaces: ${(p.available_surfaces || []).join(', ') || 'none'}</span>`,
+        `<span class="decision-chip">distribution: ${(p.distribution_map || []).join(' | ') || 'none'}</span>`,
+      ].join('');
+    }
+  }
+
   function renderAnalyticsPanel() {
     if (!analyticsPanelEl) return;
     const analytics = lastClientPayload?.analytics || {};
@@ -735,6 +792,7 @@
     renderAssistedPresentationPanel();
     renderAssistedDeliveryPanel();
     renderAssistedIndexPanel();
+    renderAssistedPackPanel();
   }
 
   function renderOperatorFeed(tasks) {
