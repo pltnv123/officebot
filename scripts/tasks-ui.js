@@ -61,6 +61,16 @@
   const assistedPresentationGuidanceEl = document.getElementById('assisted-presentation-guidance');
   const assistedPresentationCompactEl = document.getElementById('assisted-presentation-compact');
   const assistedPresentationPayloadEl = document.getElementById('assisted-presentation-payload');
+  const assistedDeliveryPanelEl = document.getElementById('assisted-delivery-panel');
+  const assistedDeliveryBadgeEl = document.getElementById('assisted-delivery-badge');
+  const assistedDeliveryBriefEl = document.getElementById('assisted-delivery-brief');
+  const assistedDeliveryReadinessEl = document.getElementById('assisted-delivery-readiness');
+  const assistedDeliveryHandoffEl = document.getElementById('assisted-delivery-handoff');
+  const assistedDeliverySummaryEl = document.getElementById('assisted-delivery-summary');
+  const assistedDeliveryGuidanceEl = document.getElementById('assisted-delivery-guidance');
+  const assistedDeliveryCompactEl = document.getElementById('assisted-delivery-compact');
+  const assistedDeliveryCtoEl = document.getElementById('assisted-delivery-cto');
+  const assistedDeliveryPayloadEl = document.getElementById('assisted-delivery-payload');
   const gatewayStateEl = document.getElementById('gateway-state');
   const stateTsEl = document.getElementById('state-ts');
   const opsTasksEl = document.getElementById('ops-tasks');
@@ -575,6 +585,57 @@
     }
   }
 
+  function renderAssistedDeliveryPanel() {
+    if (!assistedDeliveryPanelEl) return;
+    const bundle = lastClientPayload?.assisted_execution_delivery || null;
+    if (!bundle) {
+      if (assistedDeliveryBadgeEl) assistedDeliveryBadgeEl.textContent = 'owner: --';
+      if (assistedDeliveryBriefEl) assistedDeliveryBriefEl.textContent = 'Assisted execution delivery bundle is waiting for payload…';
+      if (assistedDeliveryReadinessEl) assistedDeliveryReadinessEl.textContent = 'readiness_outputs: --';
+      if (assistedDeliveryHandoffEl) assistedDeliveryHandoffEl.textContent = 'suggested_next_handoff: --';
+      if (assistedDeliverySummaryEl) assistedDeliverySummaryEl.textContent = 'execution_handoff_summary: --';
+      if (assistedDeliveryGuidanceEl) assistedDeliveryGuidanceEl.textContent = 'next_action_guidance: --';
+      if (assistedDeliveryCompactEl) assistedDeliveryCompactEl.textContent = 'compact_handoff_surface: --';
+      if (assistedDeliveryCtoEl) assistedDeliveryCtoEl.textContent = 'cto_orchestrator_handoff_summary: --';
+      if (assistedDeliveryPayloadEl) assistedDeliveryPayloadEl.textContent = 'waiting…';
+      return;
+    }
+
+    if (assistedDeliveryBadgeEl) assistedDeliveryBadgeEl.textContent = `owner: ${bundle.suggested_next_handoff?.owner || '--'}`;
+    if (assistedDeliveryBriefEl) assistedDeliveryBriefEl.textContent = `Presentation ready: ${String(bundle.delivery_payload?.presentation_ready)}`;
+    if (assistedDeliveryReadinessEl) assistedDeliveryReadinessEl.textContent = `readiness_outputs: ${(bundle.readiness_outputs || []).length} tasks | ready=${(bundle.readiness_outputs || []).filter((item) => item.review_ready).length}`;
+    if (assistedDeliveryHandoffEl) {
+      const h = bundle.suggested_next_handoff || {};
+      assistedDeliveryHandoffEl.textContent = `suggested_next_handoff: owner=${h.owner || '--'} | kind=${h.kind || '--'} | priority=${h.priority || '--'}`;
+    }
+    if (assistedDeliverySummaryEl) {
+      const s = bundle.execution_handoff_summary || {};
+      assistedDeliverySummaryEl.textContent = `execution_handoff_summary: owner=${s.suggested_owner || '--'} | focus=${s.routing_focus || '--'} | actions=${(s.top_operator_actions || []).join(', ') || 'none'}`;
+    }
+    if (assistedDeliveryGuidanceEl) {
+      const g = bundle.next_action_guidance || {};
+      assistedDeliveryGuidanceEl.textContent = `next_action_guidance: ${(g.next_actions || []).map((item) => item.kind).join(', ') || 'none'}`;
+    }
+    if (assistedDeliveryCompactEl) {
+      const c = bundle.compact_handoff_surface || {};
+      assistedDeliveryCompactEl.textContent = `compact_handoff_surface: ready=${c.readiness_ready_total || 0} | visible_actions=${c.role_aware?.visible_actions_total || 0} | reconnect_safe=${String(c.snapshot_safe?.reconnect_safe)}`;
+    }
+    if (assistedDeliveryCtoEl) {
+      const cto = bundle.cto_orchestrator_handoff_summary || {};
+      assistedDeliveryCtoEl.textContent = `cto_orchestrator_handoff_summary: owner=${cto.suggested_owner || '--'} | handoff=${cto.handoff_kind || '--'} | next_actions=${cto.next_actions_total || 0}`;
+    }
+    if (assistedDeliveryPayloadEl) {
+      const p = bundle.delivery_payload || {};
+      assistedDeliveryPayloadEl.innerHTML = [
+        `<span class="decision-chip">owner: ${p.suggested_owner || '--'}</span>`,
+        `<span class="decision-chip">ready: ${p.readiness_ready_total || 0}</span>`,
+        `<span class="decision-chip">next actions: ${p.next_actions_total || 0}</span>`,
+        `<span class="decision-chip">presentation: ${String(p.presentation_ready)}</span>`,
+        `<span class="decision-chip">guidance: ${(p.top_guidance || []).join(', ') || 'none'}</span>`,
+      ].join('');
+    }
+  }
+
   function renderAnalyticsPanel() {
     if (!analyticsPanelEl) return;
     const analytics = lastClientPayload?.analytics || {};
@@ -630,6 +691,7 @@
     renderExportIndexPanel();
     renderDeliveryPackPanel();
     renderAssistedPresentationPanel();
+    renderAssistedDeliveryPanel();
   }
 
   function renderOperatorFeed(tasks) {

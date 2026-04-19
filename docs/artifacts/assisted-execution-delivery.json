@@ -1,0 +1,139 @@
+{
+  "updatedAt": "2026-04-19T18:27:59.664Z",
+  "actor_role": "cto",
+  "bundle_kind": "assisted-execution-delivery",
+  "readiness_outputs": [
+    {
+      "task_id": "DELIV-1",
+      "live_state": "retry",
+      "review_ready": true,
+      "approval_state": "approval_pending",
+      "next_visible_actions": []
+    },
+    {
+      "task_id": "DELIV-2",
+      "live_state": "executing",
+      "review_ready": true,
+      "approval_state": "none",
+      "next_visible_actions": []
+    },
+    {
+      "task_id": "DELIV-3",
+      "live_state": "queued",
+      "review_ready": true,
+      "approval_state": "none",
+      "next_visible_actions": []
+    }
+  ],
+  "suggested_next_handoff": {
+    "owner": "cto",
+    "kind": "approval_review",
+    "reason": "approval_pending_tasks_present",
+    "priority": "high"
+  },
+  "execution_handoff_summary": {
+    "suggested_owner": "cto",
+    "routing_focus": "review_attention",
+    "top_operator_actions": [
+      "approve_task",
+      "reject_task",
+      "requeue_task",
+      "resolve_lock_conflict",
+      "acknowledge_escalation",
+      "request_approval"
+    ],
+    "analytics_alignment": {
+      "approval_pending": 1,
+      "retry_total": 1,
+      "escalated": 1
+    },
+    "visible_actions_total": 8
+  },
+  "next_action_guidance": {
+    "guidance_mode": "non_destructive",
+    "next_actions": [
+      {
+        "kind": "approval_review",
+        "owner": "cto",
+        "priority": "high",
+        "reason": "approval_pending_tasks_present",
+        "safe": true
+      },
+      {
+        "kind": "escalation_review",
+        "owner": "cto",
+        "priority": "high",
+        "reason": "escalated_tasks_present",
+        "safe": true
+      },
+      {
+        "kind": "retry_retrieval",
+        "owner": "orchestrator",
+        "priority": "medium",
+        "reason": "retry_queue_present",
+        "safe": true
+      }
+    ],
+    "planning_hints": [
+      "runtime_source_of_truth",
+      "retrieval_context",
+      "memory_context",
+      "approval_attention",
+      "retry_retrieval",
+      "escalation_memory"
+    ]
+  },
+  "compact_handoff_surface": {
+    "suggested_owner": "cto",
+    "handoff_kind": "approval_review",
+    "readiness_ready_total": 3,
+    "analytics_alignment": {
+      "approval_pending": 1,
+      "retry_total": 1,
+      "escalated": 1
+    },
+    "role_aware": {
+      "actor_role": "cto",
+      "visible_actions_total": 8,
+      "read_only_cards": 3
+    },
+    "snapshot_safe": {
+      "reconnect_safe": true,
+      "backfill_safe": true
+    }
+  },
+  "presentation_payload": {
+    "suggested_owner": "cto",
+    "handoff_kind": "approval_review",
+    "readiness_ready_total": 3,
+    "next_actions_total": 3,
+    "top_guidance": [
+      "approval_review",
+      "escalation_review",
+      "retry_retrieval"
+    ]
+  },
+  "cto_orchestrator_handoff_summary": {
+    "suggested_owner": "cto",
+    "handoff_kind": "approval_review",
+    "readiness_ready_total": 3,
+    "next_actions_total": 3,
+    "top_guidance": [
+      "approval_review",
+      "escalation_review",
+      "retry_retrieval"
+    ]
+  },
+  "delivery_payload": {
+    "actor_role": "cto",
+    "suggested_owner": "cto",
+    "readiness_ready_total": 3,
+    "next_actions_total": 3,
+    "presentation_ready": true,
+    "top_guidance": [
+      "approval_review",
+      "escalation_review",
+      "retry_retrieval"
+    ]
+  }
+}
