@@ -5,6 +5,13 @@ const { spawn } = require('child_process');
 const http = require('http');
 const { WebSocketServer } = require('ws');
 const { runOrchestrator, tickFirstDoingTask } = require('./taskOrchestrator');
+const { normalizeEvent, deriveTaskLiveState } = require('./liveEventContract');
+const { applyRuntimeEventGuards, ensureIdempotentTaskFinalState } = require('./runtimeGuards');
+const { buildTaskUiView, buildRuntimeUiView } = require('./uiStateView');
+const { buildOperatorSurface } = require('./operatorLayer');
+const { buildKnowledgeAwareContext } = require('./knowledgeAwareLayer');
+const { executeOperatorAction } = require('./operatorActions');
+const supabaseStore = require('./supabaseStore');
 
 // ═══ Autonomous Agent System ═══
 const {
@@ -48,6 +55,175 @@ async function readJsonSafe(p, fallback) {
 
 async function writeJson(p, data) {
   await fs.writeFile(p, JSON.stringify(data, null, 2), 'utf8');
+}
+
+async function collectAgentRunsFromQueue() {
+  try {
+    const queue = await readJsonSafe(path.join(ROOT, 'task_queue.json'), { tasks: [] });
+    const queueTasks = Array.isArray(queue?.tasks) ? queue.tasks : [];
+    return queueTasks.map((task) => ({
+      id: `${task.id}:run`,
+      agent_id: task.agent || task.role || null,
+      role: task.role || task.agent || null,
+      task_id: task.id,
+      status: task.assignment_state || task.status || null,
+      assigned_by: task.assigned_by || 'orchestrator',
+      capabilities: task.role ? [task.role] : [],
+      payload: task,
+      created_at: task.created_at || nowIso(),
+      updated_at: nowIso(),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+async function persistSnapshot(tasksPayload = null) {
+  const snapshot = await supabaseStore.loadLocalSnapshot();
+  if (tasksPayload) snapshot.tasksPayload = tasksPayload;
+  snapshot.agentRuns = await collectAgentRunsFromQueue();
+  const result = await supabaseStore.persistRuntimeSnapshot(snapshot);
+  console.log('[office-backend] TASK WRITE SYNC', JSON.stringify({
+    storage: result?.source || 'unknown',
+    ok: Boolean(result?.ok),
+    agentRuns: snapshot.agentRuns.length,
+  }));
+  return result;
+}
+
+function resolveActorRole(req) {
+  const headerRole = String(req?.headers?.['x-actor-role'] || req?.headers?.['x-operator-role'] || '').trim().toLowerCase();
+  const queryRole = String(req?.query?.actorRole || req?.query?.actor_role || '').trim().toLowerCase();
+  const bodyRole = String(req?.body?.actorRole || req?.body?.actor_role || '').trim().toLowerCase();
+  const allowed = new Set(['orchestrator', 'cto', 'qa', 'backend', 'ios']);
+  const candidate = headerRole || queryRole || bodyRole || 'orchestrator';
+  return allowed.has(candidate) ? candidate : 'orchestrator';
+}
+
+async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
+  const remote = await supabaseStore.fetchTasksState();
+  const state = await readJsonSafe(STATE_PATH, { tasks: [], bots: [], world: { toggles: {}, metrics: {} } });
+  const world = await readJsonSafe(WORLD_PATH, { toggles: {}, metrics: {} });
+
+  const remotePayload = remote?.payload || {};
+  const runtimeState = remote.source === 'supabase' ? remotePayload.runtime_state?.state_json || {} : {};
+  const runtimeWorld = remote.source === 'supabase' ? remotePayload.runtime_state?.world_json || {} : {};
+  const enriched = {
+    ...state,
+    ...runtimeState,
+    world: state.world || runtimeWorld || world,
+  };
+  const tasks = Array.isArray(remotePayload?.tasks)
+    ? remotePayload.tasks
+    : (Array.isArray(enriched?.taskState?.tasks)
+      ? enriched.taskState.tasks
+      : (Array.isArray(enriched?.tasks) ? enriched.tasks : []));
+
+  const normalizedTasks = tasks.map((task, idx) => ensureIdempotentTaskFinalState({
+    ...task,
+    assignee: inferAssignee(task, idx),
+  }));
+
+  const agentMap = new Map();
+  normalizedTasks.forEach((task) => {
+    const role = inferAssignee(task);
+    if (!role) return;
+    if (!agentMap.has(role)) {
+      agentMap.set(role, {
+        id: role,
+        role,
+        state: 'idle',
+        isWorking: false,
+        taskId: '',
+      });
+    }
+    if (String(task?.status || '').toLowerCase() === 'done') return;
+    const agent = agentMap.get(role);
+    agent.state = String(task?.status || 'doing').toLowerCase();
+    agent.isWorking = true;
+    agent.taskId = String(task?.id || '');
+  });
+
+  const columnKeys = ['inbox', 'queue', 'planning', 'doing', 'review', 'done'];
+  const columnTaskCounts = columnKeys.map(() => 0);
+  normalizedTasks.forEach((task) => {
+    const status = String(task?.status || '').toLowerCase();
+    let column = 1;
+    if (status === 'inbox') column = 0;
+    else if (status === 'queue') column = 1;
+    else if (status === 'plan' || status === 'planning') column = 2;
+    else if (status === 'work' || status === 'doing') column = 3;
+    else if (status === 'review' || status === 'rework') column = 4;
+    else if (status === 'done') column = 5;
+    columnTaskCounts[column] += 1;
+  });
+
+  enriched.updatedAt = String(enriched.updatedAt || enriched.timestamp || nowIso());
+  enriched.tasks = normalizedTasks;
+  enriched.taskState = { ...(enriched.taskState || {}), tasks: normalizedTasks };
+  const runtimeAgents = Array.isArray(runtimeState?.agents) ? runtimeState.agents : [];
+  runtimeAgents.forEach((agent) => {
+    const key = String(agent?.id || agent?.role || '').toLowerCase();
+    if (!key) return;
+    agentMap.set(key, {
+      id: key,
+      role: agent.role || key,
+      state: agent.status || agent.state || 'idle',
+      isWorking: Boolean(agent.currentTask || agent.taskId),
+      taskId: String(agent.currentTask || agent.taskId || ''),
+      capabilities: Array.isArray(agent.capabilities) ? agent.capabilities : [],
+      assignment_state: agent.assignment_state || null,
+    });
+  });
+  ['cto', 'orchestrator', 'backend', 'qa', 'ios'].forEach((role) => {
+    if (!agentMap.has(role)) {
+      agentMap.set(role, {
+        id: role,
+        role,
+        state: 'idle',
+        isWorking: false,
+        taskId: '',
+        capabilities: role === 'orchestrator'
+          ? ['routing', 'status_transitions', 'assignment', 'review_escalation']
+          : role === 'cto'
+            ? ['review', 'escalation', 'approval']
+            : role === 'qa'
+              ? ['verification', 'smoke', 'review']
+              : role === 'ios'
+                ? ['implementation', 'mobile_execution', 'artifacts']
+                : ['implementation', 'task_execution', 'artifacts'],
+        assignment_state: null,
+      });
+    }
+  });
+  enriched.agents = Array.from(agentMap.values());
+  const rawEvents = Array.isArray(remotePayload?.events)
+    ? remotePayload.events
+    : (Array.isArray(enriched.events) ? enriched.events : []);
+  enriched.events = applyRuntimeEventGuards(rawEvents).map((event) => normalizeEvent(event));
+  enriched.tasks = normalizedTasks.map((task) => ({
+    ...task,
+    live_state: deriveTaskLiveState(task),
+  }));
+  enriched.taskState = { ...(enriched.taskState || {}), tasks: enriched.tasks };
+  enriched.ui = buildRuntimeUiView({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  });
+  enriched.operator = buildOperatorSurface({
+    updatedAt: enriched.updatedAt,
+    actorRole,
+    tasks: enriched.tasks,
+  });
+  enriched.storage = remote.source;
+  enriched.board = {
+    inboxCount: columnTaskCounts[0],
+    doingCount: normalizedTasks.filter((task) => String(task?.status || '').toLowerCase() !== 'done').length,
+    doneCount: normalizedTasks.filter((task) => String(task?.status || '').toLowerCase() === 'done').length,
+    columnTaskCounts,
+  };
+
+  return enriched;
 }
 
 function mkTaskId() {
@@ -102,67 +278,50 @@ app.get('/health', async (_req, res) => {
   res.json({ ok: true, ts: nowIso() });
 });
 
-app.get('/api/state', async (_req, res) => {
-  const state = await readJsonSafe(STATE_PATH, { tasks: [], bots: [], world: { toggles: {}, metrics: {} } });
-  const world = await readJsonSafe(WORLD_PATH, { toggles: {}, metrics: {} });
-
-  const enriched = { ...state, world: state.world || world };
-  const tasks = Array.isArray(enriched?.taskState?.tasks)
-    ? enriched.taskState.tasks
-    : (Array.isArray(enriched?.tasks) ? enriched.tasks : []);
-
-  const normalizedTasks = tasks.map((task, idx) => ({
-    ...task,
-    assignee: inferAssignee(task, idx),
-  }));
-
-  const agentMap = new Map();
-  normalizedTasks.forEach((task) => {
-    const role = inferAssignee(task);
-    if (!role) return;
-    if (!agentMap.has(role)) {
-      agentMap.set(role, {
-        id: role,
-        role,
-        state: 'idle',
-        isWorking: false,
-        taskId: '',
-      });
-    }
-    if (String(task?.status || '').toLowerCase() === 'done') return;
-    const agent = agentMap.get(role);
-    agent.state = String(task?.status || 'doing').toLowerCase();
-    agent.isWorking = true;
-    agent.taskId = String(task?.id || '');
-  });
-
-  const columnKeys = ['inbox', 'queue', 'planning', 'doing', 'review', 'done'];
-  const columnTaskCounts = columnKeys.map(() => 0);
-  normalizedTasks.forEach((task) => {
-    const status = String(task?.status || '').toLowerCase();
-    let column = 1;
-    if (status === 'inbox') column = 0;
-    else if (status === 'queue') column = 1;
-    else if (status === 'plan' || status === 'planning') column = 2;
-    else if (status === 'work' || status === 'doing') column = 3;
-    else if (status === 'review' || status === 'rework') column = 4;
-    else if (status === 'done') column = 5;
-    columnTaskCounts[column] += 1;
-  });
-
-  enriched.updatedAt = String(enriched.updatedAt || enriched.timestamp || nowIso());
-  enriched.tasks = normalizedTasks;
-  enriched.taskState = { ...(enriched.taskState || {}), tasks: normalizedTasks };
-  enriched.agents = Array.from(agentMap.values());
-  enriched.events = Array.isArray(enriched.events) ? enriched.events : [];
-  enriched.board = {
-    inboxCount: columnTaskCounts[0],
-    doingCount: normalizedTasks.filter((task) => String(task?.status || '').toLowerCase() !== 'done').length,
-    doneCount: normalizedTasks.filter((task) => String(task?.status || '').toLowerCase() === 'done').length,
-    columnTaskCounts,
+app.get('/api/state', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  enriched.client = {
+    updatedAt: enriched.updatedAt,
+    actor_role: actorRole,
+    reconnect_safe: true,
+    backfill_safe: true,
+    ui: enriched.ui,
+    operator: enriched.operator?.client_payload || { reconnect_safe: true, backfill_safe: true, updatedAt: enriched.updatedAt, tasks: [] },
+    analytics: enriched.operator?.analytics || null,
   };
-
   res.json(enriched);
+});
+
+app.get('/api/export/operator-snapshot', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    analytics: enriched.operator?.analytics || null,
+    operator_snapshot: {
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.operator?.client_payload?.tasks || [],
+    },
+  });
+});
+
+app.get('/api/export/knowledge-aware-context', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    knowledge_context: buildKnowledgeAwareContext({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole),
+  });
 });
 
 app.get('/api/ops/health', async (_req, res) => {
@@ -212,6 +371,7 @@ app.post('/api/tasks', async (req, res) => {
   const normalized = runOrchestrator(payload);
   await writeJson(TASKS_PATH, normalized);
   await rebuildState();
+  await persistSnapshot(normalized);
 
   res.status(201).json({ ok: true, task });
 });
@@ -226,6 +386,7 @@ app.post('/api/toggles/:id', async (req, res) => {
   world.metrics.lastToggleAt = nowIso();
   world.metrics.lastToggleId = id;
   await writeJson(WORLD_PATH, world);
+  await persistSnapshot();
 
   res.json({ ok: true, id, value, world });
 });
@@ -235,7 +396,31 @@ app.post('/api/orchestrator/tick', async (_req, res) => {
   const result = tickFirstDoingTask(payload);
   await writeJson(TASKS_PATH, result.payload);
   await rebuildState();
+  await persistSnapshot(result.payload);
   res.json({ ok: true, changed: result.changed, reason: result.reason || null, taskId: result.taskId || null });
+});
+
+app.post('/api/operator/action', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const taskId = String(req.body?.taskId || '').trim();
+  const action = String(req.body?.action || '').trim();
+  if (!taskId || !action) return res.status(400).json({ ok: false, error: 'taskId and action are required' });
+
+  const payload = await readJsonSafe(TASKS_PATH, { tasks: [] });
+  payload.tasks = Array.isArray(payload.tasks) ? payload.tasks : [];
+  const index = payload.tasks.findIndex((task) => String(task?.id || '') === taskId);
+  if (index < 0) return res.status(404).json({ ok: false, error: 'task not found' });
+
+  const executed = executeOperatorAction(payload.tasks[index], action, actorRole);
+  if (executed.result?.status === 'forbidden') {
+    return res.status(403).json({ ok: false, error: 'capability_denied', taskId, actor_role: actorRole, result: executed.result });
+  }
+  payload.tasks[index] = executed.task;
+  const normalized = runOrchestrator(payload);
+  await writeJson(TASKS_PATH, normalized);
+  await rebuildState();
+  await persistSnapshot(normalized);
+  res.json({ ok: true, taskId, actor_role: actorRole, result: executed.result });
 });
 
 app.post('/telegram/webhook', async (req, res) => {
@@ -251,6 +436,7 @@ app.post('/telegram/webhook', async (req, res) => {
     const result = tickFirstDoingTask(payload);
     await writeJson(TASKS_PATH, result.payload);
     await rebuildState();
+    await persistSnapshot(result.payload);
     return res.json({ ok: true, command: low, changed: result.changed, taskId: result.taskId || null });
   }
 
@@ -259,6 +445,7 @@ app.post('/telegram/webhook', async (req, res) => {
   const normalized = runOrchestrator(payload);
   await writeJson(TASKS_PATH, normalized);
   await rebuildState();
+  await persistSnapshot(normalized);
 
   res.json({ ok: true, createdTaskId: task.id });
 });
@@ -283,14 +470,32 @@ wss.on('connection', (ws) => {
 });
 
 setInterval(async () => {
-  const state = await readJsonSafe(STATE_PATH, { taskState: { tasks: [] } });
-  const payload = { type: 'state', ts: nowIso(), tasks: state.taskState?.tasks || [] };
+  const runtimeState = await buildRuntimeStateResponse();
+  const payload = {
+    type: 'state',
+    ts: nowIso(),
+    tasks: runtimeState.taskState?.tasks || runtimeState.tasks || [],
+    state: runtimeState,
+    client: {
+      updatedAt: runtimeState.updatedAt,
+      actor_role: runtimeState.operator?.client_payload?.tasks?.[0]?.actor_role || 'orchestrator',
+      reconnect_safe: true,
+      backfill_safe: true,
+      ui: runtimeState.ui,
+      operator: runtimeState.operator?.client_payload || { reconnect_safe: true, backfill_safe: true, updatedAt: runtimeState.updatedAt, tasks: [] },
+    },
+    storage: runtimeState.storage,
+  };
   wss.clients.forEach((client) => {
     if (client.readyState === 1) {
       client.send(JSON.stringify(payload));
     }
   });
 }, 5000);
+
+supabaseStore.init().catch((error) => {
+  console.error('[office-backend] supabase init failed:', error.message);
+});
 
 server.listen(PORT, () => {
   console.log(`[office-backend] listening on :${PORT}`);

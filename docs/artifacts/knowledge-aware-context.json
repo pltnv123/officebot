@@ -1,0 +1,174 @@
+{
+  "updatedAt": "2026-04-19T12:16:03.990Z",
+  "actor_role": "cto",
+  "source_of_truth": {
+    "runtime": "supabase",
+    "retrieval": "qmd",
+    "memory": "lossless-claw"
+  },
+  "routing_summary": {
+    "total_tasks": 3,
+    "pending_review": 3,
+    "retry_queue": 1,
+    "escalated": 1,
+    "approval_pending": 2,
+    "suggested_owner": "cto"
+  },
+  "planning_hints": [
+    {
+      "kind": "runtime_source_of_truth",
+      "system": "supabase",
+      "priority": "high",
+      "note": "Use Supabase-backed runtime snapshot as source of truth for routing decisions."
+    },
+    {
+      "kind": "retrieval_context",
+      "system": "qmd",
+      "priority": "medium",
+      "note": "Use QMD retrieval to enrich planning with prior architecture, ownership, and delivery context."
+    },
+    {
+      "kind": "memory_context",
+      "system": "lossless-claw",
+      "priority": "medium",
+      "note": "Use lossless-claw memory to recover prior decisions, blockers, and session-local operator context."
+    },
+    {
+      "kind": "approval_attention",
+      "system": "cto",
+      "priority": "high",
+      "note": "Approval-pending tasks require review-aware routing before execution continues."
+    },
+    {
+      "kind": "retry_retrieval",
+      "system": "qmd",
+      "priority": "medium",
+      "note": "Retry tasks should carry retrieved execution history and known-failure context into planning."
+    },
+    {
+      "kind": "escalation_memory",
+      "system": "lossless-claw",
+      "priority": "high",
+      "note": "Escalated tasks should surface prior operator decisions and unresolved blockers before reassignment."
+    }
+  ],
+  "context_summary": {
+    "runtime_tasks": 3,
+    "operator_cards": 3,
+    "approval_pending": 2,
+    "retries": 1,
+    "escalations": 1,
+    "maintenance_pending": 3
+  },
+  "memory_aware_tasks": [
+    {
+      "task_id": "KNOW-1",
+      "title": "Plan Supabase-backed routing context",
+      "routing_tags": [
+        "doing",
+        "retry",
+        "approval_pending"
+      ],
+      "memory_queries": [
+        "task KNOW-1",
+        "Plan Supabase-backed routing context",
+        "approval pending decision"
+      ],
+      "retrieval_queries": [
+        "Plan Supabase-backed routing context",
+        "KNOW-1 architecture",
+        "KNOW-1 owner handoff"
+      ],
+      "source_of_truth": "supabase",
+      "retrieval_layer": "qmd",
+      "memory_layer": "lossless-claw"
+    },
+    {
+      "task_id": "KNOW-2",
+      "title": "Review escalated orchestration blocker",
+      "routing_tags": [
+        "doing",
+        "escalated",
+        "none"
+      ],
+      "memory_queries": [
+        "task KNOW-2",
+        "Review escalated orchestration blocker",
+        "manual review blocker"
+      ],
+      "retrieval_queries": [
+        "Review escalated orchestration blocker",
+        "KNOW-2 architecture",
+        "KNOW-2 owner handoff"
+      ],
+      "source_of_truth": "supabase",
+      "retrieval_layer": "qmd",
+      "memory_layer": "lossless-claw"
+    },
+    {
+      "task_id": "KNOW-3",
+      "title": "Prepare QMD retrieval summary",
+      "routing_tags": [
+        "review",
+        "queued",
+        "approval_pending"
+      ],
+      "memory_queries": [
+        "task KNOW-3",
+        "Prepare QMD retrieval summary",
+        "approval pending decision"
+      ],
+      "retrieval_queries": [
+        "Prepare QMD retrieval summary",
+        "KNOW-3 architecture",
+        "KNOW-3 owner handoff"
+      ],
+      "source_of_truth": "supabase",
+      "retrieval_layer": "qmd",
+      "memory_layer": "lossless-claw"
+    }
+  ],
+  "compact_context_payload": {
+    "actor_role": "cto",
+    "suggested_owner": "cto",
+    "planning_hints": [
+      {
+        "kind": "runtime_source_of_truth",
+        "system": "supabase",
+        "priority": "high"
+      },
+      {
+        "kind": "retrieval_context",
+        "system": "qmd",
+        "priority": "medium"
+      },
+      {
+        "kind": "memory_context",
+        "system": "lossless-claw",
+        "priority": "medium"
+      },
+      {
+        "kind": "approval_attention",
+        "system": "cto",
+        "priority": "high"
+      },
+      {
+        "kind": "retry_retrieval",
+        "system": "qmd",
+        "priority": "medium"
+      },
+      {
+        "kind": "escalation_memory",
+        "system": "lossless-claw",
+        "priority": "high"
+      }
+    ],
+    "routing_counts": {
+      "total_tasks": 3,
+      "pending_review": 3,
+      "retry_queue": 1,
+      "escalated": 1,
+      "approval_pending": 2
+    }
+  }
+}
