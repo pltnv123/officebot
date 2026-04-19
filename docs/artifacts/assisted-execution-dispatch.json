@@ -1,0 +1,143 @@
+{
+  "updatedAt": "2026-04-19T23:32:28.531Z",
+  "actor_role": "cto",
+  "dispatch_kind": "assisted-execution-dispatch-layer",
+  "dispatch_recommendations": [
+    {
+      "task_id": "DISP-1",
+      "title": "Backend API regression routing",
+      "suggested_target": "CTO",
+      "task_type": "backend",
+      "urgency": "high",
+      "reason": "approval_pending_task_requires_decision",
+      "safe": true,
+      "top_actions": [
+        "approve_task",
+        "reject_task",
+        "requeue_task"
+      ]
+    },
+    {
+      "task_id": "DISP-2",
+      "title": "QA approval review",
+      "suggested_target": "CTO",
+      "task_type": "qa",
+      "urgency": "high",
+      "reason": "escalated_task_requires_high_level_review",
+      "safe": true,
+      "top_actions": [
+        "resolve_lock_conflict",
+        "approve_task",
+        "reject_task"
+      ]
+    },
+    {
+      "task_id": "DISP-3",
+      "title": "iOS delivery regression",
+      "suggested_target": "iOS",
+      "task_type": "ios",
+      "urgency": "low",
+      "reason": "stale_task_sweep",
+      "safe": true,
+      "top_actions": [
+        "request_approval"
+      ]
+    }
+  ],
+  "recipient_assignment_candidates": [
+    {
+      "task_id": "DISP-1",
+      "candidates": [
+        "CTO",
+        "Backend",
+        "QA"
+      ]
+    },
+    {
+      "task_id": "DISP-2",
+      "candidates": [
+        "CTO",
+        "Backend",
+        "QA"
+      ]
+    },
+    {
+      "task_id": "DISP-3",
+      "candidates": [
+        "iOS",
+        "Backend",
+        "QA"
+      ]
+    }
+  ],
+  "execution_priority_queue": [
+    {
+      "rank": 1,
+      "task_id": "DISP-1",
+      "suggested_target": "CTO",
+      "urgency": "high",
+      "reason": "approval_pending_task_requires_decision"
+    },
+    {
+      "rank": 2,
+      "task_id": "DISP-2",
+      "suggested_target": "CTO",
+      "urgency": "high",
+      "reason": "escalated_task_requires_high_level_review"
+    },
+    {
+      "rank": 3,
+      "task_id": "DISP-3",
+      "suggested_target": "iOS",
+      "urgency": "low",
+      "reason": "stale_task_sweep"
+    }
+  ],
+  "task_to_agent_mapping_suggestions": [
+    {
+      "task_id": "DISP-1",
+      "suggested_agent": "CTO",
+      "task_type": "backend",
+      "source_of_truth": "supabase"
+    },
+    {
+      "task_id": "DISP-2",
+      "suggested_agent": "CTO",
+      "task_type": "qa",
+      "source_of_truth": "supabase"
+    },
+    {
+      "task_id": "DISP-3",
+      "suggested_agent": "iOS",
+      "task_type": "ios",
+      "source_of_truth": "supabase"
+    }
+  ],
+  "dispatch_lanes": {
+    "by_role": {
+      "CTO": 2,
+      "Backend": 0,
+      "QA": 0,
+      "iOS": 1,
+      "ORCHESTRATOR": 0
+    },
+    "by_task_type": {
+      "backend": 1,
+      "qa": 1,
+      "ios": 1
+    },
+    "by_urgency": {
+      "high": 2,
+      "medium": 1,
+      "low": 0
+    }
+  },
+  "dispatch_payload": {
+    "actor_role": "cto",
+    "suggested_owner": "cto",
+    "maintenance_pending": 4,
+    "escalated": 1,
+    "approval_pending": 2,
+    "read_only": true
+  }
+}
