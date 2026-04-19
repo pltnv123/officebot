@@ -52,6 +52,15 @@
   const deliveryPackHumanEl = document.getElementById('delivery-pack-human');
   const deliveryPackLinksEl = document.getElementById('delivery-pack-links');
   const deliveryPackPayloadEl = document.getElementById('delivery-pack-payload');
+  const assistedPresentationPanelEl = document.getElementById('assisted-presentation-panel');
+  const assistedPresentationBadgeEl = document.getElementById('assisted-presentation-badge');
+  const assistedPresentationBriefEl = document.getElementById('assisted-presentation-brief');
+  const assistedPresentationReadinessEl = document.getElementById('assisted-presentation-readiness');
+  const assistedPresentationHandoffEl = document.getElementById('assisted-presentation-handoff');
+  const assistedPresentationSummaryEl = document.getElementById('assisted-presentation-summary');
+  const assistedPresentationGuidanceEl = document.getElementById('assisted-presentation-guidance');
+  const assistedPresentationCompactEl = document.getElementById('assisted-presentation-compact');
+  const assistedPresentationPayloadEl = document.getElementById('assisted-presentation-payload');
   const gatewayStateEl = document.getElementById('gateway-state');
   const stateTsEl = document.getElementById('state-ts');
   const opsTasksEl = document.getElementById('ops-tasks');
@@ -520,6 +529,52 @@
     }
   }
 
+  function renderAssistedPresentationPanel() {
+    if (!assistedPresentationPanelEl) return;
+    const presentation = lastClientPayload?.assisted_execution_presentation || null;
+    if (!presentation) {
+      if (assistedPresentationBadgeEl) assistedPresentationBadgeEl.textContent = 'owner: --';
+      if (assistedPresentationBriefEl) assistedPresentationBriefEl.textContent = 'Assisted execution presentation is waiting for payload…';
+      if (assistedPresentationReadinessEl) assistedPresentationReadinessEl.textContent = 'readiness_outputs: --';
+      if (assistedPresentationHandoffEl) assistedPresentationHandoffEl.textContent = 'suggested_next_handoff: --';
+      if (assistedPresentationSummaryEl) assistedPresentationSummaryEl.textContent = 'execution_handoff_summary: --';
+      if (assistedPresentationGuidanceEl) assistedPresentationGuidanceEl.textContent = 'next_action_guidance: --';
+      if (assistedPresentationCompactEl) assistedPresentationCompactEl.textContent = 'compact_handoff_surface: --';
+      if (assistedPresentationPayloadEl) assistedPresentationPayloadEl.textContent = 'waiting…';
+      return;
+    }
+
+    if (assistedPresentationBadgeEl) assistedPresentationBadgeEl.textContent = `owner: ${presentation.suggested_next_handoff?.owner || '--'}`;
+    if (assistedPresentationBriefEl) assistedPresentationBriefEl.textContent = `Guidance mode: ${presentation.next_action_guidance?.guidance_mode || 'non_destructive'}`;
+    if (assistedPresentationReadinessEl) assistedPresentationReadinessEl.textContent = `readiness_outputs: ${(presentation.readiness_outputs || []).length} tasks | ready=${(presentation.readiness_outputs || []).filter((item) => item.review_ready).length}`;
+    if (assistedPresentationHandoffEl) {
+      const h = presentation.suggested_next_handoff || {};
+      assistedPresentationHandoffEl.textContent = `suggested_next_handoff: owner=${h.owner || '--'} | kind=${h.kind || '--'} | priority=${h.priority || '--'}`;
+    }
+    if (assistedPresentationSummaryEl) {
+      const s = presentation.execution_handoff_summary || {};
+      assistedPresentationSummaryEl.textContent = `execution_handoff_summary: owner=${s.suggested_owner || '--'} | focus=${s.routing_focus || '--'} | actions=${(s.top_operator_actions || []).join(', ') || 'none'}`;
+    }
+    if (assistedPresentationGuidanceEl) {
+      const g = presentation.next_action_guidance || {};
+      assistedPresentationGuidanceEl.textContent = `next_action_guidance: ${(g.next_actions || []).map((item) => item.kind).join(', ') || 'none'}`;
+    }
+    if (assistedPresentationCompactEl) {
+      const c = presentation.compact_handoff_surface || {};
+      assistedPresentationCompactEl.textContent = `compact_handoff_surface: ready=${c.readiness_ready_total || 0} | visible_actions=${c.role_aware?.visible_actions_total || 0} | reconnect_safe=${String(c.snapshot_safe?.reconnect_safe)}`;
+    }
+    if (assistedPresentationPayloadEl) {
+      const p = presentation.presentation_payload || {};
+      assistedPresentationPayloadEl.innerHTML = [
+        `<span class="decision-chip">owner: ${p.suggested_owner || '--'}</span>`,
+        `<span class="decision-chip">handoff: ${p.handoff_kind || '--'}</span>`,
+        `<span class="decision-chip">ready: ${p.readiness_ready_total || 0}</span>`,
+        `<span class="decision-chip">next actions: ${p.next_actions_total || 0}</span>`,
+        `<span class="decision-chip">guidance: ${(p.top_guidance || []).join(', ') || 'none'}</span>`,
+      ].join('');
+    }
+  }
+
   function renderAnalyticsPanel() {
     if (!analyticsPanelEl) return;
     const analytics = lastClientPayload?.analytics || {};
@@ -574,6 +629,7 @@
     renderHandoffPanel();
     renderExportIndexPanel();
     renderDeliveryPackPanel();
+    renderAssistedPresentationPanel();
   }
 
   function renderOperatorFeed(tasks) {
