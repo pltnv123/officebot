@@ -10,6 +10,7 @@ const { applyRuntimeEventGuards, ensureIdempotentTaskFinalState } = require('./r
 const { buildTaskUiView, buildRuntimeUiView } = require('./uiStateView');
 const { buildOperatorSurface } = require('./operatorLayer');
 const { buildKnowledgeAwareContext, buildDecisionConsumerSurface } = require('./knowledgeAwareLayer');
+const { buildExecutiveSummary } = require('./executiveSummaryLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -219,6 +220,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole);
+  enriched.executive_summary = buildExecutiveSummary({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.storage = remote.source;
   enriched.board = {
     inboxCount: columnTaskCounts[0],
@@ -340,6 +345,21 @@ app.get('/api/export/decision-context', async (req, res) => {
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole),
+  });
+});
+
+app.get('/api/export/executive-summary', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    executive_summary: buildExecutiveSummary({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
   });
 });
 

@@ -18,6 +18,15 @@
   const decisionHintsEl = document.getElementById('decision-hints');
   const decisionCompactEl = document.getElementById('decision-compact');
   const decisionMemoryEl = document.getElementById('decision-memory');
+  const executivePanelEl = document.getElementById('executive-panel');
+  const executiveFocusBadgeEl = document.getElementById('executive-focus-badge');
+  const executiveBriefEl = document.getElementById('executive-brief');
+  const executiveAnalyticsEl = document.getElementById('executive-analytics');
+  const executiveReportingEl = document.getElementById('executive-reporting');
+  const executiveDecisionEl = document.getElementById('executive-decision');
+  const executiveMaintenanceEl = document.getElementById('executive-maintenance');
+  const executiveWorkflowEl = document.getElementById('executive-workflow');
+  const executivePayloadEl = document.getElementById('executive-payload');
   const gatewayStateEl = document.getElementById('gateway-state');
   const stateTsEl = document.getElementById('state-ts');
   const opsTasksEl = document.getElementById('ops-tasks');
@@ -308,6 +317,55 @@
     }
   }
 
+  function renderExecutivePanel() {
+    if (!executivePanelEl) return;
+    const executive = lastClientPayload?.executive_summary || null;
+    if (!executive) {
+      if (executiveFocusBadgeEl) executiveFocusBadgeEl.textContent = 'focus: --';
+      if (executiveBriefEl) executiveBriefEl.textContent = 'Executive summary is waiting for payload…';
+      if (executiveAnalyticsEl) executiveAnalyticsEl.textContent = 'analytics_summary: --';
+      if (executiveReportingEl) executiveReportingEl.textContent = 'reporting_export_summary: --';
+      if (executiveDecisionEl) executiveDecisionEl.textContent = 'decision_context_summary: --';
+      if (executiveMaintenanceEl) executiveMaintenanceEl.textContent = 'maintenance_anomaly_digest: --';
+      if (executiveWorkflowEl) executiveWorkflowEl.textContent = 'operator_workflow_status_digest: --';
+      if (executivePayloadEl) executivePayloadEl.textContent = 'waiting…';
+      return;
+    }
+
+    if (executiveFocusBadgeEl) executiveFocusBadgeEl.textContent = `focus: ${executive.decision_context_summary?.routing_focus || '--'}`;
+    if (executiveBriefEl) executiveBriefEl.textContent = executive.decision_context_summary?.brief || 'Executive brief unavailable';
+    if (executiveAnalyticsEl) {
+      const a = executive.analytics_summary || {};
+      executiveAnalyticsEl.textContent = `analytics_summary: total=${a.total_tasks || 0} | approval=${a.approval_pending || 0} | retry=${a.retry_total || 0} | escalated=${a.escalated || 0}`;
+    }
+    if (executiveReportingEl) {
+      const r = executive.reporting_export_summary || {};
+      executiveReportingEl.textContent = `reporting_export_summary: approvals=${r.approvals || 0} | retries=${r.retries || 0} | escalations=${r.escalations || 0} | stale=${r.stale || 0}`;
+    }
+    if (executiveDecisionEl) {
+      const d = executive.decision_context_summary || {};
+      executiveDecisionEl.textContent = `decision_context_summary: owner=${d.suggested_owner || '--'} | focus=${d.routing_focus || '--'} | hints=${(d.hint_kinds || []).join(', ') || 'none'}`;
+    }
+    if (executiveMaintenanceEl) {
+      const m = executive.maintenance_anomaly_digest || {};
+      executiveMaintenanceEl.textContent = `maintenance_anomaly_digest: pending=${m.pending_total || 0} | urgent=${m.urgent_total || 0} | anomalies=${(m.anomaly_flags || []).join(', ') || 'none'}`;
+    }
+    if (executiveWorkflowEl) {
+      const w = executive.operator_workflow_status_digest || {};
+      executiveWorkflowEl.textContent = `operator_workflow_status_digest: cards=${w.card_count || 0} | actions=${w.visible_actions_total || 0} | read_only=${w.read_only_cards || 0}`;
+    }
+    if (executivePayloadEl) {
+      const p = executive.executive_payload || {};
+      executivePayloadEl.innerHTML = [
+        `<span class="decision-chip">actor: ${p.actor_role || '--'}</span>`,
+        `<span class="decision-chip">tasks: ${p.total_tasks || 0}</span>`,
+        `<span class="decision-chip">owner: ${p.suggested_owner || '--'}</span>`,
+        `<span class="decision-chip">urgent: ${p.urgent_total || 0}</span>`,
+        `<span class="decision-chip">anomalies: ${(p.anomaly_flags || []).join(', ') || 'none'}</span>`,
+      ].join('');
+    }
+  }
+
   function renderAnalyticsPanel() {
     if (!analyticsPanelEl) return;
     const analytics = lastClientPayload?.analytics || {};
@@ -358,6 +416,7 @@
     renderObservabilityStrip();
     renderAnalyticsPanel();
     renderDecisionPanel();
+    renderExecutivePanel();
   }
 
   function renderOperatorFeed(tasks) {
