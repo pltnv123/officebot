@@ -15,6 +15,7 @@ const { buildStakeholderHandoffBundle } = require('./stakeholderHandoffLayer');
 const { buildExportIndex } = require('./exportIndexLayer');
 const { buildDeliveryPack } = require('./deliveryPackLayer');
 const { buildDecisionAssistanceSurface } = require('./decisionAssistanceLayer');
+const { buildAssistedExecutionHandoff } = require('./assistedExecutionHandoffLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -244,6 +245,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.assisted_execution_handoff = buildAssistedExecutionHandoff({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.storage = remote.source;
   enriched.board = {
     inboxCount: columnTaskCounts[0],
@@ -437,6 +442,21 @@ app.get('/api/export/decision-assistance', async (req, res) => {
     actor_role: actorRole,
     storage: enriched.storage,
     decision_assistance: buildDecisionAssistanceSurface({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/assisted-execution-handoff', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    assisted_execution_handoff: buildAssistedExecutionHandoff({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
