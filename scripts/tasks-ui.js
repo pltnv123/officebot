@@ -6,9 +6,31 @@
   const tasksActiveEl = document.getElementById('tasks-active');
   const tasksDoneEl = document.getElementById('tasks-done');
   const nowDoingEl = document.getElementById('now-doing');
+  const operatorFeedEl = document.getElementById('operator-feed');
+  const operatorPolicyHintEl = document.getElementById('operator-policy-hint');
+  const operatorOnboardingEl = document.getElementById('operator-onboarding');
+  const analyticsPanelEl = document.getElementById('analytics-panel');
+  const decisionPanelEl = document.getElementById('decision-panel');
+  const decisionOwnerBadgeEl = document.getElementById('decision-owner-badge');
+  const decisionBriefEl = document.getElementById('decision-brief');
+  const decisionSummaryEl = document.getElementById('decision-summary');
+  const decisionRoutingSummaryEl = document.getElementById('decision-routing-summary');
+  const decisionHintsEl = document.getElementById('decision-hints');
+  const decisionCompactEl = document.getElementById('decision-compact');
+  const decisionMemoryEl = document.getElementById('decision-memory');
   const gatewayStateEl = document.getElementById('gateway-state');
   const stateTsEl = document.getElementById('state-ts');
   const opsTasksEl = document.getElementById('ops-tasks');
+  const actorRoleEl = document.getElementById('actor-role');
+  const operatorModeBadgeEl = document.getElementById('operator-mode-badge');
+  const liveIndicatorEl = document.getElementById('live-indicator');
+  const wsStatusBadgeEl = document.getElementById('ws-status-badge');
+  const wsFallbackHintEl = document.getElementById('ws-fallback-hint');
+  const obsStorageEl = document.getElementById('obs-storage');
+  const obsFreshnessEl = document.getElementById('obs-freshness');
+  const obsTaskEventEl = document.getElementById('obs-task-event');
+  const obsOperatorHealthEl = document.getElementById('obs-operator-health');
+  const obsWarningEl = document.getElementById('obs-warning');
 
   const API_BASE = '/api';
   const API_ENDPOINT = API_BASE + '/state';
@@ -16,6 +38,7 @@
 
   const newTaskInput = document.getElementById('new-task-title');
   const newTaskBtn = document.getElementById('new-task-btn');
+  const exportAnalyticsBtn = document.getElementById('export-analytics-btn');
   const toggleInput = document.getElementById('toggle-id');
   const toggleBtn = document.getElementById('toggle-btn');
   const tickBtn = document.getElementById('tick-btn');
@@ -23,6 +46,11 @@
 
   let lastTasks = [];
   let lastCpuLoad = { cpu: '--', load: '--' };
+  let actorRole = (new URLSearchParams(window.location.search).get('actorRole') || 'orchestrator').toLowerCase();
+  let liveTransport = 'polling';
+  let wsConnected = false;
+  let lastClientPayload = { updatedAt: null, actor_role: actorRole, reconnect_safe: true, backfill_safe: true, ui: { tasks: [] }, operator: { tasks: [] }, knowledge_context: null };
+  let operatorUiState = { inFlightTaskId: '', inFlightAction: '', errorByTask: {}, resultByTask: {}, pendingConfirm: null };
 
   function toPercent(value) {
     const n = Number(value || 0);
@@ -121,6 +149,285 @@
     nowDoingEl.appendChild(block);
   }
 
+  function badgeClassForUrgency(entry) {
+    const urgency = String(entry?.urgency || '').toLowerCase();
+    if (urgency === 'urgent') return 'urgent';
+    if (urgency === 'elevated') return 'elevated';
+    return 'normal';
+  }
+
+  function isDestructiveAction(action) {
+    return ['reject_task', 'escalate_task'].includes(String(action || ''));
+  }
+
+  function actionLabel(action) {
+    switch (String(action || '')) {
+      case 'approve_task': return 'подтверждение выполнения';
+      case 'reject_task': return 'отклонение выполнения';
+      case 'requeue_task': return 'повторная постановка';
+      case 'escalate_task': return 'эскалация';
+      case 'resolve_lock_conflict': return 'разрешение конфликта блокировки';
+      default: return String(action || 'operator action');
+    }
+  }
+
+  function setTaskFeedback(taskId, patch = {}) {
+    operatorUiState = {
+      ...operatorUiState,
+      errorByTask: {
+        ...operatorUiState.errorByTask,
+        ...(patch.error !== undefined ? { [taskId]: patch.error } : {}),
+      },
+      resultByTask: {
+        ...operatorUiState.resultByTask,
+        ...(patch.result !== undefined ? { [taskId]: patch.result } : {}),
+      },
+    };
+  }
+
+  async function executeOperatorAction(taskId, action) {
+    try {
+      operatorUiState = { ...operatorUiState, inFlightTaskId: taskId, inFlightAction: action, pendingConfirm: null };
+      setTaskFeedback(taskId, { error: '', result: `Выполняю: ${actionLabel(action)}…` });
+      renderOperatorFeed(lastTasks);
+      const out = await postJson(API_BASE + '/operator/action', { taskId, action });
+      operatorUiState = { ...operatorUiState, inFlightTaskId: '', inFlightAction: '', pendingConfirm: null };
+      setTaskFeedback(taskId, { error: '', result: `Успешно: ${actionLabel(out?.result?.action || action)}` });
+      setApiStatus(`API: operator action ${action} выполнен`);
+      await pollTasks();
+    } catch (e) {
+      operatorUiState = { ...operatorUiState, inFlightTaskId: '', inFlightAction: '', pendingConfirm: null };
+      setTaskFeedback(taskId, { error: `Не удалось выполнить ${actionLabel(action)}: ${e.message || 'operator action failed'}`, result: '' });
+      setApiStatus('API: ошибка operator action — ' + e.message, true);
+      renderOperatorFeed(lastTasks);
+    }
+  }
+
+  function handleOperatorAction(taskId, action) {
+    if (operatorUiState.inFlightTaskId) return;
+    if (isDestructiveAction(action)) {
+      operatorUiState = { ...operatorUiState, pendingConfirm: { taskId, action } };
+      setTaskFeedback(taskId, { error: '', result: `Нужно подтверждение: ${actionLabel(action)}` });
+      renderOperatorFeed(lastTasks);
+      return;
+    }
+    executeOperatorAction(taskId, action);
+  }
+
+  function confirmPendingOperatorAction(taskId, action) {
+    if (!operatorUiState.pendingConfirm) return;
+    executeOperatorAction(taskId, action);
+  }
+
+  function cancelPendingOperatorAction(taskId) {
+    operatorUiState = { ...operatorUiState, pendingConfirm: null };
+    setTaskFeedback(taskId, { result: 'Действие отменено пользователем' });
+    renderOperatorFeed(lastTasks);
+  }
+
+  function formatAge(iso) {
+    const ts = Date.parse(String(iso || ''));
+    if (!ts) return '--';
+    const sec = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+    if (sec < 60) return `${sec}s`;
+    return `${Math.floor(sec / 60)}m`;
+  }
+
+  function renderObservabilityStrip() {
+    if (obsStorageEl) obsStorageEl.textContent = `storage: ${String(lastClientPayload?.storage || 'unknown')}`;
+    const freshnessText = formatAge(lastClientPayload?.updatedAt);
+    if (obsFreshnessEl) obsFreshnessEl.textContent = `freshness: ${freshnessText}`;
+    const allTasks = Array.isArray(lastClientPayload?.ui?.tasks) ? lastClientPayload.ui.tasks : [];
+    const lastEventTs = allTasks
+      .flatMap((task) => Array.isArray(task.timeline) ? task.timeline : [])
+      .map((event) => event?.ts || null)
+      .filter(Boolean)
+      .sort()
+      .pop();
+    if (obsTaskEventEl) obsTaskEventEl.textContent = `task_event: ${lastEventTs ? formatAge(lastEventTs) : 'none'}`;
+    const operatorTasks = Array.isArray(lastClientPayload?.operator?.tasks) ? lastClientPayload.operator.tasks : [];
+    const visibleActions = operatorTasks.reduce((sum, task) => sum + ((task.actions || []).length), 0);
+    if (obsOperatorHealthEl) obsOperatorHealthEl.textContent = `operator: ${operatorTasks.length} cards / ${visibleActions} actions`;
+
+    let warning = '';
+    if (freshnessText !== '--') {
+      const ts = Date.parse(String(lastClientPayload?.updatedAt || ''));
+      if (ts && (Date.now() - ts) > 120000) warning = 'stale-runtime';
+    }
+    if (!warning && !lastEventTs) warning = 'missing-task-events';
+    if (!warning && (actorRole === 'cto' || actorRole === 'qa') && visibleActions === 0) warning = 'read-only-zero-visible-actions';
+    if (obsWarningEl) {
+      obsWarningEl.style.display = warning ? 'inline-flex' : 'none';
+      obsWarningEl.textContent = warning ? `warning: ${warning}` : 'warning: --';
+    }
+  }
+
+  function renderDecisionPanel() {
+    if (!decisionPanelEl) return;
+    const knowledge = lastClientPayload?.knowledge_context || null;
+    const decision = knowledge?.decision_consumer || null;
+    if (!decision) {
+      decisionPanelEl.style.display = 'block';
+      if (decisionOwnerBadgeEl) decisionOwnerBadgeEl.textContent = 'owner: --';
+      if (decisionBriefEl) decisionBriefEl.textContent = 'Decision context is waiting for knowledge-aware payload…';
+      if (decisionSummaryEl) decisionSummaryEl.textContent = 'decision_summary: --';
+      if (decisionRoutingSummaryEl) decisionRoutingSummaryEl.textContent = 'routing_context_summary: --';
+      if (decisionHintsEl) decisionHintsEl.textContent = 'waiting…';
+      if (decisionCompactEl) decisionCompactEl.textContent = 'waiting…';
+      if (decisionMemoryEl) decisionMemoryEl.textContent = 'waiting…';
+      return;
+    }
+
+    if (decisionOwnerBadgeEl) decisionOwnerBadgeEl.textContent = `owner: ${decision.suggested_owner || '--'}`;
+    if (decisionBriefEl) decisionBriefEl.textContent = decision.cto_orchestrator_brief?.headline || 'Decision brief unavailable';
+    if (decisionSummaryEl) {
+      const summary = decision.decision_summary || {};
+      decisionSummaryEl.textContent = `decision_summary: focus=${summary.routing_focus || 'normal_flow'} | approval=${summary.approval_pending || 0} | escalated=${summary.escalated || 0} | retry=${summary.retry_queue || 0}`;
+    }
+    if (decisionRoutingSummaryEl) {
+      const summary = decision.routing_context_summary || {};
+      decisionRoutingSummaryEl.textContent = `routing_context_summary: tasks=${summary.runtime_tasks || 0} | cards=${summary.operator_cards || 0} | pending=${summary.maintenance_pending || 0}`;
+    }
+    if (decisionHintsEl) {
+      const hints = Array.isArray(decision.retrieval_aware_planning_hints) ? decision.retrieval_aware_planning_hints : [];
+      decisionHintsEl.innerHTML = hints.map((item) => `<span class="decision-chip ${item.priority || 'low'}">${item.kind} · ${item.system}</span>`).join('') || '<span class="decision-chip">none</span>';
+    }
+    if (decisionCompactEl) {
+      const compact = decision.compact_decision_payload || {};
+      const hintKinds = Array.isArray(compact.hint_kinds) ? compact.hint_kinds.join(', ') : 'none';
+      decisionCompactEl.innerHTML = [
+        `<span class="decision-chip">actor: ${compact.actor_role || '--'}</span>`,
+        `<span class="decision-chip">owner: ${compact.suggested_owner || '--'}</span>`,
+        `<span class="decision-chip">focus: ${compact.routing_focus || '--'}</span>`,
+        `<span class="decision-chip">hints: ${hintKinds}</span>`,
+      ].join('');
+    }
+    if (decisionMemoryEl) {
+      const memory = Array.isArray(decision.memory_aware_task_context) ? decision.memory_aware_task_context.slice(0, 3) : [];
+      decisionMemoryEl.innerHTML = memory.map((item) => `<div class="decision-memory-item"><div><b>${item.task_id || '--'}</b> — ${item.title || 'task'}</div><div class="decision-memory-meta">memory: ${(item.memory_queries || []).join(' · ') || 'none'}</div><div class="decision-memory-meta">retrieval: ${(item.retrieval_queries || []).join(' · ') || 'none'}</div></div>`).join('') || '<div class="decision-memory-item">none</div>';
+    }
+  }
+
+  function renderAnalyticsPanel() {
+    if (!analyticsPanelEl) return;
+    const analytics = lastClientPayload?.analytics || {};
+    const byState = analytics.by_live_state || {};
+    const digest = analytics.operator_action_digest || {};
+    const exportSummary = analytics.export_summary || {};
+    const maintenanceCounts = analytics.maintenance_routine_counts || {};
+    const maintenanceByType = maintenanceCounts.by_type || {};
+    const maintenanceDigest = analytics.maintenance_digest || {};
+    const topPending = Array.isArray(maintenanceDigest.top_pending) ? maintenanceDigest.top_pending : [];
+    analyticsPanelEl.textContent = [
+      `live_state=${Object.entries(byState).map(([k, v]) => `${k}:${v}`).join(', ') || 'none'}`,
+      `approval/retry/escalation=${analytics.approval_pending || 0}/${analytics.retry_total || 0}/${analytics.escalated || 0}`,
+      `stale/conflict/read-only=${analytics.stuck_total || 0}/${analytics.lock_conflicts || 0}/${analytics.read_only_cards || 0}`,
+      `actions=${digest.approval_actions || 0}/${digest.repair_actions || 0}/${digest.executable_actions || 0}/${digest.view_only_actions || 0}`,
+      `maintenance=${Object.entries(maintenanceByType).map(([k, v]) => `${k}:${v}`).join(', ') || 'none'}`,
+      `pending=${maintenanceDigest.pending_total || 0}, urgent=${maintenanceDigest.urgent_total || 0}, top=${topPending.map((item) => `${item.label}:${item.task_id || 'n/a'}`).join('; ') || 'none'}`,
+      `export=${Object.entries(exportSummary.by_live_state || {}).map(([k, v]) => `${k}:${v}`).join(', ') || 'none'}`,
+    ].join(' | ');
+  }
+
+  function renderActorRoleUi() {
+    if (actorRoleEl) actorRoleEl.textContent = actorRole;
+    if (operatorModeBadgeEl) {
+      const readOnly = actorRole === 'cto' || actorRole === 'qa';
+      operatorModeBadgeEl.textContent = readOnly ? 'read-only' : 'full-access';
+      operatorModeBadgeEl.className = `operator-mode-badge ${readOnly ? 'read-only' : 'full-access'}`;
+    }
+    if (liveIndicatorEl) {
+      liveIndicatorEl.textContent = liveTransport;
+      liveIndicatorEl.className = `live-indicator ${liveTransport === 'live' ? 'live' : 'polling'}`;
+    }
+    if (wsStatusBadgeEl) {
+      wsStatusBadgeEl.textContent = wsConnected ? 'ws-connected' : 'ws-disconnected';
+      wsStatusBadgeEl.className = `ws-status-badge ${wsConnected ? 'connected' : 'disconnected'}`;
+    }
+    if (wsFallbackHintEl) {
+      wsFallbackHintEl.style.display = wsConnected ? 'none' : 'block';
+    }
+    if (operatorPolicyHintEl) {
+      operatorPolicyHintEl.textContent = actorRole === 'orchestrator'
+        ? 'Full-access mode: review the card first, then run governance actions allowed by policy.'
+        : 'Read-only mode: use cards for review, but treat visible actions as policy guidance unless they are executable for your role.';
+    }
+    if (operatorOnboardingEl) {
+      operatorOnboardingEl.open = actorRole === 'orchestrator' || !lastClientPayload?.operator?.tasks?.length;
+    }
+    renderObservabilityStrip();
+    renderAnalyticsPanel();
+    renderDecisionPanel();
+  }
+
+  function renderOperatorFeed(tasks) {
+    if (!operatorFeedEl) return;
+    operatorFeedEl.innerHTML = '';
+    const list = dedupeById(tasks).slice(0, 5);
+    if (!list.length) {
+      operatorFeedEl.innerHTML = '<div class="operator-empty">Ожидаю client payload…</div>';
+      return;
+    }
+
+    list.forEach((task) => {
+      const item = document.createElement('div');
+      item.className = 'operator-item';
+      const recommendations = Array.isArray(task.top_recommendations) ? task.top_recommendations.slice(0, 3) : [];
+      const timeline = Array.isArray(task.timeline) ? task.timeline.slice(-3) : [];
+      const approval = Array.isArray(task.grouped_actions?.approval) ? task.grouped_actions.approval : [];
+      const repair = Array.isArray(task.grouped_actions?.repair) ? task.grouped_actions.repair : [];
+      const hiddenApprovalCount = Math.max(0, Number(task.hidden_actions?.approval || 0));
+      const hiddenRepairCount = Math.max(0, Number(task.hidden_actions?.repair || 0));
+      const allActions = [...approval, ...repair].filter((entry) => ['approve_task', 'reject_task', 'requeue_task', 'escalate_task', 'resolve_lock_conflict'].includes(String(entry.action || '')));
+      const inFlight = operatorUiState.inFlightTaskId === task.id;
+      const pendingConfirm = operatorUiState.pendingConfirm && operatorUiState.pendingConfirm.taskId === task.id ? operatorUiState.pendingConfirm : null;
+      const taskError = operatorUiState.errorByTask[task.id] || '';
+      const taskResult = operatorUiState.resultByTask[task.id] || '';
+
+      item.innerHTML = `
+        <div class="operator-head">
+          <div><b>${task.id || ''}</b> — ${task.title || 'task'}</div>
+          <span class="operator-state">${task.live_state || 'unknown'}</span>
+        </div>
+        <div class="operator-summary">${task.audit_digest?.human_review_text || 'Нет human review summary'}</div>
+        ${taskResult ? `<div class="operator-feedback task-feedback">${taskResult}</div>` : ''}
+        ${taskError ? `<div class="operator-empty error task-error">Ошибка: ${taskError}</div>` : ''}
+        ${pendingConfirm ? `<div class="operator-confirm" role="alertdialog" aria-live="polite" aria-label="Требуется подтверждение действия"><div class="operator-confirm-text">Подтвердить: ${actionLabel(pendingConfirm.action)}?</div><div class="operator-chip-list"><button class="operator-chip approval operator-confirm-yes" data-task-id="${task.id}" data-action="${pendingConfirm.action}" aria-label="Подтвердить действие ${actionLabel(pendingConfirm.action)}">Подтвердить</button><button class="operator-chip repair operator-confirm-no" data-task-id="${task.id}" aria-label="Отменить подтверждение">Отмена</button></div></div>` : ''}
+        <div class="operator-group">
+          <div class="operator-group-title">Top recommendations</div>
+          <div class="operator-rec-list">${recommendations.map((entry) => `<div class="operator-rec"><span class="operator-badge ${badgeClassForUrgency(entry)}">${entry.urgency || 'normal'}</span> ${entry.label || entry.action}</div>`).join('') || '<div class="operator-rec">Нет рекомендаций</div>'}</div>
+        </div>
+        <div class="operator-group">
+          <div class="operator-group-title">Approval actions</div>
+          <div class="operator-chip-list">${approval.map((entry) => `<button class="operator-chip approval ${entry.executable === false ? 'non-executable' : ''} operator-action ${inFlight ? 'is-busy' : ''} ${isDestructiveAction(entry.action) ? 'is-confirmable' : 'is-immediate'}" data-task-id="${task.id}" data-action="${entry.action}" ${(inFlight || entry.executable === false) ? 'disabled aria-disabled="true"' : ''} title="${entry.executable === false ? 'Visible by policy, but executable only by orchestrator' : (inFlight ? 'Действие выполняется' : (isDestructiveAction(entry.action) ? 'Требует подтверждения' : 'Выполняется сразу'))}" aria-label="${entry.label || entry.action}"><span class="operator-badge ${badgeClassForUrgency(entry)}">${entry.executable === false ? 'view-only' : (inFlight && operatorUiState.inFlightAction === entry.action ? 'in-flight' : (entry.urgency || 'normal'))}</span> ${entry.label || entry.action}</button>`).join('') || '<span class="operator-chip approval">Нет</span>'}${hiddenApprovalCount > 0 ? `<span class="operator-chip approval hidden-placeholder" title="Hidden by current role policy">hidden: ${hiddenApprovalCount}</span>` : ''}</div>
+        </div>
+        <div class="operator-group">
+          <div class="operator-group-title">Repair actions</div>
+          <div class="operator-chip-list">${repair.map((entry) => `<button class="operator-chip repair ${entry.executable === false ? 'non-executable' : ''} operator-action ${inFlight ? 'is-busy' : ''} ${isDestructiveAction(entry.action) ? 'is-confirmable' : 'is-immediate'}" data-task-id="${task.id}" data-action="${entry.action}" ${(inFlight || entry.executable === false) ? 'disabled aria-disabled="true"' : ''} title="${entry.executable === false ? 'Visible by policy, but executable only by orchestrator' : (inFlight ? 'Действие выполняется' : (isDestructiveAction(entry.action) ? 'Требует подтверждения' : 'Выполняется сразу'))}" aria-label="${entry.label || entry.action}"><span class="operator-badge ${badgeClassForUrgency(entry)}">${entry.executable === false ? 'view-only' : (inFlight && operatorUiState.inFlightAction === entry.action ? 'in-flight' : (entry.urgency || 'normal'))}</span> ${entry.label || entry.action}</button>`).join('') || '<span class="operator-chip repair">Нет</span>'}${hiddenRepairCount > 0 ? `<span class="operator-chip repair hidden-placeholder" title="Hidden by current role policy">hidden: ${hiddenRepairCount}</span>` : ''}</div>
+        </div>
+        <div class="operator-group">
+          <div class="operator-group-title">Action bar</div>
+          <div class="operator-chip-list">${allActions.map((entry) => `<button class="operator-chip ${entry.group === 'approval' ? 'approval' : 'repair'} operator-action ${inFlight ? 'is-busy' : ''} ${isDestructiveAction(entry.action) ? 'is-confirmable' : 'is-immediate'}" data-task-id="${task.id}" data-action="${entry.action}" ${inFlight ? 'disabled aria-disabled="true"' : ''} aria-label="${entry.label || entry.action}">${inFlight && operatorUiState.inFlightAction === entry.action ? 'Выполняю… ' : ''}${entry.label || entry.action}</button>`).join('') || '<span class="operator-chip">Нет доступных действий</span>'}</div>
+        </div>
+        <div class="operator-group">
+          <div class="operator-group-title">Timeline</div>
+          <ul class="operator-timeline">${timeline.map((entry) => `<li>${entry.phase || entry.type || 'event'} · ${entry.owner || 'unknown'}</li>`).join('') || '<li>Нет событий</li>'}</ul>
+        </div>
+      `;
+      operatorFeedEl.appendChild(item);
+    });
+
+    operatorFeedEl.querySelectorAll('.operator-action').forEach((button) => {
+      button.addEventListener('click', () => handleOperatorAction(button.dataset.taskId, button.dataset.action));
+    });
+    operatorFeedEl.querySelectorAll('.operator-confirm-yes').forEach((button) => {
+      button.addEventListener('click', () => confirmPendingOperatorAction(button.dataset.taskId, button.dataset.action));
+    });
+    operatorFeedEl.querySelectorAll('.operator-confirm-no').forEach((button) => {
+      button.addEventListener('click', () => cancelPendingOperatorAction(button.dataset.taskId));
+    });
+  }
+
   function renderTasks(tasks) {
     const deduped = dedupeById(tasks);
     const active = deduped.filter((task) => task.status === 'doing');
@@ -142,18 +449,105 @@
     });
 
     renderNowDoing(active);
+    renderActorRoleUi();
+    renderOperatorFeed(deduped);
+  }
+
+  function consumeClientPayload(payload) {
+    if (!payload || typeof payload !== 'object') return;
+    const isFreshSnapshot = payload.updatedAt && payload.updatedAt !== lastClientPayload.updatedAt;
+    lastClientPayload = payload;
+    actorRole = String(payload?.actor_role || actorRole || 'orchestrator').toLowerCase();
+    const uiTasks = payload?.ui?.tasks || [];
+    const operatorTasks = payload?.operator?.tasks || [];
+    const merged = uiTasks.map((task) => {
+      const operator = operatorTasks.find((item) => item.id === task.id) || {};
+      const visibleApproval = operator.grouped_actions?.approval || [];
+      const visibleRepair = operator.grouped_actions?.repair || [];
+      const totalApproval = operator.approval_actions || visibleApproval;
+      const totalRepair = operator.repair_actions || visibleRepair;
+      return {
+        ...task,
+        grouped_actions: operator.grouped_actions || { approval: [], repair: [] },
+        top_recommendations: operator.top_recommendations || [],
+        audit_digest: operator.audit_digest || null,
+        hidden_actions: {
+          approval: Math.max(0, (Array.isArray(totalApproval) ? totalApproval.length : 0) - visibleApproval.length),
+          repair: Math.max(0, (Array.isArray(totalRepair) ? totalRepair.length : 0) - visibleRepair.length),
+        },
+      };
+    });
+    lastTasks = merged;
+    if (isFreshSnapshot) {
+      operatorUiState = {
+        ...operatorUiState,
+        errorByTask: {},
+        resultByTask: {},
+        pendingConfirm: null,
+      };
+    }
+    renderTasks(merged);
   }
 
   async function pollTasks() {
     try {
-      const response = await fetch('./state.json?ts=' + Date.now(), { cache: 'no-store' });
+      const response = await fetch(API_ENDPOINT + '?ts=' + Date.now() + '&actorRole=' + encodeURIComponent(actorRole), { cache: 'no-store' });
       if (!response.ok) return;
       const payload = await response.json();
-      const tasks = payload?.taskState?.tasks || [];
-      lastTasks = tasks;
-      renderTasks(tasks);
+      liveTransport = 'polling';
+      consumeClientPayload(payload?.client || {
+        updatedAt: payload?.updatedAt || null,
+        actor_role: payload?.client?.actor_role || actorRole,
+        storage: payload?.storage || 'unknown',
+        analytics: payload?.client?.analytics || payload?.operator?.analytics || null,
+        reconnect_safe: true,
+        backfill_safe: true,
+        ui: payload?.ui || { tasks: [] },
+        operator: payload?.operator?.client_payload || { tasks: [] },
+      });
     } catch (error) {
       console.error('tasks poll failed', error);
+    }
+  }
+
+  function startReadOnlyHydrateSocket() {
+    try {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const socket = new WebSocket(`${protocol}//${window.location.host}/ws`);
+      socket.addEventListener('open', () => {
+        wsConnected = true;
+        renderActorRoleUi();
+      });
+      socket.addEventListener('message', (event) => {
+        try {
+          const payload = JSON.parse(event.data || '{}');
+          if (payload?.type !== 'state') return;
+          const clientPayload = payload?.client || payload?.state?.client || null;
+          if (!clientPayload || typeof clientPayload !== 'object') return;
+          liveTransport = 'live';
+          consumeClientPayload({
+            ...clientPayload,
+            analytics: clientPayload.analytics || payload?.state?.client?.analytics || payload?.state?.operator?.analytics || lastClientPayload?.analytics || null,
+            storage: clientPayload.storage || payload?.state?.storage || lastClientPayload?.storage || 'unknown',
+            actor_role: clientPayload.actor_role || actorRole,
+          });
+        } catch (error) {
+          console.error('ws hydrate parse failed', error);
+        }
+      });
+      socket.addEventListener('close', () => {
+        wsConnected = false;
+        liveTransport = 'polling';
+        renderActorRoleUi();
+      });
+      socket.addEventListener('error', () => {
+        wsConnected = false;
+        liveTransport = 'polling';
+        renderActorRoleUi();
+        // read-only hydrate must never replace snapshot polling
+      });
+    } catch (error) {
+      console.error('ws hydrate setup failed', error);
     }
   }
 
@@ -225,7 +619,7 @@
   async function postJson(url, body) {
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-Actor-Role': actorRole },
       body: JSON.stringify(body || {}),
     });
     const raw = await response.text();
@@ -251,6 +645,30 @@
       await pollTasks();
     } catch (e) {
       setApiStatus('API: ошибка create task — ' + e.message, true);
+    }
+  }
+
+  async function handleExportAnalytics() {
+    try {
+      setApiStatus('API: exporting operator snapshot…');
+      const response = await fetch(API_BASE + '/export/operator-snapshot?actorRole=' + encodeURIComponent(actorRole), {
+        cache: 'no-store',
+        headers: { 'X-Actor-Role': actorRole },
+      });
+      if (!response.ok) throw new Error('export failed: ' + response.status);
+      const payload = await response.json();
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `operator-snapshot-${actorRole}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setApiStatus('API: operator snapshot exported');
+    } catch (e) {
+      setApiStatus('API: export error — ' + e.message, true);
     }
   }
 
@@ -285,6 +703,7 @@
   }
 
   newTaskBtn?.addEventListener('click', handleNewTask);
+  exportAnalyticsBtn?.addEventListener('click', handleExportAnalytics);
   toggleBtn?.addEventListener('click', handleToggle);
   tickBtn?.addEventListener('click', handleTick);
   newTaskInput?.addEventListener('keydown', (e) => {
@@ -293,6 +712,7 @@
 
   pollTasks();
   pollCpuLoad();
+  startReadOnlyHydrateSocket();
   setInterval(pollTasks, 5000);
   setInterval(pollCpuLoad, 30000);
 })();

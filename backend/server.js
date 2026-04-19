@@ -215,6 +215,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     actorRole,
     tasks: enriched.tasks,
   });
+  enriched.knowledge_context = buildKnowledgeAwareContext({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole);
   enriched.storage = remote.source;
   enriched.board = {
     inboxCount: columnTaskCounts[0],

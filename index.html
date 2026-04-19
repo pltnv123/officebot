@@ -46,6 +46,15 @@
       <div><b>Gateway:</b> <span id="gateway-state">--</span></div>
       <div><b>State ts:</b> <span id="state-ts">--</span></div>
       <div><b>Tasks:</b> <span id="ops-tasks">--</span></div>
+      <div><b>Actor role:</b> <span id="actor-role">orchestrator</span> <span id="operator-mode-badge" class="operator-mode-badge">full-access</span></div>
+      <div><b>Live:</b> <span id="live-indicator" class="live-indicator">polling</span> <span id="ws-status-badge" class="ws-status-badge disconnected">ws-disconnected</span></div>
+      <div id="observability-strip" class="observability-strip">
+        <span id="obs-storage" class="obs-chip">storage: --</span>
+        <span id="obs-freshness" class="obs-chip">freshness: --</span>
+        <span id="obs-task-event" class="obs-chip">task_event: --</span>
+        <span id="obs-operator-health" class="obs-chip">operator: --</span>
+        <span id="obs-warning" class="obs-chip obs-warning" style="display:none">warning: --</span>
+      </div>
       <div style="opacity:.65;font-size:12px">build: <span id="build-ver">unity-v3</span></div>
 
       <div class="api-tools">
@@ -53,6 +62,9 @@
         <div class="api-row">
           <input id="new-task-title" type="text" placeholder="Новая задача (POST /api/tasks)" />
           <button id="new-task-btn" type="button">Добавить</button>
+        </div>
+        <div class="api-row">
+          <button id="export-analytics-btn" type="button">Export analytics JSON</button>
         </div>
         <div class="api-row">
           <input id="toggle-id" type="text" placeholder="toggle id" value="lights" />
@@ -65,6 +77,49 @@
       <div class="now-card">
         <b>Сейчас делаю</b>
         <div id="now-doing" class="now-doing">Ожидаю задачи…</div>
+      </div>
+
+      <div class="operator-card">
+        <b>Operator view</b>
+        <div id="operator-policy-hint" class="operator-policy-hint">Actions depend on actor role. Some are hidden, some are view-only.</div>
+        <div id="decision-panel" class="decision-panel">
+          <div class="decision-panel-head">
+            <b>CTO / Orchestrator decision context</b>
+            <span id="decision-owner-badge" class="decision-owner-badge">owner: --</span>
+          </div>
+          <div id="decision-brief" class="decision-brief">Decision context is waiting for knowledge-aware payload…</div>
+          <div id="decision-summary" class="decision-summary">decision_summary: --</div>
+          <div id="decision-routing-summary" class="decision-summary">routing_context_summary: --</div>
+          <div class="decision-columns">
+            <div>
+              <div class="decision-group-title">retrieval_aware_planning_hints</div>
+              <div id="decision-hints" class="decision-chip-list">waiting…</div>
+            </div>
+            <div>
+              <div class="decision-group-title">compact_decision_payload</div>
+              <div id="decision-compact" class="decision-chip-list">waiting…</div>
+            </div>
+          </div>
+          <div class="decision-group-title">memory_aware_task_context</div>
+          <div id="decision-memory" class="decision-memory-list">waiting…</div>
+        </div>
+        <details id="operator-onboarding" class="operator-onboarding" open>
+          <summary>How to use operator mode</summary>
+          <div class="operator-onboarding-body">
+            <div class="operator-onboarding-intro">Use cards for review first, then act only if policy allows your role.</div>
+            <div class="operator-onboarding-grid">
+              <div class="operator-onboarding-item"><b>Approval</b><span>Check audit digest and timeline, then run <code>approve_task</code>.</span></div>
+              <div class="operator-onboarding-item"><b>Reject</b><span>Use when evidence is insufficient, then confirm the action.</span></div>
+              <div class="operator-onboarding-item"><b>Requeue</b><span>Retry recoverable work, then verify queued client state on reread.</span></div>
+              <div class="operator-onboarding-item"><b>Escalate</b><span>Use when retry is no longer enough and manual governance is needed.</span></div>
+              <div class="operator-onboarding-item"><b>Lock conflict</b><span>Resolve visible lock conflicts before other governance actions.</span></div>
+              <div class="operator-onboarding-item"><b>Stale runtime</b><span>Check observability chips first, prefer polling reread over mutation.</span></div>
+            </div>
+          </div>
+        </details>
+        <div id="ws-fallback-hint" class="operator-policy-hint" style="display:none">WebSocket is down, snapshot polling is still active.</div>
+        <div id="analytics-panel" class="operator-policy-hint">analytics: waiting for client.analytics…</div>
+        <div id="operator-feed" class="operator-feed">Ожидаю client payload…</div>
       </div>
 
       <div class="task-columns">
