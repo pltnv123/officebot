@@ -1,0 +1,257 @@
+{
+  "updatedAt": "2026-04-19T12:52:06.820Z",
+  "actor_role": "cto",
+  "bundle_kind": "stakeholder-handoff",
+  "executive_summary": {
+    "updatedAt": "2026-04-19T12:52:06.820Z",
+    "actor_role": "cto",
+    "summary_kind": "executive-summary",
+    "analytics_summary": {
+      "total_tasks": 3,
+      "by_live_state": {
+        "retry": 1,
+        "executing": 1,
+        "queued": 1
+      },
+      "approval_pending": 1,
+      "retry_total": 1,
+      "escalated": 1
+    },
+    "reporting_export_summary": {
+      "by_live_state": {
+        "retry": 1,
+        "executing": 1,
+        "queued": 1
+      },
+      "approvals": 1,
+      "retries": 1,
+      "escalations": 1,
+      "stale": 3,
+      "conflicts": 1,
+      "read_only_cards": 3
+    },
+    "decision_context_summary": {
+      "suggested_owner": "cto",
+      "routing_focus": "review_attention",
+      "hint_kinds": [
+        "runtime_source_of_truth",
+        "retrieval_context",
+        "memory_context",
+        "approval_attention",
+        "retry_retrieval",
+        "escalation_memory"
+      ],
+      "brief": "CTO review is recommended before further routing changes."
+    },
+    "maintenance_anomaly_digest": {
+      "pending_total": 4,
+      "urgent_total": 3,
+      "top_pending": [
+        {
+          "task_id": "HANDOFF-1",
+          "live_state": "retry",
+          "type": "stale_task_sweep",
+          "level": "high",
+          "action": "orchestrator_inspect_and_requeue",
+          "label": "Проверить stale-задачу и переочередить"
+        },
+        {
+          "task_id": "HANDOFF-2",
+          "live_state": "executing",
+          "type": "stuck_conflict_followup",
+          "level": "high",
+          "action": "orchestrator_resolve_lock",
+          "label": "Исправить конфликт блокировки"
+        },
+        {
+          "task_id": "HANDOFF-3",
+          "live_state": "queued",
+          "type": "stale_task_sweep",
+          "level": "high",
+          "action": "orchestrator_inspect_and_requeue",
+          "label": "Проверить stale-задачу и переочередить"
+        }
+      ],
+      "anomaly_flags": [
+        "urgent_maintenance",
+        "lock_conflicts",
+        "stale_runtime"
+      ]
+    },
+    "operator_workflow_status_digest": {
+      "card_count": 3,
+      "visible_actions_total": 8,
+      "read_only_cards": 3,
+      "top_recommendations": [
+        "Подтвердить выполнение",
+        "Отклонить выполнение",
+        "Вернуть задачу в повторную обработку",
+        "Исправить конфликт блокировки",
+        "acknowledge_escalation"
+      ]
+    },
+    "executive_payload": {
+      "actor_role": "cto",
+      "total_tasks": 3,
+      "suggested_owner": "cto",
+      "routing_focus": "review_attention",
+      "urgent_total": 3,
+      "anomaly_flags": [
+        "urgent_maintenance",
+        "lock_conflicts",
+        "stale_runtime"
+      ]
+    }
+  },
+  "decision_context_summary": {
+    "suggested_owner": "cto",
+    "decision_summary": {
+      "routing_focus": "review_attention",
+      "approval_pending": 1,
+      "escalated": 1,
+      "retry_queue": 1
+    },
+    "cto_orchestrator_brief": {
+      "headline": "CTO review is recommended before further routing changes.",
+      "top_task_id": "HANDOFF-1",
+      "top_memory_queries": [
+        "task HANDOFF-1",
+        "Prepare external stakeholder summary",
+        "approval pending decision"
+      ],
+      "top_retrieval_queries": [
+        "Prepare external stakeholder summary",
+        "HANDOFF-1 architecture",
+        "HANDOFF-1 owner handoff"
+      ]
+    },
+    "compact_decision_payload": {
+      "actor_role": "cto",
+      "suggested_owner": "cto",
+      "routing_focus": "review_attention",
+      "hint_kinds": [
+        "runtime_source_of_truth",
+        "retrieval_context",
+        "memory_context",
+        "approval_attention",
+        "retry_retrieval",
+        "escalation_memory"
+      ],
+      "top_task_ids": [
+        "HANDOFF-1",
+        "HANDOFF-2",
+        "HANDOFF-3"
+      ]
+    }
+  },
+  "reporting_export_summary": {
+    "analytics_summary": {
+      "total_tasks": 3,
+      "by_live_state": {
+        "retry": 1,
+        "executing": 1,
+        "queued": 1
+      },
+      "approval_pending": 1,
+      "retry_total": 1,
+      "escalated": 1
+    },
+    "reporting_export_summary": {
+      "by_live_state": {
+        "retry": 1,
+        "executing": 1,
+        "queued": 1
+      },
+      "approvals": 1,
+      "retries": 1,
+      "escalations": 1,
+      "stale": 3,
+      "conflicts": 1,
+      "read_only_cards": 3
+    },
+    "operator_workflow_status_digest": {
+      "card_count": 3,
+      "visible_actions_total": 8,
+      "read_only_cards": 3,
+      "top_recommendations": [
+        "Подтвердить выполнение",
+        "Отклонить выполнение",
+        "Вернуть задачу в повторную обработку",
+        "Исправить конфликт блокировки",
+        "acknowledge_escalation"
+      ]
+    }
+  },
+  "operator_workflow_summary": {
+    "card_count": 3,
+    "visible_actions_total": 8,
+    "approval_pending": 1,
+    "retry_total": 1,
+    "escalated": 1,
+    "read_only_cards": 3
+  },
+  "maintenance_anomaly_digest": {
+    "pending_total": 4,
+    "urgent_total": 3,
+    "top_pending": [
+      {
+        "task_id": "HANDOFF-1",
+        "live_state": "retry",
+        "type": "stale_task_sweep",
+        "level": "high",
+        "action": "orchestrator_inspect_and_requeue",
+        "label": "Проверить stale-задачу и переочередить"
+      },
+      {
+        "task_id": "HANDOFF-2",
+        "live_state": "executing",
+        "type": "stuck_conflict_followup",
+        "level": "high",
+        "action": "orchestrator_resolve_lock",
+        "label": "Исправить конфликт блокировки"
+      },
+      {
+        "task_id": "HANDOFF-3",
+        "live_state": "queued",
+        "type": "stale_task_sweep",
+        "level": "high",
+        "action": "orchestrator_inspect_and_requeue",
+        "label": "Проверить stale-задачу и переочередить"
+      }
+    ],
+    "anomaly_flags": [
+      "urgent_maintenance",
+      "lock_conflicts",
+      "stale_runtime"
+    ]
+  },
+  "clone_rehearsal_status": {
+    "runtime_tasks": 3,
+    "reconnect_safe": true,
+    "backfill_safe": true,
+    "by_live_state": {
+      "retry": 1,
+      "executing": 1,
+      "queued": 1
+    },
+    "export_ready": true
+  },
+  "handoff_payload": {
+    "actor_role": "cto",
+    "total_tasks": 3,
+    "suggested_owner": "cto",
+    "routing_focus": "review_attention",
+    "anomaly_flags": [
+      "urgent_maintenance",
+      "lock_conflicts",
+      "stale_runtime"
+    ],
+    "top_recommendations": [
+      "Подтвердить выполнение",
+      "Отклонить выполнение",
+      "Вернуть задачу в повторную обработку",
+      "Исправить конфликт блокировки",
+      "acknowledge_escalation"
+    ]
+  }
+}

@@ -27,6 +27,16 @@
   const executiveMaintenanceEl = document.getElementById('executive-maintenance');
   const executiveWorkflowEl = document.getElementById('executive-workflow');
   const executivePayloadEl = document.getElementById('executive-payload');
+  const handoffPanelEl = document.getElementById('handoff-panel');
+  const handoffOwnerBadgeEl = document.getElementById('handoff-owner-badge');
+  const handoffBriefEl = document.getElementById('handoff-brief');
+  const handoffExecutiveEl = document.getElementById('handoff-executive');
+  const handoffDecisionEl = document.getElementById('handoff-decision');
+  const handoffReportingEl = document.getElementById('handoff-reporting');
+  const handoffWorkflowEl = document.getElementById('handoff-workflow');
+  const handoffMaintenanceEl = document.getElementById('handoff-maintenance');
+  const handoffCloneEl = document.getElementById('handoff-clone');
+  const handoffPayloadEl = document.getElementById('handoff-payload');
   const gatewayStateEl = document.getElementById('gateway-state');
   const stateTsEl = document.getElementById('state-ts');
   const opsTasksEl = document.getElementById('ops-tasks');
@@ -366,6 +376,61 @@
     }
   }
 
+  function renderHandoffPanel() {
+    if (!handoffPanelEl) return;
+    const handoff = lastClientPayload?.stakeholder_handoff || null;
+    if (!handoff) {
+      if (handoffOwnerBadgeEl) handoffOwnerBadgeEl.textContent = 'owner: --';
+      if (handoffBriefEl) handoffBriefEl.textContent = 'Stakeholder handoff bundle is waiting for payload…';
+      if (handoffExecutiveEl) handoffExecutiveEl.textContent = 'executive_summary: --';
+      if (handoffDecisionEl) handoffDecisionEl.textContent = 'decision_context_summary: --';
+      if (handoffReportingEl) handoffReportingEl.textContent = 'reporting_export_summary: --';
+      if (handoffWorkflowEl) handoffWorkflowEl.textContent = 'operator_workflow_summary: --';
+      if (handoffMaintenanceEl) handoffMaintenanceEl.textContent = 'maintenance_anomaly_digest: --';
+      if (handoffCloneEl) handoffCloneEl.textContent = 'clone_rehearsal_status: --';
+      if (handoffPayloadEl) handoffPayloadEl.textContent = 'waiting…';
+      return;
+    }
+
+    if (handoffOwnerBadgeEl) handoffOwnerBadgeEl.textContent = `owner: ${handoff.decision_context_summary?.suggested_owner || '--'}`;
+    if (handoffBriefEl) handoffBriefEl.textContent = handoff.decision_context_summary?.cto_orchestrator_brief?.headline || 'Handoff brief unavailable';
+    if (handoffExecutiveEl) {
+      const e = handoff.executive_summary?.analytics_summary || {};
+      handoffExecutiveEl.textContent = `executive_summary: total=${e.total_tasks || 0} | approval=${e.approval_pending || 0} | retry=${e.retry_total || 0} | escalated=${e.escalated || 0}`;
+    }
+    if (handoffDecisionEl) {
+      const d = handoff.decision_context_summary || {};
+      const ds = d.decision_summary || {};
+      handoffDecisionEl.textContent = `decision_context_summary: focus=${ds.routing_focus || '--'} | approval=${ds.approval_pending || 0} | escalated=${ds.escalated || 0}`;
+    }
+    if (handoffReportingEl) {
+      const r = handoff.reporting_export_summary?.reporting_export_summary || {};
+      handoffReportingEl.textContent = `reporting_export_summary: approvals=${r.approvals || 0} | retries=${r.retries || 0} | escalations=${r.escalations || 0}`;
+    }
+    if (handoffWorkflowEl) {
+      const w = handoff.operator_workflow_summary || {};
+      handoffWorkflowEl.textContent = `operator_workflow_summary: cards=${w.card_count || 0} | actions=${w.visible_actions_total || 0} | read_only=${w.read_only_cards || 0}`;
+    }
+    if (handoffMaintenanceEl) {
+      const m = handoff.maintenance_anomaly_digest || {};
+      handoffMaintenanceEl.textContent = `maintenance_anomaly_digest: pending=${m.pending_total || 0} | urgent=${m.urgent_total || 0} | anomalies=${(m.anomaly_flags || []).join(', ') || 'none'}`;
+    }
+    if (handoffCloneEl) {
+      const c = handoff.clone_rehearsal_status || {};
+      handoffCloneEl.textContent = `clone_rehearsal_status: tasks=${c.runtime_tasks || 0} | export_ready=${String(c.export_ready)} | states=${Object.keys(c.by_live_state || {}).join(', ') || 'none'}`;
+    }
+    if (handoffPayloadEl) {
+      const p = handoff.handoff_payload || {};
+      handoffPayloadEl.innerHTML = [
+        `<span class="decision-chip">actor: ${p.actor_role || '--'}</span>`,
+        `<span class="decision-chip">tasks: ${p.total_tasks || 0}</span>`,
+        `<span class="decision-chip">owner: ${p.suggested_owner || '--'}</span>`,
+        `<span class="decision-chip">focus: ${p.routing_focus || '--'}</span>`,
+        `<span class="decision-chip">recommendations: ${(p.top_recommendations || []).slice(0, 2).join(', ') || 'none'}</span>`,
+      ].join('');
+    }
+  }
+
   function renderAnalyticsPanel() {
     if (!analyticsPanelEl) return;
     const analytics = lastClientPayload?.analytics || {};
@@ -417,6 +482,7 @@
     renderAnalyticsPanel();
     renderDecisionPanel();
     renderExecutivePanel();
+    renderHandoffPanel();
   }
 
   function renderOperatorFeed(tasks) {
