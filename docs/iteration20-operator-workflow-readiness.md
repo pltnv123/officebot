@@ -61,3 +61,8 @@ Current readiness baseline requires:
 - `scripts/ws-hydrate-smoke.js`
 - `scripts/actor-role-propagation-smoke.js`
 - `scripts/acceptance-live-loop.js`
+- `scripts/operator-isolated-runtime-clone-smoke.js`
+- `scripts/export-operator-clone-report.js`
+
+## Follow-up stable milestone
+The isolated runtime clone workflow layer now has a dedicated stable milestone with machine-readable reporting in `docs/iteration22-operator-clone-report.md`.

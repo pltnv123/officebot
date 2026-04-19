@@ -1,0 +1,794 @@
+{
+  "generatedAt": "2026-04-19T11:51:48.236Z",
+  "kind": "operator-clone-acceptance-report",
+  "source": "isolated-runtime-clone",
+  "stableMilestone": "isolated runtime clone workflows",
+  "scenarios": {
+    "approval": {
+      "action": "approve_task",
+      "result": {
+        "action": "approve_task",
+        "status": "ok",
+        "owner": "orchestrator",
+        "ts": "2026-04-19T11:51:48.266Z",
+        "detail": {
+          "approval_state": "approved"
+        }
+      },
+      "before": {
+        "live_state": "retry",
+        "hints": [
+          "resolve_lock_conflict",
+          "resolve_approval",
+          "requeue_execution"
+        ],
+        "actions": [
+          {
+            "action": "resolve_lock_conflict",
+            "executable": true
+          },
+          {
+            "action": "approve_task",
+            "executable": true
+          },
+          {
+            "action": "reject_task",
+            "executable": true
+          },
+          {
+            "action": "requeue_task",
+            "executable": true
+          },
+          {
+            "action": "escalate_task",
+            "executable": true
+          }
+        ]
+      },
+      "after": {
+        "live_state": "retry",
+        "approval_state": "approved",
+        "assignment_state": "retry",
+        "lock_conflict": false,
+        "analytics": {
+          "total": 1,
+          "by_live_state": {
+            "retry": 1
+          },
+          "approval_pending": 0,
+          "lock_conflicts": 0,
+          "escalated": 0,
+          "retry_total": 1,
+          "review_ready": 1,
+          "stuck_total": 1,
+          "read_only_cards": 0,
+          "visible_actions_total": 2,
+          "operator_action_digest": {
+            "approval_actions": 0,
+            "repair_actions": 2,
+            "executable_actions": 2,
+            "view_only_actions": 0
+          },
+          "maintenance_routine_counts": {
+            "total": 2,
+            "by_type": {
+              "stale_task_sweep": 1,
+              "retry_followup": 1
+            },
+            "by_level": {
+              "high": 1,
+              "medium": 1
+            }
+          },
+          "maintenance_digest": {
+            "pending_total": 2,
+            "urgent_total": 1,
+            "by_label": {
+              "Проверить stale-задачу и переочередить": 1,
+              "Вернуть в повторную обработку или эскалировать": 1
+            },
+            "top_pending": [
+              {
+                "task_id": "CLONE-OP-1",
+                "live_state": "retry",
+                "type": "stale_task_sweep",
+                "level": "high",
+                "action": "orchestrator_inspect_and_requeue",
+                "label": "Проверить stale-задачу и переочередить"
+              },
+              {
+                "task_id": "CLONE-OP-1",
+                "live_state": "retry",
+                "type": "retry_followup",
+                "level": "medium",
+                "action": "orchestrator_requeue_or_escalate",
+                "label": "Вернуть в повторную обработку или эскалировать"
+              }
+            ]
+          },
+          "export_summary": {
+            "by_live_state": {
+              "retry": 1
+            },
+            "approvals": 0,
+            "retries": 1,
+            "escalations": 0,
+            "stale": 1,
+            "conflicts": 0,
+            "read_only_cards": 0
+          },
+          "audit_samples": [
+            {
+              "task_id": "CLONE-OP-1",
+              "live_state": "retry",
+              "latest_event_type": "operator_action",
+              "latest_event_ts": "2026-04-19T11:51:48.265Z",
+              "approval_state": "approved",
+              "lock_owner": "orchestrator",
+              "lock_conflict": false
+            }
+          ]
+        },
+        "export_summary": {
+          "by_live_state": {
+            "retry": 1
+          },
+          "approvals": 0,
+          "retries": 1,
+          "escalations": 0,
+          "stale": 1,
+          "conflicts": 0,
+          "read_only_cards": 0
+        },
+        "top_pending": [
+          {
+            "task_id": "CLONE-OP-1",
+            "live_state": "retry",
+            "type": "stale_task_sweep",
+            "level": "high",
+            "action": "orchestrator_inspect_and_requeue",
+            "label": "Проверить stale-задачу и переочередить"
+          },
+          {
+            "task_id": "CLONE-OP-1",
+            "live_state": "retry",
+            "type": "retry_followup",
+            "level": "medium",
+            "action": "orchestrator_requeue_or_escalate",
+            "label": "Вернуть в повторную обработку или эскалировать"
+          }
+        ],
+        "timeline_types": [
+          "execution_result",
+          "assigned",
+          "approval_resolved",
+          "operator_action"
+        ]
+      },
+      "qa_view_only_actions": [
+        "requeue_task"
+      ]
+    },
+    "reject": {
+      "action": "reject_task",
+      "result": {
+        "action": "reject_task",
+        "status": "ok",
+        "owner": "orchestrator",
+        "ts": "2026-04-19T11:51:48.289Z",
+        "detail": {
+          "approval_state": "rejected"
+        }
+      },
+      "before": {
+        "live_state": "retry",
+        "hints": [
+          "resolve_lock_conflict",
+          "resolve_approval",
+          "requeue_execution"
+        ],
+        "actions": [
+          {
+            "action": "resolve_lock_conflict",
+            "executable": true
+          },
+          {
+            "action": "approve_task",
+            "executable": true
+          },
+          {
+            "action": "reject_task",
+            "executable": true
+          },
+          {
+            "action": "requeue_task",
+            "executable": true
+          },
+          {
+            "action": "escalate_task",
+            "executable": true
+          }
+        ]
+      },
+      "after": {
+        "live_state": "retry",
+        "approval_state": "rejected",
+        "assignment_state": "retry",
+        "lock_conflict": false,
+        "analytics": {
+          "total": 1,
+          "by_live_state": {
+            "retry": 1
+          },
+          "approval_pending": 0,
+          "lock_conflicts": 0,
+          "escalated": 0,
+          "retry_total": 1,
+          "review_ready": 1,
+          "stuck_total": 1,
+          "read_only_cards": 0,
+          "visible_actions_total": 2,
+          "operator_action_digest": {
+            "approval_actions": 0,
+            "repair_actions": 2,
+            "executable_actions": 2,
+            "view_only_actions": 0
+          },
+          "maintenance_routine_counts": {
+            "total": 2,
+            "by_type": {
+              "stale_task_sweep": 1,
+              "retry_followup": 1
+            },
+            "by_level": {
+              "high": 1,
+              "medium": 1
+            }
+          },
+          "maintenance_digest": {
+            "pending_total": 2,
+            "urgent_total": 1,
+            "by_label": {
+              "Проверить stale-задачу и переочередить": 1,
+              "Вернуть в повторную обработку или эскалировать": 1
+            },
+            "top_pending": [
+              {
+                "task_id": "CLONE-OP-1",
+                "live_state": "retry",
+                "type": "stale_task_sweep",
+                "level": "high",
+                "action": "orchestrator_inspect_and_requeue",
+                "label": "Проверить stale-задачу и переочередить"
+              },
+              {
+                "task_id": "CLONE-OP-1",
+                "live_state": "retry",
+                "type": "retry_followup",
+                "level": "medium",
+                "action": "orchestrator_requeue_or_escalate",
+                "label": "Вернуть в повторную обработку или эскалировать"
+              }
+            ]
+          },
+          "export_summary": {
+            "by_live_state": {
+              "retry": 1
+            },
+            "approvals": 0,
+            "retries": 1,
+            "escalations": 0,
+            "stale": 1,
+            "conflicts": 0,
+            "read_only_cards": 0
+          },
+          "audit_samples": [
+            {
+              "task_id": "CLONE-OP-1",
+              "live_state": "retry",
+              "latest_event_type": "operator_action",
+              "latest_event_ts": "2026-04-19T11:51:48.289Z",
+              "approval_state": "rejected",
+              "lock_owner": "orchestrator",
+              "lock_conflict": false
+            }
+          ]
+        },
+        "export_summary": {
+          "by_live_state": {
+            "retry": 1
+          },
+          "approvals": 0,
+          "retries": 1,
+          "escalations": 0,
+          "stale": 1,
+          "conflicts": 0,
+          "read_only_cards": 0
+        },
+        "top_pending": [
+          {
+            "task_id": "CLONE-OP-1",
+            "live_state": "retry",
+            "type": "stale_task_sweep",
+            "level": "high",
+            "action": "orchestrator_inspect_and_requeue",
+            "label": "Проверить stale-задачу и переочередить"
+          },
+          {
+            "task_id": "CLONE-OP-1",
+            "live_state": "retry",
+            "type": "retry_followup",
+            "level": "medium",
+            "action": "orchestrator_requeue_or_escalate",
+            "label": "Вернуть в повторную обработку или эскалировать"
+          }
+        ],
+        "timeline_types": [
+          "execution_result",
+          "assigned",
+          "approval_resolved",
+          "operator_action"
+        ]
+      },
+      "qa_view_only_actions": [
+        "requeue_task"
+      ]
+    },
+    "requeue": {
+      "action": "requeue_task",
+      "result": {
+        "action": "requeue_task",
+        "status": "ok",
+        "owner": "orchestrator",
+        "ts": "2026-04-19T11:51:48.310Z",
+        "detail": {
+          "assignment_state": "queued"
+        }
+      },
+      "before": {
+        "live_state": "retry",
+        "hints": [
+          "resolve_lock_conflict",
+          "resolve_approval",
+          "requeue_execution"
+        ],
+        "actions": [
+          {
+            "action": "resolve_lock_conflict",
+            "executable": true
+          },
+          {
+            "action": "approve_task",
+            "executable": true
+          },
+          {
+            "action": "reject_task",
+            "executable": true
+          },
+          {
+            "action": "requeue_task",
+            "executable": true
+          },
+          {
+            "action": "escalate_task",
+            "executable": true
+          }
+        ]
+      },
+      "after": {
+        "live_state": "queued",
+        "approval_state": "approval_pending",
+        "assignment_state": "queued",
+        "lock_conflict": false,
+        "analytics": {
+          "total": 1,
+          "by_live_state": {
+            "queued": 1
+          },
+          "approval_pending": 1,
+          "lock_conflicts": 0,
+          "escalated": 0,
+          "retry_total": 0,
+          "review_ready": 1,
+          "stuck_total": 1,
+          "read_only_cards": 0,
+          "visible_actions_total": 2,
+          "operator_action_digest": {
+            "approval_actions": 2,
+            "repair_actions": 0,
+            "executable_actions": 2,
+            "view_only_actions": 0
+          },
+          "maintenance_routine_counts": {
+            "total": 1,
+            "by_type": {
+              "stale_task_sweep": 1
+            },
+            "by_level": {
+              "high": 1
+            }
+          },
+          "maintenance_digest": {
+            "pending_total": 1,
+            "urgent_total": 1,
+            "by_label": {
+              "Проверить stale-задачу и переочередить": 1
+            },
+            "top_pending": [
+              {
+                "task_id": "CLONE-OP-1",
+                "live_state": "queued",
+                "type": "stale_task_sweep",
+                "level": "high",
+                "action": "orchestrator_inspect_and_requeue",
+                "label": "Проверить stale-задачу и переочередить"
+              }
+            ]
+          },
+          "export_summary": {
+            "by_live_state": {
+              "queued": 1
+            },
+            "approvals": 1,
+            "retries": 0,
+            "escalations": 0,
+            "stale": 1,
+            "conflicts": 0,
+            "read_only_cards": 0
+          },
+          "audit_samples": [
+            {
+              "task_id": "CLONE-OP-1",
+              "live_state": "queued",
+              "latest_event_type": "operator_action",
+              "latest_event_ts": "2026-04-19T11:51:48.310Z",
+              "approval_state": "approval_pending",
+              "lock_owner": "orchestrator",
+              "lock_conflict": false
+            }
+          ]
+        },
+        "export_summary": {
+          "by_live_state": {
+            "queued": 1
+          },
+          "approvals": 1,
+          "retries": 0,
+          "escalations": 0,
+          "stale": 1,
+          "conflicts": 0,
+          "read_only_cards": 0
+        },
+        "top_pending": [
+          {
+            "task_id": "CLONE-OP-1",
+            "live_state": "queued",
+            "type": "stale_task_sweep",
+            "level": "high",
+            "action": "orchestrator_inspect_and_requeue",
+            "label": "Проверить stale-задачу и переочередить"
+          }
+        ],
+        "timeline_types": [
+          "execution_result",
+          "assigned",
+          "operator_action"
+        ]
+      },
+      "qa_view_only_actions": [
+        "requeue_task"
+      ]
+    },
+    "escalate": {
+      "action": "escalate_task",
+      "result": {
+        "action": "escalate_task",
+        "status": "ok",
+        "owner": "orchestrator",
+        "ts": "2026-04-19T11:51:48.321Z",
+        "detail": {
+          "assignment_state": "escalated"
+        }
+      },
+      "before": {
+        "live_state": "retry",
+        "hints": [
+          "resolve_lock_conflict",
+          "resolve_approval",
+          "requeue_execution"
+        ],
+        "actions": [
+          {
+            "action": "resolve_lock_conflict",
+            "executable": true
+          },
+          {
+            "action": "approve_task",
+            "executable": true
+          },
+          {
+            "action": "reject_task",
+            "executable": true
+          },
+          {
+            "action": "requeue_task",
+            "executable": true
+          },
+          {
+            "action": "escalate_task",
+            "executable": true
+          }
+        ]
+      },
+      "after": {
+        "live_state": "failed",
+        "approval_state": "approval_pending",
+        "assignment_state": "escalated",
+        "lock_conflict": false,
+        "analytics": {
+          "total": 1,
+          "by_live_state": {
+            "failed": 1
+          },
+          "approval_pending": 1,
+          "lock_conflicts": 0,
+          "escalated": 0,
+          "retry_total": 0,
+          "review_ready": 1,
+          "stuck_total": 1,
+          "read_only_cards": 0,
+          "visible_actions_total": 3,
+          "operator_action_digest": {
+            "approval_actions": 2,
+            "repair_actions": 1,
+            "executable_actions": 3,
+            "view_only_actions": 0
+          },
+          "maintenance_routine_counts": {
+            "total": 1,
+            "by_type": {
+              "retry_exhaustion_review": 1
+            },
+            "by_level": {
+              "high": 1
+            }
+          },
+          "maintenance_digest": {
+            "pending_total": 1,
+            "urgent_total": 1,
+            "by_label": {
+              "Нужно ручное ревью оркестратора": 1
+            },
+            "top_pending": [
+              {
+                "task_id": "CLONE-OP-1",
+                "live_state": "failed",
+                "type": "retry_exhaustion_review",
+                "level": "high",
+                "action": "orchestrator_manual_review_required",
+                "label": "Нужно ручное ревью оркестратора"
+              }
+            ]
+          },
+          "export_summary": {
+            "by_live_state": {
+              "failed": 1
+            },
+            "approvals": 1,
+            "retries": 0,
+            "escalations": 0,
+            "stale": 1,
+            "conflicts": 0,
+            "read_only_cards": 0
+          },
+          "audit_samples": [
+            {
+              "task_id": "CLONE-OP-1",
+              "live_state": "failed",
+              "latest_event_type": "operator_action",
+              "latest_event_ts": "2026-04-19T11:51:48.321Z",
+              "approval_state": "approval_pending",
+              "lock_owner": "orchestrator",
+              "lock_conflict": false
+            }
+          ]
+        },
+        "export_summary": {
+          "by_live_state": {
+            "failed": 1
+          },
+          "approvals": 1,
+          "retries": 0,
+          "escalations": 0,
+          "stale": 1,
+          "conflicts": 0,
+          "read_only_cards": 0
+        },
+        "top_pending": [
+          {
+            "task_id": "CLONE-OP-1",
+            "live_state": "failed",
+            "type": "retry_exhaustion_review",
+            "level": "high",
+            "action": "orchestrator_manual_review_required",
+            "label": "Нужно ручное ревью оркестратора"
+          }
+        ],
+        "timeline_types": [
+          "execution_result",
+          "assigned",
+          "escalation",
+          "failed",
+          "operator_action"
+        ]
+      },
+      "qa_view_only_actions": [
+        "requeue_task"
+      ]
+    },
+    "lock_conflict_resolution": {
+      "action": "resolve_lock_conflict",
+      "result": {
+        "action": "resolve_lock_conflict",
+        "status": "ok",
+        "owner": "orchestrator",
+        "ts": "2026-04-19T11:51:48.332Z",
+        "detail": {
+          "lock_owner": "orchestrator"
+        }
+      },
+      "before": {
+        "live_state": "retry",
+        "hints": [
+          "resolve_lock_conflict",
+          "resolve_approval",
+          "requeue_execution"
+        ],
+        "actions": [
+          {
+            "action": "resolve_lock_conflict",
+            "executable": true
+          },
+          {
+            "action": "approve_task",
+            "executable": true
+          },
+          {
+            "action": "reject_task",
+            "executable": true
+          },
+          {
+            "action": "requeue_task",
+            "executable": true
+          },
+          {
+            "action": "escalate_task",
+            "executable": true
+          }
+        ]
+      },
+      "after": {
+        "live_state": "retry",
+        "approval_state": "approval_pending",
+        "assignment_state": "retry",
+        "lock_conflict": false,
+        "analytics": {
+          "total": 1,
+          "by_live_state": {
+            "retry": 1
+          },
+          "approval_pending": 1,
+          "lock_conflicts": 0,
+          "escalated": 0,
+          "retry_total": 1,
+          "review_ready": 1,
+          "stuck_total": 1,
+          "read_only_cards": 0,
+          "visible_actions_total": 4,
+          "operator_action_digest": {
+            "approval_actions": 2,
+            "repair_actions": 2,
+            "executable_actions": 4,
+            "view_only_actions": 0
+          },
+          "maintenance_routine_counts": {
+            "total": 2,
+            "by_type": {
+              "stale_task_sweep": 1,
+              "retry_followup": 1
+            },
+            "by_level": {
+              "high": 1,
+              "medium": 1
+            }
+          },
+          "maintenance_digest": {
+            "pending_total": 2,
+            "urgent_total": 1,
+            "by_label": {
+              "Проверить stale-задачу и переочередить": 1,
+              "Вернуть в повторную обработку или эскалировать": 1
+            },
+            "top_pending": [
+              {
+                "task_id": "CLONE-OP-1",
+                "live_state": "retry",
+                "type": "stale_task_sweep",
+                "level": "high",
+                "action": "orchestrator_inspect_and_requeue",
+                "label": "Проверить stale-задачу и переочередить"
+              },
+              {
+                "task_id": "CLONE-OP-1",
+                "live_state": "retry",
+                "type": "retry_followup",
+                "level": "medium",
+                "action": "orchestrator_requeue_or_escalate",
+                "label": "Вернуть в повторную обработку или эскалировать"
+              }
+            ]
+          },
+          "export_summary": {
+            "by_live_state": {
+              "retry": 1
+            },
+            "approvals": 1,
+            "retries": 1,
+            "escalations": 0,
+            "stale": 1,
+            "conflicts": 0,
+            "read_only_cards": 0
+          },
+          "audit_samples": [
+            {
+              "task_id": "CLONE-OP-1",
+              "live_state": "retry",
+              "latest_event_type": "operator_action",
+              "latest_event_ts": "2026-04-19T11:51:48.332Z",
+              "approval_state": "approval_pending",
+              "lock_owner": "orchestrator",
+              "lock_conflict": false
+            }
+          ]
+        },
+        "export_summary": {
+          "by_live_state": {
+            "retry": 1
+          },
+          "approvals": 1,
+          "retries": 1,
+          "escalations": 0,
+          "stale": 1,
+          "conflicts": 0,
+          "read_only_cards": 0
+        },
+        "top_pending": [
+          {
+            "task_id": "CLONE-OP-1",
+            "live_state": "retry",
+            "type": "stale_task_sweep",
+            "level": "high",
+            "action": "orchestrator_inspect_and_requeue",
+            "label": "Проверить stale-задачу и переочередить"
+          },
+          {
+            "task_id": "CLONE-OP-1",
+            "live_state": "retry",
+            "type": "retry_followup",
+            "level": "medium",
+            "action": "orchestrator_requeue_or_escalate",
+            "label": "Вернуть в повторную обработку или эскалировать"
+          }
+        ],
+        "timeline_types": [
+          "execution_result",
+          "assigned",
+          "operator_action"
+        ]
+      },
+      "qa_view_only_actions": [
+        "requeue_task"
+      ]
+    }
+  }
+}
