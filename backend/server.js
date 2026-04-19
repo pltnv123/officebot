@@ -18,6 +18,7 @@ const { buildDecisionAssistanceSurface } = require('./decisionAssistanceLayer');
 const { buildAssistedExecutionHandoff } = require('./assistedExecutionHandoffLayer');
 const { buildAssistedExecutionPresentation } = require('./assistedExecutionPresentationLayer');
 const { buildAssistedExecutionDeliveryBundle } = require('./assistedExecutionDeliveryLayer');
+const { buildAssistedExecutionBundleIndex } = require('./assistedExecutionBundleIndexLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -259,6 +260,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.assisted_execution_bundle_index = buildAssistedExecutionBundleIndex({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.storage = remote.source;
   enriched.board = {
     inboxCount: columnTaskCounts[0],
@@ -497,6 +502,21 @@ app.get('/api/export/assisted-execution-delivery', async (req, res) => {
     actor_role: actorRole,
     storage: enriched.storage,
     assisted_execution_delivery: buildAssistedExecutionDeliveryBundle({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/assisted-execution-bundle-index', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    assisted_execution_bundle_index: buildAssistedExecutionBundleIndex({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),

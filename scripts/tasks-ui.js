@@ -71,6 +71,14 @@
   const assistedDeliveryCompactEl = document.getElementById('assisted-delivery-compact');
   const assistedDeliveryCtoEl = document.getElementById('assisted-delivery-cto');
   const assistedDeliveryPayloadEl = document.getElementById('assisted-delivery-payload');
+  const assistedIndexPanelEl = document.getElementById('assisted-index-panel');
+  const assistedIndexBadgeEl = document.getElementById('assisted-index-badge');
+  const assistedIndexBriefEl = document.getElementById('assisted-index-brief');
+  const assistedIndexSurfacesEl = document.getElementById('assisted-index-surfaces');
+  const assistedIndexPublishingEl = document.getElementById('assisted-index-publishing');
+  const assistedIndexEndpointsEl = document.getElementById('assisted-index-endpoints');
+  const assistedIndexArtifactsEl = document.getElementById('assisted-index-artifacts');
+  const assistedIndexPayloadEl = document.getElementById('assisted-index-payload');
   const gatewayStateEl = document.getElementById('gateway-state');
   const stateTsEl = document.getElementById('state-ts');
   const opsTasksEl = document.getElementById('ops-tasks');
@@ -636,6 +644,40 @@
     }
   }
 
+  function renderAssistedIndexPanel() {
+    if (!assistedIndexPanelEl) return;
+    const bundleIndex = lastClientPayload?.assisted_execution_bundle_index || null;
+    if (!bundleIndex) {
+      if (assistedIndexBadgeEl) assistedIndexBadgeEl.textContent = 'entry: --';
+      if (assistedIndexBriefEl) assistedIndexBriefEl.textContent = 'Assisted execution bundle index is waiting for payload…';
+      if (assistedIndexSurfacesEl) assistedIndexSurfacesEl.textContent = 'surfaces: --';
+      if (assistedIndexPublishingEl) assistedIndexPublishingEl.textContent = 'publishing_map: --';
+      if (assistedIndexEndpointsEl) assistedIndexEndpointsEl.textContent = 'endpoints: --';
+      if (assistedIndexArtifactsEl) assistedIndexArtifactsEl.textContent = 'artifacts: --';
+      if (assistedIndexPayloadEl) assistedIndexPayloadEl.textContent = 'waiting…';
+      return;
+    }
+
+    if (assistedIndexBadgeEl) assistedIndexBadgeEl.textContent = `entry: ${bundleIndex.publishing_map?.recommended_entry || '--'}`;
+    if (assistedIndexBriefEl) assistedIndexBriefEl.textContent = `CTO primary: ${bundleIndex.publishing_map?.cto_primary_surface || '--'} | Orchestrator primary: ${bundleIndex.publishing_map?.orchestrator_primary_surface || '--'}`;
+    if (assistedIndexSurfacesEl) assistedIndexSurfacesEl.textContent = `surfaces: ${Object.keys(bundleIndex.surfaces || {}).join(', ') || 'none'}`;
+    if (assistedIndexPublishingEl) {
+      const p = bundleIndex.publishing_map || {};
+      assistedIndexPublishingEl.textContent = `publishing_map: recommended=${p.recommended_entry || '--'} | read_only=${String(p.read_only)} | reconnect_safe=${String(p.snapshot_safe?.reconnect_safe)}`;
+    }
+    if (assistedIndexEndpointsEl) assistedIndexEndpointsEl.textContent = `endpoints: ${(bundleIndex.endpoints || []).join(', ') || 'none'}`;
+    if (assistedIndexArtifactsEl) assistedIndexArtifactsEl.textContent = `artifacts: ${(bundleIndex.artifacts || []).join(', ') || 'none'}`;
+    if (assistedIndexPayloadEl) {
+      const p = bundleIndex.publishing_payload || {};
+      assistedIndexPayloadEl.innerHTML = [
+        `<span class="decision-chip">entry: ${p.recommended_entry || '--'}</span>`,
+        `<span class="decision-chip">surfaces: ${(p.available_surfaces || []).length}</span>`,
+        `<span class="decision-chip">top endpoints: ${(p.top_endpoints || []).join(', ') || 'none'}</span>`,
+        `<span class="decision-chip">distribution: ${(p.distribution_map || []).join(' | ') || 'none'}</span>`,
+      ].join('');
+    }
+  }
+
   function renderAnalyticsPanel() {
     if (!analyticsPanelEl) return;
     const analytics = lastClientPayload?.analytics || {};
@@ -692,6 +734,7 @@
     renderDeliveryPackPanel();
     renderAssistedPresentationPanel();
     renderAssistedDeliveryPanel();
+    renderAssistedIndexPanel();
   }
 
   function renderOperatorFeed(tasks) {
