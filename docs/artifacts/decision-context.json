@@ -1,0 +1,155 @@
+{
+  "actor_role": "cto",
+  "suggested_owner": "cto",
+  "decision_summary": {
+    "routing_focus": "review_attention",
+    "approval_pending": 1,
+    "escalated": 1,
+    "retry_queue": 1
+  },
+  "retrieval_aware_planning_hints": [
+    {
+      "kind": "runtime_source_of_truth",
+      "system": "supabase",
+      "priority": "high",
+      "note": "Use Supabase-backed runtime snapshot as source of truth for routing decisions."
+    },
+    {
+      "kind": "retrieval_context",
+      "system": "qmd",
+      "priority": "medium",
+      "note": "Use QMD retrieval to enrich planning with prior architecture, ownership, and delivery context."
+    },
+    {
+      "kind": "memory_context",
+      "system": "lossless-claw",
+      "priority": "medium",
+      "note": "Use lossless-claw memory to recover prior decisions, blockers, and session-local operator context."
+    },
+    {
+      "kind": "approval_attention",
+      "system": "cto",
+      "priority": "high",
+      "note": "Approval-pending tasks require review-aware routing before execution continues."
+    },
+    {
+      "kind": "retry_retrieval",
+      "system": "qmd",
+      "priority": "medium",
+      "note": "Retry tasks should carry retrieved execution history and known-failure context into planning."
+    },
+    {
+      "kind": "escalation_memory",
+      "system": "lossless-claw",
+      "priority": "high",
+      "note": "Escalated tasks should surface prior operator decisions and unresolved blockers before reassignment."
+    }
+  ],
+  "routing_context_summary": {
+    "runtime_tasks": 3,
+    "operator_cards": 3,
+    "approval_pending": 1,
+    "retries": 1,
+    "escalations": 1,
+    "maintenance_pending": 3
+  },
+  "memory_aware_task_context": [
+    {
+      "task_id": "DEC-1",
+      "title": "Review approval-pending routing path",
+      "routing_tags": [
+        "doing",
+        "retry",
+        "approval_pending"
+      ],
+      "memory_queries": [
+        "task DEC-1",
+        "Review approval-pending routing path",
+        "approval pending decision"
+      ],
+      "retrieval_queries": [
+        "Review approval-pending routing path",
+        "DEC-1 architecture",
+        "DEC-1 owner handoff"
+      ],
+      "source_of_truth": "supabase",
+      "retrieval_layer": "qmd",
+      "memory_layer": "lossless-claw"
+    },
+    {
+      "task_id": "DEC-2",
+      "title": "Inspect escalated blocker with prior context",
+      "routing_tags": [
+        "doing",
+        "escalated",
+        "none"
+      ],
+      "memory_queries": [
+        "task DEC-2",
+        "Inspect escalated blocker with prior context",
+        "manual review blocker"
+      ],
+      "retrieval_queries": [
+        "Inspect escalated blocker with prior context",
+        "DEC-2 architecture",
+        "DEC-2 owner handoff"
+      ],
+      "source_of_truth": "supabase",
+      "retrieval_layer": "qmd",
+      "memory_layer": "lossless-claw"
+    },
+    {
+      "task_id": "DEC-3",
+      "title": "Route queued retrieval follow-up",
+      "routing_tags": [
+        "review",
+        "queued",
+        "none"
+      ],
+      "memory_queries": [
+        "task DEC-3",
+        "Route queued retrieval follow-up"
+      ],
+      "retrieval_queries": [
+        "Route queued retrieval follow-up",
+        "DEC-3 architecture",
+        "DEC-3 owner handoff"
+      ],
+      "source_of_truth": "supabase",
+      "retrieval_layer": "qmd",
+      "memory_layer": "lossless-claw"
+    }
+  ],
+  "cto_orchestrator_brief": {
+    "headline": "CTO review is recommended before further routing changes.",
+    "top_task_id": "DEC-1",
+    "top_memory_queries": [
+      "task DEC-1",
+      "Review approval-pending routing path",
+      "approval pending decision"
+    ],
+    "top_retrieval_queries": [
+      "Review approval-pending routing path",
+      "DEC-1 architecture",
+      "DEC-1 owner handoff"
+    ]
+  },
+  "compact_decision_payload": {
+    "actor_role": "cto",
+    "suggested_owner": "cto",
+    "routing_focus": "review_attention",
+    "hint_kinds": [
+      "runtime_source_of_truth",
+      "retrieval_context",
+      "memory_context",
+      "approval_attention",
+      "retry_retrieval",
+      "escalation_memory"
+    ],
+    "top_task_ids": [
+      "DEC-1",
+      "DEC-2",
+      "DEC-3"
+    ]
+  }
+}

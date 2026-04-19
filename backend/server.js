@@ -9,7 +9,7 @@ const { normalizeEvent, deriveTaskLiveState } = require('./liveEventContract');
 const { applyRuntimeEventGuards, ensureIdempotentTaskFinalState } = require('./runtimeGuards');
 const { buildTaskUiView, buildRuntimeUiView } = require('./uiStateView');
 const { buildOperatorSurface } = require('./operatorLayer');
-const { buildKnowledgeAwareContext } = require('./knowledgeAwareLayer');
+const { buildKnowledgeAwareContext, buildDecisionConsumerSurface } = require('./knowledgeAwareLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -318,6 +318,21 @@ app.get('/api/export/knowledge-aware-context', async (req, res) => {
     actor_role: actorRole,
     storage: enriched.storage,
     knowledge_context: buildKnowledgeAwareContext({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole),
+  });
+});
+
+app.get('/api/export/decision-context', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    decision_context: buildDecisionConsumerSurface({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole),

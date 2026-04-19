@@ -108,7 +108,45 @@ function buildMemoryAwareTaskContext(task = {}) {
   };
 }
 
-function buildKnowledgeAwareContext(runtimeState = {}, actorRole = 'orchestrator') {
+function buildDecisionConsumerSurfaceFromKnowledge(knowledge = {}, actorRole = 'orchestrator') {
+  const topTask = knowledge.memory_aware_tasks?.[0] || null;
+
+  return {
+    actor_role: actorRole,
+    suggested_owner: knowledge.routing_summary.suggested_owner,
+    decision_summary: {
+      routing_focus: knowledge.routing_summary.pending_review > 0 ? 'review_attention' : 'normal_flow',
+      approval_pending: knowledge.routing_summary.approval_pending,
+      escalated: knowledge.routing_summary.escalated,
+      retry_queue: knowledge.routing_summary.retry_queue,
+    },
+    retrieval_aware_planning_hints: knowledge.planning_hints,
+    routing_context_summary: knowledge.context_summary,
+    memory_aware_task_context: knowledge.memory_aware_tasks,
+    cto_orchestrator_brief: {
+      headline: knowledge.routing_summary.suggested_owner === 'cto'
+        ? 'CTO review is recommended before further routing changes.'
+        : 'Orchestrator can continue with normal routing decisions.',
+      top_task_id: topTask?.task_id || null,
+      top_memory_queries: topTask?.memory_queries || [],
+      top_retrieval_queries: topTask?.retrieval_queries || [],
+    },
+    compact_decision_payload: {
+      actor_role: actorRole,
+      suggested_owner: knowledge.routing_summary.suggested_owner,
+      routing_focus: knowledge.routing_summary.pending_review > 0 ? 'review_attention' : 'normal_flow',
+      hint_kinds: knowledge.planning_hints.map((item) => item.kind),
+      top_task_ids: knowledge.memory_aware_tasks.slice(0, 3).map((item) => item.task_id),
+    },
+  };
+}
+
+function buildDecisionConsumerSurface(runtimeState = {}, actorRole = 'orchestrator') {
+  const knowledge = buildKnowledgeAwareContext(runtimeState, actorRole, { includeDecisionConsumer: false });
+  return buildDecisionConsumerSurfaceFromKnowledge(knowledge, actorRole);
+}
+
+function buildKnowledgeAwareContext(runtimeState = {}, actorRole = 'orchestrator', options = {}) {
   const tasks = Array.isArray(runtimeState.tasks) ? runtimeState.tasks : [];
   const ui = buildRuntimeUiView({ updatedAt: runtimeState.updatedAt, tasks });
   const operator = buildOperatorSurface({ updatedAt: runtimeState.updatedAt, actorRole, tasks });
@@ -149,11 +187,34 @@ function buildKnowledgeAwareContext(runtimeState = {}, actorRole = 'orchestrator
         approval_pending: routing.approval_pending,
       },
     },
+    ...(options.includeDecisionConsumer === false ? {} : {
+      decision_consumer: buildDecisionConsumerSurfaceFromKnowledge({
+        updatedAt: runtimeState.updatedAt || runtimeState.timestamp || null,
+        actor_role: actorRole,
+        source_of_truth: {
+          runtime: 'supabase',
+          retrieval: 'qmd',
+          memory: 'lossless-claw',
+        },
+        routing_summary: routing,
+        planning_hints: buildPlanningHints(tasks, actorRole),
+        context_summary: {
+          runtime_tasks: ui.tasks.length,
+          operator_cards: operator.cards.length,
+          approval_pending: operator.analytics?.approval_pending || 0,
+          retries: operator.analytics?.retry_total || 0,
+          escalations: operator.analytics?.escalated || 0,
+          maintenance_pending: operator.analytics?.maintenance_digest?.pending_total || 0,
+        },
+        memory_aware_tasks: tasks.slice(0, 5).map((task) => buildMemoryAwareTaskContext(task)),
+      }, actorRole),
+    }),
   };
 }
 
 module.exports = {
   buildKnowledgeAwareContext,
+  buildDecisionConsumerSurface,
   buildPlanningHints,
   buildMemoryAwareTaskContext,
   summarizeRouting,
