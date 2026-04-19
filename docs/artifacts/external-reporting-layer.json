@@ -1,0 +1,126 @@
+{
+  "generatedAt": "2026-04-19T11:56:14.533Z",
+  "kind": "external-reporting-layer",
+  "source": "read-only-export-generator",
+  "runtime_summary": {
+    "tasks": 1,
+    "live_state": "retry",
+    "reconnect_safe": true,
+    "backfill_safe": true
+  },
+  "operator_summary": {
+    "card_count": 1,
+    "top_recommendations": [
+      "Исправить конфликт блокировки",
+      "Подтвердить выполнение",
+      "Отклонить выполнение"
+    ],
+    "human_review_text": "Состояние: retry | Approval: approval_pending | Артефакты: 1 | Результат: retryable reporting issue awaiting operator decision",
+    "qa_view_only_actions": [
+      "requeue_task"
+    ]
+  },
+  "approvals_retries_escalations": {
+    "approval_pending": 1,
+    "retry_total": 1,
+    "escalated": 0,
+    "by_live_state": {
+      "retry": 1
+    }
+  },
+  "maintenance_summary": {
+    "pending_total": 3,
+    "urgent_total": 2,
+    "by_type": {
+      "stale_task_sweep": 1,
+      "stuck_conflict_followup": 1,
+      "retry_followup": 1
+    },
+    "top_pending": [
+      {
+        "task_id": "REPORT-OP-1",
+        "live_state": "retry",
+        "type": "stale_task_sweep",
+        "level": "high",
+        "action": "orchestrator_inspect_and_requeue",
+        "label": "Проверить stale-задачу и переочередить"
+      },
+      {
+        "task_id": "REPORT-OP-1",
+        "live_state": "retry",
+        "type": "stuck_conflict_followup",
+        "level": "high",
+        "action": "orchestrator_resolve_lock",
+        "label": "Исправить конфликт блокировки"
+      },
+      {
+        "task_id": "REPORT-OP-1",
+        "live_state": "retry",
+        "type": "retry_followup",
+        "level": "medium",
+        "action": "orchestrator_requeue_or_escalate",
+        "label": "Вернуть в повторную обработку или эскалировать"
+      }
+    ]
+  },
+  "clone_rehearsal_summary": {
+    "report_present": true,
+    "scenarios": [
+      "approval",
+      "reject",
+      "requeue",
+      "escalate",
+      "lock_conflict_resolution"
+    ],
+    "scenario_outcomes": {
+      "approval": {
+        "result": "ok",
+        "client_live_state": "retry"
+      },
+      "reject": {
+        "result": "ok",
+        "client_live_state": "retry"
+      },
+      "requeue": {
+        "result": "ok",
+        "client_live_state": "queued"
+      },
+      "escalate": {
+        "result": "ok",
+        "client_live_state": "failed"
+      },
+      "lock_conflict_resolution": {
+        "result": "ok",
+        "client_live_state": "retry"
+      }
+    }
+  },
+  "export_friendly": {
+    "runtime_summary": {
+      "tasks": 1,
+      "live_state": "retry"
+    },
+    "operator_summary": {
+      "card_count": 1,
+      "qa_view_only_actions": [
+        "requeue_task"
+      ]
+    },
+    "approvals_retries_escalations": {
+      "approval_pending": 1,
+      "retry_total": 1,
+      "escalated": 0
+    },
+    "maintenance_summary": {
+      "pending_total": 3,
+      "urgent_total": 2
+    },
+    "clone_rehearsal_summary": {
+      "approval": "retry",
+      "reject": "retry",
+      "requeue": "queued",
+      "escalate": "failed",
+      "lock_conflict_resolution": "retry"
+    }
+  }
+}
