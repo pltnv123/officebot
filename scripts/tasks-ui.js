@@ -97,6 +97,15 @@
   const assistedStakeholderSummaryEl = document.getElementById('assisted-stakeholder-summary');
   const assistedStakeholderPointersEl = document.getElementById('assisted-stakeholder-pointers');
   const assistedStakeholderPayloadEl = document.getElementById('assisted-stakeholder-payload');
+  const assistedBriefingPanelEl = document.getElementById('assisted-briefing-panel');
+  const assistedBriefingBadgeEl = document.getElementById('assisted-briefing-badge');
+  const assistedBriefingBriefEl = document.getElementById('assisted-briefing-brief');
+  const assistedBriefingRecipientEl = document.getElementById('assisted-briefing-recipient');
+  const assistedBriefingPrioritiesEl = document.getElementById('assisted-briefing-priorities');
+  const assistedBriefingViewsEl = document.getElementById('assisted-briefing-views');
+  const assistedBriefingSummaryEl = document.getElementById('assisted-briefing-summary');
+  const assistedBriefingPointersEl = document.getElementById('assisted-briefing-pointers');
+  const assistedBriefingPayloadEl = document.getElementById('assisted-briefing-payload');
   const gatewayStateEl = document.getElementById('gateway-state');
   const stateTsEl = document.getElementById('state-ts');
   const opsTasksEl = document.getElementById('ops-tasks');
@@ -789,6 +798,51 @@
     }
   }
 
+  function renderAssistedBriefingPanel() {
+    if (!assistedBriefingPanelEl) return;
+    const briefing = lastClientPayload?.assisted_execution_recipient_briefing || null;
+    if (!briefing) {
+      if (assistedBriefingBadgeEl) assistedBriefingBadgeEl.textContent = 'recipient: --';
+      if (assistedBriefingBriefEl) assistedBriefingBriefEl.textContent = 'Assisted execution recipient briefing is waiting for payload…';
+      if (assistedBriefingRecipientEl) assistedBriefingRecipientEl.textContent = 'curated_recipient_briefs: --';
+      if (assistedBriefingPrioritiesEl) assistedBriefingPrioritiesEl.textContent = 'briefing_priorities: --';
+      if (assistedBriefingViewsEl) assistedBriefingViewsEl.textContent = 'per_recipient_consumption_views: --';
+      if (assistedBriefingSummaryEl) assistedBriefingSummaryEl.textContent = 'recipient_summary_payload: --';
+      if (assistedBriefingPointersEl) assistedBriefingPointersEl.textContent = 'recipient_surface_pointers: --';
+      if (assistedBriefingPayloadEl) assistedBriefingPayloadEl.textContent = 'waiting…';
+      return;
+    }
+
+    if (assistedBriefingBadgeEl) assistedBriefingBadgeEl.textContent = `recipient: ${(briefing.briefing_payload?.recipients || []).join(', ') || '--'}`;
+    if (assistedBriefingBriefEl) assistedBriefingBriefEl.textContent = briefing.curated_recipient_briefs?.stakeholder?.headline || 'Recipient briefing unavailable';
+    if (assistedBriefingRecipientEl) {
+      assistedBriefingRecipientEl.textContent = `curated_recipient_briefs: ${Object.keys(briefing.curated_recipient_briefs || {}).join(', ') || 'none'}`;
+    }
+    if (assistedBriefingPrioritiesEl) {
+      const p = briefing.briefing_priorities || {};
+      assistedBriefingPrioritiesEl.textContent = `briefing_priorities: cto=${p.cto || '--'} | orchestrator=${p.orchestrator || '--'} | stakeholder=${p.stakeholder || '--'}`;
+    }
+    if (assistedBriefingViewsEl) {
+      assistedBriefingViewsEl.textContent = `per_recipient_consumption_views: ${Object.keys(briefing.per_recipient_consumption_views || {}).join(', ') || 'none'}`;
+    }
+    if (assistedBriefingSummaryEl) {
+      const s = briefing.recipient_summary_payload || {};
+      assistedBriefingSummaryEl.textContent = `recipient_summary_payload: count=${s.recipient_count || 0} | entry=${s.recommended_entry || '--'} | consumer_ready=${String(s.consumer_ready)}`;
+    }
+    if (assistedBriefingPointersEl) {
+      assistedBriefingPointersEl.textContent = `recipient_surface_pointers: ${Object.keys(briefing.recipient_surface_pointers || {}).join(', ') || 'none'}`;
+    }
+    if (assistedBriefingPayloadEl) {
+      const p = briefing.briefing_payload || {};
+      assistedBriefingPayloadEl.innerHTML = [
+        `<span class="decision-chip">recipients: ${(p.recipients || []).join(', ') || 'none'}</span>`,
+        `<span class="decision-chip">cto: ${p.preferred_surfaces?.cto || '--'}</span>`,
+        `<span class="decision-chip">orchestrator: ${p.preferred_surfaces?.orchestrator || '--'}</span>`,
+        `<span class="decision-chip">stakeholder: ${p.preferred_surfaces?.stakeholder || '--'}</span>`,
+      ].join('');
+    }
+  }
+
   function renderAnalyticsPanel() {
     if (!analyticsPanelEl) return;
     const analytics = lastClientPayload?.analytics || {};
@@ -848,6 +902,7 @@
     renderAssistedIndexPanel();
     renderAssistedPackPanel();
     renderAssistedStakeholderPanel();
+    renderAssistedBriefingPanel();
   }
 
   function renderOperatorFeed(tasks) {
