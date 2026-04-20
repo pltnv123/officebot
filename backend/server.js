@@ -44,6 +44,7 @@ const { buildBackendExecutorRuntimeLayer } = require('./backendExecutorRuntimeLa
 const { buildIosExecutorRuntimeLayer } = require('./iosExecutorRuntimeLayer');
 const { buildQaExecutorRuntimeLayer } = require('./qaExecutorRuntimeLayer');
 const { buildExecutorOrchestrationLoopLayer } = require('./executorOrchestrationLoopLayer');
+const { buildExecutorCoordinationActionsLayer } = require('./executorCoordinationActionsLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -386,6 +387,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.executor_orchestration_loop = buildExecutorOrchestrationLoopLayer({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.executor_coordination_actions = buildExecutorCoordinationActionsLayer({
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
@@ -1017,6 +1022,21 @@ app.get('/api/export/executor-orchestration-loop', async (req, res) => {
     actor_role: actorRole,
     storage: enriched.storage,
     executor_orchestration_loop: buildExecutorOrchestrationLoopLayer({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/executor-coordination-actions', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    executor_coordination_actions: buildExecutorCoordinationActionsLayer({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
