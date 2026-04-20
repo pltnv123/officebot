@@ -31,6 +31,7 @@ const { buildAssistedExecutionDispatchActivationReviewLayer } = require('./assis
 const { buildAssistedExecutionDispatchDecisionLayer } = require('./assistedExecutionDispatchDecisionLayer');
 const { buildAssistedExecutionDispatchGovernanceFinalizationLayer } = require('./assistedExecutionDispatchGovernanceFinalizationLayer');
 const { buildAssistedExecutionLaneHandoffLayer } = require('./assistedExecutionLaneHandoffLayer');
+const { buildAssistedExecutionLaneReadinessReconciliationLayer } = require('./assistedExecutionLaneReadinessReconciliationLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -321,6 +322,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.assisted_execution_lane_handoff = buildAssistedExecutionLaneHandoffLayer({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.assisted_execution_lane_readiness_reconciliation = buildAssistedExecutionLaneReadinessReconciliationLayer({
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
@@ -757,6 +762,21 @@ app.get('/api/export/assisted-execution-lane-handoff', async (req, res) => {
     actor_role: actorRole,
     storage: enriched.storage,
     assisted_execution_lane_handoff: buildAssistedExecutionLaneHandoffLayer({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/assisted-execution-lane-readiness-reconciliation', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    assisted_execution_lane_readiness_reconciliation: buildAssistedExecutionLaneReadinessReconciliationLayer({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),

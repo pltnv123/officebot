@@ -1,0 +1,109 @@
+{
+  "updatedAt": "2026-04-20T00:45:02.578Z",
+  "actor_role": "cto",
+  "reconciliation_kind": "assisted-execution-lane-readiness-reconciliation",
+  "lane_readiness_matrix": [
+    {
+      "lane": "backend",
+      "handoff_ready": false,
+      "task_count": 1,
+      "blocker_count": 1,
+      "dependency_count": 1
+    },
+    {
+      "lane": "ios",
+      "handoff_ready": false,
+      "task_count": 1,
+      "blocker_count": 1,
+      "dependency_count": 1
+    },
+    {
+      "lane": "qa",
+      "handoff_ready": false,
+      "task_count": 1,
+      "blocker_count": 1,
+      "dependency_count": 1
+    }
+  ],
+  "cross_lane_dependency_mismatches": [
+    {
+      "lane": "backend",
+      "task_id": "RECON-1",
+      "mismatch_type": "missing_cross_lane_dependency",
+      "missing_dependencies": [
+        "approval_review",
+        "retrieval_context"
+      ]
+    },
+    {
+      "lane": "ios",
+      "task_id": "RECON-2",
+      "mismatch_type": "missing_cross_lane_dependency",
+      "missing_dependencies": [
+        "approval_review",
+        "retrieval_context"
+      ]
+    },
+    {
+      "lane": "qa",
+      "task_id": "RECON-3",
+      "mismatch_type": "missing_cross_lane_dependency",
+      "missing_dependencies": [
+        "approval_review",
+        "cto_review",
+        "retrieval_context"
+      ]
+    }
+  ],
+  "lane_blocker_reconciliation": [
+    {
+      "lane": "backend",
+      "blocker_count": 1,
+      "blocker_types": [
+        "high_priority_attention"
+      ]
+    },
+    {
+      "lane": "ios",
+      "blocker_count": 1,
+      "blocker_types": [
+        "high_priority_attention"
+      ]
+    },
+    {
+      "lane": "qa",
+      "blocker_count": 1,
+      "blocker_types": [
+        "high_priority_attention"
+      ]
+    }
+  ],
+  "reconciliation_outcome": {
+    "outcome": "lane_reconciliation_hold",
+    "blocked_lane_total": 3,
+    "mismatch_total": 3,
+    "blocker_total": 3,
+    "explainable": true
+  },
+  "lane_reconciliation_summary": {
+    "lane_total": 3,
+    "ready_lanes": 0,
+    "mismatch_total": 3,
+    "reconciliation_outcome": "lane_reconciliation_hold",
+    "explainable": true
+  },
+  "lane_reconciliation_payload": {
+    "actor_role": "cto",
+    "governance_outcome": "dispatch_hold_decision",
+    "dispatch_outcome": "dispatch_hold_decision",
+    "activation_review_decision": "review_hold",
+    "advisory_recommendation": "hold",
+    "preflight_status": "hold",
+    "coordination_owner": "cto",
+    "readiness_status": "no_go",
+    "decision_owner": "cto",
+    "reconciliation_outcome": "lane_reconciliation_hold",
+    "explainable": true,
+    "read_only": true
+  }
+}
