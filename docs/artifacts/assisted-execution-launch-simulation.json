@@ -1,0 +1,193 @@
+{
+  "updatedAt": "2026-04-20T01:02:45.181Z",
+  "actor_role": "cto",
+  "simulation_surface_kind": "assisted-execution-launch-simulation",
+  "backend_launch_simulation": {
+    "agent": "backend",
+    "simulation_kind": "read_only_launch_simulation",
+    "simulated_scope": [
+      {
+        "task_id": "SIM-1",
+        "title": "Backend launch simulation task",
+        "task_type": "backend",
+        "assignment_state": "retry",
+        "approval_state": "approval_pending"
+      }
+    ],
+    "dependency_interpretation": [
+      {
+        "task_id": "SIM-1",
+        "depends_on": [
+          "approval_review",
+          "retrieval_context"
+        ],
+        "suggested_target": "CTO"
+      }
+    ],
+    "blocker_propagation": [
+      {
+        "task_id": "SIM-1",
+        "blocker_type": "high_priority_attention",
+        "detail": "approval_pending_task_requires_decision"
+      }
+    ],
+    "readiness_assumptions": {
+      "handoff_ready": false,
+      "reconciliation_ready": false,
+      "governance_release_readiness": "not_ready_for_handoff_surface"
+    },
+    "execution_framing": {
+      "governance_outcome": "dispatch_hold_decision",
+      "simulated_launch_posture": "simulated_hold",
+      "explainable": true
+    },
+    "simulation_boundaries": {
+      "read_only": true,
+      "no_execution_side_effects": true,
+      "no_queue_mutation": true,
+      "no_agent_activation": true
+    }
+  },
+  "ios_launch_simulation": {
+    "agent": "ios",
+    "simulation_kind": "read_only_launch_simulation",
+    "simulated_scope": [
+      {
+        "task_id": "SIM-2",
+        "title": "iOS launch simulation task",
+        "task_type": "ios",
+        "assignment_state": "retry",
+        "approval_state": "approval_pending"
+      }
+    ],
+    "dependency_interpretation": [
+      {
+        "task_id": "SIM-2",
+        "depends_on": [
+          "approval_review",
+          "retrieval_context"
+        ],
+        "suggested_target": "CTO"
+      }
+    ],
+    "blocker_propagation": [
+      {
+        "task_id": "SIM-2",
+        "blocker_type": "high_priority_attention",
+        "detail": "approval_pending_task_requires_decision"
+      }
+    ],
+    "readiness_assumptions": {
+      "handoff_ready": false,
+      "reconciliation_ready": false,
+      "governance_release_readiness": "not_ready_for_handoff_surface"
+    },
+    "execution_framing": {
+      "governance_outcome": "dispatch_hold_decision",
+      "simulated_launch_posture": "simulated_hold",
+      "explainable": true
+    },
+    "simulation_boundaries": {
+      "read_only": true,
+      "no_execution_side_effects": true,
+      "no_queue_mutation": true,
+      "no_agent_activation": true
+    }
+  },
+  "qa_launch_simulation": {
+    "agent": "qa",
+    "simulation_kind": "read_only_launch_simulation",
+    "simulated_scope": [
+      {
+        "task_id": "SIM-3",
+        "title": "QA launch simulation validation",
+        "task_type": "qa",
+        "assignment_state": "escalated",
+        "approval_state": "approval_pending"
+      }
+    ],
+    "dependency_interpretation": [
+      {
+        "task_id": "SIM-3",
+        "depends_on": [
+          "approval_review",
+          "cto_review",
+          "retrieval_context"
+        ],
+        "suggested_target": "CTO"
+      }
+    ],
+    "blocker_propagation": [
+      {
+        "task_id": "SIM-3",
+        "blocker_type": "high_priority_attention",
+        "detail": "escalated_task_requires_high_level_review"
+      }
+    ],
+    "readiness_assumptions": {
+      "handoff_ready": false,
+      "reconciliation_ready": false,
+      "governance_release_readiness": "not_ready_for_handoff_surface"
+    },
+    "execution_framing": {
+      "governance_outcome": "dispatch_hold_decision",
+      "simulated_launch_posture": "simulated_hold",
+      "explainable": true
+    },
+    "simulation_boundaries": {
+      "read_only": true,
+      "no_execution_side_effects": true,
+      "no_queue_mutation": true,
+      "no_agent_activation": true
+    }
+  },
+  "launch_simulation_matrix": [
+    {
+      "agent": "backend",
+      "simulation_kind": "read_only_launch_simulation",
+      "governance_outcome": "dispatch_hold_decision",
+      "envelope_kind": "read_only_execution_envelope",
+      "scope_count": 1,
+      "blocker_count": 1
+    },
+    {
+      "agent": "ios",
+      "simulation_kind": "read_only_launch_simulation",
+      "governance_outcome": "dispatch_hold_decision",
+      "envelope_kind": "read_only_execution_envelope",
+      "scope_count": 1,
+      "blocker_count": 1
+    },
+    {
+      "agent": "qa",
+      "simulation_kind": "read_only_launch_simulation",
+      "governance_outcome": "dispatch_hold_decision",
+      "envelope_kind": "read_only_execution_envelope",
+      "scope_count": 1,
+      "blocker_count": 1
+    }
+  ],
+  "launch_simulation_summary": {
+    "simulation_total": 3,
+    "simulated_ready_agents": 0,
+    "governance_outcome": "dispatch_hold_decision",
+    "reconciliation_outcome": "lane_reconciliation_hold",
+    "explainable": true
+  },
+  "launch_simulation_payload": {
+    "actor_role": "cto",
+    "governance_outcome": "dispatch_hold_decision",
+    "dispatch_outcome": "dispatch_hold_decision",
+    "activation_review_decision": "review_hold",
+    "advisory_recommendation": "hold",
+    "preflight_status": "hold",
+    "coordination_owner": "cto",
+    "readiness_status": "no_go",
+    "decision_owner": "cto",
+    "contract_total": 3,
+    "lane_handoff_ready": 0,
+    "reconciliation_outcome": "lane_reconciliation_hold",
+    "read_only": true,
+    "explainable": true
+  }
+}
