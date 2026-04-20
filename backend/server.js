@@ -25,6 +25,7 @@ const { buildAssistedExecutionRecipientBriefing } = require('./assistedExecution
 const { buildAssistedExecutionDispatchLayer } = require('./assistedExecutionDispatchLayer');
 const { buildAssistedExecutionDispatchReadinessLayer } = require('./assistedExecutionDispatchReadinessLayer');
 const { buildAssistedExecutionDispatchCoordinationLayer } = require('./assistedExecutionDispatchCoordinationLayer');
+const { buildAssistedExecutionDispatchOrchestrationPreflightLayer } = require('./assistedExecutionDispatchOrchestrationPreflightLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -291,6 +292,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.assisted_execution_dispatch_coordination = buildAssistedExecutionDispatchCoordinationLayer({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.assisted_execution_dispatch_orchestration_preflight = buildAssistedExecutionDispatchOrchestrationPreflightLayer({
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
@@ -637,6 +642,21 @@ app.get('/api/export/assisted-execution-dispatch-coordination', async (req, res)
     actor_role: actorRole,
     storage: enriched.storage,
     assisted_execution_dispatch_coordination: buildAssistedExecutionDispatchCoordinationLayer({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/assisted-execution-dispatch-orchestration-preflight', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    assisted_execution_dispatch_orchestration_preflight: buildAssistedExecutionDispatchOrchestrationPreflightLayer({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),

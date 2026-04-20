@@ -1,0 +1,83 @@
+{
+  "updatedAt": "2026-04-20T00:10:28.800Z",
+  "actor_role": "cto",
+  "preflight_kind": "assisted-execution-dispatch-orchestration-preflight",
+  "preflight_checks": [
+    {
+      "check": "dispatch_readiness_gate",
+      "status": "fail",
+      "detail": "dispatch gate reports blockers"
+    },
+    {
+      "check": "coordination_blockers",
+      "status": "fail",
+      "detail": "2 coordination blockers"
+    },
+    {
+      "check": "handoff_blockers",
+      "status": "fail",
+      "detail": "1 handoff blockers"
+    }
+  ],
+  "orchestration_risk_flags": [
+    "coordination_blockers_present",
+    "handoff_blockers_present",
+    "lane_saturation_detected",
+    "high_priority_dispatch_attention",
+    "escalated_tasks_present"
+  ],
+  "dependency_readiness_matrix": [
+    {
+      "task_id": "PREF-1",
+      "dependency_groups": [
+        "approval_review",
+        "retrieval_context"
+      ],
+      "ready": true,
+      "blocked_by": [
+        "approval_pending"
+      ]
+    },
+    {
+      "task_id": "PREF-2",
+      "dependency_groups": [
+        "approval_review",
+        "cto_review",
+        "retrieval_context"
+      ],
+      "ready": false,
+      "blocked_by": [
+        "approval_pending",
+        "escalated_task",
+        "lock_conflict"
+      ]
+    },
+    {
+      "task_id": "PREF-3",
+      "dependency_groups": [
+        "retrieval_context"
+      ],
+      "ready": true,
+      "blocked_by": []
+    }
+  ],
+  "dispatch_start_recommendation": {
+    "status": "hold",
+    "reason": "preflight_checks_failed",
+    "go_no_go": "no_go",
+    "suggested_owner": "cto"
+  },
+  "preflight_summary": {
+    "total_checks": 3,
+    "failed_checks": 3,
+    "risk_flag_total": 5,
+    "ready_dependencies": 2,
+    "blocked_dependencies": 1
+  },
+  "preflight_payload": {
+    "actor_role": "cto",
+    "go_no_go": "no_go",
+    "recommendation": "hold",
+    "read_only": true
+  }
+}
