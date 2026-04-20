@@ -1,0 +1,244 @@
+{
+  "updatedAt": "2026-04-20T00:39:57.565Z",
+  "actor_role": "cto",
+  "handoff_kind": "assisted-execution-lane-handoff",
+  "lane_handoff_packets": [
+    {
+      "lane": "backend",
+      "handoff_ready": false,
+      "task_count": 1,
+      "tasks": [
+        {
+          "task_id": "HANDOFF-1",
+          "title": "Backend API stabilization task",
+          "task_type": "backend",
+          "assignment_state": "retry",
+          "approval_state": "approval_pending"
+        }
+      ],
+      "dependencies": [
+        {
+          "task_id": "HANDOFF-1",
+          "depends_on": [
+            "approval_review",
+            "retrieval_context"
+          ],
+          "suggested_target": "CTO"
+        }
+      ],
+      "blockers": [
+        {
+          "task_id": "HANDOFF-1",
+          "blocker_type": "high_priority_attention",
+          "detail": "approval_pending_task_requires_decision"
+        }
+      ],
+      "readiness_context": {
+        "governance_outcome": "dispatch_hold_decision",
+        "release_readiness": "not_ready_for_handoff_surface",
+        "explainable": true
+      }
+    },
+    {
+      "lane": "ios",
+      "handoff_ready": false,
+      "task_count": 1,
+      "tasks": [
+        {
+          "task_id": "HANDOFF-2",
+          "title": "iOS release handoff packet",
+          "task_type": "ios",
+          "assignment_state": "retry",
+          "approval_state": "approval_pending"
+        }
+      ],
+      "dependencies": [
+        {
+          "task_id": "HANDOFF-2",
+          "depends_on": [
+            "approval_review",
+            "retrieval_context"
+          ],
+          "suggested_target": "CTO"
+        }
+      ],
+      "blockers": [
+        {
+          "task_id": "HANDOFF-2",
+          "blocker_type": "high_priority_attention",
+          "detail": "approval_pending_task_requires_decision"
+        }
+      ],
+      "readiness_context": {
+        "governance_outcome": "dispatch_hold_decision",
+        "release_readiness": "not_ready_for_handoff_surface",
+        "explainable": true
+      }
+    },
+    {
+      "lane": "qa",
+      "handoff_ready": false,
+      "task_count": 1,
+      "tasks": [
+        {
+          "task_id": "HANDOFF-3",
+          "title": "QA regression verification task",
+          "task_type": "qa",
+          "assignment_state": "escalated",
+          "approval_state": "approval_pending"
+        }
+      ],
+      "dependencies": [
+        {
+          "task_id": "HANDOFF-3",
+          "depends_on": [
+            "approval_review",
+            "cto_review",
+            "retrieval_context"
+          ],
+          "suggested_target": "CTO"
+        }
+      ],
+      "blockers": [
+        {
+          "task_id": "HANDOFF-3",
+          "blocker_type": "high_priority_attention",
+          "detail": "escalated_task_requires_high_level_review"
+        }
+      ],
+      "readiness_context": {
+        "governance_outcome": "dispatch_hold_decision",
+        "release_readiness": "not_ready_for_handoff_surface",
+        "explainable": true
+      }
+    }
+  ],
+  "backend_lane_packet": {
+    "lane": "backend",
+    "handoff_ready": false,
+    "task_count": 1,
+    "tasks": [
+      {
+        "task_id": "HANDOFF-1",
+        "title": "Backend API stabilization task",
+        "task_type": "backend",
+        "assignment_state": "retry",
+        "approval_state": "approval_pending"
+      }
+    ],
+    "dependencies": [
+      {
+        "task_id": "HANDOFF-1",
+        "depends_on": [
+          "approval_review",
+          "retrieval_context"
+        ],
+        "suggested_target": "CTO"
+      }
+    ],
+    "blockers": [
+      {
+        "task_id": "HANDOFF-1",
+        "blocker_type": "high_priority_attention",
+        "detail": "approval_pending_task_requires_decision"
+      }
+    ],
+    "readiness_context": {
+      "governance_outcome": "dispatch_hold_decision",
+      "release_readiness": "not_ready_for_handoff_surface",
+      "explainable": true
+    }
+  },
+  "ios_lane_packet": {
+    "lane": "ios",
+    "handoff_ready": false,
+    "task_count": 1,
+    "tasks": [
+      {
+        "task_id": "HANDOFF-2",
+        "title": "iOS release handoff packet",
+        "task_type": "ios",
+        "assignment_state": "retry",
+        "approval_state": "approval_pending"
+      }
+    ],
+    "dependencies": [
+      {
+        "task_id": "HANDOFF-2",
+        "depends_on": [
+          "approval_review",
+          "retrieval_context"
+        ],
+        "suggested_target": "CTO"
+      }
+    ],
+    "blockers": [
+      {
+        "task_id": "HANDOFF-2",
+        "blocker_type": "high_priority_attention",
+        "detail": "approval_pending_task_requires_decision"
+      }
+    ],
+    "readiness_context": {
+      "governance_outcome": "dispatch_hold_decision",
+      "release_readiness": "not_ready_for_handoff_surface",
+      "explainable": true
+    }
+  },
+  "qa_lane_packet": {
+    "lane": "qa",
+    "handoff_ready": false,
+    "task_count": 1,
+    "tasks": [
+      {
+        "task_id": "HANDOFF-3",
+        "title": "QA regression verification task",
+        "task_type": "qa",
+        "assignment_state": "escalated",
+        "approval_state": "approval_pending"
+      }
+    ],
+    "dependencies": [
+      {
+        "task_id": "HANDOFF-3",
+        "depends_on": [
+          "approval_review",
+          "cto_review",
+          "retrieval_context"
+        ],
+        "suggested_target": "CTO"
+      }
+    ],
+    "blockers": [
+      {
+        "task_id": "HANDOFF-3",
+        "blocker_type": "high_priority_attention",
+        "detail": "escalated_task_requires_high_level_review"
+      }
+    ],
+    "readiness_context": {
+      "governance_outcome": "dispatch_hold_decision",
+      "release_readiness": "not_ready_for_handoff_surface",
+      "explainable": true
+    }
+  },
+  "lane_handoff_summary": {
+    "lane_total": 3,
+    "ready_lanes": 0,
+    "total_tasks": 3,
+    "governance_outcome": "dispatch_hold_decision",
+    "release_readiness": "not_ready_for_handoff_surface",
+    "explainable": true
+  },
+  "lane_handoff_payload": {
+    "actor_role": "cto",
+    "governance_outcome": "dispatch_hold_decision",
+    "release_readiness": "not_ready_for_handoff_surface",
+    "decision_owner": "cto",
+    "advisory_recommendation": "hold",
+    "preflight_status": "hold",
+    "activation_review_decision": "review_hold",
+    "explainable": true,
+    "read_only": true
+  }
+}
