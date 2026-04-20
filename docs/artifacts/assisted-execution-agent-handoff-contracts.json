@@ -1,0 +1,189 @@
+{
+  "updatedAt": "2026-04-20T00:50:03.703Z",
+  "actor_role": "cto",
+  "contract_kind": "assisted-execution-agent-handoff-contracts",
+  "backend_handoff_contract": {
+    "lane": "backend",
+    "contract_kind": "read_only_handoff_contract",
+    "task_framing": [
+      {
+        "task_id": "CONTRACT-1",
+        "title": "Backend contract framing task",
+        "task_type": "backend",
+        "assignment_state": "retry",
+        "approval_state": "approval_pending"
+      }
+    ],
+    "dependencies": [
+      {
+        "task_id": "CONTRACT-1",
+        "depends_on": [
+          "approval_review",
+          "retrieval_context"
+        ],
+        "suggested_target": "CTO"
+      }
+    ],
+    "blockers": [
+      {
+        "task_id": "CONTRACT-1",
+        "blocker_type": "high_priority_attention",
+        "detail": "approval_pending_task_requires_decision"
+      }
+    ],
+    "readiness_assumptions": {
+      "handoff_ready": false,
+      "reconciliation_ready": false,
+      "governance_release_readiness": "not_ready_for_handoff_surface"
+    },
+    "contract_boundaries": {
+      "read_only": true,
+      "no_execution_side_effects": true,
+      "no_queue_mutation": true,
+      "no_agent_activation": true
+    },
+    "contract_metrics": {
+      "task_count": 1,
+      "blocker_count": 1,
+      "dependency_count": 1
+    }
+  },
+  "ios_handoff_contract": {
+    "lane": "ios",
+    "contract_kind": "read_only_handoff_contract",
+    "task_framing": [
+      {
+        "task_id": "CONTRACT-2",
+        "title": "iOS contract framing task",
+        "task_type": "ios",
+        "assignment_state": "retry",
+        "approval_state": "approval_pending"
+      }
+    ],
+    "dependencies": [
+      {
+        "task_id": "CONTRACT-2",
+        "depends_on": [
+          "approval_review",
+          "retrieval_context"
+        ],
+        "suggested_target": "CTO"
+      }
+    ],
+    "blockers": [
+      {
+        "task_id": "CONTRACT-2",
+        "blocker_type": "high_priority_attention",
+        "detail": "approval_pending_task_requires_decision"
+      }
+    ],
+    "readiness_assumptions": {
+      "handoff_ready": false,
+      "reconciliation_ready": false,
+      "governance_release_readiness": "not_ready_for_handoff_surface"
+    },
+    "contract_boundaries": {
+      "read_only": true,
+      "no_execution_side_effects": true,
+      "no_queue_mutation": true,
+      "no_agent_activation": true
+    },
+    "contract_metrics": {
+      "task_count": 1,
+      "blocker_count": 1,
+      "dependency_count": 1
+    }
+  },
+  "qa_handoff_contract": {
+    "lane": "qa",
+    "contract_kind": "read_only_handoff_contract",
+    "task_framing": [
+      {
+        "task_id": "CONTRACT-3",
+        "title": "QA contract validation task",
+        "task_type": "qa",
+        "assignment_state": "escalated",
+        "approval_state": "approval_pending"
+      }
+    ],
+    "dependencies": [
+      {
+        "task_id": "CONTRACT-3",
+        "depends_on": [
+          "approval_review",
+          "cto_review",
+          "retrieval_context"
+        ],
+        "suggested_target": "CTO"
+      }
+    ],
+    "blockers": [
+      {
+        "task_id": "CONTRACT-3",
+        "blocker_type": "high_priority_attention",
+        "detail": "escalated_task_requires_high_level_review"
+      }
+    ],
+    "readiness_assumptions": {
+      "handoff_ready": false,
+      "reconciliation_ready": false,
+      "governance_release_readiness": "not_ready_for_handoff_surface"
+    },
+    "contract_boundaries": {
+      "read_only": true,
+      "no_execution_side_effects": true,
+      "no_queue_mutation": true,
+      "no_agent_activation": true
+    },
+    "contract_metrics": {
+      "task_count": 1,
+      "blocker_count": 1,
+      "dependency_count": 1
+    }
+  },
+  "handoff_contract_matrix": [
+    {
+      "lane": "backend",
+      "contract_kind": "read_only_handoff_contract",
+      "governance_outcome": "dispatch_hold_decision",
+      "dispatch_outcome": "dispatch_hold_decision",
+      "task_count": 1,
+      "blocker_count": 1
+    },
+    {
+      "lane": "ios",
+      "contract_kind": "read_only_handoff_contract",
+      "governance_outcome": "dispatch_hold_decision",
+      "dispatch_outcome": "dispatch_hold_decision",
+      "task_count": 1,
+      "blocker_count": 1
+    },
+    {
+      "lane": "qa",
+      "contract_kind": "read_only_handoff_contract",
+      "governance_outcome": "dispatch_hold_decision",
+      "dispatch_outcome": "dispatch_hold_decision",
+      "task_count": 1,
+      "blocker_count": 1
+    }
+  ],
+  "handoff_contract_summary": {
+    "contract_total": 3,
+    "ready_contracts": 0,
+    "reconciliation_outcome": "lane_reconciliation_hold",
+    "explainable": true
+  },
+  "handoff_contract_payload": {
+    "actor_role": "cto",
+    "governance_outcome": "dispatch_hold_decision",
+    "reconciliation_outcome": "lane_reconciliation_hold",
+    "activation_review_decision": "review_hold",
+    "advisory_recommendation": "hold",
+    "preflight_status": "hold",
+    "coordination_owner": "cto",
+    "readiness_status": "no_go",
+    "decision_owner": "cto",
+    "read_only": true,
+    "explainable": true
+  }
+}

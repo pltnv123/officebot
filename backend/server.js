@@ -32,6 +32,7 @@ const { buildAssistedExecutionDispatchDecisionLayer } = require('./assistedExecu
 const { buildAssistedExecutionDispatchGovernanceFinalizationLayer } = require('./assistedExecutionDispatchGovernanceFinalizationLayer');
 const { buildAssistedExecutionLaneHandoffLayer } = require('./assistedExecutionLaneHandoffLayer');
 const { buildAssistedExecutionLaneReadinessReconciliationLayer } = require('./assistedExecutionLaneReadinessReconciliationLayer');
+const { buildAssistedExecutionAgentHandoffContractsLayer } = require('./assistedExecutionAgentHandoffContractsLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -326,6 +327,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.assisted_execution_lane_readiness_reconciliation = buildAssistedExecutionLaneReadinessReconciliationLayer({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.assisted_execution_agent_handoff_contracts = buildAssistedExecutionAgentHandoffContractsLayer({
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
@@ -777,6 +782,21 @@ app.get('/api/export/assisted-execution-lane-readiness-reconciliation', async (r
     actor_role: actorRole,
     storage: enriched.storage,
     assisted_execution_lane_readiness_reconciliation: buildAssistedExecutionLaneReadinessReconciliationLayer({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/assisted-execution-agent-handoff-contracts', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    assisted_execution_agent_handoff_contracts: buildAssistedExecutionAgentHandoffContractsLayer({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
