@@ -1,0 +1,56 @@
+{
+  "updatedAt": "2026-04-20T00:27:18.731Z",
+  "actor_role": "cto",
+  "decision_kind": "assisted-execution-dispatch-decision",
+  "dispatch_decision_options": [
+    {
+      "option": "hold_dispatch",
+      "posture": "conservative",
+      "reason": "activation_review_requires_hold",
+      "explainable": true
+    },
+    {
+      "option": "conditional_dispatch_review",
+      "posture": "guarded",
+      "reason": "hold_and_review",
+      "explainable": true
+    },
+    {
+      "option": "dispatch_ready_path",
+      "posture": "progressive",
+      "reason": "not_yet_ready",
+      "explainable": true
+    }
+  ],
+  "approval_style_decision_framing": {
+    "decision_owner": "cto",
+    "framing_mode": "approval_style_governance",
+    "review_decision": "review_hold",
+    "explainable": true
+  },
+  "decision_blockers_matrix": {
+    "activation_review_holds": 8,
+    "advisory_holds": 8,
+    "coordination_blockers": 2,
+    "readiness_blockers": 1
+  },
+  "recommended_dispatch_decision_outcome": {
+    "outcome": "dispatch_hold_decision",
+    "reason": "decision_blockers_present",
+    "decision_owner": "cto",
+    "explainable": true
+  },
+  "decision_summary": {
+    "option_total": 3,
+    "blocker_total": 19,
+    "outcome": "dispatch_hold_decision",
+    "explainable": true
+  },
+  "decision_payload": {
+    "actor_role": "cto",
+    "decision_owner": "cto",
+    "outcome": "dispatch_hold_decision",
+    "explainable": true,
+    "read_only": true
+  }
+}
