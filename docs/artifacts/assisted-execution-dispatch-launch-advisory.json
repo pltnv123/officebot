@@ -1,0 +1,60 @@
+{
+  "updatedAt": "2026-04-20T00:14:23.908Z",
+  "actor_role": "cto",
+  "advisory_kind": "assisted-execution-dispatch-launch-advisory",
+  "launch_advisories": [
+    {
+      "kind": "dispatch_activation_posture",
+      "severity": "warning",
+      "message": "Dispatch activation should remain on hold until blockers are cleared."
+    },
+    {
+      "kind": "coordination_attention",
+      "severity": "warning",
+      "message": "2 coordination blockers require review before launch."
+    },
+    {
+      "kind": "handoff_attention",
+      "severity": "warning",
+      "message": "1 handoff blockers are still present."
+    }
+  ],
+  "start_window_signals": {
+    "go_no_go": "no_go",
+    "blocked_dependencies": 1,
+    "saturated_lanes": [
+      "CTO"
+    ],
+    "escalation_pressure": 1
+  },
+  "orchestration_hold_reasons": [
+    "preflight_checks_failed",
+    "coordination_blockers_present",
+    "handoff_blockers_present",
+    "lane_saturation_detected",
+    "high_priority_dispatch_attention",
+    "escalated_tasks_present",
+    "stuck_conflict_followup",
+    "high_priority_review_attention"
+  ],
+  "dispatch_activation_posture": {
+    "posture": "hold_and_review",
+    "explainable": true,
+    "advisory_count": 3,
+    "go_no_go": "no_go"
+  },
+  "advisory_summary": {
+    "advisory_total": 3,
+    "hold_reason_total": 8,
+    "posture": "hold_and_review",
+    "explainable": true
+  },
+  "advisory_payload": {
+    "actor_role": "cto",
+    "recommendation": "hold",
+    "go_no_go": "no_go",
+    "read_only": true,
+    "explainable": true,
+    "decision_owner": "cto"
+  }
+}
