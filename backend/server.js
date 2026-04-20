@@ -27,6 +27,7 @@ const { buildAssistedExecutionDispatchReadinessLayer } = require('./assistedExec
 const { buildAssistedExecutionDispatchCoordinationLayer } = require('./assistedExecutionDispatchCoordinationLayer');
 const { buildAssistedExecutionDispatchOrchestrationPreflightLayer } = require('./assistedExecutionDispatchOrchestrationPreflightLayer');
 const { buildAssistedExecutionDispatchLaunchAdvisoryLayer } = require('./assistedExecutionDispatchLaunchAdvisoryLayer');
+const { buildAssistedExecutionDispatchActivationReviewLayer } = require('./assistedExecutionDispatchActivationReviewLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -301,6 +302,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.assisted_execution_dispatch_launch_advisory = buildAssistedExecutionDispatchLaunchAdvisoryLayer({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.assisted_execution_dispatch_activation_review = buildAssistedExecutionDispatchActivationReviewLayer({
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
@@ -677,6 +682,21 @@ app.get('/api/export/assisted-execution-dispatch-launch-advisory', async (req, r
     actor_role: actorRole,
     storage: enriched.storage,
     assisted_execution_dispatch_launch_advisory: buildAssistedExecutionDispatchLaunchAdvisoryLayer({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/assisted-execution-dispatch-activation-review', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    assisted_execution_dispatch_activation_review: buildAssistedExecutionDispatchActivationReviewLayer({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),

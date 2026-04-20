@@ -1,0 +1,60 @@
+{
+  "updatedAt": "2026-04-20T00:18:32.448Z",
+  "actor_role": "cto",
+  "review_kind": "assisted-execution-dispatch-activation-review",
+  "activation_review_checklist": [
+    {
+      "item": "launch_advisory_reviewed",
+      "status": "ready",
+      "detail": "3 advisories available"
+    },
+    {
+      "item": "preflight_status_reviewed",
+      "status": "hold",
+      "detail": "preflight_checks_failed"
+    },
+    {
+      "item": "handoff_blockers_reviewed",
+      "status": "hold",
+      "detail": "1 handoff blockers"
+    }
+  ],
+  "advisory_consensus_summary": {
+    "launch_posture": "hold_and_review",
+    "advisory_recommendation": "hold",
+    "suggested_owner": "cto",
+    "explainable": true
+  },
+  "launch_blockers_digest": {
+    "hold_reason_total": 8,
+    "coordination_blocker_total": 2,
+    "handoff_blocker_total": 1,
+    "top_hold_reasons": [
+      "preflight_checks_failed",
+      "coordination_blockers_present",
+      "handoff_blockers_present",
+      "lane_saturation_detected",
+      "high_priority_dispatch_attention"
+    ]
+  },
+  "recommended_activation_review_decision": {
+    "decision": "review_hold",
+    "reason": "activation_review_requires_hold",
+    "suggested_owner": "cto",
+    "explainable": true
+  },
+  "activation_review_summary": {
+    "checklist_total": 3,
+    "ready_items": 1,
+    "hold_items": 2,
+    "blocker_total": 8,
+    "decision": "review_hold"
+  },
+  "activation_review_payload": {
+    "actor_role": "cto",
+    "decision": "review_hold",
+    "suggested_owner": "cto",
+    "explainable": true,
+    "read_only": true
+  }
+}
