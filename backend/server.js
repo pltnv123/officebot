@@ -35,6 +35,7 @@ const { buildAssistedExecutionLaneReadinessReconciliationLayer } = require('./as
 const { buildAssistedExecutionAgentHandoffContractsLayer } = require('./assistedExecutionAgentHandoffContractsLayer');
 const { buildAssistedExecutionEnvelopeLayer } = require('./assistedExecutionEnvelopeLayer');
 const { buildAssistedExecutionLaunchSimulationLayer } = require('./assistedExecutionLaunchSimulationLayer');
+const { buildAssistedExecutionOperatorReleaseReviewLayer } = require('./assistedExecutionOperatorReleaseReviewLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -341,6 +342,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.assisted_execution_launch_simulation = buildAssistedExecutionLaunchSimulationLayer({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.assisted_execution_operator_release_review = buildAssistedExecutionOperatorReleaseReviewLayer({
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
@@ -837,6 +842,21 @@ app.get('/api/export/assisted-execution-launch-simulation', async (req, res) => 
     actor_role: actorRole,
     storage: enriched.storage,
     assisted_execution_launch_simulation: buildAssistedExecutionLaunchSimulationLayer({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/assisted-execution-operator-release-review', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    assisted_execution_operator_release_review: buildAssistedExecutionOperatorReleaseReviewLayer({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),

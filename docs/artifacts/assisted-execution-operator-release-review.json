@@ -1,0 +1,115 @@
+{
+  "updatedAt": "2026-04-20T01:08:36.065Z",
+  "actor_role": "cto",
+  "review_surface_kind": "assisted-execution-operator-release-review",
+  "release_gates": [
+    {
+      "gate": "governance_release_readiness",
+      "status": "hold",
+      "detail": "not_ready_for_handoff_surface"
+    },
+    {
+      "gate": "simulation_posture",
+      "status": "hold",
+      "detail": "0 simulated ready agents"
+    },
+    {
+      "gate": "lane_reconciliation",
+      "status": "hold",
+      "detail": "lane_reconciliation_hold"
+    }
+  ],
+  "operator_review_checkpoints": [
+    {
+      "agent": "backend",
+      "checkpoint": "review_simulated_launch_posture",
+      "status": "hold",
+      "blockers": [
+        {
+          "task_id": "RELEASE-1",
+          "blocker_type": "high_priority_attention",
+          "detail": "approval_pending_task_requires_decision"
+        }
+      ]
+    },
+    {
+      "agent": "ios",
+      "checkpoint": "review_simulated_launch_posture",
+      "status": "hold",
+      "blockers": [
+        {
+          "task_id": "RELEASE-2",
+          "blocker_type": "high_priority_attention",
+          "detail": "approval_pending_task_requires_decision"
+        }
+      ]
+    },
+    {
+      "agent": "qa",
+      "checkpoint": "review_simulated_launch_posture",
+      "status": "hold",
+      "blockers": [
+        {
+          "task_id": "RELEASE-3",
+          "blocker_type": "high_priority_attention",
+          "detail": "escalated_task_requires_high_level_review"
+        }
+      ]
+    }
+  ],
+  "release_posture": {
+    "posture": "operator_review_hold",
+    "hold_gate_total": 3,
+    "ready_agent_total": 0,
+    "explainable": true
+  },
+  "per_agent_release_review": [
+    {
+      "agent": "backend",
+      "simulated_launch_posture": "simulated_hold",
+      "scope_count": 1,
+      "blocker_count": 1,
+      "envelope_kind": "read_only_execution_envelope",
+      "explainable": true
+    },
+    {
+      "agent": "ios",
+      "simulated_launch_posture": "simulated_hold",
+      "scope_count": 1,
+      "blocker_count": 1,
+      "envelope_kind": "read_only_execution_envelope",
+      "explainable": true
+    },
+    {
+      "agent": "qa",
+      "simulated_launch_posture": "simulated_hold",
+      "scope_count": 1,
+      "blocker_count": 1,
+      "envelope_kind": "read_only_execution_envelope",
+      "explainable": true
+    }
+  ],
+  "operator_release_review_summary": {
+    "gate_total": 3,
+    "ready_checkpoints": 0,
+    "release_posture": "operator_review_hold",
+    "explainable": true
+  },
+  "operator_release_review_payload": {
+    "actor_role": "cto",
+    "governance_outcome": "dispatch_hold_decision",
+    "dispatch_outcome": "dispatch_hold_decision",
+    "activation_review_decision": "review_hold",
+    "advisory_recommendation": "hold",
+    "preflight_status": "hold",
+    "coordination_owner": "cto",
+    "readiness_status": "no_go",
+    "decision_owner": "cto",
+    "contract_total": 3,
+    "lane_handoff_ready": 0,
+    "reconciliation_outcome": "lane_reconciliation_hold",
+    "simulation_ready_agents": 0,
+    "read_only": true,
+    "explainable": true
+  }
+}
