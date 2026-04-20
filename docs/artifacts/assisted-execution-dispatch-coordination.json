@@ -1,0 +1,98 @@
+{
+  "updatedAt": "2026-04-20T00:02:36.159Z",
+  "actor_role": "cto",
+  "coordination_kind": "assisted-execution-dispatch-coordination-pack",
+  "cross_lane_coordination_summary": {
+    "total_lanes": 5,
+    "saturated_lanes": [
+      "CTO"
+    ],
+    "blocker_total": 1,
+    "go_no_go": "no_go"
+  },
+  "dispatch_dependencies": [
+    {
+      "task_id": "COORD-1",
+      "depends_on": [
+        "approval_review",
+        "retrieval_context"
+      ],
+      "suggested_target": "CTO"
+    },
+    {
+      "task_id": "COORD-2",
+      "depends_on": [
+        "approval_review",
+        "cto_review",
+        "retrieval_context"
+      ],
+      "suggested_target": "CTO"
+    },
+    {
+      "task_id": "COORD-3",
+      "depends_on": [
+        "retrieval_context"
+      ],
+      "suggested_target": "iOS"
+    }
+  ],
+  "coordination_blockers": [
+    {
+      "task_id": "COORD-2",
+      "blocker_type": "stuck_conflict_followup",
+      "action": "orchestrator_resolve_lock",
+      "level": "high"
+    },
+    {
+      "task_id": null,
+      "blocker_type": "high_priority_review_attention",
+      "action": "review_priority_queue",
+      "level": "high"
+    }
+  ],
+  "coordinated_dispatch_plan": [
+    {
+      "rank": 1,
+      "task_id": "COORD-1",
+      "target": "CTO",
+      "urgency": "high",
+      "blocked": [],
+      "dependencies": [
+        "approval_review",
+        "retrieval_context"
+      ]
+    },
+    {
+      "rank": 2,
+      "task_id": "COORD-2",
+      "target": "CTO",
+      "urgency": "high",
+      "blocked": [
+        "approval_pending",
+        "escalated_task",
+        "lock_conflict"
+      ],
+      "dependencies": [
+        "approval_review",
+        "cto_review",
+        "retrieval_context"
+      ]
+    },
+    {
+      "rank": 3,
+      "task_id": "COORD-3",
+      "target": "iOS",
+      "urgency": "low",
+      "blocked": [],
+      "dependencies": [
+        "retrieval_context"
+      ]
+    }
+  ],
+  "coordination_payload": {
+    "actor_role": "cto",
+    "suggested_owner": "cto",
+    "go_no_go": "no_go",
+    "read_only": true
+  }
+}
