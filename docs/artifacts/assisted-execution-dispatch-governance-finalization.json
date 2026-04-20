@@ -1,0 +1,54 @@
+{
+  "updatedAt": "2026-04-20T00:32:44.979Z",
+  "actor_role": "cto",
+  "governance_kind": "assisted-execution-dispatch-governance-finalization",
+  "governance_decision_outcome": {
+    "decision_outcome": "dispatch_hold_decision",
+    "review_posture": "review_hold",
+    "explainable": true
+  },
+  "review_posture_summary": {
+    "activation_review_decision": "review_hold",
+    "dispatch_posture": "hold_and_review",
+    "preflight_status": "hold",
+    "explainable": true
+  },
+  "governance_gates": [
+    {
+      "gate": "decision_surface",
+      "status": "hold",
+      "detail": "decision_blockers_present"
+    },
+    {
+      "gate": "coordination_blockers",
+      "status": "hold",
+      "detail": "2 coordination blockers"
+    },
+    {
+      "gate": "handoff_readiness",
+      "status": "hold",
+      "detail": "1 handoff blockers"
+    }
+  ],
+  "release_to_handoff_readiness": {
+    "readiness": "not_ready_for_handoff_surface",
+    "hold_count": 3,
+    "suggested_owner": "cto",
+    "explainable": true
+  },
+  "governance_finalization_summary": {
+    "governance_decision_outcome": "dispatch_hold_decision",
+    "review_posture": "review_hold",
+    "gate_total": 3,
+    "passed_gates": 0,
+    "release_readiness": "not_ready_for_handoff_surface",
+    "explainable": true
+  },
+  "governance_finalization_payload": {
+    "actor_role": "cto",
+    "decision_outcome": "dispatch_hold_decision",
+    "release_readiness": "not_ready_for_handoff_surface",
+    "explainable": true,
+    "read_only": true
+  }
+}
