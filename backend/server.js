@@ -55,6 +55,7 @@ const { buildBoundedCoordinatorExecutionBridgeLayer } = require('./boundedCoordi
 const { buildBackendBoundedExecutionHooksLayer } = require('./backendBoundedExecutionHooksLayer');
 const { buildIosBoundedExecutionHooksLayer } = require('./iosBoundedExecutionHooksLayer');
 const { buildQaBoundedVerificationHooksLayer } = require('./qaBoundedVerificationHooksLayer');
+const { buildBoundedExecutionReviewHandoffLayer } = require('./boundedExecutionReviewHandoffLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -441,6 +442,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.qa_bounded_verification_hooks = buildQaBoundedVerificationHooksLayer({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.bounded_execution_review_handoff = buildBoundedExecutionReviewHandoffLayer({
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
@@ -1237,6 +1242,21 @@ app.get('/api/export/qa-bounded-verification-hooks', async (req, res) => {
     actor_role: actorRole,
     storage: enriched.storage,
     qa_bounded_verification_hooks: buildQaBoundedVerificationHooksLayer({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/bounded-execution-review-handoff', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    bounded_execution_review_handoff: buildBoundedExecutionReviewHandoffLayer({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
