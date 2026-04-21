@@ -51,6 +51,7 @@ const { buildExecutorCoordinationExecutionGateLayer } = require('./executorCoord
 const { buildOperatorInterventionControlLayer } = require('./operatorInterventionControlLayer');
 const { buildExecutionEvidenceLedgerLayer } = require('./executionEvidenceLedgerLayer');
 const { buildLaneResultAdjudicationLayer } = require('./laneResultAdjudicationLayer');
+const { buildBoundedCoordinatorExecutionBridgeLayer } = require('./boundedCoordinatorExecutionBridgeLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -421,6 +422,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.lane_result_adjudication = buildLaneResultAdjudicationLayer({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.bounded_coordinator_execution_bridge = buildBoundedCoordinatorExecutionBridgeLayer({
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
@@ -1157,6 +1162,21 @@ app.get('/api/export/lane-result-adjudication', async (req, res) => {
     actor_role: actorRole,
     storage: enriched.storage,
     lane_result_adjudication: buildLaneResultAdjudicationLayer({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/bounded-coordinator-execution-bridge', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    bounded_coordinator_execution_bridge: buildBoundedCoordinatorExecutionBridgeLayer({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
