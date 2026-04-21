@@ -52,6 +52,7 @@ const { buildOperatorInterventionControlLayer } = require('./operatorInterventio
 const { buildExecutionEvidenceLedgerLayer } = require('./executionEvidenceLedgerLayer');
 const { buildLaneResultAdjudicationLayer } = require('./laneResultAdjudicationLayer');
 const { buildBoundedCoordinatorExecutionBridgeLayer } = require('./boundedCoordinatorExecutionBridgeLayer');
+const { buildBackendBoundedExecutionHooksLayer } = require('./backendBoundedExecutionHooksLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -426,6 +427,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.bounded_coordinator_execution_bridge = buildBoundedCoordinatorExecutionBridgeLayer({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.backend_bounded_execution_hooks = buildBackendBoundedExecutionHooksLayer({
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
@@ -1177,6 +1182,21 @@ app.get('/api/export/bounded-coordinator-execution-bridge', async (req, res) => 
     actor_role: actorRole,
     storage: enriched.storage,
     bounded_coordinator_execution_bridge: buildBoundedCoordinatorExecutionBridgeLayer({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/backend-bounded-execution-hooks', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    backend_bounded_execution_hooks: buildBackendBoundedExecutionHooksLayer({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
