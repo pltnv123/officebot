@@ -50,6 +50,7 @@ const { buildExecutorCoordinationDecisionPolicyLayer } = require('./executorCoor
 const { buildExecutorCoordinationExecutionGateLayer } = require('./executorCoordinationExecutionGateLayer');
 const { buildOperatorInterventionControlLayer } = require('./operatorInterventionControlLayer');
 const { buildExecutionEvidenceLedgerLayer } = require('./executionEvidenceLedgerLayer');
+const { buildLaneResultAdjudicationLayer } = require('./laneResultAdjudicationLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -416,6 +417,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.execution_evidence_ledger = buildExecutionEvidenceLedgerLayer({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.lane_result_adjudication = buildLaneResultAdjudicationLayer({
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
@@ -1137,6 +1142,21 @@ app.get('/api/export/execution-evidence-ledger', async (req, res) => {
     actor_role: actorRole,
     storage: enriched.storage,
     execution_evidence_ledger: buildExecutionEvidenceLedgerLayer({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/lane-result-adjudication', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    lane_result_adjudication: buildLaneResultAdjudicationLayer({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
