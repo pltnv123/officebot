@@ -56,6 +56,7 @@ const { buildBackendBoundedExecutionHooksLayer } = require('./backendBoundedExec
 const { buildIosBoundedExecutionHooksLayer } = require('./iosBoundedExecutionHooksLayer');
 const { buildQaBoundedVerificationHooksLayer } = require('./qaBoundedVerificationHooksLayer');
 const { buildBoundedExecutionReviewHandoffLayer } = require('./boundedExecutionReviewHandoffLayer');
+const { buildBoundedCoordinatorProgressionLayer } = require('./boundedCoordinatorProgressionLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -446,6 +447,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.bounded_execution_review_handoff = buildBoundedExecutionReviewHandoffLayer({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.bounded_coordinator_progression = buildBoundedCoordinatorProgressionLayer({
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
@@ -1257,6 +1262,21 @@ app.get('/api/export/bounded-execution-review-handoff', async (req, res) => {
     actor_role: actorRole,
     storage: enriched.storage,
     bounded_execution_review_handoff: buildBoundedExecutionReviewHandoffLayer({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/bounded-coordinator-progression', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    bounded_coordinator_progression: buildBoundedCoordinatorProgressionLayer({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
