@@ -54,6 +54,7 @@ const { buildLaneResultAdjudicationLayer } = require('./laneResultAdjudicationLa
 const { buildBoundedCoordinatorExecutionBridgeLayer } = require('./boundedCoordinatorExecutionBridgeLayer');
 const { buildBackendBoundedExecutionHooksLayer } = require('./backendBoundedExecutionHooksLayer');
 const { buildIosBoundedExecutionHooksLayer } = require('./iosBoundedExecutionHooksLayer');
+const { buildQaBoundedVerificationHooksLayer } = require('./qaBoundedVerificationHooksLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -436,6 +437,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.ios_bounded_execution_hooks = buildIosBoundedExecutionHooksLayer({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.qa_bounded_verification_hooks = buildQaBoundedVerificationHooksLayer({
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
@@ -1217,6 +1222,21 @@ app.get('/api/export/ios-bounded-execution-hooks', async (req, res) => {
     actor_role: actorRole,
     storage: enriched.storage,
     ios_bounded_execution_hooks: buildIosBoundedExecutionHooksLayer({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/qa-bounded-verification-hooks', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    qa_bounded_verification_hooks: buildQaBoundedVerificationHooksLayer({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
