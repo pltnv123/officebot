@@ -49,6 +49,7 @@ const { buildExecutorCoordinationStateTransitionsLayer } = require('./executorCo
 const { buildExecutorCoordinationDecisionPolicyLayer } = require('./executorCoordinationDecisionPolicyLayer');
 const { buildExecutorCoordinationExecutionGateLayer } = require('./executorCoordinationExecutionGateLayer');
 const { buildOperatorInterventionControlLayer } = require('./operatorInterventionControlLayer');
+const { buildExecutionEvidenceLedgerLayer } = require('./executionEvidenceLedgerLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -411,6 +412,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.operator_intervention_control = buildOperatorInterventionControlLayer({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.execution_evidence_ledger = buildExecutionEvidenceLedgerLayer({
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
@@ -1117,6 +1122,21 @@ app.get('/api/export/operator-intervention-control', async (req, res) => {
     actor_role: actorRole,
     storage: enriched.storage,
     operator_intervention_control: buildOperatorInterventionControlLayer({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/execution-evidence-ledger', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    execution_evidence_ledger: buildExecutionEvidenceLedgerLayer({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
