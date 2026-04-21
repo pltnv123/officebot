@@ -48,6 +48,7 @@ const { buildExecutorCoordinationActionsLayer } = require('./executorCoordinatio
 const { buildExecutorCoordinationStateTransitionsLayer } = require('./executorCoordinationStateTransitionsLayer');
 const { buildExecutorCoordinationDecisionPolicyLayer } = require('./executorCoordinationDecisionPolicyLayer');
 const { buildExecutorCoordinationExecutionGateLayer } = require('./executorCoordinationExecutionGateLayer');
+const { buildOperatorInterventionControlLayer } = require('./operatorInterventionControlLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -406,6 +407,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.executor_coordination_execution_gate = buildExecutorCoordinationExecutionGateLayer({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.operator_intervention_control = buildOperatorInterventionControlLayer({
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
@@ -1097,6 +1102,21 @@ app.get('/api/export/executor-coordination-execution-gate', async (req, res) => 
     actor_role: actorRole,
     storage: enriched.storage,
     executor_coordination_execution_gate: buildExecutorCoordinationExecutionGateLayer({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/operator-intervention-control', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    operator_intervention_control: buildOperatorInterventionControlLayer({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
