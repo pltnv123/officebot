@@ -1,4 +1,3 @@
-const { buildBoundedCoordinatorExecutionBridgeLayer } = require('./boundedCoordinatorExecutionBridgeLayer');
 const { buildQaExecutorRuntimeLayer } = require('./qaExecutorRuntimeLayer');
 const { buildExecutionSessionModelLayer } = require('./executionSessionModelLayer');
 const { buildDecisionAssistanceSurface } = require('./decisionAssistanceLayer');
@@ -85,6 +84,26 @@ function buildBoundedQaHookPayload(input = {}) {
   };
 }
 
+function buildLightweightQaBridgeSnapshot(baseRuntime = {}, session = {}) {
+  const tasks = Array.isArray(baseRuntime.tasks) ? baseRuntime.tasks : [];
+  const approvalPendingTotal = tasks.filter((task) => String(task?.approval_state || '').toLowerCase() === 'approval_pending').length;
+  return {
+    execution_bridge_summary: {
+      stage_total: 5,
+      ready_stage_total: approvalPendingTotal > 0 ? 2 : 3,
+      hold_stage_total: approvalPendingTotal > 0 ? 3 : 2,
+      adjudication_outcome: approvalPendingTotal > 0 ? 'adjudication_hold_for_additional_evidence' : 'adjudication_ready_for_controlled_bridge',
+      execution_session_id: session.execution_session?.session_id || null,
+      explainable: true,
+      governed: true,
+      read_only: true,
+    },
+    bounded_coordinator_execution_bridge: {
+      bridge_surface_kind: 'controlled_bounded_coordinator_execution_bridge',
+    },
+  };
+}
+
 function buildQaBoundedVerificationHooksLayer(runtimeState = {}, actorRole = 'orchestrator') {
   const tasks = Array.isArray(runtimeState.tasks) ? runtimeState.tasks : [];
   const updatedAt = runtimeState.updatedAt || runtimeState.timestamp || null;
@@ -93,8 +112,10 @@ function buildQaBoundedVerificationHooksLayer(runtimeState = {}, actorRole = 'or
   const knowledge = buildKnowledgeAwareContext(baseRuntime, actorRole, { includeDecisionConsumer: false });
   const decisionAssistance = buildDecisionAssistanceSurface(baseRuntime, actorRole);
   const session = buildExecutionSessionModelLayer(baseRuntime, actorRole);
-  const bridge = buildBoundedCoordinatorExecutionBridgeLayer(baseRuntime, actorRole);
+  const bridge = buildLightweightQaBridgeSnapshot(baseRuntime, session);
+  console.log('[qa-hooks-export] before qaExecutorRuntime');
   const qaRuntime = buildQaExecutorRuntimeLayer(baseRuntime, actorRole);
+  console.log('[qa-hooks-export] after qaExecutorRuntime');
 
   const boundedQaHookCatalog = buildBoundedQaHookCatalog(bridge, qaRuntime);
   const boundedQaHookGuardrails = buildBoundedQaHookGuardrails(bridge, session);

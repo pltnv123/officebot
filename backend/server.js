@@ -59,6 +59,7 @@ const { buildBoundedExecutionReviewHandoffLayer } = require('./boundedExecutionR
 const { buildBoundedCoordinatorProgressionLayer } = require('./boundedCoordinatorProgressionLayer');
 const { buildRealBoundedCoordinatorProgressionEngineLayer } = require('./realBoundedCoordinatorProgressionEngineLayer');
 const { buildBoundedCoordinatorProgressionDecisionsLedgerLayer } = require('./boundedCoordinatorProgressionDecisionsLedgerLayer');
+const { buildOperatorProgressionReviewLayer } = require('./operatorProgressionReviewLayer');
 const { executeOperatorAction } = require('./operatorActions');
 const supabaseStore = require('./supabaseStore');
 
@@ -461,6 +462,10 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
   enriched.bounded_coordinator_progression_decisions_ledger = buildBoundedCoordinatorProgressionDecisionsLedgerLayer({
+    updatedAt: enriched.updatedAt,
+    tasks: enriched.tasks,
+  }, actorRole === 'cto' ? 'cto' : 'orchestrator');
+  enriched.operator_progression_review = buildOperatorProgressionReviewLayer({
     updatedAt: enriched.updatedAt,
     tasks: enriched.tasks,
   }, actorRole === 'cto' ? 'cto' : 'orchestrator');
@@ -1317,6 +1322,21 @@ app.get('/api/export/bounded-coordinator-progression-decisions-ledger', async (r
     actor_role: actorRole,
     storage: enriched.storage,
     bounded_coordinator_progression_decisions_ledger: buildBoundedCoordinatorProgressionDecisionsLedgerLayer({
+      updatedAt: enriched.updatedAt,
+      tasks: enriched.tasks || [],
+    }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/operator-progression-review', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const enriched = await buildRuntimeStateResponse(actorRole);
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    storage: enriched.storage,
+    operator_progression_review: buildOperatorProgressionReviewLayer({
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),

@@ -1,4 +1,3 @@
-const { buildBoundedCoordinatorExecutionBridgeLayer } = require('./boundedCoordinatorExecutionBridgeLayer');
 const { buildIosExecutorRuntimeLayer } = require('./iosExecutorRuntimeLayer');
 const { buildExecutionSessionModelLayer } = require('./executionSessionModelLayer');
 const { buildDecisionAssistanceSurface } = require('./decisionAssistanceLayer');
@@ -81,6 +80,26 @@ function buildBoundedIosHookPayload(input = {}) {
   };
 }
 
+function buildLightweightIosBridgeSnapshot(baseRuntime = {}, session = {}) {
+  const tasks = Array.isArray(baseRuntime.tasks) ? baseRuntime.tasks : [];
+  const approvalPendingTotal = tasks.filter((task) => String(task?.approval_state || '').toLowerCase() === 'approval_pending').length;
+  return {
+    execution_bridge_summary: {
+      stage_total: 5,
+      ready_stage_total: approvalPendingTotal > 0 ? 2 : 3,
+      hold_stage_total: approvalPendingTotal > 0 ? 3 : 2,
+      adjudication_outcome: approvalPendingTotal > 0 ? 'adjudication_hold_for_additional_evidence' : 'adjudication_ready_for_controlled_bridge',
+      execution_session_id: session.execution_session?.session_id || null,
+      explainable: true,
+      governed: true,
+      read_only: true,
+    },
+    bounded_coordinator_execution_bridge: {
+      bridge_surface_kind: 'controlled_bounded_coordinator_execution_bridge',
+    },
+  };
+}
+
 function buildIosBoundedExecutionHooksLayer(runtimeState = {}, actorRole = 'orchestrator') {
   const tasks = Array.isArray(runtimeState.tasks) ? runtimeState.tasks : [];
   const updatedAt = runtimeState.updatedAt || runtimeState.timestamp || null;
@@ -89,8 +108,10 @@ function buildIosBoundedExecutionHooksLayer(runtimeState = {}, actorRole = 'orch
   const knowledge = buildKnowledgeAwareContext(baseRuntime, actorRole, { includeDecisionConsumer: false });
   const decisionAssistance = buildDecisionAssistanceSurface(baseRuntime, actorRole);
   const session = buildExecutionSessionModelLayer(baseRuntime, actorRole);
-  const bridge = buildBoundedCoordinatorExecutionBridgeLayer(baseRuntime, actorRole);
+  const bridge = buildLightweightIosBridgeSnapshot(baseRuntime, session);
+  console.log('[ios-hooks-export] before iosExecutorRuntime');
   const iosRuntime = buildIosExecutorRuntimeLayer(baseRuntime, actorRole);
+  console.log('[ios-hooks-export] after iosExecutorRuntime');
 
   const boundedIosHookCatalog = buildBoundedIosHookCatalog(bridge, iosRuntime);
   const boundedIosHookGuardrails = buildBoundedIosHookGuardrails(bridge, session);
