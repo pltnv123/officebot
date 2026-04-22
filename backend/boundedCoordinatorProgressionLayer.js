@@ -1,5 +1,4 @@
-const { buildBoundedExecutionReviewHandoffLayer, buildLightweightBridgeSummary, buildLightweightInterventionSummary } = require('./boundedExecutionReviewHandoffLayer');
-const { buildExecutionEvidenceLedgerLayer } = require('./executionEvidenceLedgerLayer');
+const { buildLightweightBridgeSummary, buildLightweightInterventionSummary } = require('./boundedExecutionReviewHandoffLayer');
 const { buildExecutionSessionModelLayer } = require('./executionSessionModelLayer');
 const { buildDecisionAssistanceSurface } = require('./decisionAssistanceLayer');
 const { buildKnowledgeAwareContext } = require('./knowledgeAwareLayer');
@@ -40,40 +39,59 @@ function buildLightweightProgressionHookResults(bridgeOutcome = 'adjudication_ho
   }]));
 }
 
+function buildLightweightProgressionReviewHandoffSummary(bridgeSummary = {}) {
+  const adjudicationOutcome = bridgeSummary.adjudication_outcome || 'adjudication_hold_for_additional_evidence';
+  const readyLaneTotal = adjudicationOutcome === 'adjudication_ready_for_controlled_bridge' ? 3 : 0;
+  return {
+    lane_total: 3,
+    ready_lane_total: readyLaneTotal,
+    adjudication_outcome: adjudicationOutcome,
+    explainable: true,
+    governed: true,
+    read_only: true,
+  };
+}
+
+function buildLightweightProgressionEvidenceSummary(baseRuntime = {}, progressionMode = 'guarded_hold', session = {}, authorization = {}, releaseDecision = {}) {
+  const tasks = Array.isArray(baseRuntime.tasks) ? baseRuntime.tasks : [];
+  const heldLaneTotal = tasks.filter((task) => String(task?.approval_state || '').toLowerCase() === 'approval_pending').length > 0 ? 3 : 0;
+  return {
+    lane_total: 3,
+    held_lane_total: heldLaneTotal,
+    authorized_lane_total: authorization.execution_authorization_outcome?.outcome === 'authorization_granted' ? 3 : 0,
+    loop_mode: progressionMode,
+    execution_session_id: session.execution_session?.session_id || null,
+    release_decision: releaseDecision.release_decision_outcome?.decision || 'release_hold_decision',
+    evidence_surface_kind: 'controlled_execution_evidence_ledger_snapshot',
+    explainable: true,
+    governed: true,
+    read_only: true,
+  };
+}
+
 function buildProgressionInputs(runtimeState = {}, actorRole = 'orchestrator') {
   const tasks = Array.isArray(runtimeState.tasks) ? runtimeState.tasks : [];
   const updatedAt = runtimeState.updatedAt || runtimeState.timestamp || null;
   const baseRuntime = { updatedAt, tasks };
 
   const knowledge = buildKnowledgeAwareContext(baseRuntime, actorRole, { includeDecisionConsumer: false });
-  console.log('before decision');
   const decisionAssistance = buildDecisionAssistanceSurface(baseRuntime, actorRole);
-  console.log('after decision');
-  console.log('before session');
   const session = buildExecutionSessionModelLayer(baseRuntime, actorRole);
-  console.log('after session');
-  console.log('before authorization');
   const authorization = buildAssistedExecutionAuthorizationLayer(baseRuntime, actorRole);
-  console.log('after authorization');
-  console.log('before release');
   const releaseDecision = buildAssistedExecutionReleaseDecisionLayer(baseRuntime, actorRole);
-  console.log('after release');
-  console.log('before handoff');
-  const reviewHandoff = buildBoundedExecutionReviewHandoffLayer(baseRuntime, actorRole);
-  console.log('after handoff');
-  console.log('before evidence');
-  const evidence = buildExecutionEvidenceLedgerLayer(baseRuntime, actorRole);
-  console.log('after evidence');
-  console.log('before bridge summary');
   const bridgeSummary = buildLightweightBridgeSummary(baseRuntime, session);
-  console.log('after bridge summary');
-  const adjudication = {
-    adjudication_outcome: buildLightweightAdjudicationSummary(bridgeSummary, evidence),
-    adjudication_summary: buildLightweightAdjudicationSummary(bridgeSummary, evidence),
+  const reviewHandoff = {
+    review_handoff_summary: buildLightweightProgressionReviewHandoffSummary(bridgeSummary),
   };
-  console.log('before intervention summary');
+  const evidence = {
+    evidence_summary: buildLightweightProgressionEvidenceSummary(baseRuntime, bridgeSummary.adjudication_outcome === 'adjudication_ready_for_controlled_bridge' ? 'staged_guarded_progression' : 'guarded_hold', session, authorization, releaseDecision),
+  };
+  const adjudicationSummary = buildLightweightAdjudicationSummary(bridgeSummary, evidence);
+  const adjudication = {
+    adjudication_outcome: adjudicationSummary,
+    adjudication_summary: adjudicationSummary,
+  };
   const interventionSummary = buildLightweightInterventionSummary(baseRuntime, session, bridgeSummary, evidence);
-  console.log('after intervention summary');
   const hookResults = buildLightweightProgressionHookResults(bridgeSummary.adjudication_outcome);
 
   return {
