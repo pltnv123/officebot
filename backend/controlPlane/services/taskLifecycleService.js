@@ -26,6 +26,7 @@ const TASK_LIFECYCLE_SERVICE_CONTRACT = Object.freeze({
     repository_interfaces: Object.freeze([
       'tasks repository',
       'task events repository',
+      'checkpoints repository',
       'audit events repository',
     ]),
     transition_guard_contract: 'Required for validating allowed task state transitions before persistence.',
@@ -37,6 +38,8 @@ const TASK_LIFECYCLE_SERVICE_CONTRACT = Object.freeze({
     'markTaskReady',
     'claimTask',
     'startTask',
+    'recordCheckpoint',
+    'completeTask',
     'waitForApproval',
     'waitForChild',
     'resumeTask',
@@ -47,7 +50,6 @@ const TASK_LIFECYCLE_SERVICE_CONTRACT = Object.freeze({
   out_of_scope_for_this_bundle_step: Object.freeze([
     'pauseTask',
     'scheduleRetry',
-    'completeTask',
     'spawn behavior',
     'approval behavior beyond waiting_for_approval task state mediation',
     'child instantiation',
@@ -59,8 +61,8 @@ const TASK_LIFECYCLE_SERVICE_CONTRACT = Object.freeze({
 });
 
 function createTaskLifecycleService({ repositories, transitionGuardContract = TRANSITION_GUARD_CONTRACT } = {}) {
-  if (!repositories || !repositories.tasks || !repositories.taskEvents || !repositories.auditEvents) {
-    throw new Error('taskLifecycleService requires repositories.tasks, repositories.taskEvents, and repositories.auditEvents');
+  if (!repositories || !repositories.tasks || !repositories.taskEvents || !repositories.checkpoints || !repositories.auditEvents) {
+    throw new Error('taskLifecycleService requires repositories.tasks, repositories.taskEvents, repositories.checkpoints, and repositories.auditEvents');
   }
 
   const taskTransitions = transitionGuardContract.task_state_transitions || {};
@@ -280,6 +282,110 @@ function createTaskLifecycleService({ repositories, transitionGuardContract = TR
         patch: {
           started_at: started_at || new Date().toISOString(),
           wait_reason: null,
+        },
+      });
+    },
+
+    async recordCheckpoint({
+      task_id,
+      checkpoint_id,
+      checkpoint_kind,
+      checkpoint_payload_json,
+      created_by,
+      agent_id = null,
+      actor_context = {},
+    }) {
+      if (!checkpoint_id) {
+        throw new Error('recordCheckpoint requires checkpoint_id');
+      }
+
+      if (!checkpoint_kind) {
+        throw new Error('recordCheckpoint requires checkpoint_kind');
+      }
+
+      if (checkpoint_payload_json === undefined) {
+        throw new Error('recordCheckpoint requires checkpoint_payload_json');
+      }
+
+      if (!created_by) {
+        throw new Error('recordCheckpoint requires created_by');
+      }
+
+      const currentTask = await loadTaskOrThrow(task_id);
+      const nextCheckpointSeq = (currentTask.checkpoint_seq || 0) + 1;
+      const checkpointCreatedAt = new Date().toISOString();
+
+      const checkpoint = await repositories.checkpoints.appendCheckpoint({
+        checkpoint: {
+          checkpoint_id,
+          task_id,
+          checkpoint_seq: nextCheckpointSeq,
+          checkpoint_kind,
+          checkpoint_payload_json,
+          created_at: checkpointCreatedAt,
+          created_by,
+          is_latest: true,
+          agent_id,
+        },
+      });
+
+      const updatedTask = await repositories.tasks.updateTaskById({
+        task_id,
+        patch: {
+          checkpoint_seq: nextCheckpointSeq,
+          updated_at: checkpointCreatedAt,
+        },
+      });
+
+      if (!updatedTask) {
+        throw new Error(`Failed to update task checkpoint state: ${task_id}`);
+      }
+
+      await appendLifecycleTaskEvent({
+        task: updatedTask,
+        eventType: 'task_checkpoint_written',
+        actorContext: actor_context,
+        payload: {
+          checkpoint_id,
+          checkpoint_seq: nextCheckpointSeq,
+          checkpoint_kind,
+        },
+      });
+
+      await appendLifecycleAuditEvent({
+        task: updatedTask,
+        auditEventType: AUDIT_EVENT_TYPES.TASK_CHECKPOINT_WRITTEN,
+        actorContext: actor_context,
+        payload: {
+          checkpoint_id,
+          checkpoint_seq: nextCheckpointSeq,
+          checkpoint_kind,
+        },
+        occurredAt: checkpointCreatedAt,
+      });
+
+      return Object.freeze({
+        task: updatedTask,
+        checkpoint,
+      });
+    },
+
+    async completeTask({ task_id, result_payload_json = null, actor_context = {} }) {
+      return transitionTask({
+        taskId: task_id,
+        toState: TASK_STATES.COMPLETED,
+        actorContext: actor_context,
+        eventType: 'task_completed',
+        auditEventType: AUDIT_EVENT_TYPES.TASK_COMPLETED,
+        patch: {
+          result_payload_json,
+          completed_at: new Date().toISOString(),
+          wait_reason: null,
+          blocked_on_spawn_request_id: null,
+          blocked_on_task_id: null,
+          blocked_on_approval_request_id: null,
+          lease_owner: null,
+          lease_expires_at: null,
         },
       });
     },
