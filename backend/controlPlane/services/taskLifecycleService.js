@@ -40,6 +40,7 @@ const TASK_LIFECYCLE_SERVICE_CONTRACT = Object.freeze({
     'startTask',
     'recordCheckpoint',
     'completeTask',
+    'recordChildResultMerge',
     'waitForApproval',
     'waitForChild',
     'resumeTask',
@@ -387,6 +388,102 @@ function createTaskLifecycleService({ repositories, transitionGuardContract = TR
           lease_owner: null,
           lease_expires_at: null,
         },
+      });
+    },
+
+    async recordChildResultMerge({
+      task_id,
+      child_task_id,
+      spawn_request_id,
+      merge_payload_json,
+      actor_context = {},
+      merge_started_at = null,
+      merge_completed_at = null,
+    }) {
+      if (!child_task_id) {
+        throw new Error('recordChildResultMerge requires child_task_id');
+      }
+
+      if (!spawn_request_id) {
+        throw new Error('recordChildResultMerge requires spawn_request_id');
+      }
+
+      if (merge_payload_json === undefined) {
+        throw new Error('recordChildResultMerge requires merge_payload_json');
+      }
+
+      const parentTask = await loadTaskOrThrow(task_id);
+      const mergeStartedAt = merge_started_at || new Date().toISOString();
+
+      await appendLifecycleTaskEvent({
+        task: parentTask,
+        eventType: 'child_result_merge_started',
+        actorContext: actor_context,
+        payload: {
+          child_task_id,
+          spawn_request_id,
+          created_at: mergeStartedAt,
+        },
+      });
+
+      await appendLifecycleAuditEvent({
+        task: parentTask,
+        auditEventType: AUDIT_EVENT_TYPES.CHILD_RESULT_MERGE_STARTED,
+        actorContext: actor_context,
+        payload: {
+          child_task_id,
+          spawn_request_id,
+        },
+        occurredAt: mergeStartedAt,
+      });
+
+      const mergeCompletedAt = merge_completed_at || new Date().toISOString();
+      const mergedResultPayload = {
+        ...(parentTask.result_payload_json || {}),
+        merged_child_result: {
+          child_task_id,
+          spawn_request_id,
+          merged_at: mergeCompletedAt,
+          child_result: merge_payload_json,
+        },
+      };
+
+      const updatedParentTask = await repositories.tasks.updateTaskById({
+        task_id,
+        patch: {
+          result_payload_json: mergedResultPayload,
+          updated_at: mergeCompletedAt,
+        },
+      });
+
+      if (!updatedParentTask) {
+        throw new Error(`Failed to persist child result merge for task: ${task_id}`);
+      }
+
+      await appendLifecycleTaskEvent({
+        task: updatedParentTask,
+        eventType: 'child_result_merge_completed',
+        actorContext: actor_context,
+        payload: {
+          child_task_id,
+          spawn_request_id,
+          created_at: mergeCompletedAt,
+        },
+      });
+
+      await appendLifecycleAuditEvent({
+        task: updatedParentTask,
+        auditEventType: AUDIT_EVENT_TYPES.CHILD_RESULT_MERGE_COMPLETED,
+        actorContext: actor_context,
+        payload: {
+          child_task_id,
+          spawn_request_id,
+        },
+        occurredAt: mergeCompletedAt,
+      });
+
+      return Object.freeze({
+        parent_task: updatedParentTask,
       });
     },
 
