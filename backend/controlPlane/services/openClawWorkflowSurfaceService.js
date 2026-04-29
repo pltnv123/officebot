@@ -1,7 +1,11 @@
 // V1 OpenClaw-native workflow surface service.
 // This module projects one governed workflow into a bounded operator-visible surface.
+// It reuses the shared governed-flow identity helper so the first governed workflow
+// is surfaced with one honest TaskFlow-native identity across bounded projection layers.
 // It does not own governance decisions, execution transport, worker loops, retry/recovery,
 // dashboard construction, or broad runtime authority.
+
+const { createTaskflowGovernedFlowIdentityService } = require('./taskflowGovernedFlowIdentityService');
 
 const OPENCLAW_WORKFLOW_SURFACE_SERVICE_CONTRACT = Object.freeze({
   service_identity: Object.freeze({
@@ -170,7 +174,7 @@ function deriveWorkflowStatus({ spawnRequest, approvalRequest, childTask, parent
   return 'partial';
 }
 
-function createOpenClawWorkflowSurfaceService() {
+function createOpenClawWorkflowSurfaceService({ taskflowGovernedFlowIdentityService = createTaskflowGovernedFlowIdentityService() } = {}) {
   return Object.freeze({
     buildWorkflowSurface({
       parent_task = null,
@@ -187,6 +191,28 @@ function createOpenClawWorkflowSurfaceService() {
       const delegationPlan = child_task?.input_payload_json?.openclaw_delegation?.delegation_plan || null;
       const mergedChild = parent_task?.result_payload_json?.merged_child_result || null;
       const childResult = child_task?.result_payload_json || null;
+      const executionSubstrate = child_task?.input_payload_json?.execution_substrate
+        || mergedChild?.child_result?.execution_substrate
+        || 'openclaw_native_delegation';
+      const governedFlowIdentity = parent_task && spawn_request
+        ? taskflowGovernedFlowIdentityService.buildGovernedFlowIdentity({
+            parent_task,
+            spawn_request,
+            child_task,
+            approval_request,
+            execution_substrate: executionSubstrate,
+            current_step: mergedChild
+              ? 'merged_back'
+              : childResult
+                ? 'child_completed'
+                : child_task?.status === 'running'
+                  ? 'child_running'
+                  : child_task
+                    ? 'child_linked'
+                    : 'governed_flow_visible',
+            role_sequence: roleSequence,
+          })
+        : null;
 
       return Object.freeze({
         surface_kind: 'openclaw_native_governed_workflow_surface',
@@ -200,7 +226,7 @@ function createOpenClawWorkflowSurfaceService() {
           childTask: child_task,
           parentTask: parent_task,
         }),
-        execution_substrate: child_task?.input_payload_json?.execution_substrate || null,
+        execution_substrate: executionSubstrate || null,
         trace_stages: deriveStageSet({
           spawnRequest: spawn_request,
           approvalRequest: approval_request,
@@ -216,10 +242,11 @@ function createOpenClawWorkflowSurfaceService() {
           bounded: true,
         }))),
         ids: Object.freeze({
-          parent_task_id: parent_task?.task_id || null,
-          child_task_id: child_task?.task_id || null,
-          spawn_request_id: spawn_request?.spawn_request_id || null,
-          approval_request_id: approval_request?.approval_request_id || null,
+          parent_task_id: governedFlowIdentity?.parent_task_id || parent_task?.task_id || null,
+          child_task_id: governedFlowIdentity?.child_task_id || child_task?.task_id || null,
+          spawn_request_id: governedFlowIdentity?.spawn_request_id || spawn_request?.spawn_request_id || null,
+          approval_request_id: governedFlowIdentity?.approval_request_id || approval_request?.approval_request_id || null,
+          governed_flow_id: governedFlowIdentity?.flow_id || null,
         }),
         progression: Object.freeze({
           parent_status: parent_task?.status || null,
@@ -250,6 +277,7 @@ function createOpenClawWorkflowSurfaceService() {
         }) : null,
         visible_task_events: normalizedTaskEvents,
         visible_audit_events: normalizedAuditTrail,
+        governed_flow_identity: governedFlowIdentity,
         openclaw_visibility_projection: Object.freeze({
           operator_surface_kind: 'read_only_export_projection',
           session_visibility: 'represented_by_named_agent_role_trace',

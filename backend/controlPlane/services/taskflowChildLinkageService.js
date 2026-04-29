@@ -1,6 +1,10 @@
 // V1 TaskFlow-native child-task linkage helper for the first governed workflow.
 // This helper only shapes bounded TaskFlow-aligned child linkage metadata.
+// It reuses the shared governed-flow identity helper so the first governed workflow
+// carries one honest TaskFlow-native identity across bounded linkage surfaces.
 // It does not create managed flows, run detached tasks, or own execution orchestration.
+
+const { createTaskflowGovernedFlowIdentityService } = require('./taskflowGovernedFlowIdentityService');
 
 const TASKFLOW_CHILD_LINKAGE_SERVICE_CONTRACT = Object.freeze({
   service_identity: Object.freeze({
@@ -30,44 +34,38 @@ const TASKFLOW_CHILD_LINKAGE_SERVICE_CONTRACT = Object.freeze({
   ]),
 });
 
-function buildFlowId({ root_task_id, parent_task_id, spawn_request_id, child_task_id }) {
-  return [
-    'governed',
-    root_task_id || 'root',
-    parent_task_id || 'parent',
-    spawn_request_id || 'spawn',
-    child_task_id || 'child',
-  ].join(':');
-}
-
-function createTaskflowChildLinkageService() {
+function createTaskflowChildLinkageService({ taskflowGovernedFlowIdentityService = createTaskflowGovernedFlowIdentityService() } = {}) {
   return Object.freeze({
     buildChildLinkage({ parent_task, spawn_request, child_task, approval_request = null, openclaw_delegation = null }) {
       if (!parent_task || !spawn_request || !child_task) {
         throw new Error('buildChildLinkage requires parent_task, spawn_request, and child_task');
       }
 
-      const flow_id = buildFlowId({
-        root_task_id: parent_task.root_task_id,
-        parent_task_id: parent_task.task_id,
-        spawn_request_id: spawn_request.spawn_request_id,
-        child_task_id: child_task.task_id,
+      const governedFlowIdentity = taskflowGovernedFlowIdentityService.buildGovernedFlowIdentity({
+        parent_task,
+        spawn_request,
+        child_task,
+        approval_request,
+        execution_substrate: openclaw_delegation ? 'openclaw_native_delegation' : 'custom_child_runtime',
+        current_step: 'child_linked',
+        role_sequence: openclaw_delegation?.role_sequence || [],
       });
 
       return Object.freeze({
         linkage_kind: 'taskflow_native_child_linkage',
-        flow_model: 'managed_flow_intent',
-        flow_id,
-        owner_session: 'main',
-        parent_task_id: parent_task.task_id,
-        child_task_id: child_task.task_id,
-        root_task_id: parent_task.root_task_id || parent_task.task_id,
-        spawn_request_id: spawn_request.spawn_request_id,
-        approval_request_id: approval_request ? approval_request.approval_request_id : null,
-        current_step: 'child_linked',
+        flow_model: governedFlowIdentity.flow_model,
+        flow_id: governedFlowIdentity.flow_id,
+        owner_session: governedFlowIdentity.owner_session,
+        parent_task_id: governedFlowIdentity.parent_task_id,
+        child_task_id: governedFlowIdentity.child_task_id,
+        root_task_id: governedFlowIdentity.root_task_id,
+        spawn_request_id: governedFlowIdentity.spawn_request_id,
+        approval_request_id: governedFlowIdentity.approval_request_id,
+        current_step: governedFlowIdentity.current_step,
         child_label: `${child_task.task_kind || 'child_task'}:${child_task.task_id}`,
-        execution_substrate: openclaw_delegation ? 'openclaw_native_delegation' : 'custom_child_runtime',
-        role_sequence: openclaw_delegation?.role_sequence || [],
+        execution_substrate: governedFlowIdentity.execution_substrate,
+        role_sequence: governedFlowIdentity.role_sequence,
+        governed_flow_identity: governedFlowIdentity,
       });
     },
 

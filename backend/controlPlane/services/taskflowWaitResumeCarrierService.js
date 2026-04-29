@@ -1,6 +1,10 @@
 // V1 TaskFlow-native wait/resume carrier helper for the first governed workflow.
 // This helper only shapes bounded TaskFlow-aligned carrier metadata for waiting and resume paths.
+// It reuses the shared governed-flow identity helper so the first governed workflow
+// carries one honest TaskFlow-native identity across bounded wait/resume surfaces.
 // It does not own TaskFlow runtime calls, worker execution, retry/recovery, or orchestration policy.
+
+const { createTaskflowGovernedFlowIdentityService } = require('./taskflowGovernedFlowIdentityService');
 
 const TASKFLOW_WAIT_RESUME_CARRIER_SERVICE_CONTRACT = Object.freeze({
   service_identity: Object.freeze({
@@ -30,33 +34,26 @@ const TASKFLOW_WAIT_RESUME_CARRIER_SERVICE_CONTRACT = Object.freeze({
   ]),
 });
 
-function buildFlowId({ root_task_id, parent_task_id, spawn_request_id, child_task_id }) {
-  return [
-    'governed',
-    root_task_id || 'root',
-    parent_task_id || 'parent',
-    spawn_request_id || 'spawn',
-    child_task_id || 'child',
-  ].join(':');
-}
-
-function createTaskflowWaitResumeCarrierService() {
+function createTaskflowWaitResumeCarrierService({ taskflowGovernedFlowIdentityService = createTaskflowGovernedFlowIdentityService() } = {}) {
   return Object.freeze({
     buildWaitingForChildCarrier({ parent_task, spawn_request, child_task_id, current_step = 'awaiting_child_execution', wait_reason = 'waiting_for_child' }) {
       if (!parent_task || !spawn_request || !child_task_id) {
         throw new Error('buildWaitingForChildCarrier requires parent_task, spawn_request, and child_task_id');
       }
 
+      const governedFlowIdentity = taskflowGovernedFlowIdentityService.buildGovernedFlowIdentity({
+        parent_task,
+        spawn_request,
+        child_task: { task_id: child_task_id },
+        execution_substrate: 'openclaw_native_delegation',
+        current_step,
+      });
+
       return Object.freeze({
         carrier_kind: 'taskflow_native_wait_resume',
-        flow_model: 'managed_flow_intent',
-        flow_id: buildFlowId({
-          root_task_id: parent_task.root_task_id,
-          parent_task_id: parent_task.task_id,
-          spawn_request_id: spawn_request.spawn_request_id,
-          child_task_id,
-        }),
-        owner_session: 'main',
+        flow_model: governedFlowIdentity.flow_model,
+        flow_id: governedFlowIdentity.flow_id,
+        owner_session: governedFlowIdentity.owner_session,
         current_step,
         status: 'waiting',
         wait_json: Object.freeze({
@@ -71,9 +68,10 @@ function createTaskflowWaitResumeCarrierService() {
           parent_task_id: parent_task.task_id,
           child_task_id,
           spawn_request_id: spawn_request.spawn_request_id,
-          root_task_id: parent_task.root_task_id || parent_task.task_id,
+          root_task_id: governedFlowIdentity.root_task_id,
           current_step,
         }),
+        governed_flow_identity: governedFlowIdentity,
       });
     },
 
@@ -82,16 +80,23 @@ function createTaskflowWaitResumeCarrierService() {
         throw new Error('buildResumeCarrier requires parent_task, resumed_from_child_task_id, and resumed_from_spawn_request_id');
       }
 
+      const governedFlowIdentity = taskflowGovernedFlowIdentityService.buildGovernedFlowIdentity({
+        parent_task,
+        spawn_request: {
+          spawn_request_id: resumed_from_spawn_request_id,
+          approval_request_id: parent_task.blocked_on_approval_request_id || null,
+          instantiated_task_id: resumed_from_child_task_id,
+        },
+        child_task: { task_id: resumed_from_child_task_id },
+        execution_substrate: merged_child_result?.child_result?.execution_substrate || 'openclaw_native_delegation',
+        current_step,
+      });
+
       return Object.freeze({
         carrier_kind: 'taskflow_native_wait_resume',
-        flow_model: 'managed_flow_intent',
-        flow_id: buildFlowId({
-          root_task_id: parent_task.root_task_id,
-          parent_task_id: parent_task.task_id,
-          spawn_request_id: resumed_from_spawn_request_id,
-          child_task_id: resumed_from_child_task_id,
-        }),
-        owner_session: 'main',
+        flow_model: governedFlowIdentity.flow_model,
+        flow_id: governedFlowIdentity.flow_id,
+        owner_session: governedFlowIdentity.owner_session,
         current_step,
         status: 'running',
         wait_json: null,
@@ -99,10 +104,11 @@ function createTaskflowWaitResumeCarrierService() {
           parent_task_id: parent_task.task_id,
           resumed_from_child_task_id,
           resumed_from_spawn_request_id,
-          root_task_id: parent_task.root_task_id || parent_task.task_id,
+          root_task_id: governedFlowIdentity.root_task_id,
           merged_child_result_present: Boolean(merged_child_result),
           current_step,
         }),
+        governed_flow_identity: governedFlowIdentity,
       });
     },
   });
