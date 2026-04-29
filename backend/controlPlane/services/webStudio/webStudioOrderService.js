@@ -6,6 +6,8 @@ const ORDER_STATUSES = Object.freeze([
   'qa_completed',
   'delivery_ready',
   'waiting_for_client_choice',
+  'selected_variant_received',
+  'revision_ready',
   'revision_requested',
   'completed',
   'failed',
@@ -131,12 +133,35 @@ function createWebStudioOrderService({ repositories } = {}) {
       });
     },
 
-    async markWaitingForClientChoice(orderId) {
+    async markWaitingForClientChoice(orderId, patch = {}) {
       return repositories.webStudioOrders.updateOrderById({
         order_id: orderId,
         patch: {
           status: 'waiting_for_client_choice',
           updated_at: nowIso(),
+          ...clone(patch),
+        },
+      });
+    },
+
+    async markSelectedVariantReceived(orderId, selected_variant_id) {
+      return repositories.webStudioOrders.updateOrderById({
+        order_id: orderId,
+        patch: {
+          status: 'selected_variant_received',
+          selected_variant_id,
+          updated_at: nowIso(),
+        },
+      });
+    },
+
+    async markRevisionReady(orderId, patch = {}) {
+      return repositories.webStudioOrders.updateOrderById({
+        order_id: orderId,
+        patch: {
+          status: 'revision_ready',
+          updated_at: nowIso(),
+          ...clone(patch),
         },
       });
     },
