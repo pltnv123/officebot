@@ -51,7 +51,7 @@ function createWebStudioTaskFlowBindingService({ repositories } = {}) {
 
   return Object.freeze({
     async bindOrderToGovernedFlow(orderId, options = {}) {
-      const order = await repositories.webStudioOrders.getOrderById({ order_id: orderId });
+      const order = await repositories.webStudioOrders.getOrderById({ order_id: orderId }) || options.fallback_order || null;
       if (!order) {
         throw new Error(`WebStudio order not found: ${orderId}`);
       }
