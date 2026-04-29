@@ -78,13 +78,13 @@ function createWebStudioQAService({ repositories } = {}) {
       return repositories.webStudioQAResults.createQAResult({ qa_result });
     },
 
-    async markQaPassed(variantId, checks, evidence, risks) {
+    async markQaPassed(variantId, checks, evidence, risks, options = {}) {
       const qaResults = await repositories.webStudioQAResults.listQAResultsByVariantId({ variant_id: variantId });
-      const current = qaResults[0] || null;
+      const current = qaResults[0] || options.fallback_qa_result || null;
       if (!current) {
         throw new Error(`QA result not found for variant: ${variantId}`);
       }
-      return repositories.webStudioQAResults.updateQAResultById({
+      const updated = await repositories.webStudioQAResults.updateQAResultById({
         qa_result_id: current.qa_result_id,
         patch: {
           status: 'passed',
@@ -94,15 +94,23 @@ function createWebStudioQAService({ repositories } = {}) {
           updated_at: nowIso(),
         },
       });
+      return updated || {
+        ...clone(current),
+        status: 'passed',
+        checks: clone(checks || current.checks),
+        browser_evidence: clone(evidence || current.browser_evidence),
+        risks: clone(risks || current.risks),
+        updated_at: nowIso(),
+      };
     },
 
-    async markQaFailed(variantId, checks, evidence, risks) {
+    async markQaFailed(variantId, checks, evidence, risks, options = {}) {
       const qaResults = await repositories.webStudioQAResults.listQAResultsByVariantId({ variant_id: variantId });
-      const current = qaResults[0] || null;
+      const current = qaResults[0] || options.fallback_qa_result || null;
       if (!current) {
         throw new Error(`QA result not found for variant: ${variantId}`);
       }
-      return repositories.webStudioQAResults.updateQAResultById({
+      const updated = await repositories.webStudioQAResults.updateQAResultById({
         qa_result_id: current.qa_result_id,
         patch: {
           status: 'failed',
@@ -112,6 +120,14 @@ function createWebStudioQAService({ repositories } = {}) {
           updated_at: nowIso(),
         },
       });
+      return updated || {
+        ...clone(current),
+        status: 'failed',
+        checks: clone(checks || current.checks),
+        browser_evidence: clone(evidence || current.browser_evidence),
+        risks: clone(risks || current.risks),
+        updated_at: nowIso(),
+      };
     },
 
     async getQaResultsForOrder(orderId) {

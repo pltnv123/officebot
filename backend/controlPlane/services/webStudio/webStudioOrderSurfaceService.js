@@ -11,7 +11,7 @@ function sortVariants(rows = []) {
 }
 
 function createWebStudioOrderSurfaceService({ repositories } = {}) {
-  if (!repositories || !repositories.webStudioOrders || !repositories.webStudioVariants || !repositories.webStudioQAResults || !repositories.webStudioDeliveryBundles || !repositories.webStudioTaskFlowBindings || !repositories.webStudioChildSessions) {
+  if (!repositories || !repositories.webStudioOrders || !repositories.webStudioVariants || !repositories.webStudioQAResults || !repositories.webStudioDeliveryBundles || !repositories.webStudioTaskFlowBindings || !repositories.webStudioChildSessions || !repositories.webStudioBrowserQAEvidence) {
     throw new Error('webStudioOrderSurfaceService requires webStudio repositories');
   }
 
@@ -27,7 +27,9 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
       const delivery_bundle = await repositories.webStudioDeliveryBundles.getLatestDeliveryBundleByOrderId({ order_id });
       const taskflow_binding = await repositories.webStudioTaskFlowBindings.getBindingByOrderId({ order_id });
       const child_sessions = await repositories.webStudioChildSessions.listChildSessionsByOrderId({ order_id });
+      const browser_qa_evidence = await repositories.webStudioBrowserQAEvidence.listBrowserEvidenceByOrderId({ order_id });
       const childSessionsByVariantId = new Map(child_sessions.map((row) => [row.variant_id, row]));
+      const browserEvidenceByVariantId = new Map(browser_qa_evidence.map((row) => [row.variant_id, row]));
       const qaByVariantId = new Map(qa_results.map((row) => [row.variant_id, row]));
 
       return Object.freeze({
@@ -40,6 +42,7 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
         taskflow_id: order.taskflow_id || null,
         variants: variants.map((variant) => {
           const childSession = childSessionsByVariantId.get(variant.variant_id) || null;
+          const browserEvidence = browserEvidenceByVariantId.get(variant.variant_id) || null;
           return Object.freeze({
             ...clone(variant),
             qa_result: clone(qaByVariantId.get(variant.variant_id) || null),
@@ -47,12 +50,18 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
             child_agent_id: childSession?.child_agent_id || variant.child_agent_id || null,
             child_workspace_key: childSession?.child_workspace_key || variant.child_workspace_key || null,
             child_execution_status: childSession?.status || variant.child_execution_status || null,
+            browser_evidence_id: browserEvidence?.browser_evidence_id || variant.browser_evidence_id || null,
+            browser_qa_status: browserEvidence?.status || variant.browser_qa_status || null,
+            browser_native: browserEvidence?.browser_native || variant.browser_native || false,
+            screenshot_path: browserEvidence?.screenshot_path || variant.screenshot_path || null,
+            snapshot_path: browserEvidence?.snapshot_path || variant.snapshot_path || null,
           });
         }),
         qa_results: qa_results.map((row) => clone(row)),
         delivery_bundle: clone(delivery_bundle),
         taskflow_binding: clone(taskflow_binding),
         child_sessions: child_sessions.map((row) => clone(row)),
+        browser_qa_evidence: browser_qa_evidence.map((row) => clone(row)),
       });
     },
   });

@@ -5,6 +5,7 @@ const { createWebStudioDeliveryService } = require('./webStudioDeliveryService')
 const { createWebStudioOrderSurfaceService } = require('./webStudioOrderSurfaceService');
 const { createWebStudioTaskFlowBindingService } = require('./webStudioTaskFlowBindingService');
 const { createWebStudioChildSessionService } = require('./webStudioChildSessionService');
+const { createWebStudioBrowserQAService } = require('./webStudioBrowserQAService');
 
 function clone(value) {
   return value == null ? value : JSON.parse(JSON.stringify(value));
@@ -62,6 +63,7 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
   const surfaceService = createWebStudioOrderSurfaceService({ repositories });
   const taskFlowBindingService = createWebStudioTaskFlowBindingService({ repositories });
   const childSessionService = createWebStudioChildSessionService({ repositories });
+  const browserQAService = createWebStudioBrowserQAService({ repositories });
 
   return Object.freeze({
     async createDemoWebStudioOrder(options = {}) {
@@ -109,6 +111,7 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
           checks,
           qaResult.browser_evidence,
           qaResult.risks,
+          { fallback_qa_result: qaResult },
         );
         const effectiveQa = passedQa || qaResult;
         await variantService.markVariantQaPassed(variant.variant_id, effectiveQa.qa_result_id);
@@ -126,7 +129,7 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
       }
 
       await orderService.markQaCompleted(order.order_id);
-      const boundOrder = await taskFlowBindingService.bindOrderToGovernedFlow(order.order_id);
+      const boundOrder = await taskFlowBindingService.bindOrderToGovernedFlow(order.order_id, { fallback_order: order });
       await orderService.markDeliveryReady(order.order_id, {
         governed_flow_id: boundOrder.governed_flow_id,
         taskflow_id: boundOrder.taskflow_id,
@@ -145,6 +148,7 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
       });
       await taskFlowBindingService.setOrderWaitingForClientChoice(order.order_id, delivery.delivery_id);
       await childSessionService.createChildSessionsForOrderVariants(order.order_id);
+      await browserQAService.createBrowserQAEvidenceForOrderVariants(order.order_id);
 
       const surface = await surfaceService.buildOrderSurface({ order_id: order.order_id });
 
