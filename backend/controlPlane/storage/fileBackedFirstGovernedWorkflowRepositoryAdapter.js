@@ -83,8 +83,24 @@ function createFileBackedFirstGovernedWorkflowRepositoryAdapter({ rootDir } = {}
       agent_registry: {},
       checkpoints: {},
       audit_events: {},
+      webstudio_orders: {},
+      webstudio_variants: {},
+      webstudio_qa_results: {},
+      webstudio_delivery_bundles: {},
     };
     const current = await readJsonSafe(stateFile, fallback);
+    current.tasks = current.tasks || {};
+    current.task_events = current.task_events || {};
+    current.agent_templates = current.agent_templates || {};
+    current.spawn_requests = current.spawn_requests || {};
+    current.approval_requests = current.approval_requests || {};
+    current.agent_registry = current.agent_registry || {};
+    current.checkpoints = current.checkpoints || {};
+    current.audit_events = current.audit_events || {};
+    current.webstudio_orders = current.webstudio_orders || {};
+    current.webstudio_variants = current.webstudio_variants || {};
+    current.webstudio_qa_results = current.webstudio_qa_results || {};
+    current.webstudio_delivery_bundles = current.webstudio_delivery_bundles || {};
     if (!current.agent_templates || Object.keys(current.agent_templates).length === 0) {
       for (const template of APPROVED_AGENT_TEMPLATES) {
         const normalized = normalizeTemplate(template);
@@ -127,6 +143,22 @@ function createFileBackedFirstGovernedWorkflowRepositoryAdapter({ rootDir } = {}
 
   function checkpointList(state) {
     return Object.values(state.checkpoints || {});
+  }
+
+  function webStudioOrderList(state) {
+    return Object.values(state.webstudio_orders || {});
+  }
+
+  function webStudioVariantList(state) {
+    return Object.values(state.webstudio_variants || {});
+  }
+
+  function webStudioQaResultList(state) {
+    return Object.values(state.webstudio_qa_results || {});
+  }
+
+  function webStudioDeliveryBundleList(state) {
+    return Object.values(state.webstudio_delivery_bundles || {});
   }
 
   const repositories = {
@@ -415,6 +447,116 @@ function createFileBackedFirstGovernedWorkflowRepositoryAdapter({ rootDir } = {}
         return typeof limit === 'number' ? sorted.slice(0, limit) : sorted;
       },
     },
+
+    webStudioOrders: {
+      async createOrder({ order }) {
+        return mutate(async (state) => {
+          state.webstudio_orders[order.order_id] = clone(order);
+          return clone(state.webstudio_orders[order.order_id]);
+        });
+      },
+      async getOrderById({ order_id }) {
+        const state = await loadState();
+        return clone(state.webstudio_orders[order_id] || null);
+      },
+      async listOrders({ filters = null, sort = 'desc' } = {}) {
+        const state = await loadState();
+        return sortRows(webStudioOrderList(state).filter((row) => matchesFilters(row, filters)), sort, 'updated_at').map(clone);
+      },
+      async updateOrderById({ order_id, patch }) {
+        return mutate(async (state) => {
+          const current = state.webstudio_orders[order_id];
+          if (!current) return null;
+          state.webstudio_orders[order_id] = { ...current, ...clone(patch) };
+          return clone(state.webstudio_orders[order_id]);
+        });
+      },
+    },
+
+    webStudioVariants: {
+      async createVariant({ variant }) {
+        return mutate(async (state) => {
+          state.webstudio_variants[variant.variant_id] = clone(variant);
+          return clone(state.webstudio_variants[variant.variant_id]);
+        });
+      },
+      async getVariantById({ variant_id }) {
+        const state = await loadState();
+        return clone(state.webstudio_variants[variant_id] || null);
+      },
+      async listVariants({ filters = null, sort = 'asc' } = {}) {
+        const state = await loadState();
+        return sortRows(webStudioVariantList(state).filter((row) => matchesFilters(row, filters)), sort, 'created_at').map(clone);
+      },
+      async updateVariantById({ variant_id, patch }) {
+        return mutate(async (state) => {
+          const current = state.webstudio_variants[variant_id];
+          if (!current) return null;
+          state.webstudio_variants[variant_id] = { ...current, ...clone(patch) };
+          return clone(state.webstudio_variants[variant_id]);
+        });
+      },
+      async listVariantsByOrderId({ order_id }) {
+        const state = await loadState();
+        return webStudioVariantList(state).filter((row) => row.order_id === order_id).map(clone);
+      },
+    },
+
+    webStudioQAResults: {
+      async createQAResult({ qa_result }) {
+        return mutate(async (state) => {
+          state.webstudio_qa_results[qa_result.qa_result_id] = clone(qa_result);
+          return clone(state.webstudio_qa_results[qa_result.qa_result_id]);
+        });
+      },
+      async getQAResultById({ qa_result_id }) {
+        const state = await loadState();
+        return clone(state.webstudio_qa_results[qa_result_id] || null);
+      },
+      async updateQAResultById({ qa_result_id, patch }) {
+        return mutate(async (state) => {
+          const current = state.webstudio_qa_results[qa_result_id];
+          if (!current) return null;
+          state.webstudio_qa_results[qa_result_id] = { ...current, ...clone(patch) };
+          return clone(state.webstudio_qa_results[qa_result_id]);
+        });
+      },
+      async listQAResultsByOrderId({ order_id }) {
+        const state = await loadState();
+        return webStudioQaResultList(state).filter((row) => row.order_id === order_id).map(clone);
+      },
+      async listQAResultsByVariantId({ variant_id }) {
+        const state = await loadState();
+        return webStudioQaResultList(state).filter((row) => row.variant_id === variant_id).map(clone);
+      },
+    },
+
+    webStudioDeliveryBundles: {
+      async createDeliveryBundle({ delivery_bundle }) {
+        return mutate(async (state) => {
+          state.webstudio_delivery_bundles[delivery_bundle.delivery_id] = clone(delivery_bundle);
+          return clone(state.webstudio_delivery_bundles[delivery_bundle.delivery_id]);
+        });
+      },
+      async getDeliveryBundleById({ delivery_id }) {
+        const state = await loadState();
+        return clone(state.webstudio_delivery_bundles[delivery_id] || null);
+      },
+      async getLatestDeliveryBundleByOrderId({ order_id }) {
+        const state = await loadState();
+        const rows = webStudioDeliveryBundleList(state).filter((row) => row.order_id === order_id);
+        const sorted = sortRows(rows, 'desc', 'created_at');
+        return clone(sorted[0] || null);
+      },
+      async updateDeliveryBundleById({ delivery_id, patch }) {
+        return mutate(async (state) => {
+          const current = state.webstudio_delivery_bundles[delivery_id];
+          if (!current) return null;
+          state.webstudio_delivery_bundles[delivery_id] = { ...current, ...clone(patch) };
+          return clone(state.webstudio_delivery_bundles[delivery_id]);
+        });
+      },
+    },
   };
 
   async function ensureRootTask(task) {
@@ -432,6 +574,10 @@ function createFileBackedFirstGovernedWorkflowRepositoryAdapter({ rootDir } = {}
       agent_registry: {},
       checkpoints: {},
       audit_events: {},
+      webstudio_orders: {},
+      webstudio_variants: {},
+      webstudio_qa_results: {},
+      webstudio_delivery_bundles: {},
     });
     await loadState();
   }

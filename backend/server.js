@@ -51,6 +51,8 @@ const { buildExecutorCoordinationExecutionGateLayer } = require('./executorCoord
 const { buildOperatorInterventionControlLayer } = require('./operatorInterventionControlLayer');
 const { buildExecutionEvidenceLedgerLayer } = require('./executionEvidenceLedgerLayer');
 const { createOpenClawWorkflowSurfaceService } = require('./controlPlane/services/openClawWorkflowSurfaceService');
+const { createWebStudioOrderSurfaceService } = require('./controlPlane/services/webStudio/webStudioOrderSurfaceService');
+const { createWebStudioDemoPackagingService } = require('./controlPlane/services/webStudio/webStudioDemoPackagingService');
 const { createFileBackedFirstGovernedWorkflowRepositoryAdapter } = require('./controlPlane/storage/fileBackedFirstGovernedWorkflowRepositoryAdapter');
 const { buildLaneResultAdjudicationLayer } = require('./laneResultAdjudicationLayer');
 const { buildBoundedCoordinatorExecutionBridgeLayer } = require('./boundedCoordinatorExecutionBridgeLayer');
@@ -485,6 +487,8 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
 const openClawWorkflowSurfaceService = createOpenClawWorkflowSurfaceService();
 const fileBackedFirstGovernedWorkflowRepositoryAdapter = createFileBackedFirstGovernedWorkflowRepositoryAdapter({ rootDir: ROOT });
 global.__CONTROL_PLANE_REPOSITORIES__ = fileBackedFirstGovernedWorkflowRepositoryAdapter.repositories;
+const webStudioOrderSurfaceService = createWebStudioOrderSurfaceService({ repositories: fileBackedFirstGovernedWorkflowRepositoryAdapter.repositories });
+const webStudioDemoPackagingService = createWebStudioDemoPackagingService({ repositories: fileBackedFirstGovernedWorkflowRepositoryAdapter.repositories });
 
 function mkTaskId() {
   return 'TASK-' + Date.now();
@@ -1267,6 +1271,49 @@ app.get('/api/export/openclaw-governed-workflow-surface', async (req, res) => {
       audit_trail: auditTrail,
       source_surface: 'openclaw_native_operator_visibility_export',
     }),
+  });
+});
+
+app.get('/api/export/webstudio-order-surface/:orderId', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const orderId = String(req.params.orderId || '').trim();
+  const surface = await webStudioOrderSurfaceService.buildOrderSurface({ order_id: orderId });
+
+  if (!surface) {
+    return res.status(404).json({
+      ok: false,
+      actor_role: actorRole,
+      error: 'webstudio_order_not_found',
+      order_id: orderId,
+    });
+  }
+
+  res.json({
+    ok: true,
+    actor_role: actorRole,
+    exportedAt: nowIso(),
+    webstudio_order_surface: surface,
+  });
+});
+
+app.post('/api/demo/webstudio-order', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const demo = await webStudioDemoPackagingService.materializeDemoOrderWithThreeVariants({
+    raw_brief: req.body?.raw_brief || null,
+    client_id: req.body?.client_id || 'demo-client-1',
+    source: 'api_demo_webstudio',
+    governed_flow_id: req.body?.governed_flow_id || null,
+    taskflow_id: req.body?.taskflow_id || null,
+    metadata: {
+      actor_role: actorRole,
+    },
+  });
+
+  res.status(201).json({
+    ok: true,
+    actor_role: actorRole,
+    createdAt: nowIso(),
+    demo,
   });
 });
 
