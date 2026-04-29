@@ -20,6 +20,8 @@ assert.equal(waiting.status, 'waiting');
 assert.equal(waiting.wait_json.kind, 'child_task');
 assert.equal(waiting.wait_json.spawn_request_id, 'spawn-1');
 assert.equal(waiting.state_json.child_task_id, 'task-child-1');
+assert.equal(waiting.governed_flow_identity.identity_kind, 'taskflow_native_governed_flow_identity');
+assert.equal(waiting.governed_flow_identity.flow_id, waiting.flow_id);
 
 const resumed = service.buildResumeCarrier({
   parent_task: {
@@ -38,5 +40,7 @@ assert.equal(resumed.status, 'running');
 assert.equal(resumed.wait_json, null);
 assert.equal(resumed.state_json.merged_child_result_present, true);
 assert.equal(resumed.state_json.resumed_from_spawn_request_id, 'spawn-1');
+assert.equal(resumed.governed_flow_identity.identity_kind, 'taskflow_native_governed_flow_identity');
+assert.equal(resumed.governed_flow_identity.flow_id, resumed.flow_id);
 
 console.log('taskflowWaitResumeCarrierService test passed');

@@ -16,6 +16,8 @@ assert.equal(linkage.flow_model, 'managed_flow_intent');
 assert.equal(linkage.flow_id, 'governed:task-root-1:task-parent-1:spawn-1:task-child-1');
 assert.equal(linkage.execution_substrate, 'openclaw_native_delegation');
 assert.deepEqual(linkage.role_sequence, ['planner', 'worker', 'reviewer']);
+assert.equal(linkage.governed_flow_identity.identity_kind, 'taskflow_native_governed_flow_identity');
+assert.equal(linkage.governed_flow_identity.flow_id, linkage.flow_id);
 
 const execution = service.buildExecutionLinkage({
   child_task: { task_id: 'task-child-1' },
