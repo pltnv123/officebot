@@ -512,6 +512,7 @@ function createTaskLifecycleService({ repositories, transitionGuardContract = TR
       child_task_id,
       actor_context = {},
       reason = null,
+      taskflow_wait_resume = null,
     }) {
       if (!spawn_request_id) {
         throw new Error('waitForChild requires spawn_request_id');
@@ -531,20 +532,35 @@ function createTaskLifecycleService({ repositories, transitionGuardContract = TR
         auditPayload: {
           child_task_id,
           spawn_request_id,
+          taskflow_wait_resume_carrier: taskflow_wait_resume ? {
+            carrier_kind: taskflow_wait_resume.carrier_kind,
+            flow_id: taskflow_wait_resume.flow_id,
+            current_step: taskflow_wait_resume.current_step,
+            status: taskflow_wait_resume.status,
+          } : null,
         },
         patch: {
           wait_reason: TASK_STATES.WAITING_FOR_CHILD,
           blocked_on_spawn_request_id: spawn_request_id,
           blocked_on_task_id: child_task_id,
           blocked_on_approval_request_id: null,
+          wait_context_json: taskflow_wait_resume ? {
+            taskflow_wait_resume,
+          } : null,
         },
       });
     },
 
-    async resumeTask({ task_id, actor_context = {}, reason = null }) {
+    async resumeTask({ task_id, actor_context = {}, reason = null, taskflow_wait_resume = null }) {
+      const currentTask = await loadTaskOrThrow(task_id);
+      const resumedState = currentTask.status === TASK_STATES.PAUSED
+        || currentTask.status === TASK_STATES.RETRY_SCHEDULED
+        ? TASK_STATES.READY
+        : TASK_STATES.RUNNING;
+
       return transitionTask({
         taskId: task_id,
-        toState: TASK_STATES.READY,
+        toState: resumedState,
         actorContext: actor_context,
         reason,
         eventType: 'task_resumed',
@@ -556,6 +572,18 @@ function createTaskLifecycleService({ repositories, transitionGuardContract = TR
           blocked_on_approval_request_id: null,
           lease_owner: null,
           lease_expires_at: null,
+          wait_context_json: taskflow_wait_resume ? {
+            taskflow_wait_resume,
+          } : null,
+        },
+        auditPayload: {
+          resumed_to_state: resumedState,
+          taskflow_wait_resume_carrier: taskflow_wait_resume ? {
+            carrier_kind: taskflow_wait_resume.carrier_kind,
+            flow_id: taskflow_wait_resume.flow_id,
+            current_step: taskflow_wait_resume.current_step,
+            status: taskflow_wait_resume.status,
+          } : null,
         },
       });
     },

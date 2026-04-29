@@ -7,6 +7,7 @@
 const { TASK_STATES } = require('../types/taskStates');
 const { SPAWN_REQUEST_STATES } = require('../types/spawnRequestStates');
 const { TRANSITION_GUARD_CONTRACT } = require('../domain/transitionGuards');
+const { createTaskflowWaitResumeCarrierService } = require('./taskflowWaitResumeCarrierService');
 
 const PARENT_CHILD_COORDINATION_SERVICE_CONTRACT = Object.freeze({
   service_identity: Object.freeze({
@@ -47,7 +48,7 @@ const PARENT_CHILD_COORDINATION_SERVICE_CONTRACT = Object.freeze({
   ]),
 });
 
-function createParentChildCoordinationService({ repositories, taskLifecycleService, transitionGuardContract = TRANSITION_GUARD_CONTRACT } = {}) {
+function createParentChildCoordinationService({ repositories, taskLifecycleService, taskflowWaitResumeCarrierService = createTaskflowWaitResumeCarrierService(), transitionGuardContract = TRANSITION_GUARD_CONTRACT } = {}) {
   if (!repositories || !repositories.spawnRequests || !repositories.tasks) {
     throw new Error('parentChildCoordinationService requires repositories.spawnRequests and repositories.tasks');
   }
@@ -188,12 +189,19 @@ function createParentChildCoordinationService({ repositories, taskLifecycleServi
 
       ensureParentMayWaitForChild(parentTask.status);
 
+      const taskflowWaitResume = taskflowWaitResumeCarrierService.buildWaitingForChildCarrier({
+        parent_task: parentTask,
+        spawn_request: spawnRequest,
+        child_task_id: spawnRequest.instantiated_task_id,
+      });
+
       const waitingParentTask = await taskLifecycleService.waitForChild({
         task_id: spawnRequest.parent_task_id,
         spawn_request_id: spawnRequest.spawn_request_id,
         child_task_id: spawnRequest.instantiated_task_id,
         actor_context,
         reason,
+        taskflow_wait_resume: taskflowWaitResume,
       });
 
       if (waitingParentTask.blocked_on_spawn_request_id !== spawnRequest.spawn_request_id) {
@@ -262,6 +270,13 @@ function createParentChildCoordinationService({ repositories, taskLifecycleServi
         throw new Error(`Merged child task linkage mismatch for parent task: ${parent_task_id}`);
       }
 
+      const taskflowWaitResume = taskflowWaitResumeCarrierService.buildResumeCarrier({
+        parent_task: parentTask,
+        merged_child_result: mergedChildResult,
+        resumed_from_child_task_id: mergedChildResult.child_task_id,
+        resumed_from_spawn_request_id: mergedChildResult.spawn_request_id,
+      });
+
       const resumedParentTask = await taskLifecycleService.resumeTask({
         task_id: parent_task_id,
         actor_context: {
@@ -269,6 +284,7 @@ function createParentChildCoordinationService({ repositories, taskLifecycleServi
           bounded_resume_reason: 'parent_resumed_after_child',
         },
         reason: 'parent_resumed_after_child',
+        taskflow_wait_resume: taskflowWaitResume,
       });
 
       return Object.freeze({
