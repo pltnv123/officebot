@@ -4,6 +4,33 @@
 // Repositories and services must not infer authority from these contracts alone.
 
 const ENTITY_SCHEMAS = Object.freeze({
+  durable_runs: Object.freeze({
+    description: 'Persisted bounded durable runtime shell run object linking invocation, proof, supervision, and lineage context.',
+    required: Object.freeze({
+      durable_run_id: 'string; unique durable run identifier',
+      parent_task_id: 'string; parent task identifier serving as the run anchor',
+      root_task_id: 'string; root lineage task identifier for the run',
+      run_status: 'string; bounded durable run status, open or closed in v1',
+      invocation_name: 'string; bounded operator invocation contract name',
+      scenario_name: 'string; bounded governed scenario name',
+      supervision_enabled: 'boolean; whether bounded supervision linkage is enabled for this run',
+      opened_at: 'string; ISO timestamp when the durable run was opened',
+      created_at: 'string; ISO timestamp when the durable run record was created',
+      updated_at: 'string; ISO timestamp when the durable run record was last updated',
+    }),
+    optional: Object.freeze({
+      closed_at: 'string|null; ISO timestamp when the durable run was closed',
+      approved_spawn_request_id: 'string|null; approved spawn request linked to the run',
+      approved_approval_request_id: 'string|null; approval request that approved the run child spawn',
+      child_task_id: 'string|null; governed child task linked to the run',
+      denied_spawn_request_id: 'string|null; denied spawn request linked to the walkthrough run',
+      denied_approval_request_id: 'string|null; denied approval request linked to the walkthrough run',
+      proof_summary_json: 'object|null; bounded proof summary snapshot for operator/runtime inspection',
+      last_control_action: 'string|null; most recent bounded operator control action observed for this run',
+      last_control_at: 'string|null; ISO timestamp of most recent bounded operator control action',
+    }),
+  }),
+
   tasks: Object.freeze({
     description: 'Durable task record for root and child tasks in the v1 control plane.',
     required: Object.freeze({

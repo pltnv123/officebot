@@ -4,6 +4,49 @@
 // Append-only and dedupe-sensitive expectations are defined here as interface intent for later implementations.
 
 const REPOSITORY_INTERFACES = Object.freeze({
+  durableRuns: Object.freeze({
+    description: 'Durable runtime shell run repository contract for one bounded persisted run object per explicit operator-triggered run.',
+    methods: Object.freeze({
+      createDurableRun: Object.freeze({
+        purpose: 'Insert one durable run record for a bounded runtime shell invocation.',
+        input: Object.freeze({
+          durable_run: 'durable_runs entity contract payload',
+        }),
+        output: 'Persisted durable run record.',
+        idempotency: 'Caller-managed by durable_run_id uniqueness; repository must not infer orchestration policy.',
+      }),
+
+      getDurableRunById: Object.freeze({
+        purpose: 'Fetch one persisted durable run by durable_run_id.',
+        input: Object.freeze({
+          durable_run_id: 'string',
+        }),
+        output: 'Durable run record or null.',
+      }),
+
+      updateDurableRunById: Object.freeze({
+        purpose: 'Persist a durable run patch by durable_run_id. Repository does not validate runtime-shell legality.',
+        input: Object.freeze({
+          durable_run_id: 'string',
+          patch: 'object; partial durable run fields to persist',
+        }),
+        output: 'Updated durable run record or null.',
+        idempotency: 'Conditionally idempotent when patch is identical.',
+      }),
+
+      listDurableRuns: Object.freeze({
+        purpose: 'List persisted durable runs using storage-level filters only.',
+        input: Object.freeze({
+          filters: 'object|null; optional storage filters such as parent_task_id, root_task_id, run_status, invocation_name',
+          limit: 'number|null',
+          cursor: 'string|null',
+          sort: 'string|null',
+        }),
+        output: 'List of durable run records with pagination metadata if supported later.',
+      }),
+    }),
+  }),
+
   tasks: Object.freeze({
     description: 'Durable task record repository contract.',
     methods: Object.freeze({

@@ -7,6 +7,7 @@ const CONTROL_PLANE_SCHEMA_PLAN = Object.freeze({
   description: 'Migration-ready storage rollout plan for the v1 control-plane foundation bundle.',
 
   introduction_order: Object.freeze([
+    'durable_runs',
     'tasks',
     'task_events',
     'agent_templates',
@@ -23,12 +24,79 @@ const CONTROL_PLANE_SCHEMA_PLAN = Object.freeze({
     append_only_rule: 'task_events and audit_events are append-only stores and must not be updated in-place except for strictly technical backfill/repair workflows approved outside normal runtime paths.',
     dedupe_rule: 'spawn_requests must support durable duplicate suppression using spawn_intent_hash within the active request scope defined below.',
     checkpoint_rule: 'checkpoints are versioned by checkpoint_seq per task and preserve historical checkpoint rows rather than overwriting prior state.',
+    durable_run_rule: 'durable_runs persist one explicit bounded runtime shell run object per operator-triggered run and serve as the runtime-shell source of truth across service calls and time.',
   }),
 
   entities: Object.freeze({
+    durable_runs: Object.freeze({
+      purpose: 'Persisted bounded durable runtime shell run object for runtime-shell inspection and linkage across calls/time.',
+      introduction_index: 1,
+      identity: Object.freeze({
+        primary_key: 'durable_run_id',
+        unique_keys: Object.freeze([
+          'durable_run_id',
+        ]),
+      }),
+      references: Object.freeze({
+        parent_task_id: 'tasks.task_id',
+        root_task_id: 'tasks.task_id',
+        child_task_id: 'tasks.task_id',
+        approved_spawn_request_id: 'spawn_requests.spawn_request_id',
+        approved_approval_request_id: 'approval_requests.approval_request_id',
+        denied_spawn_request_id: 'spawn_requests.spawn_request_id',
+        denied_approval_request_id: 'approval_requests.approval_request_id',
+      }),
+      placement: Object.freeze({
+        identity_fields: Object.freeze([
+          'durable_run_id',
+          'parent_task_id',
+          'root_task_id',
+        ]),
+        runtime_fields: Object.freeze([
+          'run_status',
+          'invocation_name',
+          'scenario_name',
+          'supervision_enabled',
+        ]),
+        linkage_fields: Object.freeze([
+          'approved_spawn_request_id',
+          'approved_approval_request_id',
+          'child_task_id',
+          'denied_spawn_request_id',
+          'denied_approval_request_id',
+        ]),
+        proof_control_fields: Object.freeze([
+          'proof_summary_json',
+          'last_control_action',
+          'last_control_at',
+        ]),
+        timestamps: Object.freeze([
+          'opened_at',
+          'closed_at',
+          'created_at',
+          'updated_at',
+        ]),
+      }),
+      indexes: Object.freeze([
+        'parent_task_id',
+        'root_task_id',
+        'run_status',
+        'invocation_name',
+        'child_task_id',
+        'approved_spawn_request_id',
+        'approved_approval_request_id',
+        'opened_at',
+        'closed_at',
+      ]),
+      notes: Object.freeze([
+        'V1 durable_runs remain bounded to one explicit run container per operator-triggered invocation.',
+        'This table does not imply any worker loop, scheduler ownership, or retry/recovery semantics.',
+      ]),
+    }),
+
     tasks: Object.freeze({
       purpose: 'Durable task state for root and child tasks.',
-      introduction_index: 1,
+      introduction_index: 2,
       identity: Object.freeze({
         primary_key: 'task_id',
         unique_keys: Object.freeze([
@@ -100,7 +168,7 @@ const CONTROL_PLANE_SCHEMA_PLAN = Object.freeze({
 
     task_events: Object.freeze({
       purpose: 'Append-only task-scoped event stream.',
-      introduction_index: 2,
+      introduction_index: 3,
       identity: Object.freeze({
         primary_key: 'event_id',
         unique_keys: Object.freeze([
@@ -136,7 +204,7 @@ const CONTROL_PLANE_SCHEMA_PLAN = Object.freeze({
 
     agent_templates: Object.freeze({
       purpose: 'Approved template registry. V1 expects exactly one enabled ephemeral child template.',
-      introduction_index: 3,
+      introduction_index: 4,
       identity: Object.freeze({
         primary_key: 'agent_template_id',
         unique_keys: Object.freeze([
@@ -181,7 +249,7 @@ const CONTROL_PLANE_SCHEMA_PLAN = Object.freeze({
 
     spawn_requests: Object.freeze({
       purpose: 'Governed request records for child spawn proposals and dedupe.',
-      introduction_index: 4,
+      introduction_index: 5,
       identity: Object.freeze({
         primary_key: 'spawn_request_id',
         unique_keys: Object.freeze([
@@ -258,7 +326,7 @@ const CONTROL_PLANE_SCHEMA_PLAN = Object.freeze({
 
     approval_requests: Object.freeze({
       purpose: 'Governance approval records. V1 uses this for spawn approvals only.',
-      introduction_index: 5,
+      introduction_index: 6,
       identity: Object.freeze({
         primary_key: 'approval_request_id',
         unique_keys: Object.freeze([
@@ -298,7 +366,7 @@ const CONTROL_PLANE_SCHEMA_PLAN = Object.freeze({
 
     agent_registry: Object.freeze({
       purpose: 'Registry of instantiated agent instances. V1 includes ephemeral child agents only.',
-      introduction_index: 6,
+      introduction_index: 7,
       identity: Object.freeze({
         primary_key: 'agent_id',
         unique_keys: Object.freeze([
@@ -374,7 +442,7 @@ const CONTROL_PLANE_SCHEMA_PLAN = Object.freeze({
 
     checkpoints: Object.freeze({
       purpose: 'Durable checkpoint history for resumable work.',
-      introduction_index: 7,
+      introduction_index: 8,
       identity: Object.freeze({
         primary_key: 'checkpoint_id',
         unique_keys: Object.freeze([
@@ -422,7 +490,7 @@ const CONTROL_PLANE_SCHEMA_PLAN = Object.freeze({
 
     audit_events: Object.freeze({
       purpose: 'Append-only control-plane audit log across tasks, agents, spawn requests, approvals, checkpoints, and safety events.',
-      introduction_index: 8,
+      introduction_index: 9,
       identity: Object.freeze({
         primary_key: 'audit_event_id',
         unique_keys: Object.freeze([
