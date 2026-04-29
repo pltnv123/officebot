@@ -50,6 +50,7 @@ const { buildExecutorCoordinationDecisionPolicyLayer } = require('./executorCoor
 const { buildExecutorCoordinationExecutionGateLayer } = require('./executorCoordinationExecutionGateLayer');
 const { buildOperatorInterventionControlLayer } = require('./operatorInterventionControlLayer');
 const { buildExecutionEvidenceLedgerLayer } = require('./executionEvidenceLedgerLayer');
+const { createOpenClawWorkflowSurfaceService } = require('./controlPlane/services/openClawWorkflowSurfaceService');
 const { buildLaneResultAdjudicationLayer } = require('./laneResultAdjudicationLayer');
 const { buildBoundedCoordinatorExecutionBridgeLayer } = require('./boundedCoordinatorExecutionBridgeLayer');
 const { buildBackendBoundedExecutionHooksLayer } = require('./backendBoundedExecutionHooksLayer');
@@ -479,6 +480,8 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
 
   return enriched;
 }
+
+const openClawWorkflowSurfaceService = createOpenClawWorkflowSurfaceService();
 
 function mkTaskId() {
   return 'TASK-' + Date.now();
@@ -1175,6 +1178,92 @@ app.get('/api/export/operator-intervention-control', async (req, res) => {
       updatedAt: enriched.updatedAt,
       tasks: enriched.tasks || [],
     }, actorRole === 'cto' ? 'cto' : 'orchestrator'),
+  });
+});
+
+app.get('/api/export/openclaw-governed-workflow-surface', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const childTaskId = String(req.query.childTaskId || '').trim() || null;
+  const parentTaskId = String(req.query.parentTaskId || '').trim() || null;
+  const spawnRequestId = String(req.query.spawnRequestId || '').trim() || null;
+  const approvalRequestId = String(req.query.approvalRequestId || '').trim() || null;
+
+  const repositories = global.__CONTROL_PLANE_REPOSITORIES__ || null;
+  let parentTask = parentTaskId ? { task_id: parentTaskId } : null;
+  let childTask = childTaskId ? { task_id: childTaskId } : null;
+  let spawnRequest = spawnRequestId ? { spawn_request_id: spawnRequestId } : null;
+  let approvalRequest = approvalRequestId ? { approval_request_id: approvalRequestId } : null;
+  let childTaskEvents = [];
+  let auditTrail = [];
+  let evidenceMode = 'id_only_projection';
+
+  if (repositories) {
+    if (repositories.tasks && childTaskId) {
+      childTask = await repositories.tasks.getTaskById({ task_id: childTaskId }) || childTask;
+    }
+
+    if (repositories.tasks && parentTaskId) {
+      parentTask = await repositories.tasks.getTaskById({ task_id: parentTaskId }) || parentTask;
+    }
+
+    if (repositories.spawnRequests && spawnRequestId) {
+      spawnRequest = await repositories.spawnRequests.getSpawnRequestById({ spawn_request_id: spawnRequestId }) || spawnRequest;
+    }
+
+    if (repositories.approvalRequests && approvalRequestId) {
+      approvalRequest = await repositories.approvalRequests.getApprovalRequestById({ approval_request_id: approvalRequestId }) || approvalRequest;
+    }
+
+    if (!spawnRequest && repositories.spawnRequests && childTask?.input_payload_json?.spawned_by_spawn_request_id) {
+      spawnRequest = await repositories.spawnRequests.getSpawnRequestById({
+        spawn_request_id: childTask.input_payload_json.spawned_by_spawn_request_id,
+      });
+    }
+
+    if (!approvalRequest && repositories.approvalRequests && childTask?.input_payload_json?.approved_by_approval_request_id) {
+      approvalRequest = await repositories.approvalRequests.getApprovalRequestById({
+        approval_request_id: childTask.input_payload_json.approved_by_approval_request_id,
+      });
+    }
+
+    if (!parentTask && repositories.tasks && childTask?.parent_task_id) {
+      parentTask = await repositories.tasks.getTaskById({ task_id: childTask.parent_task_id });
+    }
+
+    if (repositories.taskEvents && childTask?.task_id) {
+      childTaskEvents = await repositories.taskEvents.listTaskEventsByTaskId({
+        task_id: childTask.task_id,
+        sort: 'asc',
+      }) || [];
+    }
+
+    if (repositories.auditEvents) {
+      auditTrail = await repositories.auditEvents.listAuditEventsByCorrelation({
+        related_spawn_request_id: spawnRequest?.spawn_request_id || null,
+        related_approval_request_id: approvalRequest?.approval_request_id || null,
+        related_task_id: childTask?.task_id || parentTask?.task_id || null,
+        related_agent_id: null,
+        limit: 200,
+      }) || [];
+    }
+
+    evidenceMode = 'repository_backed_projection';
+  }
+
+  res.json({
+    ok: true,
+    exportedAt: nowIso(),
+    actor_role: actorRole,
+    evidence_mode: evidenceMode,
+    workflow_surface: openClawWorkflowSurfaceService.buildWorkflowSurface({
+      parent_task: parentTask,
+      child_task: childTask,
+      spawn_request: spawnRequest,
+      approval_request: approvalRequest,
+      child_task_events: childTaskEvents,
+      audit_trail: auditTrail,
+      source_surface: 'openclaw_native_operator_visibility_export',
+    }),
   });
 });
 
