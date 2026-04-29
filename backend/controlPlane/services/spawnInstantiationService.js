@@ -40,9 +40,19 @@ const SPAWN_INSTANTIATION_SERVICE_CONTRACT = Object.freeze({
   ]),
 });
 
-function createSpawnInstantiationService({ repositories, transitionGuardContract = TRANSITION_GUARD_CONTRACT } = {}) {
+function createSpawnInstantiationService({ repositories, openClawDelegationAdapterService = null, transitionGuardContract = TRANSITION_GUARD_CONTRACT } = {}) {
   if (!repositories || !repositories.spawnRequests || !repositories.approvalRequests || !repositories.tasks || !repositories.agentTemplates || !repositories.auditEvents || !repositories.agentRegistry) {
     throw new Error('spawnInstantiationService requires repositories.spawnRequests, repositories.approvalRequests, repositories.tasks, repositories.agentTemplates, repositories.agentRegistry, and repositories.auditEvents');
+  }
+
+  if (openClawDelegationAdapterService) {
+    const hasAdapterShape = typeof openClawDelegationAdapterService.buildDelegationPlan === 'function'
+      && typeof openClawDelegationAdapterService.materializeDelegatedChildPayload === 'function'
+      && typeof openClawDelegationAdapterService.buildChildCompletionPayload === 'function';
+
+    if (!hasAdapterShape) {
+      throw new Error('spawnInstantiationService openClawDelegationAdapterService must expose delegation planning and completion payload methods');
+    }
   }
 
   const spawnRequestTransitions = transitionGuardContract.spawn_request_state_transitions || {};
@@ -223,6 +233,24 @@ function createSpawnInstantiationService({ repositories, transitionGuardContract
         }),
       });
 
+      const parentTask = await repositories.tasks.getTaskById({ task_id: spawnRequest.parent_task_id });
+      if (!parentTask) {
+        throw new Error(`Parent task not found for approved spawn_request: ${spawn_request_id}`);
+      }
+
+      const delegatedExecutionPayload = openClawDelegationAdapterService
+        ? openClawDelegationAdapterService.materializeDelegatedChildPayload({
+            parent_task: parentTask,
+            child_task: {
+              task_id: child_task_id,
+              task_kind: instantiatingSpawnRequest.child_task_kind,
+              task_scope_json: instantiatingSpawnRequest.child_task_scope_json,
+            },
+            spawn_request: instantiatingSpawnRequest,
+            template,
+          })
+        : null;
+
       const childTask = await repositories.tasks.createTask({
         task: {
           task_id: child_task_id,
@@ -239,6 +267,8 @@ function createSpawnInstantiationService({ repositories, transitionGuardContract
             approved_by_approval_request_id: approvalRequest.approval_request_id,
             creation_reason: instantiatingSpawnRequest.creation_reason,
             justification: instantiatingSpawnRequest.justification,
+            execution_substrate: delegatedExecutionPayload ? delegatedExecutionPayload.execution_substrate : 'custom_child_runtime',
+            openclaw_delegation: delegatedExecutionPayload,
           },
           spawn_depth: 1,
           active_child_count: 0,

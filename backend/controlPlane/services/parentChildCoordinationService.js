@@ -223,6 +223,12 @@ function createParentChildCoordinationService({ repositories, taskLifecycleServi
         child_result_payload_json: childTask.result_payload_json || null,
         child_checkpoint_seq: childTask.checkpoint_seq,
         merged_from_spawn_request_id: spawnRequest.spawn_request_id,
+        execution_substrate: childTask.input_payload_json && childTask.input_payload_json.execution_substrate
+          ? childTask.input_payload_json.execution_substrate
+          : 'custom_child_runtime',
+        openclaw_delegation: childTask.input_payload_json && childTask.input_payload_json.openclaw_delegation
+          ? childTask.input_payload_json.openclaw_delegation
+          : null,
       };
 
       const mergeResult = await taskLifecycleService.recordChildResultMerge({
