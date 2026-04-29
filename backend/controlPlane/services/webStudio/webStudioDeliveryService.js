@@ -2,6 +2,7 @@ const DELIVERY_STATUSES = Object.freeze([
   'assembling',
   'ready',
   'waiting_for_client_choice',
+  'selected',
   'revision_requested',
   'completed',
 ]);
@@ -49,6 +50,9 @@ function createWebStudioDeliveryService({ repositories } = {}) {
         status: 'ready',
         customer_summary: options.customer_summary || 'Three bounded concept variants are ready for operator/client review.',
         governed_flow_id: order.governed_flow_id || null,
+        taskflow_id: order.taskflow_id || null,
+        selected_variant_id: null,
+        waiting_reason: null,
         created_at: now,
         updated_at: now,
         metadata: clone(options.metadata || {

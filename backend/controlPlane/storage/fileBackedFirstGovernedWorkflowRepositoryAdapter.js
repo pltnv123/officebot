@@ -87,6 +87,7 @@ function createFileBackedFirstGovernedWorkflowRepositoryAdapter({ rootDir } = {}
       webstudio_variants: {},
       webstudio_qa_results: {},
       webstudio_delivery_bundles: {},
+      webstudio_taskflow_bindings: {},
     };
     const current = await readJsonSafe(stateFile, fallback);
     current.tasks = current.tasks || {};
@@ -101,6 +102,7 @@ function createFileBackedFirstGovernedWorkflowRepositoryAdapter({ rootDir } = {}
     current.webstudio_variants = current.webstudio_variants || {};
     current.webstudio_qa_results = current.webstudio_qa_results || {};
     current.webstudio_delivery_bundles = current.webstudio_delivery_bundles || {};
+    current.webstudio_taskflow_bindings = current.webstudio_taskflow_bindings || {};
     if (!current.agent_templates || Object.keys(current.agent_templates).length === 0) {
       for (const template of APPROVED_AGENT_TEMPLATES) {
         const normalized = normalizeTemplate(template);
@@ -159,6 +161,10 @@ function createFileBackedFirstGovernedWorkflowRepositoryAdapter({ rootDir } = {}
 
   function webStudioDeliveryBundleList(state) {
     return Object.values(state.webstudio_delivery_bundles || {});
+  }
+
+  function webStudioTaskFlowBindingList(state) {
+    return Object.values(state.webstudio_taskflow_bindings || {});
   }
 
   const repositories = {
@@ -557,6 +563,36 @@ function createFileBackedFirstGovernedWorkflowRepositoryAdapter({ rootDir } = {}
         });
       },
     },
+
+    webStudioTaskFlowBindings: {
+      async createBinding({ binding }) {
+        return mutate(async (state) => {
+          state.webstudio_taskflow_bindings[binding.binding_id] = clone(binding);
+          return clone(state.webstudio_taskflow_bindings[binding.binding_id]);
+        });
+      },
+      async getBindingById({ binding_id }) {
+        const state = await loadState();
+        return clone(state.webstudio_taskflow_bindings[binding_id] || null);
+      },
+      async getBindingByOrderId({ order_id }) {
+        const state = await loadState();
+        const found = webStudioTaskFlowBindingList(state).find((row) => row.order_id === order_id) || null;
+        return clone(found);
+      },
+      async listBindings({ filters = null, sort = 'desc' } = {}) {
+        const state = await loadState();
+        return sortRows(webStudioTaskFlowBindingList(state).filter((row) => matchesFilters(row, filters)), sort, 'updated_at').map(clone);
+      },
+      async updateBindingById({ binding_id, patch }) {
+        return mutate(async (state) => {
+          const current = state.webstudio_taskflow_bindings[binding_id];
+          if (!current) return null;
+          state.webstudio_taskflow_bindings[binding_id] = { ...current, ...clone(patch) };
+          return clone(state.webstudio_taskflow_bindings[binding_id]);
+        });
+      },
+    },
   };
 
   async function ensureRootTask(task) {
@@ -578,6 +614,7 @@ function createFileBackedFirstGovernedWorkflowRepositoryAdapter({ rootDir } = {}
       webstudio_variants: {},
       webstudio_qa_results: {},
       webstudio_delivery_bundles: {},
+      webstudio_taskflow_bindings: {},
     });
     await loadState();
   }

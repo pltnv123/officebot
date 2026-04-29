@@ -1,11 +1,16 @@
 const path = require('path');
 const assert = require('assert');
-const { runWebStudioOrderWalkthrough } = require('../backend/controlPlane/storage/runWebStudioOrderWalkthrough');
+const { createFileBackedFirstGovernedWorkflowRepositoryAdapter } = require('../backend/controlPlane/storage/fileBackedFirstGovernedWorkflowRepositoryAdapter');
+const { createWebStudioDemoPackagingService } = require('../backend/controlPlane/services/webStudio/webStudioDemoPackagingService');
 
 async function main() {
   const rootDir = path.resolve(__dirname, '..');
-  const result = await runWebStudioOrderWalkthrough({ rootDir, reset: true });
-  const surface = result.demo.surface;
+  const adapter = createFileBackedFirstGovernedWorkflowRepositoryAdapter({ rootDir });
+  await adapter.clearRuntimeState();
+  const repositories = adapter.repositories;
+  const service = createWebStudioDemoPackagingService({ repositories });
+  const demo = await service.materializeDemoOrderWithThreeVariants({ source: 'smoke_webstudio_order_surface' });
+  const surface = demo.surface;
 
   assert(surface, 'surface must exist');
   assert(surface.order, 'order must exist');
@@ -22,6 +27,8 @@ async function main() {
     ok: true,
     order_id: surface.order.order_id,
     governed_flow_id: surface.governed_flow_id || null,
+    taskflow_id: surface.taskflow_binding?.taskflow_id || surface.taskflow_id || null,
+    binding_id: surface.taskflow_binding?.binding_id || null,
     variant_A_id: variants[0]?.variant_id || null,
     variant_B_id: variants[1]?.variant_id || null,
     variant_C_id: variants[2]?.variant_id || null,
@@ -32,10 +39,11 @@ async function main() {
     qa_B_id: variants[1]?.qa_result?.qa_result_id || null,
     qa_C_id: variants[2]?.qa_result?.qa_result_id || null,
     delivery_id: surface.delivery_bundle?.delivery_id || null,
-    state_file: result.stateFile,
+    state_file: adapter.stateFile,
     limitations: [
       'QA evidence is placeholder/mock in WEBSTUDIO-001.',
       'No real OpenClaw child sessions were spawned in this slice.',
+      'TaskFlow identity is bounded local persisted identity, not a proven OpenClaw-native TaskFlow entity yet.',
       'No real site generation/browser verification is implemented yet.',
     ],
   }, null, 2));

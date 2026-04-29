@@ -3,6 +3,7 @@ const { createWebStudioVariantService } = require('./webStudioVariantService');
 const { createWebStudioQAService } = require('./webStudioQAService');
 const { createWebStudioDeliveryService } = require('./webStudioDeliveryService');
 const { createWebStudioOrderSurfaceService } = require('./webStudioOrderSurfaceService');
+const { createWebStudioTaskFlowBindingService } = require('./webStudioTaskFlowBindingService');
 
 function clone(value) {
   return value == null ? value : JSON.parse(JSON.stringify(value));
@@ -58,6 +59,7 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
   const qaService = createWebStudioQAService({ repositories });
   const deliveryService = createWebStudioDeliveryService({ repositories });
   const surfaceService = createWebStudioOrderSurfaceService({ repositories });
+  const taskFlowBindingService = createWebStudioTaskFlowBindingService({ repositories });
 
   return Object.freeze({
     async createDemoWebStudioOrder(options = {}) {
@@ -70,7 +72,7 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
         taskflow_id: options.taskflow_id || null,
         metadata: {
           demo: true,
-          slice: 'WEBSTUDIO-001',
+          slice: 'WEBSTUDIO-002',
           ...(options.metadata || {}),
         },
       });
@@ -78,7 +80,11 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
     },
 
     async materializeDemoOrderWithThreeVariants(options = {}) {
-      const order = await this.createDemoWebStudioOrder(options);
+      const normalizedOrder = await this.createDemoWebStudioOrder(options);
+      let order = await orderService.getOrder(normalizedOrder.order_id);
+      if (!order) {
+        order = normalizedOrder;
+      }
       const variants = await variantService.createThreeVariants(order, {
         parent_task_id: options.parent_task_id || null,
       });
@@ -117,15 +123,24 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
       }
 
       await orderService.markQaCompleted(order.order_id);
-      await orderService.markDeliveryReady(order.order_id);
+      const boundOrder = await taskFlowBindingService.bindOrderToGovernedFlow(order.order_id);
+      await orderService.markDeliveryReady(order.order_id, {
+        governed_flow_id: boundOrder.governed_flow_id,
+        taskflow_id: boundOrder.taskflow_id,
+      });
       const latestVariants = await variantService.getVariantsForOrder(order.order_id);
-      const delivery = await deliveryService.buildDeliveryBundle(order, latestVariants, qaResults, {
+      const refreshedOrder = await orderService.getOrder(order.order_id) || {
+        ...order,
+        governed_flow_id: boundOrder.governed_flow_id,
+        taskflow_id: boundOrder.taskflow_id,
+      };
+      const delivery = await deliveryService.buildDeliveryBundle(refreshedOrder, latestVariants, qaResults, {
         metadata: {
           source: 'webstudio_demo_packaging_service',
           qa_mode: 'placeholder',
         },
       });
-      await orderService.markWaitingForClientChoice(order.order_id);
+      await taskFlowBindingService.setOrderWaitingForClientChoice(order.order_id, delivery.delivery_id);
 
       const surface = await surfaceService.buildOrderSurface({ order_id: order.order_id });
 
@@ -136,6 +151,9 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
         qa_result_ids: qaResults.map((row) => row.qa_result_id),
         child_task_ids: latestVariants.map((variant) => variant.child_task_id),
         surface,
+        governed_flow_id: surface?.governed_flow_id || null,
+        taskflow_id: surface?.taskflow_binding?.taskflow_id || surface?.taskflow_id || null,
+        binding_id: surface?.taskflow_binding?.binding_id || null,
       });
     },
 

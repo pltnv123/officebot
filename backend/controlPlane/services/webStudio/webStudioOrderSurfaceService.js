@@ -11,7 +11,7 @@ function sortVariants(rows = []) {
 }
 
 function createWebStudioOrderSurfaceService({ repositories } = {}) {
-  if (!repositories || !repositories.webStudioOrders || !repositories.webStudioVariants || !repositories.webStudioQAResults || !repositories.webStudioDeliveryBundles) {
+  if (!repositories || !repositories.webStudioOrders || !repositories.webStudioVariants || !repositories.webStudioQAResults || !repositories.webStudioDeliveryBundles || !repositories.webStudioTaskFlowBindings) {
     throw new Error('webStudioOrderSurfaceService requires webStudio repositories');
   }
 
@@ -25,6 +25,7 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
       const variants = sortVariants(await repositories.webStudioVariants.listVariantsByOrderId({ order_id }));
       const qa_results = await repositories.webStudioQAResults.listQAResultsByOrderId({ order_id });
       const delivery_bundle = await repositories.webStudioDeliveryBundles.getLatestDeliveryBundleByOrderId({ order_id });
+      const taskflow_binding = await repositories.webStudioTaskFlowBindings.getBindingByOrderId({ order_id });
       const qaByVariantId = new Map(qa_results.map((row) => [row.variant_id, row]));
 
       return Object.freeze({
@@ -41,6 +42,7 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
         })),
         qa_results: qa_results.map((row) => clone(row)),
         delivery_bundle: clone(delivery_bundle),
+        taskflow_binding: clone(taskflow_binding),
       });
     },
   });
