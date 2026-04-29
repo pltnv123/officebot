@@ -11,7 +11,7 @@ function sortVariants(rows = []) {
 }
 
 function createWebStudioOrderSurfaceService({ repositories } = {}) {
-  if (!repositories || !repositories.webStudioOrders || !repositories.webStudioVariants || !repositories.webStudioQAResults || !repositories.webStudioDeliveryBundles || !repositories.webStudioTaskFlowBindings || !repositories.webStudioChildSessions || !repositories.webStudioBrowserQAEvidence || !repositories.webStudioBuildArtifacts) {
+  if (!repositories || !repositories.webStudioOrders || !repositories.webStudioVariants || !repositories.webStudioQAResults || !repositories.webStudioDeliveryBundles || !repositories.webStudioTaskFlowBindings || !repositories.webStudioChildSessions || !repositories.webStudioBrowserQAEvidence || !repositories.webStudioBuildArtifacts || !repositories.webStudioRevisionRequests) {
     throw new Error('webStudioOrderSurfaceService requires webStudio repositories');
   }
 
@@ -29,10 +29,15 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
       const child_sessions = await repositories.webStudioChildSessions.listChildSessionsByOrderId({ order_id });
       const browser_qa_evidence = await repositories.webStudioBrowserQAEvidence.listBrowserEvidenceByOrderId({ order_id });
       const build_artifacts = await repositories.webStudioBuildArtifacts.listBuildArtifactsByOrderId({ order_id });
+      const revision_requests = await repositories.webStudioRevisionRequests.listRevisionRequestsByOrderId({ order_id });
       const childSessionsByVariantId = new Map(child_sessions.map((row) => [row.variant_id, row]));
       const browserEvidenceByVariantId = new Map(browser_qa_evidence.map((row) => [row.variant_id, row]));
       const buildArtifactsByVariantId = new Map(build_artifacts.map((row) => [row.variant_id, row]));
       const qaByVariantId = new Map(qa_results.map((row) => [row.variant_id, row]));
+
+      const selectedVariantId = order.selected_variant_id || taskflow_binding?.selected_variant_id || delivery_bundle?.selected_variant_id || null;
+      const selectedVariant = selectedVariantId ? variants.find((row) => row.variant_id === selectedVariantId) || null : null;
+      const latestRevisionRequest = [...revision_requests].sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')))[0] || null;
 
       return Object.freeze({
         surface_kind: 'webstudio_order_surface',
@@ -70,6 +75,26 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
             preview_path: buildArtifact?.preview_path || variant.preview_path || null,
           });
         }),
+        selected_variant_id: selectedVariantId,
+        selected_variant: selectedVariant ? Object.freeze({
+          ...clone(selectedVariant),
+          child_session_id: childSessionsByVariantId.get(selectedVariant.variant_id)?.child_session_id || selectedVariant.child_session_id || null,
+          build_artifact_id: buildArtifactsByVariantId.get(selectedVariant.variant_id)?.build_artifact_id || selectedVariant.build_artifact_id || null,
+          browser_evidence_id: browserEvidenceByVariantId.get(selectedVariant.variant_id)?.browser_evidence_id || selectedVariant.browser_evidence_id || null,
+          preview_path: buildArtifactsByVariantId.get(selectedVariant.variant_id)?.preview_path || selectedVariant.preview_path || null,
+          html_path: buildArtifactsByVariantId.get(selectedVariant.variant_id)?.html_path || selectedVariant.html_path || null,
+        }) : null,
+        revision_requests: [...revision_requests]
+          .sort((a, b) => String(a.created_at || '').localeCompare(String(b.created_at || '')))
+          .map((row) => clone(row)),
+        latest_revision_request: clone(latestRevisionRequest),
+        revision_lane: {
+          status: latestRevisionRequest?.revision_lane_status || (selectedVariantId ? 'ready' : 'not_created'),
+          selected_variant_id: selectedVariantId,
+          revision_request_id: latestRevisionRequest?.revision_request_id || null,
+          pending_execution: ['ready', 'pending_execution'].includes(latestRevisionRequest?.revision_lane_status || ''),
+          next_action: latestRevisionRequest ? 'execute_selected_variant_revision' : (selectedVariantId ? 'create_revision_request' : 'select_variant'),
+        },
         qa_results: qa_results.map((row) => clone(row)),
         delivery_bundle: clone(delivery_bundle),
         taskflow_binding: clone(taskflow_binding),
