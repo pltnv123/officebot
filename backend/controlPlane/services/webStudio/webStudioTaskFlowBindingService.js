@@ -101,12 +101,12 @@ function createWebStudioTaskFlowBindingService({ repositories } = {}) {
       return created;
     },
 
-    async setOrderWaitingForClientChoice(orderId, deliveryId) {
-      const order = await repositories.webStudioOrders.getOrderById({ order_id: orderId });
+    async setOrderWaitingForClientChoice(orderId, deliveryId, options = {}) {
+      const order = await repositories.webStudioOrders.getOrderById({ order_id: orderId }) || options.fallback_order || null;
       if (!order) {
         throw new Error(`WebStudio order not found: ${orderId}`);
       }
-      const binding = await this.bindOrderToGovernedFlow(orderId);
+      const binding = await this.bindOrderToGovernedFlow(orderId, { fallback_order: order });
       const delivery = await repositories.webStudioDeliveryBundles.getDeliveryBundleById({ delivery_id: deliveryId });
       if (!delivery || delivery.order_id !== orderId) {
         throw new Error(`Delivery bundle not found for order waiting transition: ${deliveryId}`);
