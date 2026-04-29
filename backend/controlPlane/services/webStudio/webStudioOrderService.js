@@ -84,13 +84,14 @@ function createWebStudioOrderService({ repositories } = {}) {
       return repositories.webStudioOrders.createOrder({ order });
     },
 
-    async normalizeBrief(orderId) {
+    async normalizeBrief(orderId, options = {}) {
       const current = await repositories.webStudioOrders.getOrderById({ order_id: orderId });
-      if (!current) {
+      const authoritativeOrder = current || options.fallback_order || null;
+      if (!authoritativeOrder) {
         throw new Error(`WebStudio order not found: ${orderId}`);
       }
-      const normalized_brief = buildNormalizedBrief(current.raw_brief);
-      return repositories.webStudioOrders.updateOrderById({
+      const normalized_brief = buildNormalizedBrief(authoritativeOrder.raw_brief);
+      const updated = await repositories.webStudioOrders.updateOrderById({
         order_id: orderId,
         patch: {
           normalized_brief,
@@ -98,6 +99,12 @@ function createWebStudioOrderService({ repositories } = {}) {
           updated_at: nowIso(),
         },
       });
+      return updated || {
+        ...clone(authoritativeOrder),
+        normalized_brief,
+        status: 'brief_normalized',
+        updated_at: nowIso(),
+      };
     },
 
     async markVariantsSpawned(orderId, patch = {}) {

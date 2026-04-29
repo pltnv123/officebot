@@ -11,7 +11,7 @@ function sortVariants(rows = []) {
 }
 
 function createWebStudioOrderSurfaceService({ repositories } = {}) {
-  if (!repositories || !repositories.webStudioOrders || !repositories.webStudioVariants || !repositories.webStudioQAResults || !repositories.webStudioDeliveryBundles || !repositories.webStudioTaskFlowBindings) {
+  if (!repositories || !repositories.webStudioOrders || !repositories.webStudioVariants || !repositories.webStudioQAResults || !repositories.webStudioDeliveryBundles || !repositories.webStudioTaskFlowBindings || !repositories.webStudioChildSessions) {
     throw new Error('webStudioOrderSurfaceService requires webStudio repositories');
   }
 
@@ -26,6 +26,8 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
       const qa_results = await repositories.webStudioQAResults.listQAResultsByOrderId({ order_id });
       const delivery_bundle = await repositories.webStudioDeliveryBundles.getLatestDeliveryBundleByOrderId({ order_id });
       const taskflow_binding = await repositories.webStudioTaskFlowBindings.getBindingByOrderId({ order_id });
+      const child_sessions = await repositories.webStudioChildSessions.listChildSessionsByOrderId({ order_id });
+      const childSessionsByVariantId = new Map(child_sessions.map((row) => [row.variant_id, row]));
       const qaByVariantId = new Map(qa_results.map((row) => [row.variant_id, row]));
 
       return Object.freeze({
@@ -36,13 +38,21 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
         normalized_brief: clone(order.normalized_brief || null),
         governed_flow_id: order.governed_flow_id || null,
         taskflow_id: order.taskflow_id || null,
-        variants: variants.map((variant) => Object.freeze({
-          ...clone(variant),
-          qa_result: clone(qaByVariantId.get(variant.variant_id) || null),
-        })),
+        variants: variants.map((variant) => {
+          const childSession = childSessionsByVariantId.get(variant.variant_id) || null;
+          return Object.freeze({
+            ...clone(variant),
+            qa_result: clone(qaByVariantId.get(variant.variant_id) || null),
+            child_session_id: childSession?.child_session_id || variant.child_session_id || null,
+            child_agent_id: childSession?.child_agent_id || variant.child_agent_id || null,
+            child_workspace_key: childSession?.child_workspace_key || variant.child_workspace_key || null,
+            child_execution_status: childSession?.status || variant.child_execution_status || null,
+          });
+        }),
         qa_results: qa_results.map((row) => clone(row)),
         delivery_bundle: clone(delivery_bundle),
         taskflow_binding: clone(taskflow_binding),
+        child_sessions: child_sessions.map((row) => clone(row)),
       });
     },
   });
