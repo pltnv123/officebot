@@ -10,6 +10,7 @@ const { SPAWN_REQUEST_STATES } = require('../types/spawnRequestStates');
 const { AUDIT_EVENT_TYPES } = require('../types/auditEventTypes');
 const { TRANSITION_GUARD_CONTRACT } = require('../domain/transitionGuards');
 const { AUDIT_BACKBONE_CONTRACT } = require('../domain/auditBackbone');
+const { createTaskflowChildLinkageService } = require('./taskflowChildLinkageService');
 
 const SPAWN_INSTANTIATION_SERVICE_CONTRACT = Object.freeze({
   service_identity: Object.freeze({
@@ -40,7 +41,7 @@ const SPAWN_INSTANTIATION_SERVICE_CONTRACT = Object.freeze({
   ]),
 });
 
-function createSpawnInstantiationService({ repositories, openClawDelegationAdapterService = null, transitionGuardContract = TRANSITION_GUARD_CONTRACT } = {}) {
+function createSpawnInstantiationService({ repositories, openClawDelegationAdapterService = null, taskflowChildLinkageService = createTaskflowChildLinkageService(), transitionGuardContract = TRANSITION_GUARD_CONTRACT } = {}) {
   if (!repositories || !repositories.spawnRequests || !repositories.approvalRequests || !repositories.tasks || !repositories.agentTemplates || !repositories.auditEvents || !repositories.agentRegistry) {
     throw new Error('spawnInstantiationService requires repositories.spawnRequests, repositories.approvalRequests, repositories.tasks, repositories.agentTemplates, repositories.agentRegistry, and repositories.auditEvents');
   }
@@ -251,6 +252,17 @@ function createSpawnInstantiationService({ repositories, openClawDelegationAdapt
           })
         : null;
 
+      const taskflowChildLinkage = taskflowChildLinkageService.buildChildLinkage({
+        parent_task: parentTask,
+        spawn_request: instantiatingSpawnRequest,
+        approval_request: approvalRequest,
+        child_task: {
+          task_id: child_task_id,
+          task_kind: instantiatingSpawnRequest.child_task_kind,
+        },
+        openclaw_delegation: delegatedExecutionPayload,
+      });
+
       const childTask = await repositories.tasks.createTask({
         task: {
           task_id: child_task_id,
@@ -269,6 +281,7 @@ function createSpawnInstantiationService({ repositories, openClawDelegationAdapt
             justification: instantiatingSpawnRequest.justification,
             execution_substrate: delegatedExecutionPayload ? delegatedExecutionPayload.execution_substrate : 'custom_child_runtime',
             openclaw_delegation: delegatedExecutionPayload,
+            taskflow_child_linkage: taskflowChildLinkage,
           },
           spawn_depth: 1,
           active_child_count: 0,
@@ -347,6 +360,9 @@ function createSpawnInstantiationService({ repositories, openClawDelegationAdapt
             instantiated_agent_id: childAgent ? childAgent.agent_id : null,
             parent_task_id: instantiatedSpawnRequest.parent_task_id,
             root_task_id: instantiatedSpawnRequest.root_task_id,
+            taskflow_child_linkage_flow_id: childTask.input_payload_json && childTask.input_payload_json.taskflow_child_linkage
+              ? childTask.input_payload_json.taskflow_child_linkage.flow_id
+              : null,
           },
           occurredAt: instantiatedAt,
         }),

@@ -6,6 +6,7 @@
 const { TASK_STATES } = require('../types/taskStates');
 const { SPAWN_REQUEST_STATES } = require('../types/spawnRequestStates');
 const { TRANSITION_GUARD_CONTRACT } = require('../domain/transitionGuards');
+const { createTaskflowChildLinkageService } = require('./taskflowChildLinkageService');
 
 const CHILD_EXECUTION_SERVICE_CONTRACT = Object.freeze({
   service_identity: Object.freeze({
@@ -45,7 +46,7 @@ const CHILD_EXECUTION_SERVICE_CONTRACT = Object.freeze({
   ]),
 });
 
-function createChildExecutionService({ repositories, taskLifecycleService, openClawDelegationAdapterService = null, transitionGuardContract = TRANSITION_GUARD_CONTRACT } = {}) {
+function createChildExecutionService({ repositories, taskLifecycleService, openClawDelegationAdapterService = null, taskflowChildLinkageService = createTaskflowChildLinkageService(), transitionGuardContract = TRANSITION_GUARD_CONTRACT } = {}) {
   if (!repositories || !repositories.tasks || !repositories.spawnRequests) {
     throw new Error('childExecutionService requires repositories.tasks and repositories.spawnRequests');
   }
@@ -147,10 +148,21 @@ function createChildExecutionService({ repositories, taskLifecycleService, openC
         actor_context,
       });
 
+      const taskflowChildLinkage = childTask.input_payload_json && childTask.input_payload_json.taskflow_child_linkage;
+      const taskflowExecutionLinkage = taskflowChildLinkage
+        ? taskflowChildLinkageService.buildExecutionLinkage({
+            child_task: childTask,
+            taskflow_child_linkage: taskflowChildLinkage,
+            delegation_plan: openClawDelegation ? openClawDelegation.delegation_plan : null,
+          })
+        : null;
+
       return Object.freeze({
         child_task: runningTask,
         execution_substrate: openClawDelegation ? 'openclaw_native_delegation' : 'custom_child_runtime',
         delegation_plan: openClawDelegation ? openClawDelegation.delegation_plan : null,
+        taskflow_child_linkage: taskflowChildLinkage,
+        taskflow_child_execution_linkage: taskflowExecutionLinkage,
       });
     },
 
@@ -202,9 +214,22 @@ function createChildExecutionService({ repositories, taskLifecycleService, openC
         actor_context,
       });
 
+      const taskflowChildLinkage = childTask.input_payload_json && childTask.input_payload_json.taskflow_child_linkage;
+      const taskflowCompletionLinkage = taskflowChildLinkage
+        ? taskflowChildLinkageService.buildCompletionLinkage({
+            child_task: childTask,
+            taskflow_child_linkage: taskflowChildLinkage,
+            completed_by_role: effectiveResultPayload && effectiveResultPayload.completed_by_role
+              ? effectiveResultPayload.completed_by_role
+              : null,
+          })
+        : null;
+
       return Object.freeze({
         child_task: completedTask,
         execution_substrate: delegatedPayload ? 'openclaw_native_delegation' : 'custom_child_runtime',
+        taskflow_child_linkage: taskflowChildLinkage,
+        taskflow_child_completion_linkage: taskflowCompletionLinkage,
       });
     },
   });
