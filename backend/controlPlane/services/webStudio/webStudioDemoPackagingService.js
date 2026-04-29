@@ -6,6 +6,7 @@ const { createWebStudioOrderSurfaceService } = require('./webStudioOrderSurfaceS
 const { createWebStudioTaskFlowBindingService } = require('./webStudioTaskFlowBindingService');
 const { createWebStudioChildSessionService } = require('./webStudioChildSessionService');
 const { createWebStudioBrowserQAService } = require('./webStudioBrowserQAService');
+const { createWebStudioBuildArtifactService } = require('./webStudioBuildArtifactService');
 
 function clone(value) {
   return value == null ? value : JSON.parse(JSON.stringify(value));
@@ -64,6 +65,7 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
   const taskFlowBindingService = createWebStudioTaskFlowBindingService({ repositories });
   const childSessionService = createWebStudioChildSessionService({ repositories });
   const browserQAService = createWebStudioBrowserQAService({ repositories });
+  const buildArtifactService = createWebStudioBuildArtifactService({ repositories, rootDir: repositories.__ROOT_DIR__ || process.cwd() });
 
   return Object.freeze({
     async createDemoWebStudioOrder(options = {}) {
@@ -146,9 +148,10 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
           qa_mode: 'placeholder',
         },
       });
-      await taskFlowBindingService.setOrderWaitingForClientChoice(order.order_id, delivery.delivery_id);
+      await taskFlowBindingService.setOrderWaitingForClientChoice(order.order_id, delivery.delivery_id, { fallback_order: refreshedOrder });
       await childSessionService.createChildSessionsForOrderVariants(order.order_id);
       await browserQAService.createBrowserQAEvidenceForOrderVariants(order.order_id);
+      await buildArtifactService.createBuildArtifactsForOrderVariants(order.order_id);
 
       const surface = await surfaceService.buildOrderSurface({ order_id: order.order_id });
 
