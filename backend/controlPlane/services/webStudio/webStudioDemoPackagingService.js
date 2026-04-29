@@ -4,6 +4,7 @@ const { createWebStudioQAService } = require('./webStudioQAService');
 const { createWebStudioDeliveryService } = require('./webStudioDeliveryService');
 const { createWebStudioOrderSurfaceService } = require('./webStudioOrderSurfaceService');
 const { createWebStudioTaskFlowBindingService } = require('./webStudioTaskFlowBindingService');
+const { createWebStudioChildSessionService } = require('./webStudioChildSessionService');
 
 function clone(value) {
   return value == null ? value : JSON.parse(JSON.stringify(value));
@@ -60,6 +61,7 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
   const deliveryService = createWebStudioDeliveryService({ repositories });
   const surfaceService = createWebStudioOrderSurfaceService({ repositories });
   const taskFlowBindingService = createWebStudioTaskFlowBindingService({ repositories });
+  const childSessionService = createWebStudioChildSessionService({ repositories });
 
   return Object.freeze({
     async createDemoWebStudioOrder(options = {}) {
@@ -76,7 +78,7 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
           ...(options.metadata || {}),
         },
       });
-      return orderService.normalizeBrief(order.order_id);
+      return orderService.normalizeBrief(order.order_id, { fallback_order: order });
     },
 
     async materializeDemoOrderWithThreeVariants(options = {}) {
@@ -108,7 +110,8 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
           qaResult.browser_evidence,
           qaResult.risks,
         );
-        await variantService.markVariantQaPassed(variant.variant_id, passedQa.qa_result_id);
+        const effectiveQa = passedQa || qaResult;
+        await variantService.markVariantQaPassed(variant.variant_id, effectiveQa.qa_result_id);
         await variantService.markVariantPackaged(variant.variant_id, [
           {
             artifact_kind: 'concept_summary',
@@ -116,10 +119,10 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
           },
           {
             artifact_kind: 'qa_summary',
-            artifact_ref: `inline:${passedQa.qa_result_id}:qa`,
+            artifact_ref: `inline:${effectiveQa.qa_result_id}:qa`,
           },
         ]);
-        qaResults.push(passedQa);
+        qaResults.push(effectiveQa);
       }
 
       await orderService.markQaCompleted(order.order_id);
@@ -141,6 +144,7 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
         },
       });
       await taskFlowBindingService.setOrderWaitingForClientChoice(order.order_id, delivery.delivery_id);
+      await childSessionService.createChildSessionsForOrderVariants(order.order_id);
 
       const surface = await surfaceService.buildOrderSurface({ order_id: order.order_id });
 
