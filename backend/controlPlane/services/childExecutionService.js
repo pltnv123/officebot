@@ -45,7 +45,7 @@ const CHILD_EXECUTION_SERVICE_CONTRACT = Object.freeze({
   ]),
 });
 
-function createChildExecutionService({ repositories, taskLifecycleService, transitionGuardContract = TRANSITION_GUARD_CONTRACT } = {}) {
+function createChildExecutionService({ repositories, taskLifecycleService, openClawDelegationAdapterService = null, transitionGuardContract = TRANSITION_GUARD_CONTRACT } = {}) {
   if (!repositories || !repositories.tasks || !repositories.spawnRequests) {
     throw new Error('childExecutionService requires repositories.tasks and repositories.spawnRequests');
   }
@@ -57,6 +57,13 @@ function createChildExecutionService({ repositories, taskLifecycleService, trans
     || typeof taskLifecycleService.recordCheckpoint !== 'function'
     || typeof taskLifecycleService.completeTask !== 'function') {
     throw new Error('childExecutionService requires taskLifecycleService lifecycle and checkpoint methods');
+  }
+
+  if (openClawDelegationAdapterService) {
+    const hasAdapterShape = typeof openClawDelegationAdapterService.buildChildCompletionPayload === 'function';
+    if (!hasAdapterShape) {
+      throw new Error('childExecutionService openClawDelegationAdapterService must expose buildChildCompletionPayload when provided');
+    }
   }
 
   const taskTransitions = transitionGuardContract.task_state_transitions || {};
@@ -111,23 +118,25 @@ function createChildExecutionService({ repositories, taskLifecycleService, trans
 
   return Object.freeze({
     async startChildExecution({ task_id, lease_owner, lease_expires_at = null, actor_context = {} }) {
-      if (!lease_owner) {
+      const { childTask } = await loadGovernedChildTaskOrThrow({ task_id });
+      const openClawDelegation = childTask.input_payload_json && childTask.input_payload_json.openclaw_delegation;
+      const effectiveLeaseOwner = lease_owner || (openClawDelegation ? 'openclaw:planner-worker-reviewer' : null);
+
+      if (!effectiveLeaseOwner) {
         throw new Error('startChildExecution requires lease_owner');
       }
-
-      const { childTask } = await loadGovernedChildTaskOrThrow({ task_id });
 
       ensureTransitionAllowed(childTask.status, TASK_STATES.READY);
       const readyTask = await taskLifecycleService.markTaskReady({
         task_id,
         actor_context,
-        reason: 'governed_child_execution_ready',
+        reason: openClawDelegation ? 'openclaw_governed_child_execution_ready' : 'governed_child_execution_ready',
       });
 
       ensureTransitionAllowed(readyTask.status, TASK_STATES.CLAIMED);
       const claimedTask = await taskLifecycleService.claimTask({
         task_id,
-        lease_owner,
+        lease_owner: effectiveLeaseOwner,
         lease_expires_at,
         actor_context,
       });
@@ -140,6 +149,8 @@ function createChildExecutionService({ repositories, taskLifecycleService, trans
 
       return Object.freeze({
         child_task: runningTask,
+        execution_substrate: openClawDelegation ? 'openclaw_native_delegation' : 'custom_child_runtime',
+        delegation_plan: openClawDelegation ? openClawDelegation.delegation_plan : null,
       });
     },
 
@@ -176,14 +187,24 @@ function createChildExecutionService({ repositories, taskLifecycleService, trans
         throw new Error(`Child task is not running: ${task_id}`);
       }
 
+      const delegatedPayload = childTask.input_payload_json && childTask.input_payload_json.openclaw_delegation;
+      const effectiveResultPayload = delegatedPayload && openClawDelegationAdapterService
+        ? openClawDelegationAdapterService.buildChildCompletionPayload({
+            child_task: childTask,
+            delegation_result: result_payload_json,
+            completed_by_role: 'reviewer',
+          })
+        : result_payload_json;
+
       const completedTask = await taskLifecycleService.completeTask({
         task_id,
-        result_payload_json,
+        result_payload_json: effectiveResultPayload,
         actor_context,
       });
 
       return Object.freeze({
         child_task: completedTask,
+        execution_substrate: delegatedPayload ? 'openclaw_native_delegation' : 'custom_child_runtime',
       });
     },
   });
