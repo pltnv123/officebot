@@ -51,6 +51,7 @@ const { buildExecutorCoordinationExecutionGateLayer } = require('./executorCoord
 const { buildOperatorInterventionControlLayer } = require('./operatorInterventionControlLayer');
 const { buildExecutionEvidenceLedgerLayer } = require('./executionEvidenceLedgerLayer');
 const { createOpenClawWorkflowSurfaceService } = require('./controlPlane/services/openClawWorkflowSurfaceService');
+const { createFileBackedFirstGovernedWorkflowRepositoryAdapter } = require('./controlPlane/storage/fileBackedFirstGovernedWorkflowRepositoryAdapter');
 const { buildLaneResultAdjudicationLayer } = require('./laneResultAdjudicationLayer');
 const { buildBoundedCoordinatorExecutionBridgeLayer } = require('./boundedCoordinatorExecutionBridgeLayer');
 const { buildBackendBoundedExecutionHooksLayer } = require('./backendBoundedExecutionHooksLayer');
@@ -482,6 +483,8 @@ async function buildRuntimeStateResponse(actorRole = 'orchestrator') {
 }
 
 const openClawWorkflowSurfaceService = createOpenClawWorkflowSurfaceService();
+const fileBackedFirstGovernedWorkflowRepositoryAdapter = createFileBackedFirstGovernedWorkflowRepositoryAdapter({ rootDir: ROOT });
+global.__CONTROL_PLANE_REPOSITORIES__ = fileBackedFirstGovernedWorkflowRepositoryAdapter.repositories;
 
 function mkTaskId() {
   return 'TASK-' + Date.now();

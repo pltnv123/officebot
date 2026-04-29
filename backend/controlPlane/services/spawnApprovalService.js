@@ -39,9 +39,16 @@ const SPAWN_APPROVAL_SERVICE_CONTRACT = Object.freeze({
   ]),
 });
 
-function createSpawnApprovalService({ repositories, transitionGuardContract = TRANSITION_GUARD_CONTRACT } = {}) {
+function createSpawnApprovalService({ repositories, taskLifecycleService = null, transitionGuardContract = TRANSITION_GUARD_CONTRACT } = {}) {
   if (!repositories || !repositories.approvalRequests || !repositories.spawnRequests || !repositories.auditEvents) {
     throw new Error('spawnApprovalService requires repositories.approvalRequests, repositories.spawnRequests, and repositories.auditEvents');
+  }
+
+  if (taskLifecycleService) {
+    const hasLifecycleShape = typeof taskLifecycleService.resumeTask === 'function';
+    if (!hasLifecycleShape) {
+      throw new Error('spawnApprovalService taskLifecycleService must expose resumeTask when provided');
+    }
   }
 
   const approvalStateTransitions = transitionGuardContract.approval_state_transitions || {};
@@ -249,6 +256,20 @@ function createSpawnApprovalService({ repositories, transitionGuardContract = TR
           occurredAt: decidedAt,
         }),
       });
+
+      if (taskLifecycleService) {
+        const parentTask = await repositories.tasks.getTaskById({ task_id: approvedSpawnRequest.parent_task_id });
+        if (parentTask && parentTask.status === 'waiting_for_approval' && parentTask.blocked_on_approval_request_id === approvedApprovalRequest.approval_request_id) {
+          await taskLifecycleService.resumeTask({
+            task_id: parentTask.task_id,
+            actor_context: {
+              ...actor_context,
+              bounded_resume_reason: 'parent_resumed_after_spawn_approval',
+            },
+            reason: 'parent_resumed_after_spawn_approval',
+          });
+        }
+      }
 
       return Object.freeze({
         approval_request: approvedApprovalRequest,
