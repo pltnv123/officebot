@@ -97,7 +97,8 @@ function createWebStudioRevisionService({ repositories } = {}) {
       .filter((row) => (row.artifact_type || 'initial') !== 'revision');
     if (buildArtifacts.length !== 3) throw new Error(`Expected exactly 3 build artifacts for order: ${orderId}`);
 
-    const browserEvidence = await repositories.webStudioBrowserQAEvidence.listBrowserEvidenceByOrderId({ order_id: orderId });
+    const browserEvidence = (await repositories.webStudioBrowserQAEvidence.listBrowserEvidenceByOrderId({ order_id: orderId }))
+      .filter((row) => (row.evidence_scope || 'initial') !== 'revision');
     if (browserEvidence.length !== 3) throw new Error(`Expected exactly 3 browser QA evidence records for order: ${orderId}`);
 
     return {

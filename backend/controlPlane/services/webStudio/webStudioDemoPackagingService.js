@@ -10,6 +10,7 @@ const { createWebStudioBuildArtifactService } = require('./webStudioBuildArtifac
 const { createWebStudioBrowserCaptureService } = require('./webStudioBrowserCaptureService');
 const { createWebStudioRevisionService } = require('./webStudioRevisionService');
 const { createWebStudioRevisionExecutionService } = require('./webStudioRevisionExecutionService');
+const { createWebStudioRevisionBrowserQAService } = require('./webStudioRevisionBrowserQAService');
 
 function clone(value) {
   return value == null ? value : JSON.parse(JSON.stringify(value));
@@ -72,6 +73,7 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
   const browserCaptureService = createWebStudioBrowserCaptureService({ repositories, rootDir: repositories.__ROOT_DIR__ || process.cwd() });
   const revisionService = createWebStudioRevisionService({ repositories });
   const revisionExecutionService = createWebStudioRevisionExecutionService({ repositories, rootDir: repositories.__ROOT_DIR__ || process.cwd() });
+  const revisionBrowserQAService = createWebStudioRevisionBrowserQAService({ repositories, rootDir: repositories.__ROOT_DIR__ || process.cwd() });
 
   return Object.freeze({
     async createDemoWebStudioOrder(options = {}) {
@@ -193,6 +195,15 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
 
     async executeDemoRevision(order_id, options = {}) {
       const execution = await revisionExecutionService.executeLatestRevisionForOrder(order_id, options);
+      const surface = await surfaceService.buildOrderSurface({ order_id });
+      return Object.freeze({
+        execution,
+        surface,
+      });
+    },
+
+    async runDemoRevisionBrowserQA(order_id, options = {}) {
+      const execution = await revisionBrowserQAService.runBrowserQAForLatestRevision(order_id, options);
       const surface = await surfaceService.buildOrderSurface({ order_id });
       return Object.freeze({
         execution,
