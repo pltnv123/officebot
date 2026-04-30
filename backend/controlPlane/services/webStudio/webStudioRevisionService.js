@@ -93,7 +93,8 @@ function createWebStudioRevisionService({ repositories } = {}) {
       throw new Error(`Selected variant does not belong to order: ${selectedVariantId}`);
     }
 
-    const buildArtifacts = await repositories.webStudioBuildArtifacts.listBuildArtifactsByOrderId({ order_id: orderId });
+    const buildArtifacts = (await repositories.webStudioBuildArtifacts.listBuildArtifactsByOrderId({ order_id: orderId }))
+      .filter((row) => (row.artifact_type || 'initial') !== 'revision');
     if (buildArtifacts.length !== 3) throw new Error(`Expected exactly 3 build artifacts for order: ${orderId}`);
 
     const browserEvidence = await repositories.webStudioBrowserQAEvidence.listBrowserEvidenceByOrderId({ order_id: orderId });
