@@ -31,7 +31,13 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
       const build_artifacts = await repositories.webStudioBuildArtifacts.listBuildArtifactsByOrderId({ order_id });
       const revision_requests = await repositories.webStudioRevisionRequests.listRevisionRequestsByOrderId({ order_id });
       const childSessionsByVariantId = new Map(child_sessions.map((row) => [row.variant_id, row]));
-      const browserEvidenceByVariantId = new Map(browser_qa_evidence.map((row) => [row.variant_id, row]));
+      const initialBrowserEvidence = browser_qa_evidence.filter((row) => (row.evidence_scope || 'initial') !== 'revision');
+      const revisedBrowserEvidence = browser_qa_evidence.filter((row) => row.evidence_scope === 'revision');
+      const browserEvidenceByVariantId = new Map(initialBrowserEvidence.map((row) => [row.variant_id, row]));
+      const latestRevisedBrowserEvidenceByVariantId = new Map();
+      for (const evidence of revisedBrowserEvidence.sort((a, b) => Number(a.revision_number || 0) - Number(b.revision_number || 0))) {
+        latestRevisedBrowserEvidenceByVariantId.set(evidence.variant_id, evidence);
+      }
       const initialBuildArtifacts = build_artifacts.filter((row) => (row.artifact_type || 'initial') !== 'revision');
       const revisedBuildArtifacts = build_artifacts.filter((row) => row.artifact_type === 'revision');
       const buildArtifactsByVariantId = new Map(initialBuildArtifacts.map((row) => [row.variant_id, row]));
@@ -58,6 +64,7 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
           const browserEvidence = browserEvidenceByVariantId.get(variant.variant_id) || null;
           const buildArtifact = buildArtifactsByVariantId.get(variant.variant_id) || null;
           const revisedBuildArtifact = latestRevisedArtifactByVariantId.get(variant.variant_id) || null;
+          const revisedBrowserQaEvidence = latestRevisedBrowserEvidenceByVariantId.get(variant.variant_id) || null;
           return Object.freeze({
             ...clone(variant),
             qa_result: clone(qaByVariantId.get(variant.variant_id) || null),
@@ -85,6 +92,12 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
             revised_html_path: revisedBuildArtifact?.html_path || null,
             revised_manifest_path: revisedBuildArtifact?.manifest_path || null,
             revised_preview_path: revisedBuildArtifact?.preview_path || null,
+            revised_browser_evidence_id: revisedBrowserQaEvidence?.browser_evidence_id || null,
+            revised_browser_qa_status: revisedBrowserQaEvidence?.status || null,
+            revised_capture_status: revisedBrowserQaEvidence?.capture_status || null,
+            revised_browser_native: revisedBrowserQaEvidence?.browser_native || false,
+            revised_screenshot_path: revisedBrowserQaEvidence?.screenshot_path || null,
+            revised_snapshot_path: revisedBrowserQaEvidence?.snapshot_path || null,
           });
         }),
         selected_variant_id: selectedVariantId,
@@ -99,6 +112,8 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
           revised_html_path: latestRevisedArtifactByVariantId.get(selectedVariant.variant_id)?.html_path || null,
           revised_manifest_path: latestRevisedArtifactByVariantId.get(selectedVariant.variant_id)?.manifest_path || null,
           revision_status: latestRevisedArtifactByVariantId.get(selectedVariant.variant_id) ? 'completed' : null,
+          revised_browser_evidence_id: latestRevisedBrowserEvidenceByVariantId.get(selectedVariant.variant_id)?.browser_evidence_id || null,
+          revised_browser_qa_status: latestRevisedBrowserEvidenceByVariantId.get(selectedVariant.variant_id)?.status || null,
         }) : null,
         revision_requests: [...revision_requests]
           .sort((a, b) => String(a.created_at || '').localeCompare(String(b.created_at || '')))
@@ -111,15 +126,24 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
           pending_execution: ['ready', 'pending_execution'].includes(latestRevisionRequest?.revision_lane_status || ''),
           completed: (latestRevisionRequest?.revision_lane_status || '') === 'completed',
           revised_build_artifact_id: latestRevisionRequest?.revised_build_artifact_id || null,
+          revised_browser_evidence_id: latestRevisionRequest?.revised_browser_evidence_id || null,
+          revised_browser_qa_status: latestRevisionRequest?.revised_browser_qa_status || null,
+          revised_capture_status: latestRevisionRequest?.revised_capture_status || null,
+          browser_reqa_completed: Boolean(latestRevisionRequest?.revised_browser_evidence_id),
           next_action: latestRevisionRequest
-            ? ((latestRevisionRequest?.revision_lane_status || '') === 'completed' ? 'revision_completed' : 'execute_selected_variant_revision')
+            ? (latestRevisionRequest?.revised_browser_evidence_id
+              ? 'revision_browser_qa_completed'
+              : ((latestRevisionRequest?.revision_lane_status || '') === 'completed' ? 'run_revision_browser_qa' : 'execute_selected_variant_revision'))
             : (selectedVariantId ? 'create_revision_request' : 'select_variant'),
         },
         qa_results: qa_results.map((row) => clone(row)),
         delivery_bundle: clone(delivery_bundle),
         taskflow_binding: clone(taskflow_binding),
         child_sessions: child_sessions.map((row) => clone(row)),
-        browser_qa_evidence: browser_qa_evidence.map((row) => clone(row)),
+        browser_qa_evidence: initialBrowserEvidence.map((row) => clone(row)),
+        revised_browser_qa_evidence: revisedBrowserEvidence
+          .sort((a, b) => Number(a.revision_number || 0) - Number(b.revision_number || 0))
+          .map((row) => clone(row)),
         build_artifacts: initialBuildArtifacts.map((row) => clone(row)),
         revised_build_artifacts: revisedBuildArtifacts
           .sort((a, b) => Number(a.revision_number || 0) - Number(b.revision_number || 0))
