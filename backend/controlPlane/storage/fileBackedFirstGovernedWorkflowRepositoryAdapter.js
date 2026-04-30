@@ -93,6 +93,7 @@ function createFileBackedFirstGovernedWorkflowRepositoryAdapter({ rootDir } = {}
       webstudio_build_artifacts: {},
       webstudio_revision_requests: {},
       webstudio_public_delivery_bundles: {},
+      webstudio_execution_runs: {},
     };
     const current = await readJsonSafe(stateFile, fallback);
     current.tasks = current.tasks || {};
@@ -113,6 +114,7 @@ function createFileBackedFirstGovernedWorkflowRepositoryAdapter({ rootDir } = {}
     current.webstudio_build_artifacts = current.webstudio_build_artifacts || {};
     current.webstudio_revision_requests = current.webstudio_revision_requests || {};
     current.webstudio_public_delivery_bundles = current.webstudio_public_delivery_bundles || {};
+    current.webstudio_execution_runs = current.webstudio_execution_runs || {};
     if (!current.agent_templates || Object.keys(current.agent_templates).length === 0) {
       for (const template of APPROVED_AGENT_TEMPLATES) {
         const normalized = normalizeTemplate(template);
@@ -195,6 +197,10 @@ function createFileBackedFirstGovernedWorkflowRepositoryAdapter({ rootDir } = {}
 
   function webStudioPublicDeliveryBundleList(state) {
     return Object.values(state.webstudio_public_delivery_bundles || {});
+  }
+
+  function webStudioExecutionRunList(state) {
+    return Object.values(state.webstudio_execution_runs || {});
   }
 
   const repositories = {
@@ -782,6 +788,35 @@ function createFileBackedFirstGovernedWorkflowRepositoryAdapter({ rootDir } = {}
         });
       },
     },
+
+    webStudioExecutionRuns: {
+      async createExecutionRun({ execution_run }) {
+        return mutate(async (state) => {
+          state.webstudio_execution_runs[execution_run.execution_run_id] = clone(execution_run);
+          return clone(state.webstudio_execution_runs[execution_run.execution_run_id]);
+        });
+      },
+      async getExecutionRunById({ execution_run_id }) {
+        const state = await loadState();
+        return clone(state.webstudio_execution_runs[execution_run_id] || null);
+      },
+      async listExecutionRuns({ filters = null, sort = 'asc' } = {}) {
+        const state = await loadState();
+        return sortRows(webStudioExecutionRunList(state).filter((row) => matchesFilters(row, filters)), sort, 'created_at').map(clone);
+      },
+      async listExecutionRunsByOrderId({ order_id }) {
+        const state = await loadState();
+        return webStudioExecutionRunList(state).filter((row) => row.order_id === order_id).map(clone);
+      },
+      async updateExecutionRunById({ execution_run_id, patch }) {
+        return mutate(async (state) => {
+          const current = state.webstudio_execution_runs[execution_run_id];
+          if (!current) return null;
+          state.webstudio_execution_runs[execution_run_id] = { ...current, ...clone(patch) };
+          return clone(state.webstudio_execution_runs[execution_run_id]);
+        });
+      },
+    },
   };
 
   async function ensureRootTask(task) {
@@ -809,6 +844,7 @@ function createFileBackedFirstGovernedWorkflowRepositoryAdapter({ rootDir } = {}
       webstudio_build_artifacts: {},
       webstudio_revision_requests: {},
       webstudio_public_delivery_bundles: {},
+      webstudio_execution_runs: {},
     });
     await loadState();
   }

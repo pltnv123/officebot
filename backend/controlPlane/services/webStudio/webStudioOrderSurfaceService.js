@@ -11,7 +11,7 @@ function sortVariants(rows = []) {
 }
 
 function createWebStudioOrderSurfaceService({ repositories } = {}) {
-  if (!repositories || !repositories.webStudioOrders || !repositories.webStudioVariants || !repositories.webStudioQAResults || !repositories.webStudioDeliveryBundles || !repositories.webStudioTaskFlowBindings || !repositories.webStudioChildSessions || !repositories.webStudioBrowserQAEvidence || !repositories.webStudioBuildArtifacts || !repositories.webStudioRevisionRequests || !repositories.webStudioPublicDeliveryBundles) {
+  if (!repositories || !repositories.webStudioOrders || !repositories.webStudioVariants || !repositories.webStudioQAResults || !repositories.webStudioDeliveryBundles || !repositories.webStudioTaskFlowBindings || !repositories.webStudioChildSessions || !repositories.webStudioBrowserQAEvidence || !repositories.webStudioBuildArtifacts || !repositories.webStudioRevisionRequests || !repositories.webStudioPublicDeliveryBundles || !repositories.webStudioExecutionRuns) {
     throw new Error('webStudioOrderSurfaceService requires webStudio repositories');
   }
 
@@ -27,6 +27,7 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
       const delivery_bundle = await repositories.webStudioDeliveryBundles.getLatestDeliveryBundleByOrderId({ order_id });
       const public_delivery_bundle = await repositories.webStudioPublicDeliveryBundles.getPublicDeliveryBundleByOrderId({ order_id });
       const taskflow_binding = await repositories.webStudioTaskFlowBindings.getBindingByOrderId({ order_id });
+      const execution_runs = await repositories.webStudioExecutionRuns.listExecutionRunsByOrderId({ order_id });
       const child_sessions = await repositories.webStudioChildSessions.listChildSessionsByOrderId({ order_id });
       const browser_qa_evidence = await repositories.webStudioBrowserQAEvidence.listBrowserEvidenceByOrderId({ order_id });
       const build_artifacts = await repositories.webStudioBuildArtifacts.listBuildArtifactsByOrderId({ order_id });
@@ -46,6 +47,14 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
       for (const artifact of revisedBuildArtifacts.sort((a, b) => Number(a.revision_number || 0) - Number(b.revision_number || 0))) {
         latestRevisedArtifactByVariantId.set(artifact.variant_id, artifact);
       }
+      const executionCapability = {
+        available: false,
+        provider: 'bounded_local',
+        openclaw_native: false,
+        reason: 'No proven repo-local OpenClaw child-session execution seam detected; using bounded local execution adapter.',
+        allowed_mode: 'bounded_local_execution_adapter',
+      };
+      const executionRunByVariantId = new Map(execution_runs.map((row) => [row.variant_id, row]));
       const qaByVariantId = new Map(qa_results.map((row) => [row.variant_id, row]));
 
       const selectedVariantId = order.selected_variant_id || taskflow_binding?.selected_variant_id || delivery_bundle?.selected_variant_id || null;
@@ -102,6 +111,10 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
             preview_route_path: public_delivery_bundle?.initial_previews?.find((row) => row.variant_id === variant.variant_id)?.preview_route_path || null,
             published_html_path: public_delivery_bundle?.initial_previews?.find((row) => row.variant_id === variant.variant_id)?.published_html_path || null,
             public_delivery_preview_available: Boolean(public_delivery_bundle?.initial_previews?.find((row) => row.variant_id === variant.variant_id)),
+            execution_run_id: executionRunByVariantId.get(variant.variant_id)?.execution_run_id || null,
+            execution_status: executionRunByVariantId.get(variant.variant_id)?.status || null,
+            execution_source: executionRunByVariantId.get(variant.variant_id)?.source || null,
+            openclaw_native_execution: executionRunByVariantId.get(variant.variant_id)?.openclaw_native || false,
           });
         }),
         selected_variant_id: selectedVariantId,
@@ -143,6 +156,8 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
               : ((latestRevisionRequest?.revision_lane_status || '') === 'completed' ? 'run_revision_browser_qa' : 'execute_selected_variant_revision'))
             : (selectedVariantId ? 'create_revision_request' : 'select_variant'),
         },
+        execution_capability: executionCapability,
+        execution_runs: execution_runs.map((row) => clone(row)),
         qa_results: qa_results.map((row) => clone(row)),
         delivery_bundle: clone(delivery_bundle),
         public_delivery_bundle: clone(public_delivery_bundle),
