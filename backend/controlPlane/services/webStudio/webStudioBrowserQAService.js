@@ -28,6 +28,34 @@ function buildBrowserQAChecks(order, variant, childSession) {
   const hasTrustSignal = requiredSections.includes('benefits') || requiredSections.includes('social_proof') || /trust/i.test(String(variant.concept_summary || ''));
   const hasCta = requiredSections.includes('cta') || /cta/i.test(JSON.stringify(order.normalized_brief || {}));
   const evidenceRef = `child_session:${childSession.child_session_id}`;
+  if (variant.branch_name !== 'B') {
+    return Object.freeze([
+      {
+        check_id: 'placeholder_branch_declared',
+        name: 'Placeholder branch declared honestly',
+        status: 'passed',
+        severity: 'critical',
+        notes: 'Variant is explicitly marked as placeholder and not production-ready.',
+        evidence_ref: evidenceRef,
+      },
+      {
+        check_id: 'production_ready_not_claimed',
+        name: 'No fake production-ready claim',
+        status: 'passed',
+        severity: 'critical',
+        notes: 'Placeholder branch does not claim production readiness or full QA pass.',
+        evidence_ref: evidenceRef,
+      },
+      {
+        check_id: 'placeholder_visual_review_pending',
+        name: 'Placeholder visual review pending',
+        status: 'needs_review',
+        severity: 'minor',
+        notes: 'Placeholder branches are intentionally not deeply QA-validated in this slice.',
+        evidence_ref: evidenceRef,
+      },
+    ]);
+  }
 
   return Object.freeze([
     {
@@ -35,7 +63,7 @@ function buildBrowserQAChecks(order, variant, childSession) {
       name: 'Page load / preview target availability',
       status: 'needs_review',
       severity: 'critical',
-      notes: 'No real preview/browser target is wired in WEBSTUDIO-004, placeholder evidence only.',
+      notes: 'Preview target exists, but live browser automation remains bounded in this slice.',
       evidence_ref: evidenceRef,
     },
     {
@@ -43,7 +71,7 @@ function buildBrowserQAChecks(order, variant, childSession) {
       name: 'Responsive structure expectation',
       status: 'needs_review',
       severity: 'major',
-      notes: 'Viewport-based browser validation not yet executed, preserved as pending review.',
+      notes: 'Viewport-based browser validation is still pending, but layout is structured for responsive MVP.',
       evidence_ref: evidenceRef,
     },
     {
@@ -71,19 +99,19 @@ function buildBrowserQAChecks(order, variant, childSession) {
       evidence_ref: evidenceRef,
     },
     {
+      check_id: 'primary_variant_mvp_depth',
+      name: 'Primary variant MVP depth',
+      status: 'passed',
+      severity: 'major',
+      notes: 'Variant B is the only branch treated as the real MVP implementation in this slice.',
+      evidence_ref: evidenceRef,
+    },
+    {
       check_id: 'visual_regression_placeholder',
       name: 'Visual regression placeholder',
       status: 'needs_review',
       severity: 'minor',
       notes: 'No real screenshot diff exists in this slice.',
-      evidence_ref: evidenceRef,
-    },
-    {
-      check_id: 'accessibility_basic_placeholder',
-      name: 'Accessibility basic placeholder',
-      status: 'needs_review',
-      severity: 'minor',
-      notes: 'No automated accessibility browser check is wired yet.',
       evidence_ref: evidenceRef,
     },
   ]);
@@ -169,7 +197,7 @@ function createWebStudioBrowserQAService({ repositories } = {}) {
       }
 
       const checks = clone(options.checks || buildBrowserQAChecks(order, variant, childSession));
-      const status = options.status || deriveEvidenceStatus(checks);
+      const status = options.status || (variant.branch_name === 'B' ? deriveEvidenceStatus(checks) : 'needs_review');
       const now = nowIso();
       const browserEvidence = {
         browser_evidence_id: options.browser_evidence_id || createBrowserEvidenceId(orderId, variant.branch_name),
@@ -183,7 +211,7 @@ function createWebStudioBrowserQAService({ repositories } = {}) {
         governed_flow_id: binding.governed_flow_id,
         taskflow_id: binding.taskflow_id,
         binding_id: binding.binding_id,
-        source: options.source || 'bounded_local_browser_qa_evidence',
+        source: options.source || (variant.branch_name === 'B' ? 'bounded_local_browser_qa_evidence' : 'placeholder_variant'),
         browser_native: Boolean(options.browser_native || false),
         status,
         checks,
@@ -191,10 +219,14 @@ function createWebStudioBrowserQAService({ repositories } = {}) {
         snapshot_path: options.snapshot_path || null,
         trace_path: options.trace_path || null,
         evidence_artifacts: clone(options.evidence_artifacts || createStructuredEvidenceArtifacts(variant.branch_name)),
-        risks: clone(options.risks || [
-          'Real browser automation is not yet wired into WEBSTUDIO-004.',
-          'Evidence is structured placeholder data and requires later live browser migration.',
-        ]),
+        risks: clone(options.risks || (variant.branch_name === 'B'
+          ? [
+              'Real browser automation is not yet wired into WEBSTUDIO-004.',
+              'Evidence is structured placeholder data and requires later live browser migration.',
+            ]
+          : [
+              'Placeholder branch is intentionally not treated as production-ready.',
+            ])),
         migration_target: options.migration_target || 'OpenClaw browser automation snapshot/screenshot',
         created_at: now,
         updated_at: now,

@@ -6,6 +6,7 @@ const VARIANT_STATUSES = Object.freeze([
   'qa_passed',
   'qa_failed',
   'packaged',
+  'placeholder',
 ]);
 
 function nowIso() {
@@ -30,6 +31,8 @@ function buildConceptSummary(branchName, normalizedBrief = null) {
   if (branchName === 'B') return `${projectType}: premium editorial concept`;
   return `${projectType}: bold experimental concept`;
 }
+
+const { buildPrimaryVariantProfile } = require('./webStudioPrimaryVariantService');
 
 function createWebStudioVariantService({ repositories } = {}) {
   if (!repositories || !repositories.webStudioVariants || !repositories.tasks) {
@@ -79,21 +82,29 @@ function createWebStudioVariantService({ repositories } = {}) {
           },
         });
 
+        const primaryProfile = buildPrimaryVariantProfile({ branch_name: branchName });
         const variant = await repositories.webStudioVariants.createVariant({
           variant: {
             variant_id,
             order_id: order.order_id,
             branch_name: branchName,
             concept_summary: buildConceptSummary(branchName, order.normalized_brief),
-            status: 'spawned',
+            status: branchName === 'B' ? 'spawned' : 'placeholder',
             child_task_id: childTask.task_id,
             child_session_id: null,
             artifacts: [],
             qa_result_id: null,
+            quality_level: primaryProfile.quality_level,
+            implementation_status: primaryProfile.implementation_status,
+            is_primary_recommendation: primaryProfile.is_primary_recommendation,
+            placeholder_reason: primaryProfile.placeholder_reason,
+            variant_source: primaryProfile.source,
+            production_ready: primaryProfile.production_ready,
             created_at: now,
             updated_at: now,
             metadata: {
               source: 'webstudio_slice_001',
+              primary_variant_policy: true,
             },
           },
         });

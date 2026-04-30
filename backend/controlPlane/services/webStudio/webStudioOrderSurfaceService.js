@@ -59,6 +59,7 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
 
       const selectedVariantId = order.selected_variant_id || taskflow_binding?.selected_variant_id || delivery_bundle?.selected_variant_id || null;
       const selectedVariant = selectedVariantId ? variants.find((row) => row.variant_id === selectedVariantId) || null : null;
+      const primaryVariant = variants.find((row) => String(row.branch_name) === 'B') || null;
       const latestRevisionRequest = [...revision_requests].sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')))[0] || null;
 
       return Object.freeze({
@@ -69,6 +70,28 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
         normalized_brief: clone(order.normalized_brief || null),
         governed_flow_id: order.governed_flow_id || null,
         taskflow_id: order.taskflow_id || null,
+        primary_variant: primaryVariant ? Object.freeze({
+          ...clone(primaryVariant),
+          build_artifact_id: buildArtifactsByVariantId.get(primaryVariant.variant_id)?.build_artifact_id || primaryVariant.build_artifact_id || null,
+          preview_path: buildArtifactsByVariantId.get(primaryVariant.variant_id)?.preview_path || primaryVariant.preview_path || null,
+          browser_evidence_id: browserEvidenceByVariantId.get(primaryVariant.variant_id)?.browser_evidence_id || primaryVariant.browser_evidence_id || null,
+          qa_summary: qaByVariantId.get(primaryVariant.variant_id)?.browser_checks_summary || qaByVariantId.get(primaryVariant.variant_id)?.status || null,
+          revision_status: latestRevisionRequest?.revision_lane_status || null,
+          quality_level: primaryVariant.quality_level || 'primary',
+          implementation_status: primaryVariant.implementation_status || 'real',
+          is_primary_recommendation: true,
+          mvp_readiness_status: primaryVariant.mvp_readiness_status || 'operator_demo_ready',
+        }) : null,
+        placeholder_variants: variants.filter((variant) => String(variant.branch_name) !== 'B').map((variant) => Object.freeze({
+          variant_id: variant.variant_id,
+          branch_name: variant.branch_name,
+          quality_level: variant.quality_level || 'placeholder',
+          implementation_status: variant.implementation_status || 'placeholder',
+          is_primary_recommendation: false,
+          mvp_readiness_status: variant.mvp_readiness_status || 'placeholder_only',
+          placeholder_reason: variant.placeholder_reason || 'Reserved sibling branch for future full multi-variant execution',
+          production_ready: false,
+        })),
         variants: variants.map((variant) => {
           const childSession = childSessionsByVariantId.get(variant.variant_id) || null;
           const browserEvidence = browserEvidenceByVariantId.get(variant.variant_id) || null;
@@ -77,6 +100,11 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
           const revisedBrowserQaEvidence = latestRevisedBrowserEvidenceByVariantId.get(variant.variant_id) || null;
           return Object.freeze({
             ...clone(variant),
+            quality_level: variant.quality_level || null,
+            implementation_status: variant.implementation_status || null,
+            is_primary_recommendation: Boolean(variant.is_primary_recommendation),
+            placeholder_reason: variant.placeholder_reason || null,
+            production_ready: Boolean(variant.production_ready),
             qa_result: clone(qaByVariantId.get(variant.variant_id) || null),
             child_session_id: childSession?.child_session_id || variant.child_session_id || null,
             child_agent_id: childSession?.child_agent_id || variant.child_agent_id || null,
@@ -155,6 +183,12 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
               ? (public_delivery_bundle?.revised_preview ? 'public_delivery_ready' : 'build_public_delivery_bundle')
               : ((latestRevisionRequest?.revision_lane_status || '') === 'completed' ? 'run_revision_browser_qa' : 'execute_selected_variant_revision'))
             : (selectedVariantId ? 'create_revision_request' : 'select_variant'),
+        },
+        mvp_delivery_status: {
+          primary_variant_ready: Boolean(primaryVariant && buildArtifactsByVariantId.get(primaryVariant.variant_id)?.preview_path),
+          placeholders_are_not_production_ready: variants.filter((variant) => String(variant.branch_name) !== 'B').every((variant) => variant.production_ready === false),
+          recommended_next_action: latestRevisionRequest?.revised_build_artifact_id ? 'review_revised_variant_b_preview' : 'use_variant_b_as_first_real_mvp_preview',
+          can_test_by_operator: Boolean(primaryVariant && buildArtifactsByVariantId.get(primaryVariant.variant_id)?.preview_path),
         },
         execution_capability: executionCapability,
         execution_runs: execution_runs.map((row) => clone(row)),

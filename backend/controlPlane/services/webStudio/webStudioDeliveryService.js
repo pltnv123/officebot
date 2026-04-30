@@ -25,6 +25,12 @@ function summarizeVariant(variant, qaResult) {
     branch_name: variant.branch_name,
     concept_summary: variant.concept_summary,
     status: variant.status,
+    quality_level: variant.quality_level || null,
+    implementation_status: variant.implementation_status || null,
+    is_primary_recommendation: Boolean(variant.is_primary_recommendation),
+    placeholder_reason: variant.placeholder_reason || null,
+    variant_source: variant.variant_source || null,
+    production_ready: Boolean(variant.production_ready),
     child_task_id: variant.child_task_id || null,
     child_session_id: variant.child_session_id || null,
     qa_result_id: qaResult?.qa_result_id || null,
@@ -43,12 +49,17 @@ function createWebStudioDeliveryService({ repositories } = {}) {
     async buildDeliveryBundle(order, variants, qaResults, options = {}) {
       const now = nowIso();
       const qaByVariantId = new Map((qaResults || []).map((row) => [row.variant_id, row]));
+      const summarizedVariants = (variants || []).map((variant) => summarizeVariant(variant, qaByVariantId.get(variant.variant_id)));
+      const primaryVariant = summarizedVariants.find((variant) => variant.branch_name === 'B') || null;
+      const placeholderVariants = summarizedVariants.filter((variant) => variant.branch_name !== 'B');
       const delivery_bundle = {
         delivery_id: options.delivery_id || createDeliveryId(order.order_id),
         order_id: order.order_id,
-        variants: (variants || []).map((variant) => summarizeVariant(variant, qaByVariantId.get(variant.variant_id))),
+        variants: summarizedVariants,
+        primary_variant: primaryVariant,
+        placeholder_variants: placeholderVariants,
         status: 'ready',
-        customer_summary: options.customer_summary || 'Three bounded concept variants are ready for operator/client review.',
+        customer_summary: options.customer_summary || 'Variant B is the primary real MVP preview. Variants A and C remain honest placeholders for future expansion.',
         governed_flow_id: order.governed_flow_id || null,
         taskflow_id: order.taskflow_id || null,
         selected_variant_id: null,

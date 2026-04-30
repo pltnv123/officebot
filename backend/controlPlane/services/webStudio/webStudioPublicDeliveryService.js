@@ -181,6 +181,11 @@ function createWebStudioPublicDeliveryService({ repositories, rootDir } = {}) {
       const initialPreviews = await this.buildInitialVariantPreviewEntries(orderId, options);
       const revisedPreview = await this.buildRevisedPreviewEntry(orderId, options);
       const selectedPreview = initialPreviews.find((row) => row.variant_id === order.selected_variant_id) || null;
+      const primaryPreview = initialPreviews.find((row) => row.branch_name === 'B') || null;
+      const placeholderPreviews = initialPreviews.filter((row) => row.branch_name !== 'B').map((row) => ({
+        ...row,
+        placeholder_reason: 'Reserved sibling branch for future full multi-variant execution',
+      }));
       const latestRevisionRequest = await revisionService.getLatestRevisionRequest(orderId);
       const now = nowIso();
       const bundle = {
@@ -195,6 +200,15 @@ function createWebStudioPublicDeliveryService({ repositories, rootDir } = {}) {
         public_base_url: options.publicBaseUrl || null,
         preview_root: path.join(rootDir, 'backend', 'controlPlane', 'storage', '.first-governed-workflow-runtime', 'webstudio-public-previews', orderId),
         initial_previews: initialPreviews,
+        primary_variant: primaryPreview ? {
+          variant_id: primaryPreview.variant_id,
+          branch_name: primaryPreview.branch_name,
+          build_artifact_id: primaryPreview.build_artifact_id,
+          preview_path: primaryPreview.published_html_path,
+          qa_summary: primaryPreview.qa_status,
+          revision_status: revisedPreview?.revision_status || null,
+        } : null,
+        placeholder_variants: placeholderPreviews,
         selected_variant_id: order.selected_variant_id || null,
         selected_preview: selectedPreview,
         revision_request_id: latestRevisionRequest?.revision_request_id || null,
@@ -202,6 +216,7 @@ function createWebStudioPublicDeliveryService({ repositories, rootDir } = {}) {
         qa_summary: buildQaSummary(initialPreviews, revisedPreview),
         limitations: [
           'Bounded local preview publishing only, not production hosting.',
+          'Variant B is the only real MVP implementation in this slice; A/C remain placeholders.',
           'preview_url remains null unless a trusted publicBaseUrl is explicitly supplied.',
         ],
         created_at: now,

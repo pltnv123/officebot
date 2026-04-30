@@ -13,6 +13,7 @@ const { createWebStudioRevisionExecutionService } = require('./webStudioRevision
 const { createWebStudioRevisionBrowserQAService } = require('./webStudioRevisionBrowserQAService');
 const { createWebStudioPublicDeliveryService } = require('./webStudioPublicDeliveryService');
 const { createWebStudioExecutionService } = require('./webStudioExecutionService');
+const { createWebStudioPrimaryVariantService } = require('./webStudioPrimaryVariantService');
 
 function clone(value) {
   return value == null ? value : JSON.parse(JSON.stringify(value));
@@ -78,6 +79,7 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
   const revisionBrowserQAService = createWebStudioRevisionBrowserQAService({ repositories, rootDir: repositories.__ROOT_DIR__ || process.cwd() });
   const publicDeliveryService = createWebStudioPublicDeliveryService({ repositories, rootDir: repositories.__ROOT_DIR__ || process.cwd() });
   const executionService = createWebStudioExecutionService({ repositories });
+  const primaryVariantService = createWebStudioPrimaryVariantService({ repositories });
 
   return Object.freeze({
     async createDemoWebStudioOrder(options = {}) {
@@ -106,6 +108,7 @@ function createWebStudioDemoPackagingService({ repositories } = {}) {
       const variants = await variantService.createThreeVariants(order, {
         parent_task_id: options.parent_task_id || null,
       });
+      await primaryVariantService.applyPrimaryVariantPolicyToOrder(order.order_id);
 
       await orderService.markVariantsSpawned(order.order_id);
 
