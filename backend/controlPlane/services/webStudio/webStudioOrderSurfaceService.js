@@ -11,7 +11,7 @@ function sortVariants(rows = []) {
 }
 
 function createWebStudioOrderSurfaceService({ repositories } = {}) {
-  if (!repositories || !repositories.webStudioOrders || !repositories.webStudioVariants || !repositories.webStudioQAResults || !repositories.webStudioDeliveryBundles || !repositories.webStudioTaskFlowBindings || !repositories.webStudioChildSessions || !repositories.webStudioBrowserQAEvidence || !repositories.webStudioBuildArtifacts || !repositories.webStudioRevisionRequests) {
+  if (!repositories || !repositories.webStudioOrders || !repositories.webStudioVariants || !repositories.webStudioQAResults || !repositories.webStudioDeliveryBundles || !repositories.webStudioTaskFlowBindings || !repositories.webStudioChildSessions || !repositories.webStudioBrowserQAEvidence || !repositories.webStudioBuildArtifacts || !repositories.webStudioRevisionRequests || !repositories.webStudioPublicDeliveryBundles) {
     throw new Error('webStudioOrderSurfaceService requires webStudio repositories');
   }
 
@@ -25,6 +25,7 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
       const variants = sortVariants(await repositories.webStudioVariants.listVariantsByOrderId({ order_id }));
       const qa_results = await repositories.webStudioQAResults.listQAResultsByOrderId({ order_id });
       const delivery_bundle = await repositories.webStudioDeliveryBundles.getLatestDeliveryBundleByOrderId({ order_id });
+      const public_delivery_bundle = await repositories.webStudioPublicDeliveryBundles.getPublicDeliveryBundleByOrderId({ order_id });
       const taskflow_binding = await repositories.webStudioTaskFlowBindings.getBindingByOrderId({ order_id });
       const child_sessions = await repositories.webStudioChildSessions.listChildSessionsByOrderId({ order_id });
       const browser_qa_evidence = await repositories.webStudioBrowserQAEvidence.listBrowserEvidenceByOrderId({ order_id });
@@ -98,6 +99,9 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
             revised_browser_native: revisedBrowserQaEvidence?.browser_native || false,
             revised_screenshot_path: revisedBrowserQaEvidence?.screenshot_path || null,
             revised_snapshot_path: revisedBrowserQaEvidence?.snapshot_path || null,
+            preview_route_path: public_delivery_bundle?.initial_previews?.find((row) => row.variant_id === variant.variant_id)?.preview_route_path || null,
+            published_html_path: public_delivery_bundle?.initial_previews?.find((row) => row.variant_id === variant.variant_id)?.published_html_path || null,
+            public_delivery_preview_available: Boolean(public_delivery_bundle?.initial_previews?.find((row) => row.variant_id === variant.variant_id)),
           });
         }),
         selected_variant_id: selectedVariantId,
@@ -130,14 +134,18 @@ function createWebStudioOrderSurfaceService({ repositories } = {}) {
           revised_browser_qa_status: latestRevisionRequest?.revised_browser_qa_status || null,
           revised_capture_status: latestRevisionRequest?.revised_capture_status || null,
           browser_reqa_completed: Boolean(latestRevisionRequest?.revised_browser_evidence_id),
+          revised_preview_route_path: public_delivery_bundle?.revised_preview?.preview_route_path || null,
+          revised_published_html_path: public_delivery_bundle?.revised_preview?.published_html_path || null,
+          public_delivery_revision_available: Boolean(public_delivery_bundle?.revised_preview),
           next_action: latestRevisionRequest
             ? (latestRevisionRequest?.revised_browser_evidence_id
-              ? 'revision_browser_qa_completed'
+              ? (public_delivery_bundle?.revised_preview ? 'public_delivery_ready' : 'build_public_delivery_bundle')
               : ((latestRevisionRequest?.revision_lane_status || '') === 'completed' ? 'run_revision_browser_qa' : 'execute_selected_variant_revision'))
             : (selectedVariantId ? 'create_revision_request' : 'select_variant'),
         },
         qa_results: qa_results.map((row) => clone(row)),
         delivery_bundle: clone(delivery_bundle),
+        public_delivery_bundle: clone(public_delivery_bundle),
         taskflow_binding: clone(taskflow_binding),
         child_sessions: child_sessions.map((row) => clone(row)),
         browser_qa_evidence: initialBrowserEvidence.map((row) => clone(row)),
