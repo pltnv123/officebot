@@ -53,6 +53,9 @@ const { buildExecutionEvidenceLedgerLayer } = require('./executionEvidenceLedger
 const { createOpenClawWorkflowSurfaceService } = require('./controlPlane/services/openClawWorkflowSurfaceService');
 const { createWebStudioOrderSurfaceService } = require('./controlPlane/services/webStudio/webStudioOrderSurfaceService');
 const { createWebStudioDemoPackagingService } = require('./controlPlane/services/webStudio/webStudioDemoPackagingService');
+const { createWebStudioPrimaryVariantService } = require('./controlPlane/services/webStudio/webStudioPrimaryVariantService');
+const { createWebStudioRevisionService } = require('./controlPlane/services/webStudio/webStudioRevisionService');
+const { renderWebStudioDemoPage } = require('./webStudioDemoPage');
 const { createFileBackedFirstGovernedWorkflowRepositoryAdapter } = require('./controlPlane/storage/fileBackedFirstGovernedWorkflowRepositoryAdapter');
 const { buildLaneResultAdjudicationLayer } = require('./laneResultAdjudicationLayer');
 const { buildBoundedCoordinatorExecutionBridgeLayer } = require('./boundedCoordinatorExecutionBridgeLayer');
@@ -489,6 +492,8 @@ const fileBackedFirstGovernedWorkflowRepositoryAdapter = createFileBackedFirstGo
 global.__CONTROL_PLANE_REPOSITORIES__ = fileBackedFirstGovernedWorkflowRepositoryAdapter.repositories;
 const webStudioOrderSurfaceService = createWebStudioOrderSurfaceService({ repositories: fileBackedFirstGovernedWorkflowRepositoryAdapter.repositories });
 const webStudioDemoPackagingService = createWebStudioDemoPackagingService({ repositories: fileBackedFirstGovernedWorkflowRepositoryAdapter.repositories });
+const webStudioPrimaryVariantService = createWebStudioPrimaryVariantService({ repositories: fileBackedFirstGovernedWorkflowRepositoryAdapter.repositories });
+const webStudioRevisionService = createWebStudioRevisionService({ repositories: fileBackedFirstGovernedWorkflowRepositoryAdapter.repositories });
 
 function mkTaskId() {
   return 'TASK-' + Date.now();
@@ -1296,6 +1301,16 @@ app.get('/api/export/webstudio-order-surface/:orderId', async (req, res) => {
   });
 });
 
+app.get('/webstudio/demo', async (req, res) => {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send(renderWebStudioDemoPage({ orderId: String(req.query.orderId || '').trim() }));
+});
+
+app.get('/webstudio/demo/:orderId', async (req, res) => {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send(renderWebStudioDemoPage({ orderId: String(req.params.orderId || '').trim() }));
+});
+
 app.post('/api/demo/webstudio-order', async (req, res) => {
   const actorRole = resolveActorRole(req);
   const demo = await webStudioDemoPackagingService.materializeDemoOrderWithThreeVariants({
@@ -1315,6 +1330,79 @@ app.post('/api/demo/webstudio-order', async (req, res) => {
     createdAt: nowIso(),
     demo,
   });
+});
+
+app.post('/api/demo/webstudio-order/full-mvp', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const demo = await webStudioDemoPackagingService.materializeDemoOrderWithThreeVariants({
+    raw_brief: req.body?.raw_brief || null,
+    client_id: req.body?.client_id || 'demo-client-1',
+    source: 'api_demo_webstudio_full_mvp',
+    metadata: { actor_role: actorRole },
+  });
+  await webStudioPrimaryVariantService.markPrimaryVariantForOrder(demo.order_id, 'B');
+  await webStudioPrimaryVariantService.upgradePrimaryVariantBuildQuality(demo.order_id);
+  await webStudioPrimaryVariantService.ensurePrimaryRevisionPath(demo.order_id);
+  const publicDelivery = await webStudioDemoPackagingService.buildDemoPublicDelivery(demo.order_id);
+  res.status(201).json({
+    ok: true,
+    actor_role: actorRole,
+    createdAt: nowIso(),
+    order_id: demo.order_id,
+    primary_variant_id: publicDelivery.surface?.primary_variant?.variant_id || null,
+    public_delivery_id: publicDelivery.bundle?.public_delivery_id || null,
+    surface_url: `/api/export/webstudio-order-surface/${demo.order_id}`,
+  });
+});
+
+app.post('/api/demo/webstudio-order/:orderId/select-primary', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const orderId = String(req.params.orderId || '').trim();
+  const result = await webStudioPrimaryVariantService.ensurePrimaryRevisionPath(orderId);
+  res.json({ ok: true, actor_role: actorRole, order_id: orderId, selected_variant_id: result.selected_variant_id || null });
+});
+
+app.post('/api/demo/webstudio-order/:orderId/revision', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const orderId = String(req.params.orderId || '').trim();
+  await webStudioPrimaryVariantService.ensurePrimaryRevisionPath(orderId);
+  const primary = await webStudioPrimaryVariantService.getPrimaryVariantForOrder(orderId);
+  const revision = await webStudioRevisionService.createRevisionRequest(orderId, primary.primary_variant.variant_id, req.body?.delta_brief || {});
+  res.status(201).json({ ok: true, actor_role: actorRole, order_id: orderId, revision_request_id: revision.revision_request_id, selected_variant_id: revision.selected_variant_id });
+});
+
+app.post('/api/demo/webstudio-order/:orderId/execute-revision', async (req, res) => {
+  const actorRole = resolveActorRole(req);
+  const orderId = String(req.params.orderId || '').trim();
+  const execution = await webStudioDemoPackagingService.executeDemoRevision(orderId);
+  await webStudioDemoPackagingService.runDemoRevisionBrowserQA(orderId);
+  const publicDelivery = await webStudioDemoPackagingService.buildDemoPublicDelivery(orderId);
+  res.json({
+    ok: true,
+    actor_role: actorRole,
+    order_id: orderId,
+    revised_build_artifact_id: execution.execution?.revised_build_artifact?.build_artifact_id || null,
+    revised_preview_path: publicDelivery.bundle?.revised_preview?.published_html_path || null,
+  });
+});
+
+app.get('/api/webstudio-preview', async (req, res) => {
+  const targetPath = String(req.query.path || '').trim();
+  if (!targetPath || targetPath.includes('..') || path.isAbsolute(targetPath)) {
+    return res.status(400).send('invalid preview path');
+  }
+  const resolved = path.resolve(ROOT, targetPath);
+  const allowedRoot = path.resolve(ROOT, 'backend', 'controlPlane', 'storage', '.first-governed-workflow-runtime');
+  if (!resolved.startsWith(allowedRoot)) {
+    return res.status(403).send('preview path outside allowed root');
+  }
+  try {
+    const html = await fs.readFile(resolved, 'utf8');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  } catch {
+    res.status(404).send('preview not found');
+  }
 });
 
 app.get('/api/export/execution-evidence-ledger', async (req, res) => {
