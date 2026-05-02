@@ -66,7 +66,8 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     .collapsed-note { font-size:14px; color:#cbd5e1; margin-top:10px; }
     .code-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; padding:8px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:10px 10px 0 0; }
     .code-header .filename { font-weight:700; color:#e2e8f0; font-size:13px; }
-    .code-block { background:#0b1120; border:1px solid rgba(59,130,246,0.2); border-radius:0 0 10px 10px; padding:16px; font-family:'Consolas','Monaco','Courier New',monospace; font-size:13px; line-height:1.6; color:#e2e8f0; max-height:480px; overflow:auto; }
+    .code-block { background:#0b1120; border:1px solid rgba(59,130,246,0.2); border-radius:0 0 10px 10px; padding:16px; font-family:'Consolas','Monaco','Courier New',monospace; font-size:13px; line-height:1.6; color:#e2e8f0; max-height:480px; overflow:auto; white-space:pre-wrap; word-wrap:break-word; }
+    textarea.code-block { width:100%; min-height:400px; resize:vertical; outline:none; }
     @media (max-width: 1100px) { .hero-shell, .grid, .variant-grid, .meta-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -198,12 +199,19 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
             </div>
           </div>
           <div id="script-program-header" class="meta-grid" style="margin:12px 0;"></div>
+          <div class="row" style="margin-bottom:8px;">
+            <button id="edit-script-btn" class="secondary">Edit</button>
+            <button id="save-script-btn" class="primary hidden">Save</button>
+            <button id="reset-script-btn" class="secondary hidden">Reset</button>
+            <span id="script-dirty-badge" class="chip hidden" style="margin-left:auto;"><span class="muted">Unsaved changes</span></span>
+          </div>
           <div class="field">
             <div class="code-header">
               <span class="filename">script.py</span>
               <span id="script-run-state" class="muted">idle</span>
             </div>
             <pre id="script-code-block" class="code-block">No script executed yet.</pre>
+            <textarea id="script-editor" class="code-block hidden" spellcheck="false"></textarea>
           </div>
           <div id="script-execution-output" class="hidden">
             <h3 style="margin-top:16px;">Execution Output</h3>
@@ -285,7 +293,9 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       currentProjectType: 'unknown',
       currentScriptOrderId: '',
       currentBotOrderId: '',
-      currentScriptProjectArtifactId: ''
+      currentScriptProjectArtifactId: '',
+      originalScript: '',
+      scriptDirty: false
     };
     const $ = (id) => document.getElementById(id);
     const defaultScriptBrief = ${JSON.stringify(defaultScriptBrief)};
@@ -410,8 +420,19 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       // Load and display script code
       const [scriptText, logText, outputText] = await Promise.all([fetchText(surface.safe_routes.script), fetchText(surface.safe_routes.test_run_log), fetchText(surface.safe_routes.actual_output)]);
       $('script-code-block').textContent = scriptText;
+      $('script-editor').value = scriptText;
+      state.originalScript = scriptText; // Store for reset
+      state.scriptDirty = false; // Reset dirty flag
       $('script-log-preview').textContent = logText;
       $('script-output-preview').textContent = outputText;
+      
+      // Reset UI state
+      $('edit-script-btn').classList.remove('hidden');
+      $('save-script-btn').classList.add('hidden');
+      $('reset-script-btn').classList.add('hidden');
+      $('script-dirty-badge').classList.add('hidden');
+      $('script-code-block').classList.remove('hidden');
+      $('script-editor').classList.add('hidden');
       
       // Update supporting files
       $('script-files').innerHTML = Object.entries(surface.safe_routes || {}).filter(([key]) => key !== 'script').map(([key, route]) => '<a class="linkish" href="' + route + '" target="_blank" rel="noopener">' + safe(key) + ' → ' + safe(surface.files?.[key]) + '</a>').join('');
@@ -552,7 +573,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
 
     // Script Run functions
 
-    async function runScriptOnMainPage() {
+    async function runScriptOnMainPage(editedSource) {
       if (!state.currentScriptProjectArtifactId) {
         setStatus('No project_artifact_id available');
         return;
@@ -562,10 +583,14 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       runBtn.disabled = true;
       runBtn.textContent = 'Running...';
       runState.textContent = 'running';
-      setStatus('running script on main page…');
+      setStatus(editedSource !== undefined ? 'running edited script…' : 'running script on main page…');
 
       try {
-        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentScriptProjectArtifactId) + '/run', { method: 'POST' });
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentScriptProjectArtifactId) + '/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(editedSource !== undefined ? { edited_source: editedSource } : {}),
+        });
         const result = await response.json();
 
         if (!result.ok) {
@@ -582,7 +607,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         await loadArtifactLibrary();
       } catch (error) {
         setStatus('Run error: ' + error.message);
-        console.warn('Script run failed', { status: response?.status, body: result, error });
+        console.warn('Script run failed', { error });
         runState.textContent = 'failed';
       } finally {
         runBtn.disabled = false;
@@ -647,6 +672,49 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
 
     $('run-script-btn').addEventListener('click', runScriptOnMainPage);
     $('run-script-again-btn').addEventListener('click', runScriptOnMainPage);
+    
+    // Editable script playground handlers
+    $('edit-script-btn').addEventListener('click', () => {
+      $('script-code-block').classList.add('hidden');
+      $('script-editor').classList.remove('hidden');
+      $('edit-script-btn').classList.add('hidden');
+      $('save-script-btn').classList.remove('hidden');
+      $('reset-script-btn').classList.remove('hidden');
+      $('script-dirty-badge').classList.remove('hidden');
+      state.scriptDirty = false;
+    });
+    
+    $('save-script-btn').addEventListener('click', () => {
+      state.originalScript = $('script-editor').value;
+      state.scriptDirty = false;
+      $('script-code-block').textContent = state.originalScript;
+      $('script-code-block').classList.remove('hidden');
+      $('script-editor').classList.add('hidden');
+      $('edit-script-btn').classList.remove('hidden');
+      $('save-script-btn').classList.add('hidden');
+      $('reset-script-btn').classList.add('hidden');
+      $('script-dirty-badge').classList.add('hidden');
+    });
+    
+    $('reset-script-btn').addEventListener('click', () => {
+      $('script-editor').value = state.originalScript || '';
+      state.scriptDirty = false;
+      $('script-dirty-badge').classList.add('hidden');
+    });
+    
+    $('script-editor').addEventListener('input', () => {
+      state.scriptDirty = true;
+      if (!$('script-dirty-badge').classList.contains('hidden')) {
+        $('script-dirty-badge').classList.remove('hidden');
+      }
+    });
+    
+    // Override runScriptOnMainPage to use edited source if dirty
+    const originalRunScriptOnMainPage = runScriptOnMainPage;
+    runScriptOnMainPage = async () => {
+      const editedSource = $('script-editor').classList.contains('hidden') ? undefined : $('script-editor').value;
+      await originalRunScriptOnMainPage(editedSource);
+    };
 
     renderPlan({ project_type: 'unknown', normalized_brief: 'Заполните brief, чтобы получить routing plan для проекта.', recommended_workflow: 'brief_intake_router_flow', required_agents: ['CTO'], expected_artifacts: ['project plan'], execution_stages: ['Collect brief', 'Analyze request', 'Route to matching workflow'], qa_plan: ['Check required fields', 'Validate project classification'], clarification_questions: [], next_action: 'Analyze Brief / Create Plan', desired_deliverable: $('deliverable-select').value, tech_preference: $('tech-select').value });
     updateActionButtons(); updateHeaderChips(); syncProjectVisibility(); updateDebugJson(); loadArtifactLibrary().catch(() => {});
