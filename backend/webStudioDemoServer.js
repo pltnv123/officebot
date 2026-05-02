@@ -15,6 +15,7 @@ const { analyzeTelegramBotScenario, createTelegramBotExecutionPackage, runTelegr
 const { registerProjectArtifact, listProjectArtifacts, getProjectArtifact } = require('./controlPlane/services/webStudio/webStudioProjectArtifactLibraryService');
 const { runProjectArtifact, getRunHistory, listVersions, loadVersion, ensureGeneratedVersion, saveNewVersion, restoreVersion, getCurrentVersion } = require('./controlPlane/services/webStudio/webStudioArtifactRunService');
 const { runLandingPreview, listVersions: listLandingVersions, loadVersion: loadLandingVersion, saveNewVersion: saveLandingVersion, restoreVersion: restoreLandingVersion, ensureGeneratedVersion: ensureLandingGeneratedVersion, validateLandingHtml } = require('./controlPlane/services/webStudio/webStudioLandingArtifactService');
+const { subscribeLiveRun, stopLiveRun, startLiveScriptRun } = require('./controlPlane/services/webStudio/webStudioLiveRunService');
 const { renderWebStudioDemoPage } = require('./webStudioDemoPage');
 const { renderWebStudioDeliveryPage } = require('./webStudioDeliveryPage');
 const { getPlatformCapabilitiesSurface } = require('./controlPlane/services/webStudio/webStudioPlatformRegistryService');
@@ -222,33 +223,60 @@ async function main() {
       await webStudioPrimaryVariantService.ensurePrimaryRevisionPath(demo.order_id);
       const publicDelivery = await webStudioDemoPackagingService.buildDemoPublicDelivery(demo.order_id);
       
-      // Register landing artifact in library for project_type landing_page
+      // Register artifact in library for landing_page and script
       const order = await webStudioOrderService.getOrder(demo.order_id);
-      if (order && order.project_type === 'landing_page') {
-        const variantB = publicDelivery.surface?.variants?.find(v => v.branch_name === 'B');
-        if (variantB) {
-          const artifactId = `ws-project-artifact-landing_page-${demo.order_id}-mvp`;
-          const artifactRoot = path.join(ROOT, 'backend', 'controlPlane', 'storage', '.first-governed-workflow-runtime', 'webstudio-landing-artifacts', demo.order_id);
-          const previewRoute = `/api/webstudio-landing-artifact/${demo.order_id}/index.html`;
-          await registerProjectArtifact(ROOT, {
-            order_id: demo.order_id,
-            project_type: 'landing_page',
-            scenario: 'mvp',
-            title: 'Landing Page MVP',
-            status: 'completed',
-            test_status: 'ok',
-            artifact_root: artifactRoot,
-            source: 'full_mvp_auto_registration',
-            primary_variant_id: variantB.variant_id,
-            preview_route: previewRoute,
-            primary_file_routes: [previewRoute],
-            file_routes: [
-              { key: 'preview', label: 'Preview', route: previewRoute },
-              { key: 'index.html', label: 'index.html', route: `/api/webstudio-landing-artifact/${demo.order_id}/index.html` },
-              { key: 'styles.css', label: 'styles.css', route: `/api/webstudio-landing-artifact/${demo.order_id}/styles.css` },
-            ],
-            download_url: `/api/demo/webstudio-order/project-artifact/${encodeURIComponent(artifactId)}/download`,
-          });
+      if (order) {
+        if (order.project_type === 'landing_page') {
+          const variantB = publicDelivery.surface?.variants?.find(v => v.branch_name === 'B');
+          if (variantB) {
+            const artifactId = `ws-project-artifact-landing_page-${demo.order_id}-mvp`;
+            const artifactRoot = path.join(ROOT, 'backend', 'controlPlane', 'storage', '.first-governed-workflow-runtime', 'webstudio-landing-artifacts', demo.order_id);
+            const previewRoute = `/api/webstudio-landing-artifact/${demo.order_id}/index.html`;
+            await registerProjectArtifact(ROOT, {
+              order_id: demo.order_id,
+              project_type: 'landing_page',
+              scenario: 'mvp',
+              title: 'Landing Page MVP',
+              status: 'completed',
+              test_status: 'ok',
+              artifact_root: artifactRoot,
+              source: 'full_mvp_auto_registration',
+              primary_variant_id: variantB.variant_id,
+              preview_route: previewRoute,
+              primary_file_routes: [previewRoute],
+              file_routes: [
+                { key: 'preview', label: 'Preview', route: previewRoute },
+                { key: 'index.html', label: 'index.html', route: `/api/webstudio-landing-artifact/${demo.order_id}/index.html` },
+                { key: 'styles.css', label: 'styles.css', route: `/api/webstudio-landing-artifact/${demo.order_id}/styles.css` },
+              ],
+              download_url: `/api/demo/webstudio-order/project-artifact/${encodeURIComponent(artifactId)}/download`,
+            });
+          }
+        } else if (order.project_type === 'script') {
+          const variantB = publicDelivery.surface?.variants?.find(v => v.branch_name === 'B');
+          if (variantB) {
+            const artifactId = `ws-project-artifact-script-${demo.order_id}-mvp`;
+            const artifactRoot = path.join(ROOT, 'backend', 'controlPlane', 'storage', '.first-governed-workflow-runtime', 'webstudio-script-artifacts', demo.order_id);
+            const scriptRoute = `/api/webstudio-script-artifact/${demo.order_id}/script.py`;
+            await registerProjectArtifact(ROOT, {
+              order_id: demo.order_id,
+              project_type: 'script',
+              scenario: 'mvp',
+              title: 'Script MVP',
+              status: 'completed',
+              test_status: 'ok',
+              artifact_root: artifactRoot,
+              source: 'full_mvp_auto_registration',
+              primary_variant_id: variantB.variant_id,
+              primary_file_routes: [scriptRoute],
+              file_routes: [
+                { key: 'script', label: 'script.py', route: scriptRoute },
+                { key: 'README.md', label: 'README.md', route: `/api/webstudio-script-artifact/${demo.order_id}/README.md` },
+                { key: 'actual_output.txt', label: 'actual_output.txt', route: `/api/webstudio-script-artifact/${demo.order_id}/actual_output.txt` },
+              ],
+              download_url: `/api/demo/webstudio-order/project-artifact/${encodeURIComponent(artifactId)}/download`,
+            });
+          }
         }
       }
       
@@ -547,6 +575,47 @@ async function main() {
         return res.status(400).json({ ok: false, error: 'edited_source_validation_failed', reason: 'edited_source_must_be_valid_python_string' });
       }
       res.status(500).json({ ok: false, error: 'run_failed', reason: message });
+    }
+  });
+
+  // Live run (SSE streaming)
+  app.post('/api/demo/webstudio-order/project-artifact/:artifactId/run-live', async (req, res) => {
+    try {
+      const artifactId = String(req.params.artifactId || '').trim();
+      const editedSource = req.body?.edited_source;
+      const saveEdited = req.body?.save_edited;
+      
+      const artifact = await getProjectArtifact(ROOT, artifactId);
+      if (!artifact) {
+        return res.status(404).json({ ok: false, error: 'artifact_not_found' });
+      }
+      
+      if (artifact.project_type !== 'script') {
+        return res.status(400).json({ ok: false, error: 'live_run_only_for_script', project_type: artifact.project_type });
+      }
+      
+      const artifactRoot = path.resolve(String(artifact.artifact_root || ''));
+      const result = startLiveScriptRun({ artifact, editedSource, saveEdited, artifactRoot });
+      res.status(201).json(result);
+    } catch (error) {
+      res.status(500).json({ ok: false, error: String(error.message || error) });
+    }
+  });
+
+  // Live run events (SSE)
+  app.get('/api/demo/webstudio-order/project-artifact/:artifactId/run-live/:runId/events', (req, res) => {
+    const runId = String(req.params.runId || '').trim();
+    subscribeLiveRun(runId, res);
+  });
+
+  // Stop live run
+  app.post('/api/demo/webstudio-order/project-artifact/:artifactId/run-live/:runId/stop', async (req, res) => {
+    try {
+      const runId = String(req.params.runId || '').trim();
+      const result = stopLiveRun(runId);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ ok: false, error: String(error.message || error) });
     }
   });
 

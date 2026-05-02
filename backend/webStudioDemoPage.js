@@ -236,6 +236,17 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
             <div class="field hidden" id="script-exec-stderr-field"><h4>stderr</h4><pre id="script-exec-stderr"></pre></div>
             <div class="row" style="margin-top:12px;"><button id="run-script-again-btn" class="secondary">Run again</button></div>
           </div>
+          
+          <div id="script-live-terminal-panel" class="panel hidden" style="margin-top:16px;">
+            <h3>Live Terminal</h3>
+            <div class="row" style="margin-bottom:8px;">
+              <button id="run-live-btn" class="primary">Run (Live)</button>
+              <button id="run-live-edited-btn" class="primary">Run Edited (Live)</button>
+              <button id="stop-live-btn" class="secondary" disabled>Stop</button>
+              <span id="live-run-status" class="muted" style="margin-left:auto;">idle</span>
+            </div>
+            <pre id="live-terminal-output" class="code-block" style="background:#1e1e1e;color:#d4d4d4;min-height:200px;max-height:400px;overflow:auto;">Ready for live execution...</pre>
+          </div>
         </div>
 
         
@@ -640,6 +651,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       $('script-program-panel').classList.toggle('hidden', !isScript || !state.lastScriptResult);
       $('script-run-history-panel').classList.toggle('hidden', !isScript || !state.currentScriptProjectArtifactId);
       $('script-supporting-files-panel').classList.toggle('hidden', !isScript || !state.lastScriptResult);
+      $('script-live-terminal-panel').classList.toggle('hidden', !isScript || !state.lastScriptResult);
       $('telegram-bot-program-panel').classList.toggle('hidden', !isTelegram || !state.lastTelegramBotResult);
       const isLandingResult = state.lastLandingResult?.project_type === 'landing_page';
       $('landing-program-panel').classList.toggle('hidden', !isLandingResult || !state.lastLandingResult);
@@ -1065,6 +1077,116 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     renderPlan({ project_type: 'unknown', normalized_brief: 'Заполните brief, чтобы получить routing plan для проекта.', recommended_workflow: 'brief_intake_router_flow', required_agents: ['CTO'], expected_artifacts: ['project plan'], execution_stages: ['Collect brief', 'Analyze request', 'Route to matching workflow'], qa_plan: ['Check required fields', 'Validate project classification'], clarification_questions: [], next_action: 'Analyze Brief / Create Plan', desired_deliverable: $('deliverable-select').value, tech_preference: $('tech-select').value });
     loadPlatformCapabilities().catch(() => {});
     loadArtifactLibrary().catch(() => {});
+
+    // Live Terminal handlers
+    let liveRunEventSource = null;
+    let liveRunId = null;
+
+    function appendTerminalLine(text, type = 'stdout') {
+      const terminal = $('live-terminal-output');
+      const line = document.createElement('div');
+      line.textContent = text;
+      if (type === 'stderr') line.style.color = '#f48771';
+      else if (type === 'event') line.style.color = '#569cd6';
+      terminal.appendChild(line);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    function clearTerminal() {
+      $('live-terminal-output').innerHTML = '';
+    }
+
+    function setLiveRunStatus(status) {
+      $('live-run-status').textContent = status;
+      $('stop-live-btn').disabled = status !== 'running';
+    }
+
+    async function startLiveRun(editedSource = null) {
+      if (!state.currentScriptProjectArtifactId) {
+        appendTerminalLine('No script artifact loaded', 'stderr');
+        return;
+      }
+
+      clearTerminal();
+      setLiveRunStatus('starting...');
+
+      try {
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentScriptProjectArtifactId) + '/run-live', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ edited_source: editedSource }),
+        });
+        const result = await response.json();
+        if (!result.ok) {
+          appendTerminalLine('Error: ' + result.error, 'stderr');
+          setLiveRunStatus('error');
+          return;
+        }
+
+        liveRunId = result.run_id;
+        appendTerminalLine('Run started: ' + liveRunId, 'event');
+        appendTerminalLine('Command: ' + (result.command || 'python3 script.py'), 'event');
+        appendTerminalLine('---', 'event');
+
+        // Connect to SSE
+        const eventSource = new EventSource(result.events_url);
+        liveRunEventSource = eventSource;
+
+        eventSource.addEventListener('stdout', (e) => {
+          const data = JSON.parse(e.data);
+          appendTerminalLine(data.chunk, 'stdout');
+        });
+
+        eventSource.addEventListener('stderr', (e) => {
+          const data = JSON.parse(e.data);
+          appendTerminalLine(data.chunk, 'stderr');
+        });
+
+        eventSource.addEventListener('done', (e) => {
+          const data = JSON.parse(e.data);
+          appendTerminalLine('---', 'event');
+          appendTerminalLine('Process exited with code ' + data.exit_code + ' (' + data.duration_ms + 'ms)', 'event');
+          setLiveRunStatus(data.status);
+          eventSource.close();
+          liveRunEventSource = null;
+        });
+
+        eventSource.addEventListener('error', (e) => {
+          const data = JSON.parse(e.data);
+          appendTerminalLine('Error: ' + (data.error || data.message), 'stderr');
+          setLiveRunStatus('error');
+          eventSource.close();
+          liveRunEventSource = null;
+        });
+
+        eventSource.onerror = () => {
+          appendTerminalLine('Connection lost', 'stderr');
+          setLiveRunStatus('disconnected');
+          if (liveRunEventSource) {
+            liveRunEventSource.close();
+            liveRunEventSource = null;
+          }
+        };
+      } catch (error) {
+        appendTerminalLine('Failed to start: ' + error.message, 'stderr');
+        setLiveRunStatus('error');
+      }
+    }
+
+    $('run-live-btn').addEventListener('click', () => startLiveRun(null));
+    $('run-live-edited-btn').addEventListener('click', () => {
+      const editedSource = $('script-editor').classList.contains('hidden') ? undefined : $('script-editor').value;
+      startLiveRun(editedSource);
+    });
+    $('stop-live-btn').addEventListener('click', async () => {
+      if (!liveRunId) return;
+      try {
+        await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentScriptProjectArtifactId) + '/run-live/' + liveRunId + '/stop', { method: 'POST' });
+        appendTerminalLine('Stop requested', 'event');
+      } catch (error) {
+        appendTerminalLine('Stop failed: ' + error.message, 'stderr');
+      }
+    });
 
     // Telegram Bot Program Panel handlers
     let telegramBotOriginalSource = '';
