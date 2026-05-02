@@ -4,6 +4,7 @@ const path = require('path');
 const os = require('os');
 const { spawn } = require('child_process');
 const { createFileBackedFirstGovernedWorkflowRepositoryAdapter } = require('./controlPlane/storage/fileBackedFirstGovernedWorkflowRepositoryAdapter');
+const { createWebStudioOrderService } = require('./controlPlane/services/webStudio/webStudioOrderService');
 const { createWebStudioOrderSurfaceService } = require('./controlPlane/services/webStudio/webStudioOrderSurfaceService');
 const { createWebStudioDemoPackagingService } = require('./controlPlane/services/webStudio/webStudioDemoPackagingService');
 const { createWebStudioPrimaryVariantService } = require('./controlPlane/services/webStudio/webStudioPrimaryVariantService');
@@ -123,6 +124,9 @@ function getAllowedPackageFiles(artifact) {
   if (artifact.project_type === 'telegram_bot') {
     return ['bot.py', 'README.md', '.env.example', 'sample_update_start.json', 'sample_update_name.json', 'sample_update_phone.json', 'sample_update_service.json', 'sample_update_message.json', 'dry_run_test.py', 'applications.csv', 'actual_output.txt', 'test_run.log', 'manifest.json'];
   }
+  if (artifact.project_type === 'landing_page') {
+    return ['index.html', 'styles.css', 'manifest.json', 'snapshot.json', 'qa_summary.json'];
+  }
   return [];
 }
 
@@ -179,6 +183,7 @@ async function main() {
   const repositories = adapter.repositories;
   global.__CONTROL_PLANE_REPOSITORIES__ = repositories;
 
+  const webStudioOrderService = createWebStudioOrderService({ repositories });
   const webStudioOrderSurfaceService = createWebStudioOrderSurfaceService({ repositories });
   const webStudioDemoPackagingService = createWebStudioDemoPackagingService({ repositories });
   const webStudioPrimaryVariantService = createWebStudioPrimaryVariantService({ repositories });
@@ -216,6 +221,37 @@ async function main() {
       await webStudioPrimaryVariantService.upgradePrimaryVariantBuildQuality(demo.order_id);
       await webStudioPrimaryVariantService.ensurePrimaryRevisionPath(demo.order_id);
       const publicDelivery = await webStudioDemoPackagingService.buildDemoPublicDelivery(demo.order_id);
+      
+      // Register landing artifact in library for project_type landing_page
+      const order = await webStudioOrderService.getOrder(demo.order_id);
+      if (order && order.project_type === 'landing_page') {
+        const variantB = publicDelivery.surface?.variants?.find(v => v.branch_name === 'B');
+        if (variantB) {
+          const artifactId = `ws-project-artifact-landing_page-${demo.order_id}-mvp`;
+          const artifactRoot = path.join(ROOT, 'backend', 'controlPlane', 'storage', '.first-governed-workflow-runtime', 'webstudio-landing-artifacts', demo.order_id);
+          const previewRoute = `/api/webstudio-landing-artifact/${demo.order_id}/index.html`;
+          await registerProjectArtifact(ROOT, {
+            order_id: demo.order_id,
+            project_type: 'landing_page',
+            scenario: 'mvp',
+            title: 'Landing Page MVP',
+            status: 'completed',
+            test_status: 'ok',
+            artifact_root: artifactRoot,
+            source: 'full_mvp_auto_registration',
+            primary_variant_id: variantB.variant_id,
+            preview_route: previewRoute,
+            primary_file_routes: [previewRoute],
+            file_routes: [
+              { key: 'preview', label: 'Preview', route: previewRoute },
+              { key: 'index.html', label: 'index.html', route: `/api/webstudio-landing-artifact/${demo.order_id}/index.html` },
+              { key: 'styles.css', label: 'styles.css', route: `/api/webstudio-landing-artifact/${demo.order_id}/styles.css` },
+            ],
+            download_url: `/api/demo/webstudio-order/project-artifact/${encodeURIComponent(artifactId)}/download`,
+          });
+        }
+      }
+      
       res.status(201).json({
         ok: true,
         createdAt: nowIso(),
@@ -933,7 +969,7 @@ async function main() {
   // Register project artifact (for manual testing)
   app.post('/api/demo/webstudio-order/project-artifacts/register', async (req, res) => {
     try {
-      const { order_id, project_type, scenario, title, status, artifact_root } = req.body || {};
+      const { order_id, project_type, scenario, title, status, test_status, artifact_root, source, preview_route, primary_file_routes, file_routes, download_url } = req.body || {};
       if (!order_id || !project_type || !artifact_root) {
         return res.status(400).json({ ok: false, error: 'order_id, project_type, artifact_root required' });
       }
@@ -944,8 +980,13 @@ async function main() {
         scenario: scenario || 'mvp',
         title: title || `${project_type} package`,
         status: status || 'completed',
+        test_status: test_status || 'ok',
         artifact_root,
-        source: 'manual_registration',
+        source: source || 'manual_registration',
+        preview_route,
+        primary_file_routes,
+        file_routes,
+        download_url,
       });
       res.status(201).json({ ok: true, artifact_id: artifactId, ...registeredArtifact });
     } catch (error) {

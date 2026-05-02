@@ -284,6 +284,7 @@ async function runLandingPreview({ artifact, editedSource, saveEdited }) {
 function validateLandingHtml(source) {
   // Block dangerous patterns
   const dangerousPatterns = [
+    /<script/i, // script tags
     /<script\s+src\s*=\s*["']http/i, // external scripts
     /javascript:/i, // javascript URLs
     /onclick\s*=/i, // inline event handlers

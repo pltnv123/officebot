@@ -174,9 +174,6 @@ function createWebStudioPublicDeliveryService({ repositories, rootDir } = {}) {
       const binding = await repositories.webStudioTaskFlowBindings.getBindingByOrderId({ order_id: orderId });
       if (!binding) throw new Error(`TaskFlow binding missing for order: ${orderId}`);
       const existing = await repositories.webStudioPublicDeliveryBundles.getPublicDeliveryBundleByOrderId({ order_id: orderId });
-      if (existing) {
-        return existing;
-      }
 
       const initialPreviews = await this.buildInitialVariantPreviewEntries(orderId, options);
       const revisedPreview = await this.buildRevisedPreviewEntry(orderId, options);
@@ -219,9 +216,16 @@ function createWebStudioPublicDeliveryService({ repositories, rootDir } = {}) {
           'Variant B is the only real MVP implementation in this slice; A/C remain placeholders.',
           'preview_url remains null unless a trusted publicBaseUrl is explicitly supplied.',
         ],
-        created_at: now,
+        created_at: existing?.created_at || now,
         updated_at: now,
       };
+
+      if (existing?.public_delivery_id) {
+        return repositories.webStudioPublicDeliveryBundles.updatePublicDeliveryBundleById({
+          public_delivery_id: existing.public_delivery_id,
+          patch: bundle,
+        });
+      }
 
       return repositories.webStudioPublicDeliveryBundles.createPublicDeliveryBundle({ public_delivery_bundle: bundle });
     },
