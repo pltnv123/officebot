@@ -158,7 +158,7 @@ async function listVersions({ artifact }) {
   const versionsDir = path.join(artifactRoot, 'versions');
   
   try {
-    const files = await fsPromises.readdir(versionsDir);
+    const files = await fsPromises.readdir(versionsDir).catch(() => []);
     const versions = [];
     
     for (const file of files) {
@@ -173,6 +173,27 @@ async function listVersions({ artifact }) {
           saved_at: metadata.saved_at || metadata.created_at,
           version_file: file.replace('.json', '.py'),
         });
+      }
+    }
+    
+    // If no versions found, ensure v0001 exists
+    if (versions.length === 0) {
+      await ensureGeneratedVersion({ artifact, rootDir: process.cwd() });
+      // Re-read versions after ensuring v0001
+      const filesAfter = await fsPromises.readdir(versionsDir).catch(() => []);
+      for (const file of filesAfter) {
+        if (file.endsWith('.json')) {
+          const metadataPath = path.join(versionsDir, file);
+          const metadata = JSON.parse(await fsPromises.readFile(metadataPath, 'utf8'));
+          versions.push({
+            version_id: metadata.version_id || file.replace('.json', ''),
+            run_id: metadata.run_id || null,
+            label: metadata.label || metadata.version_id || file.replace('.json', ''),
+            source_type: metadata.source_type || 'unknown',
+            saved_at: metadata.saved_at || metadata.created_at,
+            version_file: file.replace('.json', '.py'),
+          });
+        }
       }
     }
     

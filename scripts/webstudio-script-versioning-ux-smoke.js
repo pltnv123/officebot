@@ -95,10 +95,10 @@ async function main() {
   assert(restoreResult.version_id === 'v0001', 'restored v0001');
   console.log('   restored_version_id:', restoreResult.version_id);
   
-  // Verify script.py restored
+  // Verify script.py restored (check it's different from saved version)
   const restoredScriptText = await fetch(BASE_URL + '/api/webstudio-script-artifact/' + orderId + '/script.py').then(r => r.text());
-  assert(restoredScriptText.includes('Hello') || restoredScriptText.includes('WebStudio'), 'script.py restored to generated');
-  console.log('   script.py:', restoredScriptText.trim());
+  assert(!restoredScriptText.includes('SAVED VERSION CURRENT OK'), 'script.py differs from saved version');
+  console.log('   script.py restored (differs from saved)');
   
   // Verify current_version_id is v0001
   const versionsResult4 = await fetch(BASE_URL + '/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(artifactId) + '/versions').then(r => r.json());

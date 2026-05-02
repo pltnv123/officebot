@@ -15,6 +15,7 @@ const { registerProjectArtifact, listProjectArtifacts, getProjectArtifact } = re
 const { runProjectArtifact, getRunHistory, listVersions, loadVersion, ensureGeneratedVersion, saveNewVersion, restoreVersion, getCurrentVersion } = require('./controlPlane/services/webStudio/webStudioArtifactRunService');
 const { renderWebStudioDemoPage } = require('./webStudioDemoPage');
 const { renderWebStudioDeliveryPage } = require('./webStudioDeliveryPage');
+const { getPlatformCapabilitiesSurface } = require('./controlPlane/services/webStudio/webStudioPlatformRegistryService');
 
 const ROOT = path.resolve(__dirname, '..');
 const PORT = Number(process.env.PORT || 8787);
@@ -775,6 +776,16 @@ async function main() {
       if (!artifact) return res.status(404).json({ ok: false, error: 'artifact_not_found' });
       const currentVersionId = await getCurrentVersion({ artifact });
       res.json({ ok: true, current_version_id: currentVersionId });
+    } catch (error) {
+      res.status(500).json({ ok: false, error: String(error.message || error) });
+    }
+  });
+
+  // Platform capabilities surface
+  app.get('/api/demo/webstudio-order/platform-capabilities', async (req, res) => {
+    try {
+      const surface = getPlatformCapabilitiesSurface();
+      res.json(surface);
     } catch (error) {
       res.status(500).json({ ok: false, error: String(error.message || error) });
     }

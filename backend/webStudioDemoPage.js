@@ -268,6 +268,17 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
           <div id="artifact-library-list" class="file-list"></div>
         </div>
 
+        <details id="platform-roadmap-panel" class="panel" style="margin-top:16px;">
+          <summary style="cursor:pointer; font-weight:600; font-size:1.1em;">Platform Roadmap / Capabilities</summary>
+          <div style="margin-top:12px;">
+            <h3 style="margin:12px 0 8px 0;">Available Now</h3>
+            <div id="platform-available-list" class="file-list"></div>
+            <h3 style="margin:16px 0 8px 0;">Planned</h3>
+            <div id="platform-planned-list" class="file-list"></div>
+            <p class="muted" style="margin-top:12px; font-size:0.9em;">Note: Android requires Android SDK/emulator/build runner. iOS requires macOS runner/Xcode/simulator environment.</p>
+          </div>
+        </details>
+
         <div id="variants-panel" class="panel">
           <h2>Варианты</h2>
           <div id="variants-list" class="variant-grid"></div>
@@ -678,6 +689,39 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     async function loadLandingSurface(orderId) { const response = await fetch('/api/export/webstudio-order-surface/' + encodeURIComponent(orderId)); const payload = await response.json(); const surface = payload?.webstudio_order_surface || payload; if (!response.ok || payload?.ok === false) throw new Error(payload.error || 'Failed to load landing surface'); renderLandingSurface(surface); return surface; }
     async function loadScriptSurface(orderId) { const response = await fetch('/api/demo/webstudio-order/script-surface/' + encodeURIComponent(orderId)); const payload = await response.json(); if (!response.ok || !payload.ok) throw new Error(payload.error || 'Failed to load script surface'); await renderScriptSurface(payload); return payload; }
     async function loadTelegramBotSurface(orderId) { const response = await fetch('/api/demo/webstudio-order/telegram-bot-surface/' + encodeURIComponent(orderId)); const payload = await response.json(); if (!response.ok || !payload.ok) throw new Error(payload.error || 'Failed to load telegram bot surface'); await renderTelegramBotSurface(payload); return payload; }
+    async function loadPlatformCapabilities() {
+      try {
+        const response = await fetch('/api/demo/webstudio-order/platform-capabilities');
+        const payload = await response.json();
+        if (!response.ok || !payload.ok) {
+          console.warn('Failed to load platform capabilities:', payload.error);
+          return;
+        }
+        const availableList = $('platform-available-list');
+        const plannedList = $('platform-planned-list');
+        availableList.innerHTML = '';
+        plannedList.innerHTML = '';
+        for (const pt of payload.project_types) {
+          const isAvailable = pt.implementation_status !== 'not_implemented';
+          const targetList = isAvailable ? availableList : plannedList;
+          const card = document.createElement('div');
+          card.className = 'file-card';
+          const statusColor = isAvailable ? '#4caf50' : '#ff9800';
+          const statusLabel = isAvailable ? 'Available' : 'Planned';
+          const reasonHtml = pt.reason ? '<div class="muted" style="font-size:0.8em; margin-top:6px;">' + pt.reason + '</div>' : '';
+          card.innerHTML = '<div style="font-weight:600;">' + pt.display_name + ' (' + pt.project_type + ')</div>' +
+            '<div class="muted" style="font-size:0.85em;">Language: ' + pt.language + '</div>' +
+            '<div class="row" style="margin-top:6px;">' +
+            '<span class="chip" style="background:' + statusColor + '; color:#fff;">' + statusLabel + '</span>' +
+            '<span class="chip">' + pt.implementation_status + '</span>' +
+            '</div>' + reasonHtml;
+          targetList.appendChild(card);
+        }
+      } catch (error) {
+        console.warn('loadPlatformCapabilities error:', error);
+      }
+    }
+
     async function loadArtifactLibrary() {
       const response = await fetch('/api/demo/webstudio-order/project-artifacts');
       const payload = await response.json();
@@ -913,7 +957,8 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     };
 
     renderPlan({ project_type: 'unknown', normalized_brief: 'Заполните brief, чтобы получить routing plan для проекта.', recommended_workflow: 'brief_intake_router_flow', required_agents: ['CTO'], expected_artifacts: ['project plan'], execution_stages: ['Collect brief', 'Analyze request', 'Route to matching workflow'], qa_plan: ['Check required fields', 'Validate project classification'], clarification_questions: [], next_action: 'Analyze Brief / Create Plan', desired_deliverable: $('deliverable-select').value, tech_preference: $('tech-select').value });
-    updateActionButtons(); updateHeaderChips(); syncProjectVisibility(); updateDebugJson(); loadArtifactLibrary().catch(() => {});
+    loadPlatformCapabilities().catch(() => {});
+    loadArtifactLibrary().catch(() => {});
   </script>
 </body>
 </html>`;
