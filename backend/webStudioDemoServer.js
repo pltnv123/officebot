@@ -510,15 +510,15 @@ async function main() {
     }
   });
 
-  app.get('/api/demo/webstudio-order/project-artifact/:artifactId/version/:runId', async (req, res) => {
+  app.get('/api/demo/webstudio-order/project-artifact/:artifactId/version/:versionId', async (req, res) => {
     try {
       const artifactId = String(req.params.artifactId || '').trim();
-      const runId = String(req.params.runId || '').trim();
+      const versionId = String(req.params.versionId || '').trim();
       const artifact = await getProjectArtifact(ROOT, artifactId);
       if (!artifact) return res.status(404).json({ ok: false, error: 'artifact_not_found' });
-      const source = await loadVersion({ artifact, runId });
+      const source = await loadVersion({ artifact, versionId });
       if (source === null) return res.status(404).json({ ok: false, error: 'version_not_found' });
-      res.json({ ok: true, run_id: runId, source });
+      res.json({ ok: true, version_id: versionId, source });
     } catch (error) {
       res.status(500).json({ ok: false, error: String(error.message || error) });
     }

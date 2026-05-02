@@ -240,6 +240,7 @@ async function ensureGeneratedVersion({ artifact, rootDir }) {
 async function saveNewVersion({ artifact, editedSource, versionLabel }) {
   const artifactRoot = path.resolve(String(artifact.artifact_root || ''));
   const versionsDir = path.join(artifactRoot, 'versions');
+  const scriptPath = path.join(artifactRoot, 'script.py');
   
   // Create versions directory if it doesn't exist
   await fsPromises.mkdir(versionsDir, { recursive: true });
@@ -264,6 +265,16 @@ async function saveNewVersion({ artifact, editedSource, versionLabel }) {
     source_type: 'operator_edit',
     created_at: nowIso(),
     source_length: editedSource.length,
+  }, null, 2), 'utf8');
+  
+  // CRITICAL: Save also sets this version as current and updates script.py
+  await fsPromises.writeFile(scriptPath, editedSource, 'utf8');
+  
+  // Update current_version_id
+  const currentVersionIndexPath = path.join(artifactRoot, 'current_version.json');
+  await fsPromises.writeFile(currentVersionIndexPath, JSON.stringify({
+    current_version_id: versionId,
+    updated_at: nowIso(),
   }, null, 2), 'utf8');
   
   return { ok: true, version_id: versionId };

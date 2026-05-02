@@ -70,7 +70,7 @@ async function main() {
   
   // Step 6: Load version 1
   console.log('\n6. Load version 1...');
-  const version1Id = versionsResult.versions.find(v => run2.run_id && v.run_id === run2.run_id)?.run_id || versionsResult.versions[0]?.run_id;
+  const version1Id = versionsResult.versions.find(v => v.version_id === 'v0002')?.version_id || versionsResult.versions[0]?.version_id;
   if (version1Id) {
     const version1Result = await fetch(BASE_URL + '/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(execResult.project_artifact_id) + '/version/' + encodeURIComponent(version1Id)).then(r => r.json());
     assert(version1Result.ok, 'load version ok');
