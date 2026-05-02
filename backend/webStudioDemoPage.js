@@ -64,6 +64,9 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     .plan-list { margin:0; padding-left:18px; color:#dbeafe; line-height:1.7; }
     .variant-grid { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:14px; }
     .collapsed-note { font-size:14px; color:#cbd5e1; margin-top:10px; }
+    .code-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; padding:8px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:10px 10px 0 0; }
+    .code-header .filename { font-weight:700; color:#e2e8f0; font-size:13px; }
+    .code-block { background:#0b1120; border:1px solid rgba(59,130,246,0.2); border-radius:0 0 10px 10px; padding:16px; font-family:'Consolas','Monaco','Courier New',monospace; font-size:13px; line-height:1.6; color:#e2e8f0; max-height:480px; overflow:auto; }
     @media (max-width: 1100px) { .hero-shell, .grid, .variant-grid, .meta-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -182,26 +185,46 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
           <div class="field hidden" id="clarification-panel"><h3>Clarification path</h3><ul id="plan-clarifications" class="plan-list"></ul></div>
         </div>
 
-        <div id="script-result-panel" class="panel hidden">
-          <div class="preview-head"><div><h2 style="margin-bottom:6px;">Script MVP Result</h2><div class="preview-note">Script-focused surface.</div></div>
-            <button id="run-script-btn" class="secondary hidden">Run Script</button></div>
-          <div id="script-meta" class="meta-grid"></div>
-          <div class="field"><h3>Files</h3><div id="script-files" class="file-list"></div></div>
-          <div class="field"><h3>script.py</h3><pre id="script-preview">No script executed yet.</pre></div>
-          <div class="field"><h3>test_run.log</h3><pre id="script-log-preview">No script executed yet.</pre></div>
-          <div class="field"><h3>actual_output.txt</h3><pre id="script-output-preview">No script executed yet.</pre></div>
-        </div>
-
-        <div id="script-run-result-panel" class="panel hidden">
-          <div class="preview-head"><div><h2 style="margin-bottom:6px;">Script Run Result</h2><div class="preview-note">Result of running the generated package on the main page.</div></div></div>
-          <div id="script-run-initial" class="preview-note">Run this generated package before downloading.</div>
-          <div id="script-run-content" class="hidden">
-            <div id="script-run-meta" class="meta-grid"></div>
-            <div class="field"><h3>Command</h3><pre id="script-run-command"></pre></div>
-            <div class="field"><h3>stdout</h3><pre id="script-run-stdout"></pre></div>
-            <div class="field hidden" id="script-run-stderr-field"><h3>stderr</h3><pre id="script-run-stderr"></pre></div>
+        <div id="script-program-panel" class="panel hidden">
+          <div class="preview-head" style="align-items:center;justify-content:space-between;">
+            <div>
+              <h2 style="margin-bottom:6px;">Program</h2>
+              <div class="preview-note">Generated runnable Python script for the requested task.</div>
+            </div>
+            <div class="row" style="gap:8px;">
+              <span id="script-scenario-badge" class="badge">scenario</span>
+              <span id="script-test-badge" class="badge">test: pending</span>
+              <button id="run-script-btn" class="primary">Run</button>
+            </div>
+          </div>
+          <div id="script-program-header" class="meta-grid" style="margin:12px 0;"></div>
+          <div class="field">
+            <div class="code-header">
+              <span class="filename">script.py</span>
+              <span id="script-run-state" class="muted">idle</span>
+            </div>
+            <pre id="script-code-block" class="code-block">No script executed yet.</pre>
+          </div>
+          <div id="script-execution-output" class="hidden">
+            <h3 style="margin-top:16px;">Execution Output</h3>
+            <div id="script-exec-meta" class="meta-grid"></div>
+            <div class="field"><h4>Command</h4><pre id="script-exec-command"></pre></div>
+            <div class="field"><h4>stdout</h4><pre id="script-exec-stdout"></pre></div>
+            <div class="field hidden" id="script-exec-stderr-field"><h4>stderr</h4><pre id="script-exec-stderr"></pre></div>
             <div class="row" style="margin-top:12px;"><button id="run-script-again-btn" class="secondary">Run again</button></div>
           </div>
+        </div>
+
+        <div id="script-run-history-panel" class="panel hidden">
+          <h2>Run History</h2>
+          <div id="script-run-history-list" class="file-list"></div>
+        </div>
+
+        <div id="script-supporting-files-panel" class="panel hidden">
+          <h2>Supporting Files</h2>
+          <div id="script-files" class="file-list"></div>
+          <div class="field" style="margin-top:12px;"><h3>test_run.log</h3><pre id="script-log-preview"></pre></div>
+          <div class="field"><h3>actual_output.txt</h3><pre id="script-output-preview"></pre></div>
         </div>
 
         <div id="telegram-bot-result-panel" class="panel hidden">
@@ -304,8 +327,9 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       $('variants-panel').classList.toggle('hidden', !isLanding);
       $('primary-preview-panel').classList.toggle('hidden', !isLanding);
       $('revised-panel').classList.toggle('hidden', !isLanding || $('revised-preview-frame').src === 'about:blank');
-      $('script-result-panel').classList.toggle('hidden', !isScript || !state.lastScriptResult);
-      $('script-run-result-panel').classList.toggle('hidden', !isScript || !state.currentScriptProjectArtifactId);
+      $('script-program-panel').classList.toggle('hidden', !isScript || !state.lastScriptResult);
+      $('script-run-history-panel').classList.toggle('hidden', !isScript || !state.currentScriptProjectArtifactId);
+      $('script-supporting-files-panel').classList.toggle('hidden', !isScript || !state.lastScriptResult);
       $('telegram-bot-result-panel').classList.toggle('hidden', !isTelegram || !state.lastTelegramBotResult);
       $('refresh-script-surface-btn').classList.toggle('hidden', !isScript);
       $('refresh-telegram-bot-surface-btn').classList.toggle('hidden', !isTelegram);
@@ -368,11 +392,34 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     async function renderScriptSurface(surface) {
       state.currentProjectType = 'script';
       state.currentScriptOrderId = surface.order_id || state.currentScriptOrderId;
-      state.lastScriptResult = { order_id: surface.order_id, project_type: 'script', scenario: surface.script_execution?.scenario, language: surface.script_execution?.language, safety_level: surface.script_execution?.safety_level, artifact_id: surface.script_execution?.artifact_id, artifact_root: surface.script_execution?.artifact_root, files: surface.files, safe_routes: surface.safe_routes, test: surface.test, next_action: surface.next_action };
-      renderMetaGrid($('script-meta'), [['Scenario', surface.script_execution?.scenario || 'pending'], ['Language', surface.script_execution?.language || 'python'], ['Safety level', surface.script_execution?.safety_level || 'bounded_demo'], ['Test status', surface.test?.ok ? 'ok' : 'failed'], ['Command', surface.test?.command || 'pending'], ['Next action', surface.next_action || 'review_script_package']]);
-      $('script-files').innerHTML = Object.entries(surface.safe_routes || {}).map(([key, route]) => '<a class="linkish" href="' + route + '" target="_blank" rel="noopener">' + safe(key) + ' → ' + safe(surface.files?.[key]) + '</a>').join('');
+      state.currentScriptProjectArtifactId = surface.project_artifact_id || state.currentScriptProjectArtifactId;
+      state.lastScriptResult = { order_id: surface.order_id, project_type: 'script', scenario: surface.script_execution?.scenario, language: surface.script_execution?.language, safety_level: surface.script_execution?.safety_level, artifact_id: surface.script_execution?.artifact_id, artifact_root: surface.script_execution?.artifact_root, files: surface.files, safe_routes: surface.safe_routes, test: surface.test, next_action: surface.next_action, project_artifact_id: surface.project_artifact_id };
+      
+      // Update header badges
+      $('script-scenario-badge').textContent = surface.script_execution?.scenario || 'unknown';
+      $('script-test-badge').textContent = 'test: ' + (surface.test?.ok ? 'ok' : 'failed');
+      
+      // Update meta header
+      renderMetaGrid($('script-program-header'), [
+        ['Scenario', surface.script_execution?.scenario || 'pending'],
+        ['Language', surface.script_execution?.language || 'python'],
+        ['Safety level', surface.script_execution?.safety_level || 'bounded_demo'],
+        ['Test status', surface.test?.ok ? 'ok' : 'failed']
+      ]);
+      
+      // Load and display script code
       const [scriptText, logText, outputText] = await Promise.all([fetchText(surface.safe_routes.script), fetchText(surface.safe_routes.test_run_log), fetchText(surface.safe_routes.actual_output)]);
-      $('script-preview').textContent = scriptText; $('script-log-preview').textContent = logText; $('script-output-preview').textContent = outputText;
+      $('script-code-block').textContent = scriptText;
+      $('script-log-preview').textContent = logText;
+      $('script-output-preview').textContent = outputText;
+      
+      // Update supporting files
+      $('script-files').innerHTML = Object.entries(surface.safe_routes || {}).filter(([key]) => key !== 'script').map(([key, route]) => '<a class="linkish" href="' + route + '" target="_blank" rel="noopener">' + safe(key) + ' → ' + safe(surface.files?.[key]) + '</a>').join('');
+      
+      // Reset execution output
+      $('script-execution-output').classList.add('hidden');
+      $('script-run-state').textContent = 'idle';
+      
       updateHeaderChips(); updateDebugJson(); syncProjectVisibility();
     }
 
@@ -473,11 +520,6 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         $('order-id-input').value = state.orderId || '';
         await loadScriptSurface(state.orderId);
         await loadArtifactLibrary();
-        // Show Run Script button
-        const runBtn = $('run-script-btn');
-        if (state.currentScriptProjectArtifactId) {
-          runBtn.classList.remove('hidden');
-        }
         setStatus('script package ready');
       } catch (error) { setStatus(error.message); }
     });
@@ -505,38 +547,10 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     $('refresh-telegram-bot-surface-btn').addEventListener('click', async () => { try { const orderId = state.currentBotOrderId || getCurrentOrderId(); setStatus('refreshing telegram bot surface…'); await loadTelegramBotSurface(orderId); setStatus('telegram bot surface refreshed'); } catch (error) { setStatus(error.message); } });
     $('refresh-artifact-library-btn').addEventListener('click', async () => { try { setStatus('refreshing artifact library…'); await loadArtifactLibrary(); setStatus('artifact library refreshed'); } catch (error) { setStatus(error.message); } });
     $('select-primary-btn').addEventListener('click', async () => { try { const orderId = getCurrentOrderId(); setStatus('selecting Variant B…'); await postJson('/api/demo/webstudio-order/' + encodeURIComponent(orderId) + '/select-primary', {}); await loadLandingSurface(orderId); setStatus('Variant B selected'); } catch (error) { setStatus(error.message); } });
-    $('submit-revision-btn').addEventListener('click', async () => { try { const orderId = getCurrentOrderId(); setStatus('submitting revision…'); await postJson('/api/demo/webstudio-order/' + encodeURIComponent(orderId) + '/revision', { delta_brief: { requested_changes: [$('revision-text').value.trim()], customer_notes: $('revision-text').value.trim() } }); await loadLandingSurface(orderId); setStatus('revision created'); } catch (error) { setStatus(error.message); } });
+    $('submit-revision-btn').addEventListener('click', async () =>> { try { const orderId = getCurrentOrderId(); setStatus('submitting revision…'); await postJson('/api/demo/webstudio-order/' + encodeURIComponent(orderId) + '/revision', { delta_brief: { requested_changes: [$('revision-text').value.trim()], customer_notes: $('revision-text').value.trim() } }); await loadLandingSurface(orderId); setStatus('revision created'); } catch (error) { setStatus(error.message); } });
     $('execute-revision-btn').addEventListener('click', async () => { try { const orderId = getCurrentOrderId(); setStatus('executing revision…'); await postJson('/api/demo/webstudio-order/' + encodeURIComponent(orderId) + '/execute-revision', {}); await loadLandingSurface(orderId); setStatus('revision executed'); } catch (error) { setStatus(error.message); } });
 
     // Script Run functions
-    function renderScriptRunResult(result) {
-      const runContent = $('script-run-content');
-      const runInitial = $('script-run-initial');
-      const runMeta = $('script-run-meta');
-      const runCommand = $('script-run-command');
-      const runStdout = $('script-run-stdout');
-      const runStderr = $('script-run-stderr');
-      const runStderrField = $('script-run-stderr-field');
-
-      runInitial.classList.add('hidden');
-      runContent.classList.remove('hidden');
-
-      const statusBadge = result.ok ? '<span class="badge">ok</span>' : '<span class="badge failed">failed</span>';
-      const durationSec = (result.duration_ms / 1000).toFixed(2);
-      renderMetaGrid(runMeta, [
-        ['Status', result.ok ? 'ok' : 'failed'],
-        ['Exit code', result.exit_code],
-        ['Duration', durationSec + 's']
-      ]);
-      runCommand.textContent = Array.isArray(result.command) ? result.command.join(' ') : (result.command || '');
-      runStdout.textContent = result.stdout || '(no output)';
-      if (result.stderr) {
-        runStderr.textContent = result.stderr;
-        runStderrField.classList.remove('hidden');
-      } else {
-        runStderrField.classList.add('hidden');
-      }
-    }
 
     async function runScriptOnMainPage() {
       if (!state.currentScriptProjectArtifactId) {
@@ -544,8 +558,10 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         return;
       }
       const runBtn = $('run-script-btn');
+      const runState = $('script-run-state');
       runBtn.disabled = true;
       runBtn.textContent = 'Running...';
+      runState.textContent = 'running';
       setStatus('running script on main page…');
 
       try {
@@ -555,19 +571,77 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         if (!result.ok) {
           setStatus('Run failed: ' + (result.error || result.reason || 'Unknown error'));
           runBtn.disabled = false;
-          runBtn.textContent = 'Run Script';
+          runBtn.textContent = 'Run';
+          runState.textContent = 'failed';
           return;
         }
 
-        renderScriptRunResult(result);
+        renderScriptExecutionOutput(result);
+        await loadScriptRunHistory();
         setStatus('Run saved to history');
         await loadArtifactLibrary();
       } catch (error) {
         setStatus('Run error: ' + error.message);
         console.warn('Script run failed', { status: response?.status, body: result, error });
+        runState.textContent = 'failed';
       } finally {
         runBtn.disabled = false;
-        runBtn.textContent = 'Run Script';
+        runBtn.textContent = 'Run';
+        if (runState.textContent === 'running') runState.textContent = 'completed';
+      }
+    }
+
+    function renderScriptExecutionOutput(result) {
+      const outputPanel = $('script-execution-output');
+      const execMeta = $('script-exec-meta');
+      const execCommand = $('script-exec-command');
+      const execStdout = $('script-exec-stdout');
+      const execStderr = $('script-exec-stderr');
+      const execStderrField = $('script-exec-stderr-field');
+
+      outputPanel.classList.remove('hidden');
+      
+      const durationSec = (result.duration_ms / 1000).toFixed(2);
+      renderMetaGrid(execMeta, [
+        ['Status', result.ok ? 'ok' : 'failed'],
+        ['Exit code', result.exit_code],
+        ['Duration', durationSec + 's']
+      ]);
+      execCommand.textContent = Array.isArray(result.command) ? result.command.join(' ') : (result.command || '');
+      execStdout.textContent = result.stdout || '(no output)';
+      if (result.stderr && result.stderr.trim()) {
+        execStderr.textContent = result.stderr;
+        execStderrField.classList.remove('hidden');
+      } else {
+        execStderrField.classList.add('hidden');
+      }
+    }
+
+    async function loadScriptRunHistory() {
+      if (!state.currentScriptProjectArtifactId) return;
+      try {
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentScriptProjectArtifactId) + '/run-history');
+        const result = await response.json();
+        if (!result.ok) return;
+        
+        const historyList = $('script-run-history-list');
+        if (!result.runs || result.runs.length === 0) {
+          historyList.innerHTML = '<div class="preview-note">No runs yet</div>';
+          return;
+        }
+        
+        // Sort by run_number descending (latest first)
+        const runs = result.runs.sort((a, b) => (b.run_number || 0) - (a.run_number || 0));
+        historyList.innerHTML = runs.map((run) => {
+          const statusBadge = run.ok ? '<span class="badge">ok</span>' : '<span class="badge failed">failed</span>';
+          const durationSec = ((run.duration_ms || 0) / 1000).toFixed(2);
+          const stdoutPreview = (run.stdout || '').slice(0, 80) + ((run.stdout || '').length > 80 ? '...' : '');
+          return '<div class="step-card"><div class="step-head"><span class="step-index">#' + (run.run_number || '?') + '</span><div style="display:flex;gap:8px;align-items:center;">' + statusBadge + '<span class="muted">exit=' + run.exit_code + ' · ' + durationSec + 's</span></div></div><div class="muted" style="font-size:12px;">' + (run.started_at || '') + '</div><pre style="margin-top:8px;font-size:12px;max-height:120px;">' + stdoutPreview + '</pre></div>';
+        }).join('');
+        
+        $('script-run-history-panel').classList.remove('hidden');
+      } catch (error) {
+        console.warn('Failed to load run history', error);
       }
     }
 

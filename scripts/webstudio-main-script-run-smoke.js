@@ -21,10 +21,12 @@ async function main() {
 
   // 1. Check /webstudio/demo HTML contains Run Script UI contract
   const demoHtml = await fetch(base + '/webstudio/demo').then(r => r.text());
+  assert(demoHtml.includes('script-program-panel'), 'main page has script-program-panel');
   assert(demoHtml.includes('run-script-btn'), 'main page has run-script-btn');
-  assert(demoHtml.includes('script-run-result-panel'), 'main page has script-run-result-panel');
+  assert(demoHtml.includes('script-execution-output'), 'main page has script-execution-output panel');
   assert(demoHtml.includes('runScriptOnMainPage'), 'main page has runScriptOnMainPage function');
-  assert(demoHtml.includes('renderScriptRunResult'), 'main page has renderScriptRunResult function');
+  assert(demoHtml.includes('renderScriptExecutionOutput'), 'main page has renderScriptExecutionOutput function');
+  assert(demoHtml.includes('loadScriptRunHistory'), 'main page has loadScriptRunHistory function');
 
   // 2. Execute Script MVP
   const { response: execResponse, json: execJson } = await postJson(base + '/api/demo/webstudio-order/execute-script', {
