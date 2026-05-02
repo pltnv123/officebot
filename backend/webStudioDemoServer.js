@@ -13,6 +13,7 @@ const { analyzeScriptScenario, createScriptExecutionPackage, runScriptSmoke } = 
 const { analyzeTelegramBotScenario, createTelegramBotExecutionPackage, runTelegramBotDryRun } = require('./controlPlane/services/webStudio/webStudioTelegramBotExecutionService');
 const { registerProjectArtifact, listProjectArtifacts, getProjectArtifact } = require('./controlPlane/services/webStudio/webStudioProjectArtifactLibraryService');
 const { runProjectArtifact, getRunHistory, listVersions, loadVersion, ensureGeneratedVersion, saveNewVersion, restoreVersion, getCurrentVersion } = require('./controlPlane/services/webStudio/webStudioArtifactRunService');
+const { runLandingPreview, listVersions: listLandingVersions, loadVersion: loadLandingVersion, saveNewVersion: saveLandingVersion, restoreVersion: restoreLandingVersion, ensureGeneratedVersion: ensureLandingGeneratedVersion, validateLandingHtml } = require('./controlPlane/services/webStudio/webStudioLandingArtifactService');
 const { renderWebStudioDemoPage } = require('./webStudioDemoPage');
 const { renderWebStudioDeliveryPage } = require('./webStudioDeliveryPage');
 const { getPlatformCapabilitiesSurface } = require('./controlPlane/services/webStudio/webStudioPlatformRegistryService');
@@ -21,6 +22,7 @@ const ROOT = path.resolve(__dirname, '..');
 const PORT = Number(process.env.PORT || 8787);
 const SCRIPT_ARTIFACT_ROOT = path.join(ROOT, 'backend', 'controlPlane', 'storage', '.first-governed-workflow-runtime', 'webstudio-script-artifacts');
 const TELEGRAM_BOT_ARTIFACT_ROOT = path.join(ROOT, 'backend', 'controlPlane', 'storage', '.first-governed-workflow-runtime', 'webstudio-telegram-bot-artifacts');
+const LANDING_ARTIFACT_ROOT = path.join(ROOT, 'backend', 'controlPlane', 'storage', '.first-governed-workflow-runtime', 'webstudio-landing-artifacts');
 const ROUTER_RUNTIME_ROOT = path.join(ROOT, 'backend', 'controlPlane', 'storage', '.first-governed-workflow-runtime', 'webstudio-router-orders');
 
 function nowIso() {
@@ -481,6 +483,20 @@ async function main() {
     try {
       const artifactId = String(req.params.artifactId || '').trim();
       const editedSource = req.body?.edited_source;
+      const saveEdited = req.body?.save_edited;
+      
+      const artifact = await getProjectArtifact(ROOT, artifactId);
+      if (!artifact) {
+        throw new Error('artifact_not_found');
+      }
+      
+      // Route to appropriate handler based on project_type
+      if (artifact.project_type === 'landing_page') {
+        const result = await runLandingPreview({ artifact, editedSource, saveEdited });
+        return res.status(200).json(result);
+      }
+      
+      // Default: use runProjectArtifact for script/bot
       const result = await runProjectArtifact({ artifactId, rootDir: ROOT, editedSource });
       res.status(200).json(result);
     } catch (error) {
@@ -504,6 +520,13 @@ async function main() {
       const artifactId = String(req.params.artifactId || '').trim();
       const artifact = await getProjectArtifact(ROOT, artifactId);
       if (!artifact) return res.status(404).json({ ok: false, error: 'artifact_not_found' });
+      
+      // Route to appropriate handler based on project_type
+      if (artifact.project_type === 'landing_page') {
+        const result = await listLandingVersions({ artifact });
+        return res.json({ ok: true, ...result });
+      }
+      
       const result = await listVersions({ artifact });
       res.json({ ok: true, ...result });
     } catch (error) {
@@ -517,6 +540,14 @@ async function main() {
       const versionId = String(req.params.versionId || '').trim();
       const artifact = await getProjectArtifact(ROOT, artifactId);
       if (!artifact) return res.status(404).json({ ok: false, error: 'artifact_not_found' });
+      
+      // Route to appropriate handler based on project_type
+      if (artifact.project_type === 'landing_page') {
+        const source = await loadLandingVersion({ artifact, versionId });
+        if (source === null) return res.status(404).json({ ok: false, error: 'version_not_found' });
+        return res.json({ ok: true, version_id: versionId, source });
+      }
+      
       const source = await loadVersion({ artifact, versionId });
       if (source === null) return res.status(404).json({ ok: false, error: 'version_not_found' });
       res.json({ ok: true, version_id: versionId, source });
@@ -531,6 +562,73 @@ async function main() {
       const artifact = await getProjectArtifact(ROOT, artifactId);
       if (!artifact) return res.status(404).json({ ok: false, error: 'artifact not found' });
       res.json({ ok: true, artifact, file_routes: artifact.file_routes || [], download_url: artifact.download_url || null });
+    } catch (error) {
+      res.status(500).json({ ok: false, error: String(error.message || error) });
+    }
+  });
+
+  
+  // Landing: Save new version
+  app.post('/api/demo/webstudio-order/project-artifact/:artifactId/landing-version', async (req, res) => {
+    try {
+      const artifactId = String(req.params.artifactId || '').trim();
+      const { edited_source, version_label } = req.body || {};
+      if (!edited_source) return res.status(400).json({ ok: false, error: 'edited_source_required' });
+      
+      const artifact = await getProjectArtifact(ROOT, artifactId);
+      if (!artifact) return res.status(404).json({ ok: false, error: 'artifact_not_found' });
+      
+      if (artifact.project_type !== 'landing_page') {
+        return res.status(400).json({ ok: false, error: 'not_landing_page' });
+      }
+      
+      const validationError = validateLandingHtml(edited_source);
+      if (validationError) {
+        return res.status(400).json({ ok: false, error: 'edited_source_validation_failed', reason: validationError });
+      }
+      
+      const result = await saveLandingVersion({ artifact, editedSource: edited_source, versionLabel: version_label });
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ ok: false, error: String(error.message || error) });
+    }
+  });
+
+  // Landing: Restore version
+  app.post('/api/demo/webstudio-order/project-artifact/:artifactId/landing-version/:versionId/restore', async (req, res) => {
+    try {
+      const artifactId = String(req.params.artifactId || '').trim();
+      const versionId = String(req.params.versionId || '').trim();
+      
+      const artifact = await getProjectArtifact(ROOT, artifactId);
+      if (!artifact) return res.status(404).json({ ok: false, error: 'artifact_not_found' });
+      
+      if (artifact.project_type !== 'landing_page') {
+        return res.status(400).json({ ok: false, error: 'not_landing_page' });
+      }
+      
+      const result = await restoreLandingVersion({ artifact, versionId });
+      if (!result.ok) return res.status(404).json(result);
+      
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ ok: false, error: String(error.message || error) });
+    }
+  });
+
+  // Get current landing version
+  app.get('/api/demo/webstudio-order/project-artifact/:artifactId/current-version', async (req, res) => {
+    try {
+      const artifactId = String(req.params.artifactId || '').trim();
+      const artifact = await getProjectArtifact(ROOT, artifactId);
+      if (!artifact) return res.status(404).json({ ok: false, error: 'artifact_not_found' });
+      
+      if (artifact.project_type !== 'landing_page') {
+        return res.status(400).json({ ok: false, error: 'not_landing_page' });
+      }
+      
+      const currentVersionId = await getCurrentVersion({ artifact });
+      res.json({ ok: true, current_version_id: currentVersionId });
     } catch (error) {
       res.status(500).json({ ok: false, error: String(error.message || error) });
     }
@@ -667,6 +765,28 @@ async function main() {
     }
   });
 
+  
+  app.get('/api/webstudio-landing-artifact/:orderId/:fileName', async (req, res) => {
+    const orderId = String(req.params.orderId || '').trim();
+    const fileName = String(req.params.fileName || '').trim();
+    const allowedFiles = new Set(['index.html', 'styles.css', 'manifest.json', 'current_version.json']);
+    const orderIdOk = /^ws-order-[A-Za-z0-9_-]+$/.test(orderId);
+    if (!orderIdOk || !allowedFiles.has(fileName) || fileName.includes('..') || fileName.includes('/') || path.isAbsolute(fileName)) return res.status(400).json({ ok: false, error: 'invalid landing artifact path', order_id: orderId || null, file_name: fileName || null });
+    const artifactRoot = path.join(LANDING_ARTIFACT_ROOT, orderId);
+    const resolvedRoot = path.resolve(artifactRoot);
+    const resolvedFile = path.resolve(path.join(artifactRoot, fileName));
+    if (!(resolvedFile === resolvedRoot + path.sep + fileName || resolvedFile === path.join(resolvedRoot, fileName))) return res.status(400).json({ ok: false, error: 'invalid landing artifact path', order_id: orderId, file_name: fileName });
+    try { await fs.access(resolvedFile); } catch { return res.status(404).json({ ok: false, error: 'landing artifact file not found', order_id: orderId, file_name: fileName }); }
+    if (fileName.endsWith('.html')) res.type('text/html');
+    else if (fileName.endsWith('.css')) res.type('text/css');
+    else if (fileName.endsWith('.json')) res.type('application/json');
+    try {
+      res.sendFile(resolvedFile, { dotfiles: 'allow' });
+    } catch (error) {
+      return res.status(404).json({ ok: false, error: String(error.message || error), order_id: orderId, file_name: fileName });
+    }
+  });
+
   app.get('/api/webstudio-preview/:orderId/:artifactId/:fileName', async (req, res) => {
     const orderId = String(req.params.orderId || '').trim();
     const artifactId = String(req.params.artifactId || '').trim();
@@ -743,7 +863,7 @@ async function main() {
         return res.status(400).json({ ok: false, error: 'edited_source_validation_failed', reason: 'unsafe_python_source' });
       }
       
-      const result = await saveNewVersion({ artifact, editedSource: edited_source, versionLabel: version_label });
+      const result = await saveLandingVersion({ artifact, editedSource: edited_source, versionLabel: version_label });
       res.json(result);
     } catch (error) {
       res.status(500).json({ ok: false, error: String(error.message || error) });
@@ -786,7 +906,7 @@ async function main() {
         return res.status(400).json({ ok: false, error: 'edited_source_validation_failed', reason: 'unsafe_python_source' });
       }
       
-      const result = await saveNewVersion({ artifact, editedSource: edited_source, versionLabel: version_label });
+      const result = await saveLandingVersion({ artifact, editedSource: edited_source, versionLabel: version_label });
       res.json(result);
     } catch (error) {
       res.status(500).json({ ok: false, error: String(error.message || error) });
@@ -810,21 +930,30 @@ async function main() {
       res.status(500).json({ ok: false, error: String(error.message || error) });
     }
   });
-
-  // Get current version
-  app.get('/api/demo/webstudio-order/project-artifact/:artifactId/current-version', async (req, res) => {
+  // Register project artifact (for manual testing)
+  app.post('/api/demo/webstudio-order/project-artifacts/register', async (req, res) => {
     try {
-      const artifactId = String(req.params.artifactId || '').trim();
-      const artifact = await getProjectArtifact(ROOT, artifactId);
-      if (!artifact) return res.status(404).json({ ok: false, error: 'artifact_not_found' });
-      const currentVersionId = await getCurrentVersion({ artifact });
-      res.json({ ok: true, current_version_id: currentVersionId });
+      const { order_id, project_type, scenario, title, status, artifact_root } = req.body || {};
+      if (!order_id || !project_type || !artifact_root) {
+        return res.status(400).json({ ok: false, error: 'order_id, project_type, artifact_root required' });
+      }
+      const artifactId = `ws-project-artifact-${project_type}-${order_id}-${String(scenario || 'mvp').replace(/[^a-zA-Z0-9_-]/g, '-')}`;
+      const registeredArtifact = await registerProjectArtifact(ROOT, {
+        order_id,
+        project_type,
+        scenario: scenario || 'mvp',
+        title: title || `${project_type} package`,
+        status: status || 'completed',
+        artifact_root,
+        source: 'manual_registration',
+      });
+      res.status(201).json({ ok: true, artifact_id: artifactId, ...registeredArtifact });
     } catch (error) {
       res.status(500).json({ ok: false, error: String(error.message || error) });
     }
   });
 
-  // Platform capabilities surface
+// Platform capabilities surface
   app.get('/api/demo/webstudio-order/platform-capabilities', async (req, res) => {
     try {
       const surface = getPlatformCapabilitiesSurface();
