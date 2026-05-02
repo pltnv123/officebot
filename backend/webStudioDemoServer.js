@@ -768,6 +768,49 @@ async function main() {
     }
   });
 
+  // Save new bot version (alias for universal versions endpoint)
+  app.post('/api/demo/webstudio-order/project-artifact/:artifactId/bot-version', async (req, res) => {
+    try {
+      const artifactId = String(req.params.artifactId || '').trim();
+      const { edited_source, version_label } = req.body || {};
+      if (!edited_source) return res.status(400).json({ ok: false, error: 'edited_source_required' });
+      
+      const artifact = await getProjectArtifact(ROOT, artifactId);
+      if (!artifact) return res.status(404).json({ ok: false, error: 'artifact_not_found' });
+      
+      // Validate edited source
+      if (typeof edited_source !== 'string') {
+        return res.status(400).json({ ok: false, error: 'edited_source_validation_failed' });
+      }
+      if (edited_source.includes('`') || edited_source.includes('$(') || edited_source.includes('import os') || edited_source.includes('import sys') || edited_source.includes('subprocess')) {
+        return res.status(400).json({ ok: false, error: 'edited_source_validation_failed', reason: 'unsafe_python_source' });
+      }
+      
+      const result = await saveNewVersion({ artifact, editedSource: edited_source, versionLabel: version_label });
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ ok: false, error: String(error.message || error) });
+    }
+  });
+
+  // Restore bot version (alias for universal versions endpoint)
+  app.post('/api/demo/webstudio-order/project-artifact/:artifactId/bot-version/:versionId/restore', async (req, res) => {
+    try {
+      const artifactId = String(req.params.artifactId || '').trim();
+      const versionId = String(req.params.versionId || '').trim();
+      
+      const artifact = await getProjectArtifact(ROOT, artifactId);
+      if (!artifact) return res.status(404).json({ ok: false, error: 'artifact_not_found' });
+      
+      const result = await restoreVersion({ artifact, versionId });
+      if (!result.ok) return res.status(404).json(result);
+      
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ ok: false, error: String(error.message || error) });
+    }
+  });
+
   // Get current version
   app.get('/api/demo/webstudio-order/project-artifact/:artifactId/current-version', async (req, res) => {
     try {

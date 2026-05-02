@@ -178,7 +178,7 @@ async function listVersions({ artifact }) {
     
     // If no versions found, ensure v0001 exists
     if (versions.length === 0) {
-      await ensureGeneratedVersion({ artifact, rootDir: process.cwd() });
+      await ensureGeneratedVersion({ artifact, rootDir: artifactRoot });
       // Re-read versions after ensuring v0001
       const filesAfter = await fsPromises.readdir(versionsDir).catch(() => []);
       for (const file of filesAfter) {
@@ -226,7 +226,7 @@ async function ensureGeneratedVersion({ artifact, rootDir }) {
   const versionsDir = path.join(artifactRoot, 'versions');
   const v0001File = path.join(versionsDir, 'v0001.py');
   const v0001MetaFile = path.join(versionsDir, 'v0001.json');
-  const scriptPath = path.join(artifactRoot, 'script.py');
+  const projectType = artifact.project_type || 'script'; const primaryFileName = projectType === 'telegram_bot' ? 'bot.py' : 'script.py'; const scriptPath = path.join(artifactRoot, primaryFileName);
   
   // Check if v0001 already exists
   try {
@@ -463,11 +463,25 @@ async function runScriptArtifact({ artifact, rootDir, editedSource }) {
   });
 }
 
-async function runTelegramBotArtifact({ artifact, rootDir }) {
+async function runTelegramBotArtifact({ artifact, rootDir, editedSource }) {
   const artifactRoot = await validateArtifactRoot({ artifact, rootDir });
   
   const command = ['python3', 'dry_run_test.py'];
   const startTime = Date.now();
+  
+  // Handle edited source before spawn
+  let originalBotSource = null;
+  if (editedSource !== undefined) {
+    if (typeof editedSource !== 'string') {
+      throw new Error('edited_source_validation_failed');
+    }
+    if (editedSource.includes('`') || editedSource.includes('$(') || editedSource.includes('import os') || editedSource.includes('import sys') || editedSource.includes('subprocess')) {
+      throw new Error('edited_source_validation_failed');
+    }
+    const botPath = path.join(artifactRoot, 'bot.py');
+    originalBotSource = await fsPromises.readFile(botPath, 'utf8');
+    await fsPromises.writeFile(botPath, editedSource, 'utf8');
+  }
   
   return new Promise((resolve, reject) => {
     const child = spawn(command[0], command.slice(1), {
@@ -492,10 +506,16 @@ async function runTelegramBotArtifact({ artifact, rootDir }) {
       const duration_ms = Date.now() - startTime;
       const ok = code === 0;
       
+      // Read actual output first
+      const actualOutputPath = path.join(artifactRoot, 'actual_output.txt');
+      let actualOutput = stdout;
       try {
-        const actualOutputPath = path.join(artifactRoot, 'actual_output.txt');
-        await fsPromises.writeFile(actualOutputPath, stdout, 'utf8');
-        
+        actualOutput = await fsPromises.readFile(actualOutputPath, 'utf8');
+      } catch (err) {
+        // Use stdout if actual_output.txt doesn't exist
+      }
+      
+      try {
         const testLogPath = path.join(artifactRoot, 'test_run.log');
         const existingLog = await fsPromises.readFile(testLogPath, 'utf8').catch(() => '');
         const newLogEntry = [
@@ -511,10 +531,16 @@ async function runTelegramBotArtifact({ artifact, rootDir }) {
         console.error('Failed to write run logs:', logErr);
       }
       
+      // Restore original bot.py if we modified it
+      if (originalBotSource !== null) {
+        const botPath = path.join(artifactRoot, 'bot.py');
+        await fsPromises.writeFile(botPath, originalBotSource, 'utf8');
+      }
+      
       resolve({
         command,
         exit_code: code,
-        stdout,
+        stdout: actualOutput,
         stderr,
         duration_ms,
         ok,
@@ -535,10 +561,7 @@ async function runProjectArtifact({ artifactId, rootDir, editedSource }) {
   if (projectType === 'script') {
     result = await runScriptArtifact({ artifact, rootDir, editedSource });
   } else if (projectType === 'telegram_bot') {
-    if (editedSource) {
-      throw new Error('edited_source_not_supported_for_telegram_bot');
-    }
-    result = await runTelegramBotArtifact({ artifact, rootDir });
+    result = await runTelegramBotArtifact({ artifact, rootDir, editedSource });
   } else {
     throw new Error(`run_not_supported_for_project_type:${projectType}`);
   }
@@ -585,7 +608,7 @@ async function runProjectArtifact({ artifactId, rootDir, editedSource }) {
 
 module.exports = {
   runProjectArtifact,
-  runScriptArtifact,
+  runScriptArtifact: runProjectArtifact, // alias
   runTelegramBotArtifact,
   validateArtifactRoot,
   writeRunResult,

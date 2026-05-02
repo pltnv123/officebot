@@ -250,6 +250,41 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
           <div class="field"><h3>actual_output.txt</h3><pre id="script-output-preview"></pre></div>
         </div>
 
+        <div id="telegram-bot-program-panel" class="panel hidden">
+          <div class="preview-head"><div><h2 style="margin-bottom:6px;">Telegram Bot Program</h2><div class="preview-note">Editable bot.py with dry-run, versioning, and restore.</div></div></div>
+          <div id="telegram-program-header" class="meta-grid" style="margin:12px 0;"></div>
+          <div class="row" style="margin-bottom:8px;">
+            <button id="run-telegram-bot-dryrun-btn" class="primary">Run Dry-Run</button>
+            <button id="telegram-save-version-btn" class="secondary">Save as new version</button>
+            <button id="telegram-restore-version-btn" class="secondary">Restore selected version</button>
+            <button id="telegram-reset-btn" class="secondary">Reset to current version</button>
+            <button id="telegram-open-delivery-btn" class="secondary">Open client delivery</button>
+            <button id="telegram-download-zip-btn" class="secondary">Download ZIP</button>
+            <select id="telegram-versions-dropdown" class="secondary" style="margin-left:12px; min-width:200px;"><option value="">Versions...</option></select>
+            <span id="telegram-dirty-badge" class="chip hidden" style="margin-left:auto;"><span class="muted">Unsaved changes</span></span>
+          </div>
+          <div class="field">
+            <div class="code-header"><span class="filename">bot.py</span><span id="telegram-run-state" class="muted">idle</span></div>
+            <pre id="telegram-code-block" class="code-block">No telegram bot executed yet.</pre>
+            <textarea id="telegram-editor" class="code-block hidden" spellcheck="false"></textarea>
+          </div>
+          <div id="telegram-dryrun-output" class="hidden">
+            <h3 style="margin-top:16px;">Dry-Run Output</h3>
+            <div id="telegram-dryrun-meta" class="meta-grid"></div>
+            <div class="field"><h4>Transcript</h4><pre id="telegram-transcript"></pre></div>
+            <div class="field"><h4>applications.csv</h4><pre id="telegram-csv-result"></pre></div>
+            <div class="field hidden" id="telegram-stderr-field"><h4>stderr</h4><pre id="telegram-stderr"></pre></div>
+          </div>
+          <div id="telegram-version-panel" class="panel hidden" style="margin-top:16px;">
+            <h3>Version Control</h3>
+            <div id="telegram-versions-list" class="file-list"></div>
+          </div>
+          <div id="telegram-run-history-panel" class="panel hidden" style="margin-top:16px;">
+            <h3>Run History</h3>
+            <div id="telegram-run-history-list" class="file-list"></div>
+          </div>
+        </div>
+
         <div id="telegram-bot-result-panel" class="panel hidden">
           <div class="preview-head"><div><h2 style="margin-bottom:6px;">Telegram Bot MVP Result</h2><div class="preview-note">Bounded local telegram bot package with dry-run QA, без реального Telegram API.</div></div></div>
           <div id="telegram-bot-meta" class="meta-grid"></div>
@@ -544,6 +579,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       $('script-program-panel').classList.toggle('hidden', !isScript || !state.lastScriptResult);
       $('script-run-history-panel').classList.toggle('hidden', !isScript || !state.currentScriptProjectArtifactId);
       $('script-supporting-files-panel').classList.toggle('hidden', !isScript || !state.lastScriptResult);
+      $('telegram-bot-program-panel').classList.toggle('hidden', !isTelegram || !state.lastTelegramBotResult);
       $('telegram-bot-result-panel').classList.toggle('hidden', !isTelegram || !state.lastTelegramBotResult);
       $('refresh-script-surface-btn').classList.toggle('hidden', !isScript);
       $('refresh-telegram-bot-surface-btn').classList.toggle('hidden', !isTelegram);
@@ -654,10 +690,14 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     async function renderTelegramBotSurface(surface) {
       state.currentProjectType = 'telegram_bot';
       state.currentBotOrderId = surface.order_id || state.currentBotOrderId;
+      state.currentBotProjectArtifactId = surface.bot_execution?.artifact_id;
       state.lastTelegramBotResult = { order_id: surface.order_id, project_type: 'telegram_bot', scenario: surface.bot_execution?.scenario, language: surface.bot_execution?.language, safety_level: surface.bot_execution?.safety_level, artifact_id: surface.bot_execution?.artifact_id, bot_execution_id: surface.bot_execution?.bot_execution_id, artifact_root: surface.bot_execution?.artifact_root, files: surface.files, safe_routes: surface.safe_routes, test: surface.test, next_action: surface.next_action };
-      renderMetaGrid($('telegram-bot-meta'), [['Scenario', surface.bot_execution?.scenario || 'pending'], ['Language', surface.bot_execution?.language || 'python'], ['Safety level', surface.bot_execution?.safety_level || 'bounded_demo'], ['Test status', surface.test?.ok ? 'ok' : 'failed'], ['Command', surface.test?.command || 'pending'], ['Next action', surface.next_action || 'review_telegram_bot_package']]);
-      $('telegram-bot-files').innerHTML = Object.entries(surface.safe_routes || {}).map(([key, route]) => '<a class="linkish" href="' + route + '" target="_blank" rel="noopener">' + safe(key) + ' → ' + safe(surface.files?.[key]) + '</a>').join('');
+      renderMetaGrid($('telegram-program-header'), [['Scenario', surface.bot_execution?.scenario || 'pending'], ['Language', surface.bot_execution?.language || 'python'], ['Safety level', surface.bot_execution?.safety_level || 'bounded_demo'], ['Test status', surface.test?.ok ? 'ok' : 'failed'], ['Command', surface.test?.command || 'pending'], ['Next action', surface.next_action || 'review_telegram_bot_package']]);
       const [botText, readmeText, envText, dryRunText, csvText, logText, outputText] = await Promise.all([fetchText(surface.safe_routes.bot), fetchText(surface.safe_routes.readme), fetchText(surface.safe_routes.env_example), fetchText(surface.safe_routes.dry_run_test), fetchText(surface.safe_routes.applications_csv), fetchText(surface.safe_routes.test_run_log), fetchText(surface.safe_routes.actual_output)]);
+      telegramBotOriginalSource = botText;
+      telegramBotDirty = false;
+      $('telegram-code-block').textContent = botText;
+      $('telegram-editor').value = botText;
       $('telegram-bot-preview').textContent = botText;
       $('telegram-readme-preview').textContent = readmeText;
       $('telegram-env-preview').textContent = envText;
@@ -665,6 +705,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       $('telegram-csv-preview').textContent = csvText;
       $('telegram-log-preview').textContent = logText;
       $('telegram-output-preview').textContent = outputText;
+      await loadTelegramBotVersions();
       updateHeaderChips(); updateDebugJson(); syncProjectVisibility();
     }
 
@@ -959,6 +1000,196 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     renderPlan({ project_type: 'unknown', normalized_brief: 'Заполните brief, чтобы получить routing plan для проекта.', recommended_workflow: 'brief_intake_router_flow', required_agents: ['CTO'], expected_artifacts: ['project plan'], execution_stages: ['Collect brief', 'Analyze request', 'Route to matching workflow'], qa_plan: ['Check required fields', 'Validate project classification'], clarification_questions: [], next_action: 'Analyze Brief / Create Plan', desired_deliverable: $('deliverable-select').value, tech_preference: $('tech-select').value });
     loadPlatformCapabilities().catch(() => {});
     loadArtifactLibrary().catch(() => {});
+
+    // Telegram Bot Program Panel handlers
+    let telegramBotOriginalSource = '';
+    let telegramBotDirty = false;
+    let telegramBotCurrentVersionId = 'v0001';
+
+    async function loadTelegramBotVersions() {
+      if (!state.currentBotProjectArtifactId) {
+        $('telegram-versions-dropdown').innerHTML = '<option value="">Versions...</option>';
+        $('current-version-display').textContent = 'v0001';
+        return;
+      }
+      try {
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentBotProjectArtifactId) + '/versions');
+        const data = await response.json();
+        const versions = data.versions || [];
+        const currentVersionId = data.current_version_id || 'v0001';
+        telegramBotCurrentVersionId = currentVersionId;
+        
+        $('telegram-versions-dropdown').innerHTML = '<option value="">Versions...</option>' + versions.map((v) => '<option value="' + v.version_id + '">' + v.version_id + ' — ' + (v.version_label || 'Generated version') + '</option>').join('');
+        $('telegram-versions-list').innerHTML = versions.map((v) => '<div class="file-list-item"><span>' + v.version_id + ' — ' + (v.version_label || 'Generated version') + '</span><button class="secondary" data-version-id="' + v.version_id + '">Load</button></div>').join('');
+      } catch (error) {
+        console.warn('Failed to load telegram bot versions', error);
+      }
+    }
+
+    async function runTelegramBotDryRun(editedSource) {
+      if (!state.currentBotProjectArtifactId) {
+        setStatus('No project_artifact_id available');
+        return;
+      }
+      const runBtn = $('run-telegram-bot-dryrun-btn');
+      const runState = $('telegram-run-state');
+      runBtn.disabled = true;
+      runBtn.textContent = 'Running...';
+      runState.textContent = 'running';
+      setStatus(editedSource !== undefined ? 'running edited telegram bot dry-run…' : 'running telegram bot dry-run…');
+
+      try {
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentBotProjectArtifactId) + '/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(editedSource !== undefined ? { edited_source: editedSource } : {}),
+        });
+        const result = await response.json();
+
+        if (!result.ok) {
+          setStatus('Dry-run failed: ' + (result.error || result.reason || 'Unknown error'));
+          runBtn.disabled = false;
+          runBtn.textContent = 'Run Dry-Run';
+          runState.textContent = 'failed';
+          return;
+        }
+
+        renderTelegramBotDryRunOutput(result);
+        await loadTelegramBotRunHistory();
+        setStatus('Telegram bot dry-run completed');
+      } catch (error) {
+        setStatus('Dry-run error: ' + error.message);
+      } finally {
+        runBtn.disabled = false;
+        runBtn.textContent = 'Run Dry-Run';
+        runState.textContent = 'idle';
+      }
+    }
+
+    function renderTelegramBotDryRunOutput(result) {
+      $('telegram-dryrun-output').classList.remove('hidden');
+      const meta = [
+        ['Exit code', result.exit_code],
+        ['Duration', (result.duration_ms / 1000).toFixed(2) + 's'],
+        ['Status', result.ok ? 'ok' : 'failed'],
+      ];
+      renderMetaGrid($('telegram-dryrun-meta'), meta);
+      $('telegram-transcript').textContent = result.stdout || '';
+      $('telegram-stderr').textContent = result.stderr || '';
+      $('telegram-stderr-field').classList.toggle('hidden', !result.stderr);
+    }
+
+    async function loadTelegramBotRunHistory() {
+      try {
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentBotProjectArtifactId) + '/run-history');
+        const data = await response.json();
+        const runs = data.runs || [];
+        $('telegram-run-history-list').innerHTML = runs.slice().reverse().map((run) => '<div class="file-list-item"><span>' + run.run_id + ' — ' + (run.ok ? 'ok' : 'failed') + ' — ' + new Date(run.created_at).toLocaleString() + '</span></div>').join('');
+        $('telegram-run-history-panel').classList.remove('hidden');
+      } catch (error) {
+        console.warn('Failed to load telegram bot run history', error);
+      }
+    }
+
+    $('run-telegram-bot-dryrun-btn').addEventListener('click', () => {
+      const editedSource = $('telegram-editor').classList.contains('hidden') ? undefined : $('telegram-editor').value;
+      runTelegramBotDryRun(editedSource);
+    });
+
+    $('telegram-save-version-btn').addEventListener('click', async () => {
+      if (!state.currentBotProjectArtifactId) return;
+      const editedSource = $('telegram-editor').value;
+      try {
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentBotProjectArtifactId) + '/script-version', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ edited_source: editedSource }),
+        });
+        const result = await response.json();
+        if (!result.ok) throw new Error(result.error || 'Failed to save version');
+        telegramBotOriginalSource = editedSource;
+        telegramBotDirty = false;
+        $('telegram-code-block').textContent = editedSource;
+        $('telegram-code-block').classList.remove('hidden');
+        $('telegram-editor').classList.add('hidden');
+        $('telegram-dirty-badge').classList.add('hidden');
+        await loadTelegramBotVersions();
+        setStatus('Version saved: ' + result.version_id);
+      } catch (error) {
+        setStatus('Save failed: ' + error.message);
+      }
+    });
+
+    $('telegram-restore-version-btn').addEventListener('click', async () => {
+      const versionId = $('telegram-versions-dropdown').value;
+      if (!versionId || !state.currentBotProjectArtifactId) return;
+      try {
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentBotProjectArtifactId) + '/script-version/' + encodeURIComponent(versionId) + '/restore', {
+          method: 'POST',
+        });
+        const result = await response.json();
+        if (!result.ok) throw new Error(result.error || 'Failed to restore version');
+        telegramBotOriginalSource = result.source;
+        telegramBotDirty = false;
+        $('telegram-code-block').textContent = result.source;
+        $('telegram-editor').value = result.source;
+        $('telegram-code-block').classList.remove('hidden');
+        $('telegram-editor').classList.add('hidden');
+        $('telegram-dirty-badge').classList.add('hidden');
+        await loadTelegramBotVersions();
+        setStatus('Version restored: ' + versionId);
+      } catch (error) {
+        setStatus('Restore failed: ' + error.message);
+      }
+    });
+
+    $('telegram-reset-btn').addEventListener('click', () => {
+      $('telegram-editor').value = telegramBotOriginalSource || '';
+      telegramBotDirty = false;
+      $('telegram-dirty-badge').classList.add('hidden');
+    });
+
+    $('telegram-editor').addEventListener('input', () => {
+      telegramBotDirty = true;
+      $('telegram-dirty-badge').classList.remove('hidden');
+    });
+
+    $('telegram-versions-dropdown').addEventListener('change', async (e) => {
+      const versionId = e.target.value;
+      if (!versionId || !state.currentBotProjectArtifactId) return;
+      try {
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentBotProjectArtifactId) + '/version/' + encodeURIComponent(versionId));
+        const data = await response.json();
+        if (!data.ok) throw new Error(data.error || 'Failed to load version');
+        $('telegram-editor').value = data.source;
+        telegramBotDirty = false;
+        $('telegram-dirty-badge').classList.add('hidden');
+      } catch (error) {
+        setStatus('Load version failed: ' + error.message);
+      }
+    });
+
+    $('telegram-open-delivery-btn').addEventListener('click', () => {
+      if (!state.currentBotProjectArtifactId) return;
+      window.open('/webstudio/client-delivery/' + encodeURIComponent(state.currentBotProjectArtifactId), '_blank');
+    });
+
+    $('telegram-download-zip-btn').addEventListener('click', async () => {
+      if (!state.currentBotProjectArtifactId) return;
+      try {
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentBotProjectArtifactId) + '/export-zip');
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'telegram-bot-' + state.currentBotProjectArtifactId + '.zip';
+        a.click();
+        window.URL.revokeObjectURL(url);
+        setStatus('ZIP download started');
+      } catch (error) {
+        setStatus('ZIP export failed: ' + error.message);
+      }
+    });
   </script>
 </body>
 </html>`;
