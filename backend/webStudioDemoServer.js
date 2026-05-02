@@ -12,7 +12,7 @@ const { createWebStudioProjectRouterService } = require('./controlPlane/services
 const { analyzeScriptScenario, createScriptExecutionPackage, runScriptSmoke } = require('./controlPlane/services/webStudio/webStudioScriptExecutionService');
 const { analyzeTelegramBotScenario, createTelegramBotExecutionPackage, runTelegramBotDryRun } = require('./controlPlane/services/webStudio/webStudioTelegramBotExecutionService');
 const { registerProjectArtifact, listProjectArtifacts, getProjectArtifact } = require('./controlPlane/services/webStudio/webStudioProjectArtifactLibraryService');
-const { runProjectArtifact, getRunHistory, listVersions, loadVersion } = require('./controlPlane/services/webStudio/webStudioArtifactRunService');
+const { runProjectArtifact, getRunHistory, listVersions, loadVersion, ensureGeneratedVersion, saveNewVersion, restoreVersion, getCurrentVersion } = require('./controlPlane/services/webStudio/webStudioArtifactRunService');
 const { renderWebStudioDemoPage } = require('./webStudioDemoPage');
 const { renderWebStudioDeliveryPage } = require('./webStudioDeliveryPage');
 
@@ -503,8 +503,8 @@ async function main() {
       const artifactId = String(req.params.artifactId || '').trim();
       const artifact = await getProjectArtifact(ROOT, artifactId);
       if (!artifact) return res.status(404).json({ ok: false, error: 'artifact_not_found' });
-      const versions = await listVersions({ artifact });
-      res.json({ ok: true, versions });
+      const result = await listVersions({ artifact });
+      res.json({ ok: true, ...result });
     } catch (error) {
       res.status(500).json({ ok: false, error: String(error.message || error) });
     }
@@ -708,6 +708,75 @@ async function main() {
       res.type('html').send(html);
     } catch {
       res.status(404).send('preview not found');
+    }
+  });
+
+  // Ensure generated version (v0001)
+  app.post('/api/demo/webstudio-order/project-artifact/:artifactId/ensure-generated-version', async (req, res) => {
+    try {
+      const artifactId = String(req.params.artifactId || '').trim();
+      const artifact = await getProjectArtifact(ROOT, artifactId);
+      if (!artifact) return res.status(404).json({ ok: false, error: 'artifact_not_found' });
+      const result = await ensureGeneratedVersion({ artifact, rootDir: ROOT });
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ ok: false, error: String(error.message || error) });
+    }
+  });
+
+  // Save new version from editor
+  app.post('/api/demo/webstudio-order/project-artifact/:artifactId/script-version', async (req, res) => {
+    try {
+      const artifactId = String(req.params.artifactId || '').trim();
+      const { edited_source, version_label } = req.body || {};
+      if (!edited_source) return res.status(400).json({ ok: false, error: 'edited_source_required' });
+      
+      const artifact = await getProjectArtifact(ROOT, artifactId);
+      if (!artifact) return res.status(404).json({ ok: false, error: 'artifact_not_found' });
+      
+      // Validate edited source
+      if (typeof edited_source !== 'string') {
+        return res.status(400).json({ ok: false, error: 'edited_source_validation_failed' });
+      }
+      if (edited_source.includes('`') || edited_source.includes('$(') || edited_source.includes('import os') || edited_source.includes('import sys') || edited_source.includes('subprocess')) {
+        return res.status(400).json({ ok: false, error: 'edited_source_validation_failed', reason: 'unsafe_python_source' });
+      }
+      
+      const result = await saveNewVersion({ artifact, editedSource: edited_source, versionLabel: version_label });
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ ok: false, error: String(error.message || error) });
+    }
+  });
+
+  // Restore version
+  app.post('/api/demo/webstudio-order/project-artifact/:artifactId/script-version/:versionId/restore', async (req, res) => {
+    try {
+      const artifactId = String(req.params.artifactId || '').trim();
+      const versionId = String(req.params.versionId || '').trim();
+      
+      const artifact = await getProjectArtifact(ROOT, artifactId);
+      if (!artifact) return res.status(404).json({ ok: false, error: 'artifact_not_found' });
+      
+      const result = await restoreVersion({ artifact, versionId });
+      if (!result.ok) return res.status(404).json(result);
+      
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ ok: false, error: String(error.message || error) });
+    }
+  });
+
+  // Get current version
+  app.get('/api/demo/webstudio-order/project-artifact/:artifactId/current-version', async (req, res) => {
+    try {
+      const artifactId = String(req.params.artifactId || '').trim();
+      const artifact = await getProjectArtifact(ROOT, artifactId);
+      if (!artifact) return res.status(404).json({ ok: false, error: 'artifact_not_found' });
+      const currentVersionId = await getCurrentVersion({ artifact });
+      res.json({ ok: true, current_version_id: currentVersionId });
+    } catch (error) {
+      res.status(500).json({ ok: false, error: String(error.message || error) });
     }
   });
 

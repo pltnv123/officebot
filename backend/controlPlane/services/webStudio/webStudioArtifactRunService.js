@@ -127,16 +127,30 @@ async function saveEditedVersion({ artifact, editedSource, runId }) {
   // Create versions directory if it doesn't exist
   await fsPromises.mkdir(versionsDir, { recursive: true });
   
-  // Save edited version with timestamp
-  const versionFile = path.join(versionsDir, `${runId}.py`);
-  const metadataFile = path.join(versionsDir, `${runId}.json`);
+  // Find next version number
+  const files = await fsPromises.readdir(versionsDir).catch(() => []);
+  const versionNumbers = files
+    .filter(f => /^v\d{4}\.py$/.test(f))
+    .map(f => parseInt(f.slice(1, 5), 10))
+    .filter(n => !isNaN(n));
+  const nextVersionNum = (versionNumbers.length > 0 ? Math.max(...versionNumbers) : 0) + 1;
+  const versionId = `v${String(nextVersionNum).padStart(4, '0')}`;
+  
+  // Save edited version with vXXXX format
+  const versionFile = path.join(versionsDir, `${versionId}.py`);
+  const metadataFile = path.join(versionsDir, `${versionId}.json`);
   
   await fsPromises.writeFile(versionFile, editedSource, 'utf8');
   await fsPromises.writeFile(metadataFile, JSON.stringify({
+    version_id: versionId,
     run_id: runId,
+    label: `Edited version ${nextVersionNum}`,
+    source_type: 'operator_edit',
     saved_at: nowIso(),
     source_length: editedSource.length,
   }, null, 2), 'utf8');
+  
+  return { version_id: versionId };
 }
 
 async function listVersions({ artifact }) {
@@ -152,30 +166,155 @@ async function listVersions({ artifact }) {
         const metadataPath = path.join(versionsDir, file);
         const metadata = JSON.parse(await fsPromises.readFile(metadataPath, 'utf8'));
         versions.push({
-          run_id: metadata.run_id,
-          saved_at: metadata.saved_at,
+          version_id: metadata.version_id || file.replace('.json', ''),
+          run_id: metadata.run_id || null,
+          label: metadata.label || metadata.version_id || file.replace('.json', ''),
+          source_type: metadata.source_type || 'unknown',
+          saved_at: metadata.saved_at || metadata.created_at,
           version_file: file.replace('.json', '.py'),
         });
       }
     }
     
-    // Sort by saved_at descending (newest first)
-    versions.sort((a, b) => new Date(b.saved_at) - new Date(a.saved_at));
-    return versions;
+    // Sort by version_id ascending (v0001 first)
+    versions.sort((a, b) => a.version_id.localeCompare(b.version_id));
+    
+    // Get current version
+    const currentVersionId = await getCurrentVersion({ artifact });
+    
+    return { versions, current_version_id: currentVersionId };
   } catch (err) {
-    return [];
+    return { versions: [], current_version_id: 'v0001' };
   }
 }
 
-async function loadVersion({ artifact, runId }) {
+async function loadVersion({ artifact, versionId }) {
   const artifactRoot = path.resolve(String(artifact.artifact_root || ''));
   const versionsDir = path.join(artifactRoot, 'versions');
-  const versionFile = path.join(versionsDir, `${runId}.py`);
+  const versionFile = path.join(versionsDir, `${versionId}.py`);
   
   try {
     return await fsPromises.readFile(versionFile, 'utf8');
   } catch (err) {
     return null;
+  }
+}
+
+async function ensureGeneratedVersion({ artifact, rootDir }) {
+  const artifactRoot = path.resolve(String(artifact.artifact_root || ''));
+  const versionsDir = path.join(artifactRoot, 'versions');
+  const v0001File = path.join(versionsDir, 'v0001.py');
+  const v0001MetaFile = path.join(versionsDir, 'v0001.json');
+  const scriptPath = path.join(artifactRoot, 'script.py');
+  
+  // Check if v0001 already exists
+  try {
+    await fsPromises.access(v0001File);
+    return { ok: true, version_id: 'v0001', exists: true };
+  } catch {}
+  
+  // Create versions directory
+  await fsPromises.mkdir(versionsDir, { recursive: true });
+  
+  // Read current script.py as generated version
+  let generatedSource;
+  try {
+    generatedSource = await fsPromises.readFile(scriptPath, 'utf8');
+  } catch (err) {
+    return { ok: false, error: 'script_not_found' };
+  }
+  
+  // Save v0001
+  await fsPromises.writeFile(v0001File, generatedSource, 'utf8');
+  await fsPromises.writeFile(v0001MetaFile, JSON.stringify({
+    version_id: 'v0001',
+    label: 'Generated version',
+    source_type: 'generated',
+    created_at: nowIso(),
+    source_length: generatedSource.length,
+  }, null, 2), 'utf8');
+  
+  return { ok: true, version_id: 'v0001', exists: false, created: true };
+}
+
+async function saveNewVersion({ artifact, editedSource, versionLabel }) {
+  const artifactRoot = path.resolve(String(artifact.artifact_root || ''));
+  const versionsDir = path.join(artifactRoot, 'versions');
+  
+  // Create versions directory if it doesn't exist
+  await fsPromises.mkdir(versionsDir, { recursive: true });
+  
+  // Find next version number
+  const files = await fsPromises.readdir(versionsDir).catch(() => []);
+  const versionNumbers = files
+    .filter(f => /^v\d{4}\.py$/.test(f))
+    .map(f => parseInt(f.slice(1, 5), 10))
+    .filter(n => !isNaN(n));
+  const nextVersionNum = (versionNumbers.length > 0 ? Math.max(...versionNumbers) : 0) + 1;
+  const versionId = `v${String(nextVersionNum).padStart(4, '0')}`;
+  
+  // Save version
+  const versionFile = path.join(versionsDir, `${versionId}.py`);
+  const metadataFile = path.join(versionsDir, `${versionId}.json`);
+  
+  await fsPromises.writeFile(versionFile, editedSource, 'utf8');
+  await fsPromises.writeFile(metadataFile, JSON.stringify({
+    version_id: versionId,
+    label: versionLabel || `Edited version ${nextVersionNum}`,
+    source_type: 'operator_edit',
+    created_at: nowIso(),
+    source_length: editedSource.length,
+  }, null, 2), 'utf8');
+  
+  return { ok: true, version_id: versionId };
+}
+
+async function restoreVersion({ artifact, versionId }) {
+  const artifactRoot = path.resolve(String(artifact.artifact_root || ''));
+  const versionsDir = path.join(artifactRoot, 'versions');
+  const versionFile = path.join(versionsDir, `${versionId}.py`);
+  const scriptPath = path.join(artifactRoot, 'script.py');
+  
+  // Validate versionId format
+  if (!/^v\d{4}$/.test(versionId)) {
+    return { ok: false, error: 'invalid_version_id_format' };
+  }
+  
+  // Read version source
+  let versionSource;
+  try {
+    versionSource = await fsPromises.readFile(versionFile, 'utf8');
+  } catch (err) {
+    return { ok: false, error: 'version_not_found' };
+  }
+  
+  // Restore to script.py
+  await fsPromises.writeFile(scriptPath, versionSource, 'utf8');
+  
+  // Update current_version_id in manifest or state
+  const currentVersionIndexPath = path.join(artifactRoot, 'current_version.json');
+  await fsPromises.writeFile(currentVersionIndexPath, JSON.stringify({
+    current_version_id: versionId,
+    restored_at: nowIso(),
+  }, null, 2), 'utf8');
+  
+  return {
+    ok: true,
+    version_id: versionId,
+    source: versionSource,
+    script_route: `/api/webstudio-script-artifact/${artifact.order_id}/script.py`,
+  };
+}
+
+async function getCurrentVersion({ artifact }) {
+  const artifactRoot = path.resolve(String(artifact.artifact_root || ''));
+  const currentVersionIndexPath = path.join(artifactRoot, 'current_version.json');
+  
+  try {
+    const data = JSON.parse(await fsPromises.readFile(currentVersionIndexPath, 'utf8'));
+    return data.current_version_id || 'v0001';
+  } catch {
+    return 'v0001';
   }
 }
 
@@ -423,4 +562,8 @@ module.exports = {
   saveEditedVersion,
   listVersions,
   loadVersion,
+  ensureGeneratedVersion,
+  saveNewVersion,
+  restoreVersion,
+  getCurrentVersion,
 };

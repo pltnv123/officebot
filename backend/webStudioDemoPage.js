@@ -198,6 +198,20 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
               <button id="run-script-btn" class="primary">Run</button>
             </div>
           </div>
+          <div id="script-version-control" class="panel" style="margin-bottom:16px;">
+            <h3 style="margin:0 0 8px 0;">Version Control</h3>
+            <div class="row" style="align-items:center;">
+              <span class="muted">Current version:</span>
+              <strong id="current-version-display">v0001</strong>
+              <select id="version-selector" class="secondary" style="margin-left:12px; min-width:200px;"><option value="">Select version...</option></select>
+            </div>
+            <div class="row" style="margin-top:8px;">
+              <button id="load-version-btn" class="secondary">Load selected into editor</button>
+              <button id="restore-version-btn" class="secondary">Restore selected version</button>
+              <button id="save-as-version-btn" class="primary">Save editor as new version</button>
+              <button id="reset-editor-btn" class="secondary">Reset editor to current version</button>
+            </div>
+          </div>
           <div id="script-program-header" class="meta-grid" style="margin:12px 0;"></div>
           <div class="row" style="margin-bottom:8px;">
             <button id="edit-script-btn" class="secondary">Edit</button>
@@ -312,27 +326,43 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     async function loadScriptVersions() {
       if (!state.currentScriptProjectArtifactId) {
         $('script-versions-dropdown').innerHTML = '<option value="">Versions...</option>';
+        $('version-selector').innerHTML = '<option value="">Select version...</option>';
+        $('current-version-display').textContent = 'v0001';
         return;
       }
       try {
         const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentScriptProjectArtifactId) + '/versions');
         const data = await response.json();
         const versions = data.versions || [];
+        const currentVersionId = data.current_version_id || 'v0001';
+        
+        // Update old dropdown (for backward compatibility)
         const dropdown = $('script-versions-dropdown');
         dropdown.innerHTML = '<option value="">Versions...</option>' + versions.map(v => 
-          '<option value="' + v.run_id + '">' + new Date(v.saved_at).toLocaleString() + ' (' + v.run_id.slice(-6) + ')</option>'
+          '<option value="' + v.version_id + '">' + v.label + ' (' + v.version_id + ')</option>'
         ).join('');
+        
+        // Update new version selector
+        const versionSelector = $('version-selector');
+        versionSelector.innerHTML = '<option value="">Select version...</option>' + versions.map(v => 
+          '<option value="' + v.version_id + '">' + v.label + ' (' + v.source_type + ')</option>'
+        ).join('');
+        
+        // Update current version display
+        $('current-version-display').textContent = currentVersionId;
+        state.currentVersionId = currentVersionId;
       } catch (error) {
         console.warn('Failed to load versions:', error);
         $('script-versions-dropdown').innerHTML = '<option value="">Versions (error)</option>';
+        $('version-selector').innerHTML = '<option value="">Select version...</option>';
       }
     }
 
     $('script-versions-dropdown')?.addEventListener('change', async (e) => {
-      const runId = e.target.value;
-      if (!runId) return;
+      const versionId = e.target.value;
+      if (!versionId) return;
       try {
-        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentScriptProjectArtifactId) + '/version/' + encodeURIComponent(runId));
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentScriptProjectArtifactId) + '/version/' + encodeURIComponent(versionId));
         const data = await response.json();
         if (data.ok && data.source) {
           $('script-editor').value = data.source;
@@ -346,6 +376,128 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         }
       } catch (error) {
         console.warn('Failed to load version:', error);
+      }
+    });
+
+    // Version selector handlers
+    $('version-selector')?.addEventListener('change', async (e) => {
+      const versionId = e.target.value;
+      if (!versionId) return;
+      // Just select, don't load yet
+      state.selectedVersionId = versionId;
+    });
+
+    $('load-version-btn')?.addEventListener('click', async () => {
+      const versionId = $('version-selector').value;
+      if (!versionId) {
+        alert('Please select a version first');
+        return;
+      }
+      try {
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentScriptProjectArtifactId) + '/version/' + encodeURIComponent(versionId));
+        const data = await response.json();
+        if (data.ok && data.source) {
+          $('script-editor').value = data.source;
+          state.scriptDirty = true;
+          $('script-dirty-badge').classList.remove('hidden');
+          $('edit-script-btn').classList.add('hidden');
+          $('save-script-btn').classList.remove('hidden');
+          $('reset-script-btn').classList.remove('hidden');
+          $('script-code-block').classList.add('hidden');
+          $('script-editor').classList.remove('hidden');
+          alert('Loaded ' + versionId + ' into editor (not restored yet)');
+        }
+      } catch (error) {
+        console.warn('Failed to load version:', error);
+        alert('Failed to load version');
+      }
+    });
+
+    $('restore-version-btn')?.addEventListener('click', async () => {
+      const versionId = $('version-selector').value;
+      if (!versionId) {
+        alert('Please select a version first');
+        return;
+      }
+      try {
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentScriptProjectArtifactId) + '/script-version/' + encodeURIComponent(versionId) + '/restore', {
+          method: 'POST',
+        });
+        const data = await response.json();
+        if (data.ok) {
+          $('script-editor').value = data.source;
+          state.scriptDirty = false;
+          $('script-dirty-badge').classList.add('hidden');
+          $('edit-script-btn').classList.remove('hidden');
+          $('save-script-btn').classList.add('hidden');
+          $('reset-script-btn').classList.add('hidden');
+          $('script-code-block').classList.remove('hidden');
+          $('script-editor').classList.add('hidden');
+          $('current-version-display').textContent = versionId;
+          state.currentVersionId = versionId;
+          alert('Restored ' + versionId);
+          await loadScriptVersions();
+        } else {
+          alert('Failed to restore version: ' + (data.error || 'unknown'));
+        }
+      } catch (error) {
+        console.warn('Failed to restore version:', error);
+        alert('Failed to restore version');
+      }
+    });
+
+    $('save-as-version-btn')?.addEventListener('click', async () => {
+      const editedSource = $('script-editor').value;
+      if (!editedSource) {
+        alert('Editor is empty');
+        return;
+      }
+      try {
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentScriptProjectArtifactId) + '/script-version', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ edited_source: editedSource }),
+        });
+        const data = await response.json();
+        if (data.ok) {
+          state.scriptDirty = false;
+          $('script-dirty-badge').classList.add('hidden');
+          $('edit-script-btn').classList.remove('hidden');
+          $('save-script-btn').classList.add('hidden');
+          $('reset-script-btn').classList.add('hidden');
+          $('script-code-block').textContent = editedSource;
+          $('script-code-block').classList.remove('hidden');
+          $('script-editor').classList.add('hidden');
+          $('current-version-display').textContent = data.version_id;
+          state.currentVersionId = data.version_id;
+          alert('Saved as ' + data.version_id);
+          await loadScriptVersions();
+        } else {
+          alert('Failed to save version: ' + (data.error || 'unknown'));
+        }
+      } catch (error) {
+        console.warn('Failed to save version:', error);
+        alert('Failed to save version');
+      }
+    });
+
+    $('reset-editor-btn')?.addEventListener('click', async () => {
+      const currentVersionId = state.currentVersionId || 'v0001';
+      try {
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentScriptProjectArtifactId) + '/version/' + encodeURIComponent(currentVersionId));
+        const data = await response.json();
+        if (data.ok && data.source) {
+          $('script-editor').value = data.source;
+          state.scriptDirty = false;
+          $('script-dirty-badge').classList.add('hidden');
+          $('edit-script-btn').classList.remove('hidden');
+          $('save-script-btn').classList.add('hidden');
+          $('reset-script-btn').classList.add('hidden');
+          alert('Reset editor to ' + currentVersionId);
+        }
+      } catch (error) {
+        console.warn('Failed to reset editor:', error);
+        alert('Failed to reset editor');
       }
     });
 

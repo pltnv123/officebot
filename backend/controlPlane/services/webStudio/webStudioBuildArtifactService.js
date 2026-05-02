@@ -54,15 +54,22 @@ function normalizeSections(order) {
 }
 
 function buildPrimaryVariantHtml(order, variant, childSession, sections, direction) {
-  const heroBlocks = [
-    'Запускаем аккуратную AI-автоматизацию без тяжёлого внедрения и бесконечных согласований.',
-    'Показываем, где теряются заявки, и собираем понятный путь от первого касания до разговора с клиентом.',
-  ].map((text) => `<li>${escapeHtml(text)}</li>`).join('');
-  const sectionBlocks = sections.map((sectionName) => `
-      <section class="panel section-${escapeHtml(sectionName)}">
-        <h2>${escapeHtml(sectionName.toUpperCase())}</h2>
-        <p>Секция ${escapeHtml(sectionName)} для primary variant B опирается на нормализованный бриф заказа ${escapeHtml(order.order_id)} и собрана как usable MVP, а не просто технический шаблон.</p>
-      </section>`).join('');
+  const benefits = [
+    ['Быстрее обрабатываете заявки', 'Помогаем сократить путь от первого касания до разговора с клиентом.'],
+    ['Видите понятную структуру оффера', 'Hero, доверие, процесс и CTA собраны в один внятный сценарий.'],
+    ['Получаете MVP preview без хаоса', 'Показываем usable landing page и честно помечаем её как operator demo, а не production-ready сайт.'],
+  ];
+  const processSteps = [
+    'Анализируем заявку и цель страницы',
+    'Собираем оффер и структуру лендинга',
+    'Показываем preview и фиксируем обратную связь',
+    'Вносим revision без разрушения базовой логики',
+  ];
+  const faqRows = [
+    ['Можно ли менять структуру?', 'Да, но в этом MVP мы сначала усиливаем выбранный вариант B без широкого переписывания всех веток.'],
+    ['Это production-ready сайт?', 'Нет. Это operator demo / MVP preview, который показывает направление и механику правок.'],
+    ['Что входит в revision?', 'Усиление hero, доверительного блока, CTA и точечные изменения без потери базовой структуры.'],
+  ];
 
   return `<!doctype html>
 <html lang="ru">
@@ -75,43 +82,88 @@ function buildPrimaryVariantHtml(order, variant, childSession, sections, directi
   <body data-order-id="${escapeHtml(order.order_id)}" data-variant-id="${escapeHtml(variant.variant_id)}" data-branch-name="${escapeHtml(variant.branch_name)}" data-quality-level="primary" data-implementation-status="real">
     <main class="page">
       <header class="hero panel hero-primary">
-        <span class="eyebrow">WEBSTUDIO PRIMARY VARIANT B</span>
-        <h1>${escapeHtml(direction.title)}</h1>
-        <p class="subhead">${escapeHtml(direction.subhead)}</p>
-        <div class="hero-grid">
-          <div>
-            <p class="hero-lead">Собираем landing MVP, который объясняет ценность услуги, даёт доверие и ведёт к заявке без лишнего шума.</p>
+        <div class="hero-copy">
+          <span class="eyebrow">WEBSTUDIO PRIMARY VARIANT B</span>
+          <h1>Автоматизированная обработка заявок для малого бизнеса</h1>
+          <p class="subhead">Помогаем быстро показать ценность услуги, усилить доверие и превратить лендинг в понятный маршрут к заявке.</p>
+          <div class="hero-actions">
             <a class="cta" href="#contact">Запросить демонстрацию</a>
+            <a class="ghost-link" href="#faq">Посмотреть FAQ</a>
           </div>
-          <ul class="hero-points">${heroBlocks}</ul>
+          <div class="trust-line">Без фейковых отзывов, без тёмных паттернов, с прозрачной структурой и human review.</div>
         </div>
+        <aside class="hero-visual panel">
+          <div class="visual-chip">Variant B recommended</div>
+          <div class="visual-metric"><strong>4 шага</strong><span>от заявки до preview</span></div>
+          <div class="visual-metric"><strong>MVP preview</strong><span>operator demo, not final production website</span></div>
+          <div class="visual-metric"><strong>Revision included</strong><span>усиливаем hero, trust и CTA</span></div>
+        </aside>
       </header>
-      <section class="panel trust-block trust-primary">
-        <h2>Почему этот вариант выглядит надёжно</h2>
-        <ul>
-          <li>Прозрачный оффер и конкретный следующий шаг.</li>
-          <li>Trust blocks рядом с CTA, а не внизу страницы для галочки.</li>
-          <li>Traceable order: ${escapeHtml(order.order_id)}</li>
-          <li>Child session: ${escapeHtml(childSession.child_session_id)}</li>
-        </ul>
-      </section>
-      <section class="panel services-block">
-        <h2>Что входит</h2>
-        <div class="cards">
-          <article><h3>Аудит входящих заявок</h3><p>Находим узкие места в пути клиента и формулировке оффера.</p></article>
-          <article><h3>Сценарии AI-автоматизации</h3><p>Собираем реалистичный MVP без фальшивых обещаний и лишней магии.</p></article>
-          <article><h3>Быстрый операторский запуск</h3><p>Даём preview и revision lane, чтобы дорабатывать нужный вариант, а не всё сразу.</p></article>
+
+      <section class="panel benefits-block">
+        <h2>Почему этот лендинг выглядит сильнее</h2>
+        <div class="cards cards-benefits">
+          ${benefits.map(([title, text]) => `<article><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></article>`).join('')}
         </div>
       </section>
-      ${sectionBlocks}
-      <section id="contact" class="panel contact-primary">
-        <h2>Готовы перейти к следующему шагу?</h2>
-        <p>Выберите Variant B как primary recommendation, чтобы запустить revision lane и усилить страницу по вашим комментариям.</p>
-        <button class="cta-button">Выбрать Variant B</button>
+
+      <section class="panel process-block">
+        <h2>Как работает веб-студия</h2>
+        <div class="process-grid">
+          ${processSteps.map((step, index) => `<article><span class="step-index">0${index + 1}</span><h3>${escapeHtml(step)}</h3><p>Шаг ${index + 1} в операторском MVP-процессе для заказа ${escapeHtml(order.order_id)}.</p></article>`).join('')}
+        </div>
       </section>
-      <footer class="panel footer">
-        <small>Primary real variant generated for ${escapeHtml(order.order_id)} / ${escapeHtml(variant.variant_id)} / ${escapeHtml(childSession.child_workspace_key)}</small>
-      </footer>
+
+      <section class="panel trust-block trust-primary">
+        <h2>Trust / proof</h2>
+        <div class="trust-grid">
+          <div>
+            <p>Мы честно показываем, что это <strong>MVP preview</strong>, а не production-ready релиз. Но визуально это уже usable продающий лендинг.</p>
+            <ul>
+              <li>Прозрачный оффер и конкретный следующий шаг</li>
+              <li>Trust blocks рядом с CTA</li>
+              <li>Operator demo с human review recommended</li>
+            </ul>
+          </div>
+          <div class="trust-note panel">
+            <strong>Order:</strong> ${escapeHtml(order.order_id)}<br />
+            <strong>Variant:</strong> ${escapeHtml(variant.variant_id)}<br />
+            <strong>Workspace:</strong> ${escapeHtml(childSession.child_workspace_key)}
+          </div>
+        </div>
+      </section>
+
+      <section class="panel pricing-block">
+        <h2>MVP package</h2>
+        <div class="pricing-card">
+          <div>
+            <div class="pricing-label">Variant B recommended</div>
+            <h3>MVP landing preview</h3>
+            <p>Первый usable вариант для демонстрации структуры, оффера и revision loop.</p>
+          </div>
+          <ul>
+            <li>Primary Variant B</li>
+            <li>Revision included</li>
+            <li>Preview + revised preview</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="faq" class="panel faq-block">
+        <h2>FAQ</h2>
+        <div class="faq-list">
+          ${faqRows.map(([q, a]) => `<article><h3>${escapeHtml(q)}</h3><p>${escapeHtml(a)}</p></article>`).join('')}
+        </div>
+      </section>
+
+      <section id="contact" class="panel contact-primary final-cta">
+        <h2>Готовы посмотреть следующую итерацию?</h2>
+        <p>Запросите демонстрацию, выберите Variant B и внесите правку, чтобы получить revised preview без потери базовой структуры.</p>
+        <div class="hero-actions">
+          <a class="cta" href="#top">Запросить демонстрацию</a>
+          <a class="ghost-link" href="#faq">Посмотреть revised preview</a>
+        </div>
+      </section>
     </main>
   </body>
 </html>`;
@@ -162,26 +214,38 @@ function buildStaticVariantHtml(order, variant, childSession, options = {}) {
 function buildStaticVariantCss(variant) {
   const direction = branchDirection(variant.branch_name);
   const primaryEnhancements = variant.branch_name === 'B'
-    ? `.hero-primary { border-color: rgba(36,99,235,0.35); }
-.hero-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 20px; align-items: start; }
-.hero-lead { font-size: 18px; line-height: 1.6; color: #e2e8f0; }
-.hero-points { margin: 0; padding-left: 20px; color: #cbd5e1; }
-.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.cards article { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 16px; }
-.contact-primary { box-shadow: 0 12px 40px rgba(36,99,235,0.18); }
-@media (max-width: 820px) { .hero-grid, .cards { grid-template-columns: 1fr; } .hero h1 { font-size: 34px; } }`
+    ? `.hero-primary { border-color: rgba(36,99,235,0.35); display:grid; grid-template-columns: 1.2fr 0.8fr; gap: 22px; align-items: stretch; }
+.hero-copy { display:flex; flex-direction:column; justify-content:center; }
+.hero-actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:18px; }
+.trust-line { margin-top:14px; color:#bfdbfe; font-size:14px; }
+.hero-visual { background: linear-gradient(180deg, rgba(36,99,235,0.18), rgba(15,23,42,0.92)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05); }
+.visual-chip { display:inline-block; margin-bottom:16px; padding:6px 10px; border-radius:999px; background:rgba(255,255,255,0.08); color:#dbeafe; font-size:12px; font-weight:700; }
+.visual-metric { padding:12px 0; border-top:1px solid rgba(255,255,255,0.08); display:flex; flex-direction:column; gap:4px; }
+.cards { display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; }
+.cards article, .process-grid article, .faq-list article, .pricing-card, .trust-note { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 18px; }
+.process-grid, .faq-list { display:grid; grid-template-columns: repeat(2, 1fr); gap:16px; }
+.step-index { display:inline-flex; width:34px; height:34px; border-radius:999px; align-items:center; justify-content:center; background:rgba(36,99,235,0.18); color:#bfdbfe; font-weight:800; margin-bottom:12px; }
+.trust-grid { display:grid; grid-template-columns: 1.2fr 0.8fr; gap:16px; align-items:start; }
+.pricing-card { display:grid; grid-template-columns: 1fr auto; gap:18px; align-items:center; }
+.pricing-label { color:#93c5fd; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
+.final-cta { box-shadow: 0 20px 48px rgba(36,99,235,0.18); }
+.ghost-link { color:#cbd5e1; text-decoration:none; padding:12px 16px; border:1px solid rgba(255,255,255,0.14); border-radius:12px; }
+.ghost-link:hover, .cta:hover { transform: translateY(-1px); }
+@media (max-width: 900px) { .hero-primary, .process-grid, .faq-list, .cards, .trust-grid, .pricing-card { grid-template-columns: 1fr; } .hero h1 { font-size: 34px; } }`
     : `.placeholder-hero { border-style: dashed; opacity: 0.92; }
 .placeholder-note { border-style: dashed; }`;
   return `:root { --accent: ${direction.accent}; --bg: #0f172a; --panel: #111827; --text: #f8fafc; --muted: #cbd5e1; }
 * { box-sizing: border-box; }
-body { margin: 0; font-family: Inter, Arial, sans-serif; background: linear-gradient(180deg, #020617, var(--bg)); color: var(--text); }
-.page { max-width: 1100px; margin: 0 auto; padding: 32px 20px 60px; }
-.panel { background: rgba(17,24,39,0.88); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 24px; margin-bottom: 18px; }
-.eyebrow { display: inline-block; margin-bottom: 12px; color: var(--accent); font-weight: 700; letter-spacing: 0.08em; }
-.hero h1 { margin: 0 0 10px; font-size: 42px; }
-.subhead { color: var(--muted); max-width: 720px; }
-.cta, .cta-button { display: inline-block; margin-top: 16px; background: var(--accent); color: #fff; text-decoration: none; padding: 12px 18px; border-radius: 12px; font-weight: 700; border: none; }
-ul { padding-left: 18px; }
+body { margin: 0; font-family: Inter, Arial, sans-serif; background: radial-gradient(circle at top, rgba(36,99,235,0.14), transparent 35%), linear-gradient(180deg, #020617, var(--bg)); color: var(--text); }
+.page { max-width: 1160px; margin: 0 auto; padding: 40px 20px 72px; }
+.panel { background: rgba(17,24,39,0.88); border: 1px solid rgba(255,255,255,0.08); border-radius: 22px; padding: 28px; margin-bottom: 20px; backdrop-filter: blur(8px); }
+.eyebrow { display: inline-block; margin-bottom: 12px; color: var(--accent); font-weight: 800; letter-spacing: 0.08em; }
+.hero h1 { margin: 0 0 12px; font-size: 48px; line-height:1.05; }
+.subhead { color: var(--muted); max-width: 720px; font-size:18px; line-height:1.6; }
+.cta, .cta-button { display: inline-block; margin-top: 16px; background: linear-gradient(135deg, var(--accent), #7c3aed); color: #fff; text-decoration: none; padding: 13px 20px; border-radius: 14px; font-weight: 800; border: none; box-shadow: 0 14px 36px rgba(36,99,235,0.28); }
+ul { padding-left: 18px; line-height:1.7; }
+h2 { margin-top:0; font-size:28px; }
+h3 { margin-top:0; font-size:20px; }
 ${primaryEnhancements}
 `;}
 
