@@ -9,6 +9,16 @@ const fs = require('fs');
 
 const BASE_URL = 'http://127.0.0.1:8787';
 
+function fetchText(url) {
+  return new Promise((resolve, reject) => {
+    http.get(url, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => resolve(data));
+    }).on('error', reject);
+  });
+}
+
 function fetchJson(url) {
   return new Promise((resolve, reject) => {
     http.get(url, (res) => {
@@ -18,6 +28,17 @@ function fetchJson(url) {
         try { resolve(JSON.parse(data)); } catch (e) { reject(new Error(`Invalid JSON from ${url}: ${e.message}`)); }
       });
     }).on('error', reject);
+  });
+}
+
+function fetchBinary(url) {
+  return new Promise((resolve, reject) => {
+    const req = http.get(url, (res) => {
+      const chunks = [];
+      res.on('data', chunk => chunks.push(chunk));
+      res.on('end', () => resolve(Buffer.concat(chunks)));
+    });
+    req.on('error', reject);
   });
 }
 
@@ -45,7 +66,7 @@ async function main() {
 
   // Step 1: Check UI
   console.log('1. Check /webstudio/demo contains Telegram Bot Program Panel...');
-  const demoPage = await fetch(BASE_URL + '/webstudio/demo').then(r => r.text());
+  const demoPage = await fetchText(BASE_URL + '/webstudio/demo');
   assert(demoPage.includes('telegram-bot-program-panel'), 'telegram-bot-program-panel present');
   assert(demoPage.includes('Run Dry-Run'), 'Run Dry-Run button present');
   console.log('   Telegram Bot Program Panel UI present: ✅\n');
@@ -137,18 +158,56 @@ async function main() {
   assert(unsafeResult.reason === 'unsafe_python_source', 'unsafe reason');
   console.log('   Unsafe edit blocked: ✅\n');
 
-  // Step 9: Client delivery page
-  console.log('9. Client delivery page contains Run Dry-Run...');
-  const clientDeliveryPage = await fetch(BASE_URL + '/webstudio/client-delivery/' + encodeURIComponent(artifactId)).then(r => r.text());
-  // Run button check skipped for now - client delivery needs update
-  // bot.py check skipped - client delivery needs update
+  // Step 9: Client delivery page with Run Dry-Run button
+  console.log('9. Client delivery page contains Run Dry-Run, bot.py, and Download ZIP...');
+  const clientDeliveryPage = await fetchText(BASE_URL + '/webstudio/delivery/' + encodeURIComponent(artifactId));
+  assert(clientDeliveryPage.includes('Run Dry-Run'), 'Run Dry-Run button present');
+  assert(clientDeliveryPage.includes('bot.py'), 'bot.py present');
+  assert(clientDeliveryPage.includes('Download ZIP'), 'Download ZIP button present');
+  assert(clientDeliveryPage.includes('Run history'), 'Run history section present');
   console.log('   Client delivery page OK: ✅\n');
 
-  // Step 10: ZIP export (skipped - needs telegram bot support)
-  console.log('10. ZIP export works... (skipped)\n');
+  // Step 10: Telegram ZIP export
+  console.log('10. Telegram ZIP export works...');
+  const zipUrl = BASE_URL + '/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(artifactId) + '/download';
+  const zipBuffer = await fetchBinary(zipUrl);
+  assert(zipBuffer.length > 100, 'ZIP size > 100 bytes');
+  assert(zipBuffer.slice(0, 2).toString('hex') === '504b', 'ZIP starts with PK signature');
+  
+  // Check ZIP contains expected files
+  const { execSync } = require('child_process');
+  const tmpZipPath = '/tmp/webstudio-telegram-zip-test.zip';
+  fs.writeFileSync(tmpZipPath, zipBuffer);
+  const zipList = execSync(`unzip -l "${tmpZipPath}"`, { encoding: 'utf8' });
+  assert(zipList.includes('bot.py'), 'ZIP contains bot.py');
+  assert(zipList.includes('dry_run_test.py'), 'ZIP contains dry_run_test.py');
+  assert(zipList.includes('.env.example'), 'ZIP contains .env.example');
+  assert(zipList.includes('applications.csv'), 'ZIP contains applications.csv');
+  assert(zipList.includes('manifest.json'), 'ZIP contains manifest.json');
+  fs.unlinkSync(tmpZipPath);
+  
+  console.log('   ZIP export OK: ✅');
+  console.log('   ZIP contains bot.py: ✅');
+  console.log('   ZIP contains dry_run_test.py: ✅');
+  console.log('   ZIP contains .env.example: ✅');
+  console.log('   ZIP contains applications.csv: ✅');
+  console.log('   ZIP contains manifest.json: ✅\n');
 
   console.log('✅ All telegram bot editable flow smoke tests passed!\n');
-  return { ok: true, telegram_bot_editable_flow_smoke_ok: true, artifact_id: artifactId };
+  return { 
+    ok: true, 
+    telegram_bot_editable_flow_smoke_ok: true, 
+    artifact_id: artifactId,
+    telegram_bot_program_panel_ok: true,
+    generated_v0001_ok: true,
+    generated_dry_run_ok: true,
+    edited_unsaved_dry_run_ok: true,
+    save_v0002_ok: true,
+    restore_v0001_ok: true,
+    unsafe_edit_blocked_ok: true,
+    client_delivery_run_dry_run_ok: true,
+    telegram_zip_export_ok: true,
+  };
 }
 
 main().then((result) => {
