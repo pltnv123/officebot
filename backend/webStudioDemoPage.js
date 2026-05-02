@@ -641,8 +641,8 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       $('script-run-history-panel').classList.toggle('hidden', !isScript || !state.currentScriptProjectArtifactId);
       $('script-supporting-files-panel').classList.toggle('hidden', !isScript || !state.lastScriptResult);
       $('telegram-bot-program-panel').classList.toggle('hidden', !isTelegram || !state.lastTelegramBotResult);
-      const isLanding = state.lastLandingResult?.project_type === 'landing_page';
-      $('landing-program-panel').classList.toggle('hidden', !isLanding || !state.lastLandingResult);
+      const isLandingResult = state.lastLandingResult?.project_type === 'landing_page';
+      $('landing-program-panel').classList.toggle('hidden', !isLandingResult || !state.lastLandingResult);
       $('landing-run-history-panel').classList.toggle('hidden', !isLanding);
       $('landing-supporting-files-panel').classList.toggle('hidden', !isLanding);
       $('telegram-bot-result-panel').classList.toggle('hidden', !isTelegram || !state.lastTelegramBotResult);
