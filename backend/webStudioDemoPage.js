@@ -203,6 +203,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
             <button id="edit-script-btn" class="secondary">Edit</button>
             <button id="save-script-btn" class="primary hidden">Save</button>
             <button id="reset-script-btn" class="secondary hidden">Reset</button>
+            <select id="script-versions-dropdown" class="secondary" style="margin-left:12px; min-width:200px;"><option value="">Versions...</option></select>
             <span id="script-dirty-badge" class="chip hidden" style="margin-left:auto;"><span class="muted">Unsaved changes</span></span>
           </div>
           <div class="field">
@@ -307,6 +308,46 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     function renderMetaGrid(node, entries) { node.innerHTML = entries.map(([label, value]) => '<div class="meta-item"><div class="label">' + label + '</div><div class="value">' + safe(value) + '</div></div>').join(''); }
     function renderBulletList(node, items) { node.innerHTML = (items || []).map((item) => '<li>' + safe(item) + '</li>').join(''); }
     async function fetchText(url) { const response = await fetch(url); if (!response.ok) throw new Error('Failed to fetch ' + url); return response.text(); }
+
+    async function loadScriptVersions() {
+      if (!state.currentScriptProjectArtifactId) {
+        $('script-versions-dropdown').innerHTML = '<option value="">Versions...</option>';
+        return;
+      }
+      try {
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentScriptProjectArtifactId) + '/versions');
+        const data = await response.json();
+        const versions = data.versions || [];
+        const dropdown = $('script-versions-dropdown');
+        dropdown.innerHTML = '<option value="">Versions...</option>' + versions.map(v => 
+          '<option value="' + v.run_id + '">' + new Date(v.saved_at).toLocaleString() + ' (' + v.run_id.slice(-6) + ')</option>'
+        ).join('');
+      } catch (error) {
+        console.warn('Failed to load versions:', error);
+        $('script-versions-dropdown').innerHTML = '<option value="">Versions (error)</option>';
+      }
+    }
+
+    $('script-versions-dropdown')?.addEventListener('change', async (e) => {
+      const runId = e.target.value;
+      if (!runId) return;
+      try {
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentScriptProjectArtifactId) + '/version/' + encodeURIComponent(runId));
+        const data = await response.json();
+        if (data.ok && data.source) {
+          $('script-editor').value = data.source;
+          state.scriptDirty = true;
+          $('script-dirty-badge').classList.remove('hidden');
+          $('edit-script-btn').classList.add('hidden');
+          $('save-script-btn').classList.remove('hidden');
+          $('reset-script-btn').classList.remove('hidden');
+          $('script-code-block').classList.add('hidden');
+          $('script-editor').classList.remove('hidden');
+        }
+      } catch (error) {
+        console.warn('Failed to load version:', error);
+      }
+    });
 
     function updateHeaderChips() {
       if (state.currentProjectType === 'script') {
@@ -425,6 +466,9 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       state.scriptDirty = false; // Reset dirty flag
       $('script-log-preview').textContent = logText;
       $('script-output-preview').textContent = outputText;
+      
+      // Load versions
+      await loadScriptVersions();
       
       // Reset UI state
       $('edit-script-btn').classList.remove('hidden');

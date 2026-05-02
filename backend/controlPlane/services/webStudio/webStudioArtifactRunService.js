@@ -120,6 +120,65 @@ async function getRunHistory({ artifact, rootDir }) {
   }
 }
 
+async function saveEditedVersion({ artifact, editedSource, runId }) {
+  const artifactRoot = path.resolve(String(artifact.artifact_root || ''));
+  const versionsDir = path.join(artifactRoot, 'versions');
+  
+  // Create versions directory if it doesn't exist
+  await fsPromises.mkdir(versionsDir, { recursive: true });
+  
+  // Save edited version with timestamp
+  const versionFile = path.join(versionsDir, `${runId}.py`);
+  const metadataFile = path.join(versionsDir, `${runId}.json`);
+  
+  await fsPromises.writeFile(versionFile, editedSource, 'utf8');
+  await fsPromises.writeFile(metadataFile, JSON.stringify({
+    run_id: runId,
+    saved_at: nowIso(),
+    source_length: editedSource.length,
+  }, null, 2), 'utf8');
+}
+
+async function listVersions({ artifact }) {
+  const artifactRoot = path.resolve(String(artifact.artifact_root || ''));
+  const versionsDir = path.join(artifactRoot, 'versions');
+  
+  try {
+    const files = await fsPromises.readdir(versionsDir);
+    const versions = [];
+    
+    for (const file of files) {
+      if (file.endsWith('.json')) {
+        const metadataPath = path.join(versionsDir, file);
+        const metadata = JSON.parse(await fsPromises.readFile(metadataPath, 'utf8'));
+        versions.push({
+          run_id: metadata.run_id,
+          saved_at: metadata.saved_at,
+          version_file: file.replace('.json', '.py'),
+        });
+      }
+    }
+    
+    // Sort by saved_at descending (newest first)
+    versions.sort((a, b) => new Date(b.saved_at) - new Date(a.saved_at));
+    return versions;
+  } catch (err) {
+    return [];
+  }
+}
+
+async function loadVersion({ artifact, runId }) {
+  const artifactRoot = path.resolve(String(artifact.artifact_root || ''));
+  const versionsDir = path.join(artifactRoot, 'versions');
+  const versionFile = path.join(versionsDir, `${runId}.py`);
+  
+  try {
+    return await fsPromises.readFile(versionFile, 'utf8');
+  } catch (err) {
+    return null;
+  }
+}
+
 async function runScriptArtifact({ artifact, rootDir, editedSource }) {
   const artifactRoot = await validateArtifactRoot({ artifact, rootDir });
   
@@ -152,12 +211,15 @@ async function runScriptArtifact({ artifact, rootDir, editedSource }) {
   // Write edited source to script.py if provided, otherwise use original
   const scriptPath = path.join(artifactRoot, 'script.py');
   let originalScript = null;
+  let runId = createRunId(); // Create runId for all runs
   if (editedSource !== undefined) {
     try {
       originalScript = await fsPromises.readFile(scriptPath, 'utf8');
       await fsPromises.writeFile(scriptPath, editedSource, 'utf8');
       // Small delay to ensure file is flushed to disk
       await new Promise(resolve => setTimeout(resolve, 10));
+      // Save edited version for persistence
+      await saveEditedVersion({ artifact, editedSource, runId });
     } catch (err) {
       throw new Error('failed_to_write_edited_source');
     }
@@ -218,6 +280,7 @@ async function runScriptArtifact({ artifact, rootDir, editedSource }) {
       }
       
       resolve({
+        run_id: runId,
         command,
         exit_code: code,
         stdout,
@@ -326,6 +389,7 @@ async function runProjectArtifact({ artifactId, rootDir, editedSource }) {
   
   return {
     ok: true,
+    run_id: result.run_id || null,
     artifact_id: artifact.project_artifact_id,
     order_id: artifact.order_id,
     project_type: artifact.project_type,
@@ -356,4 +420,7 @@ module.exports = {
   writeRunResult,
   appendRunHistory,
   getRunHistory,
+  saveEditedVersion,
+  listVersions,
+  loadVersion,
 };

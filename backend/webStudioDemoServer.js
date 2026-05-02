@@ -12,7 +12,7 @@ const { createWebStudioProjectRouterService } = require('./controlPlane/services
 const { analyzeScriptScenario, createScriptExecutionPackage, runScriptSmoke } = require('./controlPlane/services/webStudio/webStudioScriptExecutionService');
 const { analyzeTelegramBotScenario, createTelegramBotExecutionPackage, runTelegramBotDryRun } = require('./controlPlane/services/webStudio/webStudioTelegramBotExecutionService');
 const { registerProjectArtifact, listProjectArtifacts, getProjectArtifact } = require('./controlPlane/services/webStudio/webStudioProjectArtifactLibraryService');
-const { runProjectArtifact, getRunHistory } = require('./controlPlane/services/webStudio/webStudioArtifactRunService');
+const { runProjectArtifact, getRunHistory, listVersions, loadVersion } = require('./controlPlane/services/webStudio/webStudioArtifactRunService');
 const { renderWebStudioDemoPage } = require('./webStudioDemoPage');
 const { renderWebStudioDeliveryPage } = require('./webStudioDeliveryPage');
 
@@ -479,7 +479,8 @@ async function main() {
   app.post('/api/demo/webstudio-order/project-artifact/:artifactId/run', async (req, res) => {
     try {
       const artifactId = String(req.params.artifactId || '').trim();
-      const result = await runProjectArtifact({ artifactId, rootDir: ROOT });
+      const editedSource = req.body?.edited_source;
+      const result = await runProjectArtifact({ artifactId, rootDir: ROOT, editedSource });
       res.status(200).json(result);
     } catch (error) {
       const message = String(error.message || error);
@@ -489,7 +490,37 @@ async function main() {
       if (message.startsWith('run_not_supported_for_project_type:')) {
         return res.status(400).json({ ok: false, error: 'run_not_supported', project_type: message.split(':')[1] });
       }
+      if (message === 'edited_source_validation_failed') {
+        return res.status(400).json({ ok: false, error: 'edited_source_validation_failed', reason: 'edited_source_must_be_valid_python_string' });
+      }
       res.status(500).json({ ok: false, error: 'run_failed', reason: message });
+    }
+  });
+
+  // Script versioning endpoints
+  app.get('/api/demo/webstudio-order/project-artifact/:artifactId/versions', async (req, res) => {
+    try {
+      const artifactId = String(req.params.artifactId || '').trim();
+      const artifact = await getProjectArtifact(ROOT, artifactId);
+      if (!artifact) return res.status(404).json({ ok: false, error: 'artifact_not_found' });
+      const versions = await listVersions({ artifact });
+      res.json({ ok: true, versions });
+    } catch (error) {
+      res.status(500).json({ ok: false, error: String(error.message || error) });
+    }
+  });
+
+  app.get('/api/demo/webstudio-order/project-artifact/:artifactId/version/:runId', async (req, res) => {
+    try {
+      const artifactId = String(req.params.artifactId || '').trim();
+      const runId = String(req.params.runId || '').trim();
+      const artifact = await getProjectArtifact(ROOT, artifactId);
+      if (!artifact) return res.status(404).json({ ok: false, error: 'artifact_not_found' });
+      const source = await loadVersion({ artifact, runId });
+      if (source === null) return res.status(404).json({ ok: false, error: 'version_not_found' });
+      res.json({ ok: true, run_id: runId, source });
+    } catch (error) {
+      res.status(500).json({ ok: false, error: String(error.message || error) });
     }
   });
 
