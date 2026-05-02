@@ -238,6 +238,67 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
           </div>
         </div>
 
+        
+        <div id="landing-program-panel" class="panel hidden">
+          <div class="preview-head" style="align-items:center;justify-content:space-between;">
+            <div>
+              <h2 style="margin-bottom:6px;">Landing Page</h2>
+              <div class="preview-note">Editable HTML landing page with versioning.</div>
+            </div>
+            <div class="row" style="gap:8px;">
+              <span id="landing-scenario-badge" class="badge">scenario</span>
+              <span id="landing-status-badge" class="badge">status</span>
+              <button id="preview-landing-btn" class="primary">Preview</button>
+            </div>
+          </div>
+          <div id="landing-version-control" class="panel" style="margin-bottom:16px;">
+            <h3 style="margin:0 0 8px 0;">Version Control</h3>
+            <div class="row" style="align-items:center;">
+              <span class="muted">Current version:</span>
+              <strong id="landing-current-version-display">v0001</strong>
+              <select id="landing-version-selector" class="secondary" style="margin-left:12px; min-width:200px;"><option value="">Select version...</option></select>
+            </div>
+            <div class="row" style="margin-top:8px;">
+              <button id="landing-load-version-btn" class="secondary">Load selected into editor</button>
+              <button id="landing-restore-version-btn" class="secondary">Restore selected version</button>
+              <button id="landing-save-as-version-btn" class="primary">Save editor as new version</button>
+              <button id="landing-reset-editor-btn" class="secondary">Reset editor to current version</button>
+            </div>
+          </div>
+          <div id="landing-program-header" class="meta-grid" style="margin:12px 0;"></div>
+          <div class="row" style="margin-bottom:8px;">
+            <button id="edit-landing-btn" class="secondary">Edit</button>
+            <button id="save-landing-btn" class="primary hidden">Save</button>
+            <button id="reset-landing-btn" class="secondary hidden">Reset</button>
+            <select id="landing-versions-dropdown" class="secondary" style="margin-left:12px; min-width:200px;"><option value="">Versions...</option></select>
+            <span id="landing-dirty-badge" class="chip hidden" style="margin-left:auto;"><span class="muted">Unsaved changes</span></span>
+          </div>
+          <div class="field">
+            <div class="code-header">
+              <span class="filename">index.html</span>
+              <span id="landing-preview-state" class="muted">idle</span>
+            </div>
+            <pre id="landing-code-block" class="code-block">No landing page loaded yet.</pre>
+            <textarea id="landing-editor" class="code-block hidden" spellcheck="false"></textarea>
+          </div>
+          <div id="landing-preview-output" class="hidden">
+            <h3 style="margin-top:16px;">Preview Output</h3>
+            <div id="landing-preview-meta" class="meta-grid"></div>
+            <div class="field"><h4>Preview Route</h4><pre id="landing-preview-route"></pre></div>
+            <div class="field"><h4>Preview</h4><iframe id="landing-preview-iframe" style="width:100%;height:400px;border:1px solid #ccc;"></iframe></div>
+          </div>
+        </div>
+
+        <div id="landing-run-history-panel" class="panel hidden">
+          <h2>Preview History</h2>
+          <div id="landing-run-history-list" class="file-list"></div>
+        </div>
+
+        <div id="landing-supporting-files-panel" class="panel hidden">
+          <h2>Supporting Files</h2>
+          <div id="landing-files" class="file-list"></div>
+        </div>
+
         <div id="script-run-history-panel" class="panel hidden">
           <h2>Run History</h2>
           <div id="script-run-history-list" class="file-list"></div>
@@ -580,6 +641,10 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       $('script-run-history-panel').classList.toggle('hidden', !isScript || !state.currentScriptProjectArtifactId);
       $('script-supporting-files-panel').classList.toggle('hidden', !isScript || !state.lastScriptResult);
       $('telegram-bot-program-panel').classList.toggle('hidden', !isTelegram || !state.lastTelegramBotResult);
+      const isLanding = state.lastLandingResult?.project_type === 'landing_page';
+      $('landing-program-panel').classList.toggle('hidden', !isLanding || !state.lastLandingResult);
+      $('landing-run-history-panel').classList.toggle('hidden', !isLanding);
+      $('landing-supporting-files-panel').classList.toggle('hidden', !isLanding);
       $('telegram-bot-result-panel').classList.toggle('hidden', !isTelegram || !state.lastTelegramBotResult);
       $('refresh-script-surface-btn').classList.toggle('hidden', !isScript);
       $('refresh-telegram-bot-surface-btn').classList.toggle('hidden', !isTelegram);
@@ -1188,6 +1253,65 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         setStatus('ZIP download started');
       } catch (error) {
         setStatus('ZIP export failed: ' + error.message);
+      }
+    });
+    // Landing panel event listeners
+    $('edit-landing-btn').addEventListener('click', () => {
+      $('landing-code-block').classList.add('hidden');
+      $('landing-editor').classList.remove('hidden');
+      $('edit-landing-btn').classList.add('hidden');
+      $('save-landing-btn').classList.remove('hidden');
+      $('reset-landing-btn').classList.remove('hidden');
+      $('landing-dirty-badge').classList.remove('hidden');
+      state.landingDirty = false;
+    });
+    
+    $('save-landing-btn').addEventListener('click', () => {
+      state.originalLanding = $('landing-editor').value;
+      state.landingDirty = false;
+      $('landing-code-block').textContent = state.originalLanding;
+      $('landing-code-block').classList.remove('hidden');
+      $('landing-editor').classList.add('hidden');
+      $('edit-landing-btn').classList.remove('hidden');
+      $('save-landing-btn').classList.add('hidden');
+      $('reset-landing-btn').classList.add('hidden');
+      $('landing-dirty-badge').classList.add('hidden');
+    });
+    
+    $('reset-landing-btn').addEventListener('click', () => {
+      $('landing-editor').value = state.originalLanding || '';
+      state.landingDirty = false;
+      $('landing-dirty-badge').classList.add('hidden');
+    });
+    
+    $('landing-editor').addEventListener('input', () => {
+      state.landingDirty = true;
+      if (!$('landing-dirty-badge').classList.contains('hidden')) {
+        $('landing-dirty-badge').classList.remove('hidden');
+      }
+    });
+    
+    $('preview-landing-btn').addEventListener('click', async () => {
+      try {
+        const editedSource = state.landingDirty ? $('landing-editor').value : null;
+        const body = editedSource ? { edited_source: editedSource, save_edited: false } : {};
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + state.currentProjectArtifactId + '/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const result = await response.json();
+        if (result.ok && result.preview_route) {
+          $('landing-preview-iframe').src = result.preview_route;
+          $('landing-preview-output').classList.remove('hidden');
+          $('landing-preview-route').textContent = result.preview_route;
+          $('landing-preview-state').textContent = 'preview ready';
+          setStatus('Landing preview ready');
+        } else {
+          setStatus('Preview failed: ' + (result.error || 'unknown error'));
+        }
+      } catch (error) {
+        setStatus('Preview failed: ' + error.message);
       }
     });
   </script>
