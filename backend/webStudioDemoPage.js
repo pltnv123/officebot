@@ -249,7 +249,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
           </div>
           
           <!-- Live Terminal -->
-          <div class="field" style="margin-top:16px;">
+          <div id="script-live-terminal-panel" class="panel" style="margin-top:16px;">
             <h3 style="margin-bottom:8px;">Live Terminal</h3>
             <div class="code-header" style="background:#1a1a2e;">
               <span class="filename" style="color:#a0a0a0;">$ python3 -u script.py</span>
@@ -694,7 +694,6 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       $('script-program-panel').classList.toggle('hidden', !isScript);
       $('script-run-history-panel').classList.toggle('hidden', !isScript || !state.currentScriptProjectArtifactId);
       $('script-supporting-files-panel').classList.toggle('hidden', !isScript);
-      $('script-live-terminal-panel').classList.toggle('hidden', !isScript);
       
       // Show editor when script selected but no surface loaded yet
       if (isScript) {
@@ -1076,8 +1075,8 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       }
     }
 
-    $('run-script-btn').addEventListener('click', runScriptOnMainPage);
-    $('run-script-again-btn').addEventListener('click', runScriptOnMainPage);
+    $('run-script-btn')?.addEventListener('click', runScriptOnMainPage);
+    $('run-script-again-btn')?.addEventListener('click', runScriptOnMainPage);
     
     // Helper: update script status chips
     function updateScriptStatusChips() {
