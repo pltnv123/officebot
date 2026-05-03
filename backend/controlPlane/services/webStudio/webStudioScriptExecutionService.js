@@ -281,7 +281,12 @@ cat sample_input.txt | python3 script.py
         'sample_input.txt': '  Hello    world   \n\nThis    is    a   test\n  \n',
         'sample_output.txt': 'Hello world\nThis is a test\n',
       },
-      manifestExtras: { params: {} },
+      manifestExtras: {
+        params: {
+          transformations: ['trim_lines', 'collapse_whitespace', 'remove_empty_lines'],
+          input_mode: 'file_or_stdin',
+        },
+      },
     };
   }
   

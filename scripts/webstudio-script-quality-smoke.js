@@ -76,7 +76,10 @@ async function main() {
     loop_print_quality_ok: false,
     csv_summary_quality_ok: false,
     json_extractor_quality_ok: false,
+    json_invalid_error_ok: false,
+    json_missing_key_error_ok: false,
     text_cleaner_quality_ok: false,
+    text_cleaner_manifest_params_ok: false,
     sum_range_quality_ok: false,
     multiplication_table_quality_ok: false,
     readme_manifest_quality_ok: false,
@@ -147,6 +150,64 @@ async function main() {
     results.json_extractor_quality_ok = jsonScript.includes('import json') && (jsonScript.includes('email') || jsonScript.includes("'@'"));
     console.log('   import json:', jsonScript.includes('import json') ? '✅' : '❌');
     console.log('   email extraction:', (jsonScript.includes('email') || jsonScript.includes("'@'")) ? '✅' : '❌');
+    
+    // Negative test: invalid JSON
+    console.log('\nC2. Testing json_extractor with invalid JSON...');
+    const invalidJsonOrder = await postJson(BASE_URL + '/api/demo/webstudio-order/execute-script', {
+      brief: 'Сделай Python-скрипт, который извлекает emails из JSON',
+      desired_deliverable: 'script',
+      tech_preference: 'python',
+    });
+    if (invalidJsonOrder.ok) {
+      // Replace sample_input.json with invalid JSON
+      const invalidJsonArtifactId = `ws-project-artifact-script-${invalidJsonOrder.order_id}-json-extractor`;
+      const invalidJsonContent = '{ invalid json without closing brace';
+      const invalidJsonPath = `/api/webstudio-script-artifact/${invalidJsonOrder.order_id}/sample_input.json`;
+      // Write invalid JSON directly to artifact
+      const fs = require('fs/promises');
+      const artifactPath = `backend/controlPlane/storage/.first-governed-workflow-runtime/webstudio-script-artifacts/${invalidJsonOrder.order_id}`;
+      try {
+        await fs.writeFile(artifactPath + '/sample_input.json', invalidJsonContent, 'utf8');
+        const { spawn } = require('child_process');
+        const testResult = await new Promise((resolve) => {
+          const child = spawn('python3', ['script.py', 'sample_input.json'], { cwd: artifactPath, stdio: ['ignore', 'pipe', 'pipe'] });
+          let stderr = '';
+          child.stderr.on('data', chunk => stderr += String(chunk));
+          child.on('exit', code => resolve({ code, stderr }));
+        });
+        results.json_invalid_error_ok = testResult.code !== 0 && (testResult.stderr.includes('invalid JSON') || testResult.stderr.includes('JSONDecodeError'));
+        console.log('   Invalid JSON blocked:', results.json_invalid_error_ok ? '✅' : '❌');
+        console.log('   stderr:', testResult.stderr.trim().substring(0, 100));
+      } catch (e) {
+        results.json_invalid_error_ok = false;
+        console.log('   Invalid JSON test failed:', e.message);
+      }
+    }
+    
+    // Negative test: missing key
+    console.log('\nC3. Testing json_extractor with missing key...');
+    const missingKeyOrder = await postJson(BASE_URL + '/api/demo/webstudio-order/execute-script', {
+      brief: 'Сделай Python-скрипт, который извлекает emails из JSON',
+      desired_deliverable: 'script',
+      tech_preference: 'python',
+    });
+    if (missingKeyOrder.ok) {
+      const fs = require('fs/promises');
+      const { spawn } = require('child_process');
+      const artifactPath = `backend/controlPlane/storage/.first-governed-workflow-runtime/webstudio-script-artifacts/${missingKeyOrder.order_id}`;
+      // Replace sample_input.json with JSON that has no emails
+      const noEmailJson = '{"users": [{"name": "Alice"}, {"name": "Bob"}]}';
+      await fs.writeFile(artifactPath + '/sample_input.json', noEmailJson, 'utf8');
+      const testResult = await new Promise((resolve) => {
+        const child = spawn('python3', ['script.py', 'sample_input.json', '--key', 'email'], { cwd: artifactPath, stdio: ['ignore', 'pipe', 'pipe'] });
+        let stderr = '';
+        child.stderr.on('data', chunk => stderr += String(chunk));
+        child.on('exit', code => resolve({ code, stderr }));
+      });
+      results.json_missing_key_error_ok = testResult.code !== 0 && (testResult.stderr.includes('No emails found') || testResult.stderr.includes('not found'));
+      console.log('   Missing key blocked:', results.json_missing_key_error_ok ? '✅' : '❌');
+      console.log('   stderr:', testResult.stderr.trim().substring(0, 100));
+    }
 
     // D. text_cleaner
     console.log('\nD. Testing text_cleaner...');
@@ -162,6 +223,17 @@ async function main() {
     
     results.text_cleaner_quality_ok = textScript.includes('strip') || textScript.includes('split');
     console.log('   text cleaning:', textScript.includes('strip') || textScript.includes('split') ? '✅' : '❌');
+    
+    // Check manifest params for text_cleaner
+    const textManifest = await getManifestContent(textResult.order_id);
+    const hasParams = textManifest.params || textManifest.transformations;
+    const hasTransformations = textManifest.transformations && (
+      textManifest.transformations.includes('trim') ||
+      textManifest.transformations.includes('collapse') ||
+      textManifest.transformations.includes('remove_empty')
+    );
+    results.text_cleaner_manifest_params_ok = !!(hasParams || hasTransformations);
+    console.log('   manifest params/transformations:', results.text_cleaner_manifest_params_ok ? '✅' : '❌');
 
     // E. arithmetic_sum_range
     console.log('\nE. Testing arithmetic_sum_range...');
@@ -227,9 +299,26 @@ async function main() {
     results.ok = false;
   }
 
+  // Final validation: all quality checks must pass
+  const allChecks = [
+    results.loop_print_quality_ok,
+    results.csv_summary_quality_ok,
+    results.json_extractor_quality_ok,
+    results.json_invalid_error_ok,
+    results.json_missing_key_error_ok,
+    results.text_cleaner_quality_ok,
+    results.text_cleaner_manifest_params_ok,
+    results.sum_range_quality_ok,
+    results.multiplication_table_quality_ok,
+    results.readme_manifest_quality_ok,
+    results.safety_still_ok,
+  ];
+  results.ok = allChecks.every(Boolean);
+
   console.log('\n═══════════════════════════════════════════════════════════');
   console.log('Final result:', JSON.stringify(results, null, 2));
   console.log('═══════════════════════════════════════════════════════════');
+  console.log('All checks passed:', results.ok ? '✅' : '❌');
   
   return results;
 }
