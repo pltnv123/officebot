@@ -119,9 +119,18 @@ async function main() {
     await sleep(1500);
     const csvScript = await getScriptContent(csvResult.order_id, 'csv-summary');
     
-    results.csv_summary_quality_ok = csvScript.includes('import argparse') && csvScript.includes('amount');
-    console.log('   argparse:', csvScript.includes('import argparse') ? '✅' : '❌');
-    console.log('   amount column:', csvScript.includes('amount') ? '✅' : '❌');
+    const csvHasArgparse = csvScript.includes('import argparse');
+    const csvHasColumnArg = csvScript.includes('--column');
+    const csvHasAmountSum = csvScript.includes('amount_sum');
+    const csvHasRowsProcessed = csvScript.includes('rows_processed');
+    const csvHasValuesCounted = csvScript.includes('values_counted');
+    
+    results.csv_summary_quality_ok = csvHasArgparse && csvHasColumnArg && csvHasAmountSum && csvHasRowsProcessed && csvHasValuesCounted;
+    console.log('   argparse:', csvHasArgparse ? '✅' : '❌');
+    console.log('   --column arg:', csvHasColumnArg ? '✅' : '❌');
+    console.log('   amount_sum output:', csvHasAmountSum ? '✅' : '❌');
+    console.log('   rows_processed output:', csvHasRowsProcessed ? '✅' : '❌');
+    console.log('   values_counted output:', csvHasValuesCounted ? '✅' : '❌');
 
     // C. json_extractor
     console.log('\nC. Testing json_extractor...');
@@ -182,14 +191,14 @@ async function main() {
     await sleep(1500);
     const multScript = await getScriptContent(multResult.order_id, 'multiplication-table');
     
-    results.multiplication_table_quality_ok = multScript.includes('range(1, 11)') || multScript.includes('x 10');
-    console.log('   multiplication loop:', multScript.includes('range(1, 11)') ? '✅' : '❌');
+    results.multiplication_table_quality_ok = multScript.includes('range(1, args.to + 1)') || multScript.includes('x 10') || multScript.includes('x {i}');
+    console.log('   multiplication loop:', results.multiplication_table_quality_ok ? '✅' : '❌');
 
     // G. README and manifest quality
     console.log('\nG. Testing README and manifest quality...');
     try {
       const manifest = await getManifestContent(loopResult.order_id);
-      results.readme_manifest_quality_ok = manifest.scenario && manifest.language && manifest.safety_level;
+      results.readme_manifest_quality_ok = !!(manifest.scenario && manifest.language && manifest.safety_level);
       console.log('   manifest.scenario:', manifest.scenario ? '✅' : '❌');
       console.log('   manifest.language:', manifest.language ? '✅' : '❌');
       console.log('   manifest.safety_level:', manifest.safety_level ? '✅' : '❌');

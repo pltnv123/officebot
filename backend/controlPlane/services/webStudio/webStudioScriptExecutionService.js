@@ -22,13 +22,13 @@ function normalizeBrief(value) {
 }
 
 function extractQuotedText(brief) {
-  const match = String(brief || '').match(/["“”](.+?)["“”]/);
-  return match ? match[1].trim() : '';
+  const match = String(brief || '').match(/["""].+?[""""]/);
+  return match ? match[0].replace(/[""""]/g, '').trim() : '';
 }
 
 function extractMessageAfterVerb(brief) {
   const match = String(brief || '').match(/(?:пишет|печатает|выводит|print(?:s)?)\s+(.+)$/i);
-  return match ? match[1].replace(/["“”]/g, '').trim() : '';
+  return match ? match[1].replace(/[""""]/g, '').trim() : '';
 }
 
 function detectUnsafeReasons(brief) {
@@ -67,7 +67,7 @@ function analyzeScriptScenario({ brief, tech_preference } = {}) {
   if (rangeMatch && /пишет|печатает|выводит|print/.test(lower)) {
     const quoted = extractQuotedText(normalizedBrief);
     const message = quoted || extractMessageAfterVerb(normalizedBrief) || 'Hello';
-    const hasPause = /пауз|послеждовательно|по шаг|каждую секунду|sleep|delay/.test(lower);
+    const hasPause = /пауз|последовательно|по шаг|каждую секунду|sleep|delay/.test(lower);
     return {
       scenario: 'loop_print',
       language,
@@ -151,36 +151,201 @@ function analyzeScriptScenario({ brief, tech_preference } = {}) {
 
 function buildScenarioSpec({ orderId, brief, scenario, params = {} }) {
   const commonHeader = `Order ID: ${orderId}\nScenario: ${scenario}\nBrief: ${brief}\n`;
+  
   if (scenario === 'csv_summary') {
     return {
-      artifact_id: `ws-script-artifact-${orderId}-csv-summary`, inputFileName: 'sample_input.csv', files: {
-        'script.py': `import csv\nimport sys\n\n\ndef main():\n    if len(sys.argv) < 2:\n        raise SystemExit('Usage: python3 script.py sample_input.csv')\n    total = 0.0\n    with open(sys.argv[1], 'r', encoding='utf-8', newline='') as handle:\n        for row in csv.DictReader(handle):\n            value = (row.get('amount') or '').strip()\n            if value:\n                total += float(value)\n    print('amount_sum=' + (str(int(total)) if total.is_integer() else f'{total:.2f}'))\n\n\nif __name__ == '__main__':\n    main()\n`,
-        'README.md': `# Script MVP Package\n\n${commonHeader}\nRuns a CSV summary over the amount column.\n\nRun:\n\`\`\`bash\npython3 script.py sample_input.csv\n\`\`\`\n`,
+      artifact_id: `ws-script-artifact-${orderId}-csv-summary`,
+      inputFileName: 'sample_input.csv',
+      files: {
+        'script.py': `import argparse
+import csv
+import sys
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Summarizes a CSV column (default: amount).')
+    parser.add_argument('input_csv', help='Input CSV file path')
+    parser.add_argument('--column', default='amount', help='Column name to sum (default: amount)')
+    return parser.parse_args()
+
+def parse_decimal(value):
+    """Handle both dot and comma as decimal separator."""
+    value = value.strip().replace(',', '.')
+    try:
+        return float(value)
+    except ValueError:
+        return None
+
+def main():
+    args = parse_args()
+    try:
+        with open(args.input_csv, 'r', encoding='utf-8', newline='') as f:
+            reader = csv.DictReader(f)
+            if args.column not in reader.fieldnames:
+                raise SystemExit(f'Error: column "{args.column}" not found. Available: {reader.fieldnames}')
+            total = 0.0
+            rows = 0
+            counted = 0
+            for row in reader:
+                rows += 1
+                val = parse_decimal(row.get(args.column, ''))
+                if val is not None:
+                    total += val
+                    counted += 1
+            print(f'amount_sum={int(total) if total.is_integer() else f"{total:.2f}"}')
+            print(f'rows_processed={rows}')
+            print(f'values_counted={counted}')
+    except FileNotFoundError:
+        raise SystemExit(f'Error: file not found: {args.input_csv}')
+    except Exception as e:
+        raise SystemExit(f'Error: {e}')
+
+if __name__ == '__main__':
+    main()
+`,
+        'README.md': `# Script MVP Package
+
+${commonHeader}
+Reads a CSV and computes sum of a numeric column (default: amount).
+Handles decimal comma (e.g., "10,50" → 10.50).
+
+Run:
+\`\`\`bash
+python3 script.py sample_input.csv --column amount
+\`\`\`
+
+Expected output:
+\`\`\`
+amount_sum=250
+rows_processed=3
+values_counted=3
+\`\`\`
+`,
         'sample_input.csv': 'lead_id,amount,status\n101,120,new\n102,80,qualified\n103,50,won\n',
-        'sample_output.txt': 'amount_sum=250\n',
-      }, manifestExtras: { params: {} },
+        'sample_output.txt': 'amount_sum=250\nrows_processed=3\nvalues_counted=3\n',
+      },
+      manifestExtras: { params: {} },
     };
   }
+  
   if (scenario === 'text_cleaner') {
     return {
-      artifact_id: `ws-script-artifact-${orderId}-text-cleaner`, inputFileName: 'sample_input.txt', files: {
-        'script.py': `import sys\n\n\ndef main():\n    if len(sys.argv) < 2:\n        raise SystemExit('Usage: python3 script.py sample_input.txt')\n    with open(sys.argv[1], 'r', encoding='utf-8') as handle:\n        lines = [' '.join(line.strip().split()) for line in handle.readlines()]\n    print('\\n'.join(lines))\n\n\nif __name__ == '__main__':\n    main()\n`,
-        'README.md': `# Script MVP Package\n\n${commonHeader}\nNormalizes extra spaces in text lines.\n`,
-        'sample_input.txt': '  Hello    world   \nThis    is    a   test\n',
+      artifact_id: `ws-script-artifact-${orderId}-text-cleaner`,
+      inputFileName: 'sample_input.txt',
+      files: {
+        'script.py': `import argparse
+import sys
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Normalizes whitespace in text.')
+    parser.add_argument('input_txt', nargs='?', default=None, help='Input text file (optional, reads stdin if omitted)')
+    return parser.parse_args()
+
+def normalize_line(line):
+    """Strip leading/trailing whitespace and collapse internal spaces."""
+    return ' '.join(line.strip().split())
+
+def main():
+    args = parse_args()
+    lines = []
+    if args.input_txt:
+        try:
+            with open(args.input_txt, 'r', encoding='utf-8') as f:
+                lines = [normalize_line(l) for l in f.readlines()]
+        except FileNotFoundError:
+            raise SystemExit(f'Error: file not found: {args.input_txt}')
+    else:
+        for line in sys.stdin:
+            lines.append(normalize_line(line))
+    # Remove empty lines
+    output = [l for l in lines if l]
+    print('\\n'.join(output))
+
+if __name__ == '__main__':
+    main()
+`,
+        'README.md': `# Script MVP Package
+
+${commonHeader}
+Normalizes extra spaces and removes empty lines.
+
+Run:
+\`\`\`bash
+python3 script.py sample_input.txt
+\`\`\`
+
+Or via stdin:
+\`\`\`bash
+cat sample_input.txt | python3 script.py
+\`\`\`
+`,
+        'sample_input.txt': '  Hello    world   \n\nThis    is    a   test\n  \n',
         'sample_output.txt': 'Hello world\nThis is a test\n',
-      }, manifestExtras: { params: {} },
+      },
+      manifestExtras: { params: {} },
     };
   }
+  
   if (scenario === 'json_extractor') {
     return {
-      artifact_id: `ws-script-artifact-${orderId}-json-extractor`, inputFileName: 'sample_input.json', files: {
-        'script.py': `import json\nimport sys\n\n\ndef walk(value):\n    if isinstance(value, dict):\n        for item in value.values():\n            yield from walk(item)\n    elif isinstance(value, list):\n        for item in value:\n            yield from walk(item)\n    elif isinstance(value, str) and '@' in value:\n        yield value\n\n\ndef main():\n    if len(sys.argv) < 2:\n        raise SystemExit('Usage: python3 script.py sample_input.json')\n    with open(sys.argv[1], 'r', encoding='utf-8') as handle:\n        payload = json.load(handle)\n    print('\\n'.join(sorted(dict.fromkeys(walk(payload)))))\n\n\nif __name__ == '__main__':\n    main()\n`,
-        'README.md': `# Script MVP Package\n\n${commonHeader}\nExtracts emails from JSON.\n`,
+      artifact_id: `ws-script-artifact-${orderId}-json-extractor`,
+      inputFileName: 'sample_input.json',
+      files: {
+        'script.py': `import argparse
+import json
+import sys
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Extracts emails from JSON.')
+    parser.add_argument('input_json', help='Input JSON file path')
+    parser.add_argument('--key', default='email', help='Key to search for (default: email)')
+    return parser.parse_args()
+
+def walk(value, key):
+    """Recursively walk JSON and yield values matching key."""
+    if isinstance(value, dict):
+        for k, v in value.items():
+            if k == key and isinstance(v, str) and '@' in v:
+                yield v
+            yield from walk(v, key)
+    elif isinstance(value, list):
+        for item in value:
+            yield from walk(item, key)
+
+def main():
+    args = parse_args()
+    try:
+        with open(args.input_json, 'r', encoding='utf-8') as f:
+            payload = json.load(f)
+    except FileNotFoundError:
+        raise SystemExit(f'Error: file not found: {args.input_json}')
+    except json.JSONDecodeError as e:
+        raise SystemExit(f'Error: invalid JSON: {e}')
+    
+    emails = sorted(dict.fromkeys(walk(payload, args.key)))
+    if not emails:
+        raise SystemExit(f'No emails found with key "{args.key}"')
+    print('\\n'.join(emails))
+
+if __name__ == '__main__':
+    main()
+`,
+        'README.md': `# Script MVP Package
+
+${commonHeader}
+Extracts email addresses from JSON by recursive walk.
+
+Run:
+\`\`\`bash
+python3 script.py sample_input.json --key email
+\`\`\`
+`,
         'sample_input.json': '{\n  "leads": [\n    {"name": "Anna", "email": "anna@example.com"},\n    {"name": "Bob", "contacts": {"primary": "bob@example.com"}}\n  ],\n  "meta": {"owner_email": "ops@example.com"}\n}\n',
         'sample_output.txt': 'anna@example.com\nbob@example.com\nops@example.com\n',
-      }, manifestExtras: { params: {} },
+      },
+      manifestExtras: { params: {} },
     };
   }
+  
   if (scenario === 'loop_print') {
     const start = Number(params.start || 1);
     const end = Number(params.end || 5);
@@ -231,7 +396,9 @@ if __name__ == '__main__':
 `;
     
     return {
-      artifact_id: `ws-script-artifact-${orderId}-loop-print`, inputFileName: null, files: {
+      artifact_id: `ws-script-artifact-${orderId}-loop-print`,
+      inputFileName: null,
+      files: {
         'script.py': scriptContent,
         'README.md': `# Script MVP Package
 
@@ -251,25 +418,55 @@ python3 script.py --start ${start} --end ${end} --message "${message.replace(/"/
 Expected output:
 ${lines}`,
         'sample_output.txt': lines,
-      }, manifestExtras: { params: { start, end, message, hasPause } },
+      },
+      manifestExtras: { params: { start, end, message, hasPause } },
     };
   }
+  
   if (scenario === 'print_static_text' || scenario === 'general_safe_python') {
     const message = String(params.message || extractQuotedText(brief) || 'Hello WebStudio');
     return {
-      artifact_id: `ws-script-artifact-${orderId}-print-static-text`, inputFileName: null, files: {
-        'script.py': `def main():\n    print(${JSON.stringify(message)})\n\n\nif __name__ == '__main__':\n    main()\n`,
-        'README.md': `# Script MVP Package\n\n${commonHeader}\nPrints static text to stdout.\n`,
+      artifact_id: `ws-script-artifact-${orderId}-print-static-text`,
+      inputFileName: null,
+      files: {
+        'script.py': `import argparse
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Prints static text.')
+    parser.add_argument('--message', type=str, default=${JSON.stringify(message)}, help='Message to print')
+    return parser.parse_args()
+
+def main():
+    args = parse_args()
+    print(args.message)
+
+if __name__ == '__main__':
+    main()
+`,
+        'README.md': `# Script MVP Package
+
+${commonHeader}
+Prints static text to stdout.
+
+Run:
+\`\`\`bash
+python3 script.py --message "${message.replace(/"/g, '\\"')}"
+\`\`\`
+`,
         'sample_output.txt': `${message}\n`,
-      }, manifestExtras: { params: { message }, normalized_general_scenario: 'print_static_text' },
+      },
+      manifestExtras: { params: { message }, normalized_general_scenario: 'print_static_text' },
     };
   }
+  
   if (scenario === 'arithmetic_sum_range') {
     const start = Number(params.start || 1);
     const end = Number(params.end || 100);
     const sum = ((start + end) * (end - start + 1)) / 2;
     return {
-      artifact_id: `ws-script-artifact-${orderId}-sum-range`, inputFileName: null, files: {
+      artifact_id: `ws-script-artifact-${orderId}-sum-range`,
+      inputFileName: null,
+      files: {
         'script.py': `import argparse
 
 def parse_args():
@@ -306,31 +503,86 @@ python3 script.py --start ${start} --end ${end}
 \`\`\`
 
 Expected output:
-sum=${sum}
+range_sum=${sum}
 formula=(${start} + ${end}) * ${end - start + 1} / 2
 `,
         'sample_output.txt': `range_sum=${sum}\nformula=(${start} + ${end}) * ${end - start + 1} / 2\n`,
-      }, manifestExtras: { params: { start, end } },
+      },
+      manifestExtras: { params: { start, end } },
     };
   }
+  
   if (scenario === 'multiplication_table') {
     const number = Number(params.number || 7);
     const output = Array.from({ length: 10 }, (_, idx) => `${number} x ${idx + 1} = ${number * (idx + 1)}`).join('\n') + '\n';
     return {
-      artifact_id: `ws-script-artifact-${orderId}-multiplication-table`, inputFileName: null, files: {
-        'script.py': `def main():\n    number = ${number}\n    for i in range(1, 11):\n        print(f"${number} x {i} = {number * i}")\n\n\nif __name__ == '__main__':\n    main()\n`,
-        'README.md': `# Script MVP Package\n\n${commonHeader}\nPrints multiplication table for ${number}.\n`,
+      artifact_id: `ws-script-artifact-${orderId}-multiplication-table`,
+      inputFileName: null,
+      files: {
+        'script.py': `import argparse
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Prints multiplication table.')
+    parser.add_argument('--number', type=int, default=${number}, help='Number for table')
+    parser.add_argument('--to', type=int, default=10, help='Multiply up to (default: 10)')
+    return parser.parse_args()
+
+def main():
+    args = parse_args()
+    if args.number <= 0:
+        raise SystemExit('Error: number must be positive')
+    if args.to <= 0:
+        raise SystemExit('Error: --to must be positive')
+    for i in range(1, args.to + 1):
+        print(f"{args.number} x {i} = {args.number * i}")
+
+if __name__ == '__main__':
+    main()
+`,
+        'README.md': `# Script MVP Package
+
+${commonHeader}
+Prints multiplication table for ${number}.
+
+Run:
+\`\`\`bash
+python3 script.py --number ${number} --to 10
+\`\`\`
+
+Expected output:
+${output}`,
         'sample_output.txt': output,
-      }, manifestExtras: { params: { number } },
+      },
+      manifestExtras: { params: { number } },
     };
   }
+  
   return null;
-
 }
+
 function fixMultiplicationScript(spec) {
   if (!spec || !spec.artifact_id || !String(spec.artifact_id).includes('multiplication-table')) return spec;
   const number = spec.manifestExtras?.params?.number || 7;
-  spec.files['script.py'] = `def main():\n    for i in range(1, 11):\n        print(f"${number} x {i} = {number * i}")\n\n\nif __name__ == '__main__':\n    main()\n`;
+  spec.files['script.py'] = `import argparse
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Prints multiplication table.')
+    parser.add_argument('--number', type=int, default=${number}, help='Number for table')
+    parser.add_argument('--to', type=int, default=10, help='Multiply up to (default: 10)')
+    return parser.parse_args()
+
+def main():
+    args = parse_args()
+    if args.number <= 0:
+        raise SystemExit('Error: number must be positive')
+    if args.to <= 0:
+        raise SystemExit('Error: --to must be positive')
+    for i in range(1, args.to + 1):
+        print(f"{args.number} x {i} = {args.number * i}")
+
+if __name__ == '__main__':
+    main()
+`;
   return spec;
 }
 
