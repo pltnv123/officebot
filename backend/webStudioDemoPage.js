@@ -814,8 +814,10 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     async function renderScriptSurface(surface) {
       state.currentProjectType = 'script';
       state.currentScriptOrderId = surface.order_id || state.currentScriptOrderId;
-      state.currentScriptProjectArtifactId = surface.project_artifact_id || state.currentScriptProjectArtifactId;
-      state.lastScriptResult = { order_id: surface.order_id, project_type: 'script', scenario: surface.script_execution?.scenario, language: surface.script_execution?.language, safety_level: surface.script_execution?.safety_level, artifact_id: surface.script_execution?.artifact_id, artifact_root: surface.script_execution?.artifact_root, files: surface.files, safe_routes: surface.safe_routes, test: surface.test, next_action: surface.next_action, project_artifact_id: surface.project_artifact_id };
+      // Normalize artifact ID: project_artifact_id || artifact_id || script_execution.artifact_id || id
+      const artifactId = surface.project_artifact_id || surface.artifact_id || surface.script_execution?.artifact_id || surface.id || '';
+      state.currentScriptProjectArtifactId = artifactId || state.currentScriptProjectArtifactId;
+      state.lastScriptResult = { order_id: surface.order_id, project_type: 'script', scenario: surface.script_execution?.scenario, language: surface.script_execution?.language, safety_level: surface.script_execution?.safety_level, artifact_id: surface.script_execution?.artifact_id, artifact_root: surface.script_execution?.artifact_root, files: surface.files, safe_routes: surface.safe_routes, test: surface.test, next_action: surface.next_action, project_artifact_id: artifactId };
       
       // Enable Open Delivery button now that artifact exists
       const openDeliveryBtn = $('open-delivery-btn');
@@ -1084,27 +1086,24 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         const lastOrderId = localStorage.getItem('webstudio.lastOrderId');
         
         if (lastArtifactId && lastProjectType === 'script' && lastOrderId) {
-          // Fetch surface using order ID (same as Execute Script MVP path)
+          // Use same loadScriptSurface function as Execute Script MVP path
           const response = await fetch('/api/demo/webstudio-order/script-surface/' + encodeURIComponent(lastOrderId));
           if (response.ok) {
             const surface = await response.json();
             // Normalize artifact ID: project_artifact_id || artifact_id || id
             const artifactId = surface.project_artifact_id || surface.artifact_id || surface.script_execution?.artifact_id || surface.id || '';
             if (surface.ok && artifactId) {
-              // Set state BEFORE calling renderScriptSurface
+              // Set minimal state before loadScriptSurface
               state.orderId = lastOrderId;
-              state.currentScriptOrderId = lastOrderId;
-              state.currentScriptProjectArtifactId = artifactId;
-              state.currentOpenFile = 'script.py';
-              state.lastScriptResult = null;
-              state.scriptDirty = false;
-              state.scriptRunStatus = 'idle';
               $('order-id-input').value = state.orderId || '';
-              await renderScriptSurface(surface);
+              // loadScriptSurface will set:
+              // - state.currentScriptOrderId
+              // - state.currentScriptProjectArtifactId
+              // - state.lastScriptResult
+              // - state.currentOpenFile
+              // - render file list, load versions, update chips, sync visibility
+              await loadScriptSurface(lastOrderId);
               await loadArtifactLibrary();
-              updateHeaderChips();
-              updateDebugJson();
-              syncProjectVisibility();
               setStatus('Restored last project');
             } else {
               console.warn('Restore: surface not ok or missing artifact id');
