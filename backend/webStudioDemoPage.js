@@ -204,28 +204,29 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         <div id="script-program-panel" class="panel hidden">
           <div class="preview-head" style="align-items:center;justify-content:space-between;margin-bottom:16px;">
             <div>
-              <h2 style="margin-bottom:6px;">Program</h2>
-              <div class="preview-note">Generated runnable Python script package.</div>
+              <h2 style="margin-bottom:4px;font-size:20px;">🐍 Script Project Workspace</h2>
+              <div class="preview-note" style="font-size:13px;color:#9ca3af;">Generated runnable Python script package — edit, run, version, and export</div>
             </div>
           </div>
           
-          <!-- Toolbar with chips -->
-          <div class="row" style="align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
-            <span class="chip"><strong>script.py</strong></span>
-            <span id="script-scenario-chip" class="chip">scenario</span>
-            <span id="script-version-chip" class="chip">Current: <strong id="current-version-chip-text">v0001</strong></span>
+          <!-- Status Bar with Chips -->
+          <div class="row" style="align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px;padding:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+            <span class="chip" style="background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.3);"><strong>🐍 script.py</strong></span>
+            <span id="script-scenario-chip" class="chip">📋 scenario</span>
+            <span id="script-version-chip" class="chip">📦 Ver: <strong id="current-version-chip-text">v0001</strong></span>
             <span id="script-dirty-chip" class="chip hidden" style="background:rgba(255,193,7,0.15);border-color:rgba(255,193,7,0.3);">⚠️ Unsaved changes</span>
             <span id="script-saved-chip" class="chip" style="background:rgba(156,163,175,0.15);border-color:rgba(156,163,175,0.3);">✅ Saved</span>
-            <span id="script-run-status-chip" class="chip" style="margin-left:auto;">Status: <strong id="script-run-status-text">idle</strong></span>
+            <span id="script-test-chip" class="chip" style="background:rgba(34,197,94,0.15);border-color:rgba(34,197,94,0.3);">✅ Test passed</span>
+            <span id="script-run-status-chip" class="chip" style="margin-left:auto;background:rgba(156,163,175,0.15);border-color:rgba(156,163,175,0.3);">⚙️ Status: <strong id="script-run-status-text">Ready</strong></span>
           </div>
           
-          <!-- Action buttons -->
-          <div class="row" style="margin-bottom:16px;">
-            <button id="run-live-btn" class="primary">▶️ Run Live</button>
-            <button id="run-live-edited-btn" class="primary">▶️ Run Edited</button>
-            <button id="stop-live-btn" class="secondary" disabled style="background:#7f1d1d;">⏹️ Stop</button>
-            <button id="clear-terminal-btn" class="secondary"><span style="font-size:16px;">❌</span> Clear Terminal</button>
-            <button id="save-as-version-btn" class="secondary" style="margin-left:auto;">💾 Save Version</button>
+          <!-- Primary Action Buttons -->
+          <div class="row" style="margin-bottom:16px;gap:10px;flex-wrap:wrap;">
+            <button id="run-live-edited-btn" class="primary" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);font-weight:600;">▶️ Run Edited</button>
+            <button id="run-live-btn" class="secondary">▶️ Run Live</button>
+            <button id="stop-live-btn" class="secondary" disabled style="background:#7f1d1d;color:#fef2f2;border-color:#991b1b;">⏹️ Stop</button>
+            <button id="clear-terminal-btn" class="secondary" style="margin-left:auto;">🗑️ Clear</button>
+            <button id="save-as-version-btn" class="secondary">💾 Save Version</button>
             <button id="restore-version-btn" class="secondary">⏪ Restore</button>
             <button id="download-zip-btn" class="secondary">📥 Download ZIP</button>
             <button id="open-delivery-btn" class="secondary">🔗 Open Delivery</button>
@@ -234,11 +235,12 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
           <!-- Project Files Workspace -->
           <div id="script-workspace-panel" class="row" style="gap:16px;align-items:flex-start;">
             <!-- File List (Left Column) -->
-            <div id="script-file-list-panel" style="flex:0 0 220px;min-width:180px;">
-              <h3 style="margin-bottom:8px;font-size:14px;">Project Files</h3>
-              <div id="script-file-list" style="border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;">
+            <div id="script-file-list-panel" style="flex:0 0 240px;min-width:200px;">
+              <h3 style="margin-bottom:8px;font-size:13px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;">📁 Project Files</h3>
+              <div id="script-file-list" style="border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;background:rgba(0,0,0,0.2);">
                 <!-- File items injected here -->
               </div>
+              <p style="margin-top:8px;font-size:11px;color:#6b7280;">💡 Only <code style="background:rgba(59,130,246,0.2);padding:2px 6px;border-radius:4px;">script.py</code> is editable in this milestone</p>
             </div>
             
             <!-- Editor/Preview (Right Column) -->
@@ -265,24 +267,28 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
             </div>
           </div>
           
-          <!-- Live Terminal -->
-          <div id="script-live-terminal-panel" class="panel" style="margin-top:16px;">
-            <h3 style="margin-bottom:8px;">Live Terminal</h3>
-            <div class="code-header" style="background:#1a1a2e;">
-              <span class="filename" style="color:#a0a0a0;">$ python3 -u script.py</span>
-              <span id="live-terminal-status" class="muted" style="font-size:12px;">idle</span>
+          <!-- Execution Console -->
+          <div id="script-live-terminal-panel" class="panel" style="margin-top:16px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <h3 style="margin:0;font-size:14px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;">⌨️ Execution Console</h3>
+              <span id="live-terminal-status" class="chip" style="font-size:11px;background:rgba(156,163,175,0.15);border-color:rgba(156,163,175,0.3);">Ready</span>
             </div>
-            <pre id="live-terminal-output" class="code-block" style="background:#1a1a2e;color:#d4d4d4;min-height:280px;max-height:400px;overflow:auto;border-radius:0 0 10px 10px;border-top:none;"><span class="muted">Run the script to see live output.</span></pre>
+            <div class="code-header" style="background:#0f172a;border:1px solid rgba(255,255,255,0.08);border-radius:8px 8px 0 0;padding:10px 14px;font-family:monospace;font-size:12px;color:#9ca3af;">
+              <span style="color:#22c55e;">$</span> <span style="color:#e2e8f0;">python3 -u script.py</span>
+            </div>
+            <pre id="live-terminal-output" class="code-block" style="background:#0f172a;color:#e2e8f0;min-height:300px;max-height:450px;overflow:auto;border-radius:0 0 8px 8px;border-top:none;border:1px solid rgba(255,255,255,0.08);border-top:none;font-size:12px;line-height:1.6;"><span class="muted" style="color:#6b7280;">Run the script to see live output...</span></pre>
             
             <!-- Stdin input row -->
             <div class="row" style="margin-top:12px;gap:8px;">
-              <input type="text" id="script-live-stdin-input" class="field" style="flex:1;min-width:200px;font-family:monospace;" placeholder="Type input for running script..." disabled />
-              <button id="script-live-send-input-btn" class="primary" disabled>Send</button>
+              <input type="text" id="script-live-stdin-input" class="field" style="flex:1;min-width:200px;font-family:monospace;font-size:12px;background:#0f172a;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px 12px;color:#e2e8f0;" placeholder="Type input for running script..." disabled />
+              <button id="script-live-send-input-btn" class="primary" disabled style="padding:8px 16px;">Send</button>
             </div>
-            <div class="row" style="margin-top:8px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;">
-              <span class="muted" style="font-size:12px;">Exit code: <strong id="terminal-exit-code">-</strong></span>
-              <span class="muted" style="font-size:12px;margin-left:16px;">Duration: <strong id="terminal-duration">-</strong></span>
-              <span class="muted" style="font-size:12px;margin-left:16px;">State: <strong id="terminal-state">-</strong></span>
+            
+            <!-- Run Stats -->
+            <div class="row" style="margin-top:12px;padding:10px 14px;background:rgba(0,0,0,0.2);border-radius:8px;border:1px solid rgba(255,255,255,0.08);gap:16px;">
+              <span style="font-size:12px;color:#9ca3af;">Exit code: <strong id="terminal-exit-code" style="color:#e2e8f0;">-</strong></span>
+              <span style="font-size:12px;color:#9ca3af;">Duration: <strong id="terminal-duration" style="color:#e2e8f0;">-</strong></span>
+              <span style="font-size:12px;color:#9ca3af;">State: <strong id="terminal-state" style="color:#e2e8f0;">-</strong></span>
             </div>
           </div>
           
@@ -1401,8 +1407,22 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     }
 
     function setLiveRunStatus(status) {
-      $('live-terminal-status').textContent = status;
-      $('script-run-status-text').textContent = status;
+      // Map technical statuses to user-friendly labels
+      const statusLabels = {
+        'idle': 'Ready',
+        'starting': 'Starting…',
+        'running': 'Running…',
+        'ok': '✅ Completed',
+        'completed': '✅ Completed',
+        'done': '✅ Completed',
+        'failed': '❌ Failed',
+        'error': '❌ Error',
+        'stopped': '⏹️ Stopped',
+        'disconnected': '⚠️ Stream disconnected'
+      };
+      const label = statusLabels[status] || status;
+      $('live-terminal-status').textContent = label;
+      $('script-run-status-text').textContent = label;
       $('stop-live-btn').disabled = status !== 'running';
       state.scriptRunStatus = status;
       updateTerminalInputState(status);
