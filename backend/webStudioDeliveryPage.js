@@ -41,6 +41,19 @@ function renderWebStudioDeliveryPage({ artifact }) {
   const artifactId = String(artifact.project_artifact_id || '');
   const fileRoutes = Array.isArray(artifact.file_routes) ? artifact.file_routes : [];
   const downloadUrl = String(artifact.download_url || '');
+  
+  // Build safe routes map for client-side fetching
+  const safeRoutes = {};
+  const filesMap = {};
+  fileRoutes.forEach(item => {
+    const key = String(item.key || '');
+    const label = String(item.label || '');
+    const route = String(item.route || '');
+    if (key && route) {
+      safeRoutes[key] = route;
+      filesMap[key] = label;
+    }
+  });
 
   let title = 'Project delivery';
   let description = '';
@@ -82,6 +95,9 @@ function renderWebStudioDeliveryPage({ artifact }) {
   const runButtonText = projectType === 'script' ? 'Run Script' : projectType === 'telegram_bot' ? 'Run Dry-Run' : 'Run';
   const runEndpoint = `/api/demo/webstudio-order/project-artifact/${encodeURIComponent(artifactId)}/run`;
   const runHistoryEndpoint = `/api/demo/webstudio-order/project-artifact/${encodeURIComponent(artifactId)}/run-history`;
+  
+  // Default file for script projects
+  const defaultFileKey = projectType === 'script' ? 'script' : (projectType === 'telegram_bot' ? 'bot' : null);
 
   return `<!doctype html>
 <html lang="ru">
@@ -93,7 +109,7 @@ function renderWebStudioDeliveryPage({ artifact }) {
     :root { --bg:#07111f; --panel:rgba(15,23,42,0.86); --text:#f8fafc; --muted:#94a3b8; --accent:#3b82f6; --ok:#22c55e; --border:rgba(255,255,255,0.08); --running:#f59e0b; --failed:#ef4444; }
     * { box-sizing: border-box; }
     body { margin:0; font-family: Inter, Arial, sans-serif; background: radial-gradient(circle at top, rgba(59,130,246,0.18), transparent 30%), linear-gradient(180deg,#020617,var(--bg)); color:var(--text); }
-    .page { max-width: 900px; margin: 0 auto; padding: 28px; }
+    .page { max-width: 1100px; margin: 0 auto; padding: 28px; }
     .header { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:22px; }
     h1 { font-size: 32px; margin:0; }
     .panel { background: var(--panel); border:1px solid var(--border); border-radius: 22px; padding:22px; backdrop-filter: blur(10px); box-shadow: 0 18px 40px rgba(2,6,23,0.28); margin-bottom:22px; }
@@ -120,6 +136,36 @@ function renderWebStudioDeliveryPage({ artifact }) {
     .run-history-item .meta-line { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:6px; }
     .run-history-item .preview { background:#020617; padding:8px; border-radius:8px; font-family:monospace; font-size:12px; white-space:pre-wrap; word-break:break-word; max-height:120px; overflow:auto; }
     .run-history-item .preview.stderr { background:#1a0a0a; border:1px solid rgba(239,68,68,0.2); }
+    
+    /* Code workspace styles */
+    .code-workspace { display:grid; grid-template-columns: 220px 1fr; gap:16px; align-items:flex-start; }
+    @media (max-width: 800px) { .code-workspace { grid-template-columns: 1fr; } }
+    .file-list-interactive { border:1px solid rgba(255,255,255,0.1); border-radius:8px; overflow:hidden; background:rgba(0,0,0,0.2); }
+    .file-item { padding:8px 12px; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer; display:flex; align-items:center; justify-content:space-between; font-size:13px; font-family:monospace; }
+    .file-item:hover { background:rgba(255,255,255,0.05); }
+    .file-item.active { background:rgba(59,130,246,0.2); border-left:3px solid #3b82f6; }
+    .file-item .badge { font-size:10px; padding:2px 6px; margin-left:6px; background:rgba(156,163,175,0.2); }
+    .file-item .badge.editable { background:rgba(59,130,246,0.2); }
+    .code-panel { background:#0b1120; border:1px solid rgba(59,130,246,0.2); border-radius:10px; overflow:hidden; }
+    .code-header { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:rgba(255,255,255,0.04); border-bottom:1px solid rgba(255,255,255,0.06); }
+    .code-header .filename { font-weight:700; color:#e2e8f0; font-size:13px; }
+    .code-content { background:#0b1120; color:#e2e8f0; padding:16px; font-family:'Consolas','Monaco','Courier New',monospace; font-size:13px; line-height:1.6; max-height:500px; overflow:auto; white-space:pre-wrap; word-break:break-word; }
+    .code-content textarea { width:100%; min-height:400px; background:transparent; color:#e2e8f0; border:none; outline:none; font-family:inherit; font-size:inherit; line-height:inherit; resize:vertical; }
+    .toolbar-btn { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); color:#e2e8f0; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:600; margin-left:6px; }
+    .toolbar-btn:hover { background:rgba(255,255,255,0.1); }
+    
+    /* Console styles */
+    .console-panel { background: rgba(15,23,42,0.9); border:1px solid rgba(255,255,255,0.08); border-radius:10px; overflow:hidden; }
+    .console-header { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:rgba(255,255,255,0.04); border-bottom:1px solid rgba(255,255,255,0.06); font-family:monospace; font-size:12px; color:#9ca3af; }
+    .console-output { background:#0f172a; color:#e2e8f0; padding:14px; font-family:monospace; font-size:12px; line-height:1.6; max-height:400px; overflow:auto; white-space:pre-wrap; word-break:break-word; }
+    .console-output.stdout { color:#98c379; }
+    .console-output.stderr { color:#e06c75; background:rgba(224,108,117,0.1); }
+    .console-stats { display:flex; gap:16px; padding:10px 14px; background:rgba(0,0,0,0.2); border-top:1px solid rgba(255,255,255,0.06); font-size:12px; color:#9ca3af; }
+    .console-stats strong { color:#e2e8f0; }
+    .status-ready { color:#9ca3af; }
+    .status-running { color:#f59e0b; }
+    .status-completed { color:#22c55e; }
+    .status-failed { color:#ef4444; }
   </style>
 </head>
 <body>
@@ -159,12 +205,29 @@ function renderWebStudioDeliveryPage({ artifact }) {
       <div id="run-history-container"><div class="muted">Loading run history...</div></div>
     </div>` : ''}
 
-    <div class="panel">
-      <h2 style="margin-bottom:10px;">Files</h2>
-      <div class="file-list">
-        ${primaryFiles.map((item) => `<a class="linkish" href="${escapeHtml(item.route)}" target="_blank" rel="noopener">${escapeHtml(item.label || item.key || 'file')}</a>`).join('')}
+    <!-- Code Workspace Panel -->
+    <div class="panel" id="code-workspace-panel">
+      <h2 style="margin-bottom:10px;">Code</h2>
+      ${projectType === 'script' || projectType === 'telegram_bot' ? `
+      <div class="code-workspace">
+        <!-- File List -->
+        <div id="delivery-file-list" class="file-list-interactive">
+          <!-- File items injected by JS -->
+        </div>
+        <!-- Code Panel -->
+        <div class="code-panel">
+          <div class="code-header">
+            <span id="delivery-file-title" class="filename">script.py</span>
+            <div class="row">
+              <button id="delivery-copy-code-btn" class="toolbar-btn">📋 Copy</button>
+            </div>
+          </div>
+          <div id="delivery-code-content" class="code-content">
+            <pre id="delivery-code-pre">Loading code...</pre>
+          </div>
+        </div>
       </div>
-      ${otherFiles.length > 0 ? `<div class="file-list" style="margin-top:14px;">${otherFiles.map((item) => `<a class="linkish" href="${escapeHtml(item.route)}" target="_blank" rel="noopener">${escapeHtml(item.label || item.key || 'file')}</a>`).join('')}</div>` : ''}
+      ` : `<div class="muted">Code preview not available for this project type.</div>`}
     </div>
 
     <div class="panel">
@@ -180,8 +243,13 @@ function renderWebStudioDeliveryPage({ artifact }) {
     <div class="footer">WebStudio Delivery · ${escapeHtml(artifactId)}</div>
   </div>
 
-  ${canRun ? `<script>
+  ${canRun || (projectType === 'script' || projectType === 'telegram_bot') ? `<script>
     const artifactId = ${JSON.stringify(artifactId)};
+    const orderId = ${JSON.stringify(orderId)};
+    const projectType = ${JSON.stringify(projectType)};
+    const safeRoutes = ${JSON.stringify(safeRoutes)};
+    const filesMap = ${JSON.stringify(filesMap)};
+    const defaultFileKey = ${JSON.stringify(defaultFileKey)};
     const runBtn = document.getElementById('run-btn');
     const runResultPanel = document.getElementById('run-result-panel');
     const runMeta = document.getElementById('run-meta');
@@ -189,6 +257,20 @@ function renderWebStudioDeliveryPage({ artifact }) {
     const runHistoryContainer = document.getElementById('run-history-container');
     const runEndpoint = ${JSON.stringify(runEndpoint)};
     const runHistoryEndpoint = ${JSON.stringify(runHistoryEndpoint)};
+    
+    // Client-side escapeHtml for run history rendering
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/\u0026/g, '\u0026amp;')
+        .replace(/\u003c/g, '\u0026lt;')
+        .replace(/\u003e/g, '\u0026gt;')
+        .replace(/"/g, '\u0026quot;')
+        .replace(/'/g, '\u0026#39;');
+    }
+    
+    // Code workspace state
+    let currentFileKey = defaultFileKey || 'script';
+    let currentCode = '';
 
     function chip(label, value, failed) {
       const badgeClass = failed ? 'badge failed' : 'badge';
@@ -224,21 +306,17 @@ function renderWebStudioDeliveryPage({ artifact }) {
       }).join('');
     }
 
+
     async function loadRunHistory() {
       try {
-        console.log('[webstudio-delivery] loadRunHistory', { runHistoryEndpoint });
         const response = await fetch(runHistoryEndpoint);
-        console.log('[webstudio-delivery] run history response', { status: response.status, ok: response.ok });
         if (!response.ok) {
-          const text = await response.text();
-          console.warn('[webstudio-delivery] run history HTTP error', { status: response.status, body: text.slice(0, 200) });
           if (runHistoryContainer) {
             runHistoryContainer.innerHTML = '<div class="muted">Failed to load run history: HTTP ' + response.status + '</div>';
           }
           return;
         }
         const history = await response.json();
-        console.log('[webstudio-delivery] run history data', { run_count: history.run_count, runs: history.runs ? history.runs.length : 0 });
         if (runHistoryContainer) {
           runHistoryContainer.innerHTML = renderRunHistory(history);
         }
@@ -250,50 +328,152 @@ function renderWebStudioDeliveryPage({ artifact }) {
       }
     }
 
-    runBtn.addEventListener('click', async () => {
+    // Code workspace functions
+    function renderFileList() {
+      const fileListEl = document.getElementById('delivery-file-list');
+      if (!fileListEl || !filesMap) return;
+      
+      const editableFiles = ['script'];
+      const fileItems = Object.entries(filesMap).map(([key, label]) => {
+        const isActive = key === currentFileKey;
+        const isEditable = editableFiles.includes(key);
+        const badge = isEditable ? '<span class="badge editable">editable</span>' : '<span class="badge">read-only</span>';
+        const activeClass = isActive ? ' active' : '';
+        return '<div class="file-item' + activeClass + '" data-file-key="' + escapeHtml(key) + '">' +
+          '<span>' + escapeHtml(label) + '</span>' +
+          badge +
+          '</div>';
+      }).join('');
+      
+      fileListEl.innerHTML = fileItems;
+      
+      // Add click handlers
+      fileListEl.querySelectorAll('.file-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const fileKey = item.dataset.fileKey;
+          if (fileKey && safeRoutes[fileKey]) {
+            loadFileContent(fileKey);
+            // Update active state
+            fileListEl.querySelectorAll('.file-item').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+          }
+        });
+      });
+    }
+
+    async function loadFileContent(fileKey) {
+      currentFileKey = fileKey;
+      const route = safeRoutes[fileKey];
+      const titleEl = document.getElementById('delivery-file-title');
+      const contentEl = document.getElementById('delivery-code-content');
+      
+      if (!route || !contentEl) return;
+      
+      if (titleEl) {
+        const label = filesMap[fileKey] || fileKey;
+        titleEl.textContent = label;
+      }
+      
+      contentEl.innerHTML = '<pre class="muted">Loading...</pre>';
+      
+      try {
+        const response = await fetch(route);
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const text = await response.text();
+        currentCode = text;
+        // Escape HTML in code content
+        const escapedText = escapeHtml(text);
+        contentEl.innerHTML = '<pre id="delivery-code-pre">' + escapedText + '</pre>';
+      } catch (error) {
+        contentEl.innerHTML = '<pre class="muted">Error loading file: ' + escapeHtml(error.message) + '</pre>';
+      }
+    }
+
+    // Copy code button
+    document.getElementById('delivery-copy-code-btn')?.addEventListener('click', async () => {
+      if (!currentCode) return;
+      try {
+        await navigator.clipboard.writeText(currentCode);
+        const btn = document.getElementById('delivery-copy-code-btn');
+        const originalText = btn.textContent;
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => { btn.textContent = '📋 Copy'; }, 1500);
+      } catch (e) {
+        console.warn('Failed to copy code:', e);
+      }
+    });
+
+    // Run Script button
+    ${canRun ? `
+    runBtn?.addEventListener('click', async () => {
       runBtn.disabled = true;
       runBtn.classList.add('running');
       runBtn.textContent = 'Running...';
-      runResultPanel.classList.remove('hidden');
-      runOutput.textContent = 'Starting run...';
+      if (runResultPanel) runResultPanel.classList.remove('hidden');
+      if (runOutput) runOutput.textContent = 'Starting run...';
+      if (runOutput) runOutput.className = 'run-output';
 
       try {
         const response = await fetch(runEndpoint, { method: 'POST' });
         const result = await response.json();
 
         if (!result.ok) {
-          runOutput.textContent = 'Run failed: ' + (result.error || result.reason || 'Unknown error');
-          runBtn.disabled = false;
-          runBtn.classList.remove('running');
-          runBtn.textContent = 'Run again';
+          if (runOutput) runOutput.textContent = 'Run failed: ' + (result.error || result.reason || 'Unknown error');
+          if (runOutput) runOutput.className = 'run-output stderr';
+          if (runBtn) {
+            runBtn.disabled = false;
+            runBtn.classList.remove('running');
+            runBtn.textContent = 'Run again';
+          }
           loadRunHistory();
           return;
         }
 
         const durationSec = (result.duration_ms / 1000).toFixed(2);
-        runMeta.innerHTML = [
-          chip('Exit code', result.exit_code),
-          chip('Duration', durationSec + 's'),
-          chip('Status', result.ok ? 'ok' : 'failed', !result.ok),
-        ].join('');
+        if (runMeta) {
+          runMeta.innerHTML = [
+            chip('Exit code', result.exit_code),
+            chip('Duration', durationSec + 's'),
+            chip('Status', result.ok ? 'ok' : 'failed', !result.ok),
+          ].join('');
+        }
 
         const output = result.stdout || '(no output)';
-        runOutput.textContent = output;
+        if (runOutput) {
+          runOutput.textContent = output;
+          runOutput.className = 'run-output stdout';
+        }
 
-        runBtn.disabled = false;
-        runBtn.classList.remove('running');
-        runBtn.textContent = 'Run again';
+        if (runBtn) {
+          runBtn.disabled = false;
+          runBtn.classList.remove('running');
+          runBtn.textContent = 'Run again';
+        }
         loadRunHistory();
       } catch (error) {
-        runOutput.textContent = 'Run error: ' + error.message;
-        runBtn.disabled = false;
-        runBtn.classList.remove('running');
-        runBtn.textContent = 'Run again';
+        if (runOutput) {
+          runOutput.textContent = 'Run error: ' + error.message;
+          runOutput.className = 'run-output stderr';
+        }
+        if (runBtn) {
+          runBtn.disabled = false;
+          runBtn.classList.remove('running');
+          runBtn.textContent = 'Run again';
+        }
         loadRunHistory();
       }
     });
+    ` : ''}
 
-    loadRunHistory();
+    // Initialize
+    ${projectType === 'script' || projectType === 'telegram_bot' ? `
+    renderFileList();
+    if (defaultFileKey) {
+      loadFileContent(defaultFileKey);
+    }
+    ` : ''}
+    
+    ${canRun ? 'loadRunHistory();' : ''}
   </script>` : ''}
 </body>
 </html>`;
