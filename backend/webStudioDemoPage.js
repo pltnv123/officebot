@@ -605,9 +605,15 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     });
 
     $('restore-version-btn')?.addEventListener('click', async () => {
-      const versionId = $('script-versions-dropdown')?.value;
+      let versionId = $('script-versions-dropdown')?.value;
+      
+      // Fallback: if no version selected, use currentVersionId from state
+      if (!versionId && state.currentVersionId) {
+        versionId = state.currentVersionId;
+      }
+      
       if (!versionId) {
-        alert('Please select a version from the dropdown first');
+        alert('No version selected. Please select a version from the dropdown or save a version first.');
         return;
       }
       try {
@@ -657,7 +663,15 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
           safeSetText('current-version-chip-text', data.version_id);
           state.currentVersionId = data.version_id;
           setStatus('Saved as ' + data.version_id);
+          // Reload versions and select the newly saved one
           await loadScriptVersions();
+          // Give dropdown time to populate, then select new version
+          setTimeout(() => {
+            const dropdown = $('script-versions-dropdown');
+            if (dropdown) {
+              dropdown.value = data.version_id;
+            }
+          }, 500);
         } else {
           alert('Failed to save version: ' + (data.error || 'unknown'));
         }
@@ -1608,7 +1622,8 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         setStatus('No artifact loaded');
         return;
       }
-      window.open('/webstudio/demo-delivery?artifact=' + encodeURIComponent(state.currentScriptProjectArtifactId), '_blank');
+      // Use existing /webstudio/delivery/:artifactId route
+      window.open('/webstudio/delivery/' + encodeURIComponent(state.currentScriptProjectArtifactId), '_blank');
     });
     // Telegram Bot Program Panel handlers
     let telegramBotOriginalSource = '';

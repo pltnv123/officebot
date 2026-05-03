@@ -1109,7 +1109,7 @@ async function main() {
         updated_at: nowIso(),
       }, null, 2), 'utf8');
       
-      res.json({ ok: true, version_id: versionId, restored: true });
+      res.json({ ok: true, version_id: versionId, restored: true, source: versionSource });
     } catch (error) {
       res.status(500).json({ ok: false, error: String(error.message || error) });
     }
