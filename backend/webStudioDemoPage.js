@@ -67,7 +67,22 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     .code-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; padding:8px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:10px 10px 0 0; }
     .code-header .filename { font-weight:700; color:#e2e8f0; font-size:13px; }
     .code-block { background:#0b1120; border:1px solid rgba(59,130,246,0.2); border-radius:0 0 10px 10px; padding:16px; font-family:'Consolas','Monaco','Courier New',monospace; font-size:13px; line-height:1.6; color:#e2e8f0; max-height:480px; overflow:auto; white-space:pre-wrap; word-wrap:break-word; }
-    textarea.code-block { width:100%; min-height:400px; resize:vertical; outline:none; }
+    textarea.code-block { width:100%; min-height:400px; resize:vertical; outline:none; tab-size:4; }
+    .code-editor-wrapper { position:relative; display:flex; background:#0b1120; border:1px solid rgba(59,130,246,0.2); border-radius:10px; overflow:hidden; }
+    .line-numbers { background:#090d1a; color:#475569; padding:16px 8px; text-align:right; font-family:'Consolas','Monaco','Courier New',monospace; font-size:13px; line-height:1.6; user-select:none; min-width:48px; }
+    .code-editor-container { position:relative; flex:1; }
+    #script-editor { width:100%; min-height:400px; resize:vertical; outline:none; tab-size:4; border:none; background:transparent; color:#e2e8f0; padding:16px; font-family:'Consolas','Monaco','Courier New',monospace; font-size:13px; line-height:1.6; }
+    .syntax-keyword { color:#c678dd; }
+    .syntax-string { color:#98c379; }
+    .syntax-comment { color:#5c6370; font-style:italic; }
+    .syntax-function { color:#61afef; }
+    .syntax-number { color:#d19a66; }
+    .output-stdout { color:#98c379; }
+    .output-stderr { color:#e06c75; background:rgba(224,108,117,0.1); padding:2px 4px; border-radius:4px; }
+    .output-info { color:#61afef; }
+    .toolbar-btn { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); color:#e2e8f0; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:600; }
+    .toolbar-btn:hover { background:rgba(255,255,255,0.1); }
+    .wrap-toggle { display:flex; align-items:center; gap:6px; font-size:12px; color:#94a3b8; }
     @media (max-width: 1100px) { .hero-shell, .grid, .variant-grid, .meta-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -223,10 +238,17 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
           <div class="field">
             <div class="code-header">
               <span class="filename">script.py</span>
-              <span id="script-run-state" class="muted">idle</span>
+              <div class="row" style="gap:6px;align-items:center;">
+                <button id="copy-code-btn" class="toolbar-btn" title="Copy code">📋 Copy</button>
+                <label class="wrap-toggle"><input type="checkbox" id="word-wrap-toggle" /> Wrap</label>
+                <span id="script-run-state" class="muted">idle</span>
+              </div>
             </div>
             <pre id="script-code-block" class="code-block">No script executed yet.</pre>
-            <textarea id="script-editor" class="code-block hidden" spellcheck="false"></textarea>
+            <div id="script-editor-wrapper" class="code-editor-wrapper hidden">
+              <div id="script-line-numbers" class="line-numbers">1</div>
+              <textarea id="script-editor" spellcheck="false" placeholder="Edit Python code here... (Ctrl+Enter to run, Ctrl+S to save)"></textarea>
+            </div>
           </div>
           <div id="script-execution-output" class="hidden">
             <h3 style="margin-top:16px;">Execution Output</h3>
@@ -490,7 +512,8 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
           $('save-script-btn').classList.remove('hidden');
           $('reset-script-btn').classList.remove('hidden');
           $('script-code-block').classList.add('hidden');
-          $('script-editor').classList.remove('hidden');
+          $('script-editor-wrapper').classList.remove('hidden');
+          updateLineNumbers();
         }
       } catch (error) {
         console.warn('Failed to load version:', error);
@@ -522,7 +545,8 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
           $('save-script-btn').classList.remove('hidden');
           $('reset-script-btn').classList.remove('hidden');
           $('script-code-block').classList.add('hidden');
-          $('script-editor').classList.remove('hidden');
+          $('script-editor-wrapper').classList.remove('hidden');
+          updateLineNumbers();
           alert('Loaded ' + versionId + ' into editor (not restored yet)');
         }
       } catch (error) {
@@ -549,8 +573,9 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
           $('edit-script-btn').classList.remove('hidden');
           $('save-script-btn').classList.add('hidden');
           $('reset-script-btn').classList.add('hidden');
+          $('script-code-block').textContent = data.source;
           $('script-code-block').classList.remove('hidden');
-          $('script-editor').classList.add('hidden');
+          $('script-editor-wrapper').classList.add('hidden');
           $('current-version-display').textContent = versionId;
           state.currentVersionId = versionId;
           alert('Restored ' + versionId);
@@ -585,7 +610,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
           $('reset-script-btn').classList.add('hidden');
           $('script-code-block').textContent = editedSource;
           $('script-code-block').classList.remove('hidden');
-          $('script-editor').classList.add('hidden');
+          $('script-editor-wrapper').classList.add('hidden');
           $('current-version-display').textContent = data.version_id;
           state.currentVersionId = data.version_id;
           alert('Saved as ' + data.version_id);
@@ -752,7 +777,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       $('reset-script-btn').classList.add('hidden');
       $('script-dirty-badge').classList.add('hidden');
       $('script-code-block').classList.remove('hidden');
-      $('script-editor').classList.add('hidden');
+      $('script-editor-wrapper').classList.add('hidden');
       
       // Update supporting files
       $('script-files').innerHTML = Object.entries(surface.safe_routes || {}).filter(([key]) => key !== 'script').map(([key, route]) => '<a class="linkish" href="' + route + '" target="_blank" rel="noopener">' + safe(key) + ' → ' + safe(surface.files?.[key]) + '</a>').join('');
@@ -1034,12 +1059,14 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     // Editable script playground handlers
     $('edit-script-btn').addEventListener('click', () => {
       $('script-code-block').classList.add('hidden');
-      $('script-editor').classList.remove('hidden');
+      $('script-editor-wrapper').classList.remove('hidden');
       $('edit-script-btn').classList.add('hidden');
       $('save-script-btn').classList.remove('hidden');
       $('reset-script-btn').classList.remove('hidden');
       $('script-dirty-badge').classList.remove('hidden');
       state.scriptDirty = false;
+      updateLineNumbers();
+      $('script-editor').focus();
     });
     
     $('save-script-btn').addEventListener('click', () => {
@@ -1047,7 +1074,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       state.scriptDirty = false;
       $('script-code-block').textContent = state.originalScript;
       $('script-code-block').classList.remove('hidden');
-      $('script-editor').classList.add('hidden');
+      $('script-editor-wrapper').classList.add('hidden');
       $('edit-script-btn').classList.remove('hidden');
       $('save-script-btn').classList.add('hidden');
       $('reset-script-btn').classList.add('hidden');
@@ -1058,6 +1085,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       $('script-editor').value = state.originalScript || '';
       state.scriptDirty = false;
       $('script-dirty-badge').classList.add('hidden');
+      updateLineNumbers();
     });
     
     $('script-editor').addEventListener('input', () => {
@@ -1065,12 +1093,75 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       if (!$('script-dirty-badge').classList.contains('hidden')) {
         $('script-dirty-badge').classList.remove('hidden');
       }
+      updateLineNumbers();
+    });
+    
+    // Line numbers update
+    function updateLineNumbers() {
+      const editor = $('script-editor');
+      const lineNumbers = $('script-line-numbers');
+      if (!editor || !lineNumbers) return;
+      const NL = String.fromCharCode(10);
+      const lines = editor.value.split(NL).length;
+      lineNumbers.textContent = Array.from({ length: lines }, (_, i) => i + 1).join(NL);
+    }
+    
+    // Sync scroll between line numbers and editor
+    $('script-editor').addEventListener('scroll', () => {
+      const lineNumbers = $('script-line-numbers');
+      if (lineNumbers) lineNumbers.scrollTop = $('script-editor').scrollTop;
+    });
+    
+    // Copy code button
+    $('copy-code-btn').addEventListener('click', async () => {
+      const code = $('script-code-block').textContent;
+      try {
+        await navigator.clipboard.writeText(code);
+        const btn = $('copy-code-btn');
+        const originalText = btn.textContent;
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => { btn.textContent = originalText; }, 1500);
+      } catch (e) {
+        setStatus('Failed to copy: ' + e.message);
+      }
+    });
+    
+    // Word wrap toggle
+    $('word-wrap-toggle').addEventListener('change', (e) => {
+      const codeBlock = $('script-code-block');
+      const editor = $('script-editor');
+      if (e.target.checked) {
+        codeBlock.style.whiteSpace = 'pre-wrap';
+        editor.style.whiteSpace = 'pre-wrap';
+      } else {
+        codeBlock.style.whiteSpace = 'pre';
+        editor.style.whiteSpace = 'pre';
+      }
+    });
+    
+    // Keyboard shortcuts: Ctrl+S to save, Ctrl+Enter to run
+    $('script-editor').addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        if (!$('save-script-btn').classList.contains('hidden')) {
+          $('save-script-btn').click();
+        }
+      }
+      if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        if (!$('script-editor-wrapper').classList.contains('hidden')) {
+          // Run edited source
+          startLiveRun($('script-editor').value);
+        } else {
+          runScriptOnMainPage();
+        }
+      }
     });
     
     // Override runScriptOnMainPage to use edited source if dirty
     const originalRunScriptOnMainPage = runScriptOnMainPage;
     runScriptOnMainPage = async () => {
-      const editedSource = $('script-editor').classList.contains('hidden') ? undefined : $('script-editor').value;
+      const editedSource = $('script-editor-wrapper').classList.contains('hidden') ? undefined : $('script-editor').value;
       await originalRunScriptOnMainPage(editedSource);
     };
 
@@ -1175,7 +1266,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
 
     $('run-live-btn').addEventListener('click', () => startLiveRun(null));
     $('run-live-edited-btn').addEventListener('click', () => {
-      const editedSource = $('script-editor').classList.contains('hidden') ? undefined : $('script-editor').value;
+      const editedSource = $('script-editor-wrapper').classList.contains('hidden') ? undefined : $('script-editor').value;
       startLiveRun(editedSource);
     });
     $('stop-live-btn').addEventListener('click', async () => {
