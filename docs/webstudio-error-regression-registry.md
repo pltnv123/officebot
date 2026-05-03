@@ -1,170 +1,152 @@
 # WebStudio Error Regression Registry
 
-**Purpose:** Track known UI/backend regressions and their prevention measures.
-
-**Location:** `/home/antonbot/.openclaw/workspace/office/docs/webstudio-error-regression-registry.md`
+This document tracks known error patterns and their prevention measures to avoid regressions.
 
 ---
 
-## ERR-001: addEventListener on null DOM elements
+## ERR-001: Execute Script MVP returns 500 for non-demo scenarios
 
-**Symptom:** `TypeError: Cannot read properties of null (reading 'addEventListener')`
+**Symptom:** Clicking "Execute Script MVP" returns HTTP 500 with error message about unsupported scenario.
 
-**Root cause:** JS attaches event listeners to elements that don't exist in current UI state.
-
-**Fixed elements:**
-- `run-script-btn`
-- `run-script-again-btn`
-
-**Fix:** Use optional chaining: `$('run-script-btn')?.addEventListener(...)`
+**Root Cause:** Backend validates script scenarios against a whitelist of safe demo patterns.
 
 **Prevention:**
-- Always check element exists before addEventListener
-- Use `safeOnClick()` helper
-- Browser smoke must verify no console errors
+- Smoke test `webstudio-script-quality-smoke.js` validates all supported scenarios
+- Brief text must match supported patterns: CSV summary, loop print, sum range, text cleaner, JSON extractor
 
 ---
 
-## ERR-002: Live Terminal panel hidden after Execute Script
+## ERR-002: Script smoke timeout on re-execute with loop_print
 
-**Symptom:** Live Terminal panel not visible after script execution
+**Symptom:** Second execution of loop_print script times out in browser smoke test.
 
-**Root cause:** `syncProjectVisibility` was toggling `script-live-terminal-panel` separately from `script-program-panel`, but terminal is inside program panel.
+**Root Cause:** `runScriptSmoke` ran without `--delay` flag, using default 0.5s pause between iterations.
 
-**Fix:** Removed separate terminal panel toggle from `syncProjectVisibility`.
+**Fix:** Added `args.push('--delay', '0')` in `runScriptSmoke()` in `webStudioScriptExecutionService.js`.
 
 **Prevention:**
-- Do not manage child elements separately from parent visibility
-- Browser smoke checks terminal visibility
+- Smoke test `webstudio-browser-script-reexecute-same-scenario-timeout-smoke.js`
+- Backend smoke must use `--delay 0` for fast execution
 
 ---
 
-## ERR-003: setLiveRunStatus textContent on null
+## ERR-003: Undefined artifact_id in run-live URLs
 
-**Symptom:** `Cannot set properties of null (setting 'textContent')` when clicking Run Live
+**Symptom:** Run Live URLs contain `undefined` causing 404 errors.
 
-**Root cause:** `setLiveRunStatus` tried to set `live-run-status` element which doesn't exist in HTML.
+**Root Cause:** `project_artifact_id` not always populated in artifact object.
 
-**Fix:** Removed reference to non-existent `live-run-status` element.
+**Fix:** Added 3-level fallback: `project_artifact_id || artifact_id || id || ''` in `webStudioLiveRunService.js`.
 
 **Prevention:**
-- Use `safeSetText()` helper for all textContent operations
-- Verify all referenced element IDs exist in base HTML
+- Smoke test `webstudio-browser-script-reexecute-regression-smoke.js`
+- Always normalize artifact ID before using in URLs
 
 ---
 
-## ERR-004: loadScriptVersions innerHTML on null
+## ERR-004: Null DOM errors in Script Playground UI
 
-**Symptom:** `Cannot set properties of null (setting 'innerHTML')` when loading versions
+**Symptom:** Browser console shows "Cannot read properties of null (reading 'addEventListener')" after clicking Run Live.
 
-**Root cause:** `loadScriptVersions` used `$()` without null checks.
+**Root Cause:** New UI elements (script-file-save-btn, script-file-reset-btn, etc.) accessed without null checks.
 
 **Fix:** 
-- Added `safeSetHtml()` helper
-- Use `$$()` for optional element lookup
-- Check element exists before innerHTML assignment
+- All DOM access uses optional chaining: `$('id')?.addEventListener(...)`
+- Safe helper functions: `safeSetText`, `safeClassToggle`, `$$`
 
 **Prevention:**
-- Always use safe helpers for DOM manipulation
-- Versions UI must handle missing elements gracefully
+- Smoke test `webstudio-browser-script-real-click-regression-smoke.js` asserts no null DOM errors
+- Code review checklist: all `$()` calls must use `?.` for potentially null elements
 
 ---
 
-## ERR-005: renderScriptSurface unsafe DOM operations
+## ERR-005: File list shows route keys instead of filenames
 
-**Symptom:** Multiple null errors when rendering script surface
+**Symptom:** File explorer shows "script", "readme", "sample_input" instead of "script.py", "README.md", etc.
 
-**Root cause:** `renderScriptSurface` used direct `$()` calls without checks.
+**Root Cause:** `renderScriptFileList()` used `Object.keys(surface.files)` which returns route keys, not display filenames.
 
-**Fix:**
-- Replaced all `$().textContent` with `safeSetText()`
-- Replaced all `$().innerHTML` with `safeSetHtml()`
-- Replaced all `$().classList` with `safeClassToggle()`
+**Fix:** Changed to `Object.values(surface.files || {}).filter(f => f)` to get actual filenames.
 
 **Prevention:**
-- Use safe helpers consistently
-- Browser smoke must test full Analyze → Execute → Run Live flow
+- Smoke test `webstudio-script-file-explorer-editor-smoke.js` asserts file names visible
+- File mapping logic documented in `docs/webstudio-script-playground-ux.md`
 
 ---
 
-## ERR-006: syncProjectVisibility unsafe DOM operations
+## ERR-006: Run Edited button not working after file editor implemented
 
-**Symptom:** classList errors when switching project types
+**Symptom:** Clicking "Run Edited" does not execute the edited script content.
 
-**Root cause:** `syncProjectVisibility` used direct `$()` calls.
+**Root Cause:** `startLiveRun()` not receiving edited source from editor when called from Run Edited button.
 
-**Fix:**
-- Replaced all `classList.toggle` with `safeClassToggle()`
-- Used `$$()` for optional element lookup
+**Fix:** Run Edited button passes `$('script-editor').value` to `startLiveRun(editedSource)`.
 
 **Prevention:**
-- Use safe helpers in all visibility sync functions
+- Smoke test `webstudio-script-file-explorer-editor-smoke.js` asserts edited output visible
+- Manual QA: edit script.py, run edited, verify output contains edited text
 
 ---
 
-## ERR-007: script_surface null after plan causes UI crash
+## ERR-014: Live run starts but SSE events route 404 causes Connection lost
 
-**Symptom:** After Analyze Brief, plan exists but script_surface is null. UI crashes when trying to render script artifact.
+**Symptom:** 
+- Run Live or Run Edited starts and prints run ID
+- EventSource connects to `/events` endpoint that returns 404
+- Terminal shows "Connection lost"
+- Frontend may throw "JSON.parse undefined" error
 
-**Root cause:** UI called `renderScriptSurface`/`loadScriptVersions` as if script artifact exists when only plan is available.
+**Root Cause:**
+1. Live run process deleted from `liveRuns` Map immediately after completion
+2. EventSource may connect slightly after process completes, finding no run
+3. Frontend `JSON.parse(e.data)` called without checking if `e.data` exists
 
 **Fix:**
-- Separate plan state from script artifact state
-- Only call `loadScriptVersions()` after `project_artifact_id` exists
-- Program panel shows safe empty state when no artifact loaded
+1. Backend: Keep run in memory for 30 seconds after completion:
+   ```javascript
+   setTimeout(() => {
+     liveRuns.delete(runId);
+   }, 30000);
+   ```
+2. Frontend: Guard all `JSON.parse(e.data)` calls:
+   ```javascript
+   if (!e.data) return;
+   let data;
+   try { data = JSON.parse(e.data); } catch (err) { return; }
+   ```
 
 **Prevention:**
-- Check `state.currentScriptProjectArtifactId` before loading versions
-- Browser smoke tests Analyze → Execute → Run Live flow
+- Smoke test `webstudio-live-run-events-regression-smoke.js` asserts:
+  - No /events 404 errors
+  - No "Connection lost" message
+  - No JSON.parse errors
+  - Edited output visible in terminal
+- All SSE event handlers must check `e.data` before parsing
+- Live runs kept in memory briefly after completion for late subscribers
 
 ---
 
 ## Prevention Checklist
 
-For all future UI changes:
+Before merging any Script Playground or Live Run changes:
 
-1. **Safe DOM helpers:**
-   - Use `safeSetText()` for textContent
-   - Use `safeSetHtml()` for innerHTML
-   - Use `safeClassToggle()` for classList
-   - Use `$$()` for optional element lookup
-
-2. **Browser smoke tests:**
-   - `webstudio-browser-script-real-click-regression-smoke.js` — full click flow
-   - `webstudio-browser-script-manual-flow-smoke.js` — manual flow
-   - Both must pass with `no_console_null_dom_errors: true`
-
-3. **State validation:**
-   - Check `project_artifact_id` exists before loading artifact-specific UI
-   - Handle null/empty states gracefully
-   - Never assume DOM elements exist
-
-4. **Server restart:**
-   - Always restart server after UI/backend changes
-   - Verify `/webstudio/demo` health with curl
-
-5. **Error Guardian:**
-   - Read `/home/antonbot/.shared/LESSONS.md` before fixing
-   - Add new lessons to registry when new error patterns found
+- [ ] Run `webstudio-live-run-events-regression-smoke.js` - must pass
+- [ ] Run `webstudio-script-file-explorer-editor-smoke.js` - must pass
+- [ ] Run `webstudio-browser-script-reexecute-same-scenario-timeout-smoke.js` - must pass
+- [ ] Run `webstudio-browser-script-real-click-regression-smoke.js` - no null DOM errors
+- [ ] Run `webstudio-live-script-run-smoke.js` - all checks pass
+- [ ] Run `webstudio-live-script-stdin-smoke.js` - stdin works
+- [ ] Browser console has no "Cannot read properties of null" errors
+- [ ] Run Edited streams output without "Connection lost"
+- [ ] All DOM access uses optional chaining (`?.`)
+- [ ] All `JSON.parse()` calls have try/catch or guards
+- [ ] Artifact IDs normalized with fallback chain before URL use
 
 ---
 
-## Test Coverage
+## Related Documentation
 
-| Test | Purpose | Status |
-|------|---------|--------|
-| `webstudio-browser-script-real-click-regression-smoke.js` | Full Analyze → Execute → Run Live flow | ✅ Required |
-| `webstudio-browser-script-manual-flow-smoke.js` | Manual script flow | ✅ Required |
-| `webstudio-live-script-run-smoke.js` | Live terminal contract | ✅ Required |
-| `webstudio-editable-script-smoke.js` | Editable script playground | ✅ Required |
-| `webstudio-script-quality-smoke.js` | Generated script quality | ✅ Required |
-| `webstudio-demo-page-js-syntax-smoke.js` | JS syntax validation | ✅ Required |
-
----
-
-## Related Docs
-
-- `/home/antonbot/.shared/LESSONS.md` — Error Guardian lessons
-- `docs/webstudio-error-guardian-policy.md` — Error handling policy
-- `docs/webstudio-live-run-contract.md` — Live terminal contract
-- `scripts/webstudio-error-registry-smoke.js` — Registry validation (TODO)
+- `webstudio-script-playground-ux.md` — Script Playground UX specification
+- `webstudio-live-run-contract.md` — Live run API contract
+- `webstudio-error-guardian-policy.md` — Error handling policy
+- `AGENTS.md` — Session operating instructions

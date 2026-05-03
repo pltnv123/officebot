@@ -195,7 +195,11 @@ function startLiveScriptRun({ artifact, editedSource, saveEdited, artifactRoot }
         duration_ms: duration,
         status,
       });
-      liveRuns.delete(runId);
+      // Keep run in memory for 30 seconds so late subscribers can get events
+      // This prevents 404 when EventSource connects after process completes
+      setTimeout(() => {
+        liveRuns.delete(runId);
+      }, 30000);
     }
   });
 

@@ -1449,23 +1449,23 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         liveRunEventSource = eventSource;
 
         eventSource.addEventListener('stdout', (e) => {
-          const data = JSON.parse(e.data);
+          if (!e.data) return; let data; try { data = JSON.parse(e.data); } catch (err) { return; }
           appendTerminalLine(data.chunk, 'stdout');
         });
 
         eventSource.addEventListener('stderr', (e) => {
-          const data = JSON.parse(e.data);
+          if (!e.data) return; let data; try { data = JSON.parse(e.data); } catch (err) { return; }
           appendTerminalLine(data.chunk, 'stderr');
         });
 
 
         eventSource.addEventListener('stdin', (e) => {
-          const data = JSON.parse(e.data);
+          if (!e.data) return; let data; try { data = JSON.parse(e.data); } catch (err) { return; }
           // Echo stdin from server (optional, since we already show it client-side)
           // appendTerminalLine('> ' + data.chunk.trim(), 'stdin');
         });
         eventSource.addEventListener('done', (e) => {
-          const data = JSON.parse(e.data);
+          if (!e.data) return; let data; try { data = JSON.parse(e.data); } catch (err) { return; }
           appendTerminalLine('---', 'event');
           appendTerminalLine('Process exited with code ' + data.exit_code + ' (' + data.duration_ms + 'ms)', 'event');
           setLiveRunStatus(data.status);
@@ -1481,7 +1481,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         });
 
         eventSource.addEventListener('error', (e) => {
-          const data = JSON.parse(e.data);
+          if (!e.data) return; let data; try { data = JSON.parse(e.data); } catch (err) { return; }
           appendTerminalLine('Error: ' + (data.error || data.message), 'stderr');
           setLiveRunStatus('error');
           eventSource.close();
