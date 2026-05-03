@@ -980,7 +980,7 @@ async function main() {
     }
   });
 
-  // Save new version from editor
+  // Save new script version from editor
   app.post('/api/demo/webstudio-order/project-artifact/:artifactId/script-version', async (req, res) => {
     try {
       const artifactId = String(req.params.artifactId || '').trim();
@@ -998,14 +998,53 @@ async function main() {
         return res.status(400).json({ ok: false, error: 'edited_source_validation_failed', reason: 'unsafe_python_source' });
       }
       
-      const result = await saveLandingVersion({ artifact, editedSource: edited_source, versionLabel: version_label });
-      res.json(result);
+      // Script versioning: use script.py instead of index.html
+      const artifactRoot = path.resolve(String(artifact.artifact_root || ''));
+      const versionsDir = path.join(artifactRoot, 'versions');
+      const scriptPath = path.join(artifactRoot, 'script.py');
+      
+      // Create versions directory if it doesn't exist
+      await fs.mkdir(versionsDir, { recursive: true });
+      
+      // Find next version number
+      const files = await fs.readdir(versionsDir).catch(() => []);
+      const versionNumbers = files
+        .filter(f => /^v\d{4}\.json$/.test(f))
+        .map(f => parseInt(f.slice(1, 5), 10))
+        .filter(n => !isNaN(n));
+      const nextVersionNum = (versionNumbers.length > 0 ? Math.max(...versionNumbers) : 0) + 1;
+      const versionId = `v${String(nextVersionNum).padStart(4, '0')}`;
+      
+      // Save version - use flat structure (v0002.py) for compatibility with ensureGeneratedVersion
+      const versionFile = path.join(versionsDir, versionId + '.py');
+      const metadataFile = path.join(versionsDir, `${versionId}.json`);
+      
+      await fs.mkdir(path.join(versionsDir, versionId), { recursive: true });
+      await fs.writeFile(versionFile, edited_source, 'utf8');
+      await fs.writeFile(metadataFile, JSON.stringify({
+        version_id: versionId,
+        label: version_label || `Edited version ${nextVersionNum}`,
+        source_type: 'operator_edit',
+        created_at: nowIso(),
+        source_length: edited_source.length,
+      }, null, 2), 'utf8');
+      
+      // Update current version
+      await fs.writeFile(path.join(artifactRoot, 'current_version.json'), JSON.stringify({
+        current_version_id: versionId,
+        updated_at: nowIso(),
+      }, null, 2), 'utf8');
+      
+      // Update current script.py
+      await fs.writeFile(scriptPath, edited_source, 'utf8');
+      
+      res.json({ ok: true, version_id: versionId, saved: true });
     } catch (error) {
       res.status(500).json({ ok: false, error: String(error.message || error) });
     }
   });
 
-  // Restore version
+  // Restore script version
   app.post('/api/demo/webstudio-order/project-artifact/:artifactId/script-version/:versionId/restore', async (req, res) => {
     try {
       const artifactId = String(req.params.artifactId || '').trim();
@@ -1014,10 +1053,40 @@ async function main() {
       const artifact = await getProjectArtifact(ROOT, artifactId);
       if (!artifact) return res.status(404).json({ ok: false, error: 'artifact_not_found' });
       
-      const result = await restoreVersion({ artifact, versionId });
-      if (!result.ok) return res.status(404).json(result);
+      // Script versioning: use script.py structure
+      const artifactRoot = path.resolve(String(artifact.artifact_root || ''));
+      const versionsDir = path.join(artifactRoot, 'versions');
+      const scriptPath = path.join(artifactRoot, 'script.py');
       
-      res.json(result);
+      // Validate versionId format
+      if (!/^v\d{4}$/.test(versionId)) {
+        return res.status(400).json({ ok: false, error: 'invalid_version_id_format' });
+      }
+      
+      // Read version source - support both flat (v0001.py) and nested (v0001/script.py) structures
+      let versionSource;
+      const nestedPath = path.join(versionsDir, versionId, 'script.py');
+      const flatPath = path.join(versionsDir, versionId + '.py');
+      try {
+        versionSource = await fs.readFile(nestedPath, 'utf8');
+      } catch (err) {
+        try {
+          versionSource = await fs.readFile(flatPath, 'utf8');
+        } catch (err2) {
+          return res.status(404).json({ ok: false, error: 'version_not_found' });
+        }
+      }
+      
+      // Restore to script.py
+      await fs.writeFile(scriptPath, versionSource, 'utf8');
+      
+      // Update current_version_id
+      await fs.writeFile(path.join(artifactRoot, 'current_version.json'), JSON.stringify({
+        current_version_id: versionId,
+        updated_at: nowIso(),
+      }, null, 2), 'utf8');
+      
+      res.json({ ok: true, version_id: versionId, restored: true });
     } catch (error) {
       res.status(500).json({ ok: false, error: String(error.message || error) });
     }

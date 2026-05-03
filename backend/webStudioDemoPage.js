@@ -202,46 +202,43 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         </div>
 
         <div id="script-program-panel" class="panel hidden">
-          <div class="preview-head" style="align-items:center;justify-content:space-between;">
+          <div class="preview-head" style="align-items:center;justify-content:space-between;margin-bottom:16px;">
             <div>
               <h2 style="margin-bottom:6px;">Program</h2>
               <div class="preview-note">Generated runnable Python script for the requested task.</div>
             </div>
-            <div class="row" style="gap:8px;">
-              <span id="script-scenario-badge" class="badge">scenario</span>
-              <span id="script-test-badge" class="badge">test: pending</span>
-              <button id="run-script-btn" class="primary">Run</button>
-            </div>
           </div>
-          <div id="script-version-control" class="panel" style="margin-bottom:16px;">
-            <h3 style="margin:0 0 8px 0;">Version Control</h3>
-            <div class="row" style="align-items:center;">
-              <span class="muted">Current version:</span>
-              <strong id="current-version-display">v0001</strong>
-              <select id="version-selector" class="secondary" style="margin-left:12px; min-width:200px;"><option value="">Select version...</option></select>
-            </div>
-            <div class="row" style="margin-top:8px;">
-              <button id="load-version-btn" class="secondary">Load selected into editor</button>
-              <button id="restore-version-btn" class="secondary">Restore selected version</button>
-              <button id="save-as-version-btn" class="primary">Save editor as new version</button>
-              <button id="reset-editor-btn" class="secondary">Reset editor to current version</button>
-            </div>
+          
+          <!-- Toolbar with chips -->
+          <div class="row" style="align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+            <span class="chip"><strong>script.py</strong></span>
+            <span id="script-scenario-chip" class="chip">scenario</span>
+            <span id="script-version-chip" class="chip">Current: <strong id="current-version-chip-text">v0001</strong></span>
+            <span id="script-dirty-chip" class="chip hidden" style="background:rgba(255,193,7,0.15);border-color:rgba(255,193,7,0.3);">⚠️ Unsaved changes</span>
+            <span id="script-saved-chip" class="chip" style="background:rgba(156,163,175,0.15);border-color:rgba(156,163,175,0.3);">✅ Saved</span>
+            <span id="script-run-status-chip" class="chip" style="margin-left:auto;">Status: <strong id="script-run-status-text">idle</strong></span>
           </div>
-          <div id="script-program-header" class="meta-grid" style="margin:12px 0;"></div>
-          <div class="row" style="margin-bottom:8px;">
-            <button id="edit-script-btn" class="secondary">Edit</button>
-            <button id="save-script-btn" class="primary hidden">Save</button>
-            <button id="reset-script-btn" class="secondary hidden">Reset</button>
-            <select id="script-versions-dropdown" class="secondary" style="margin-left:12px; min-width:200px;"><option value="">Versions...</option></select>
-            <span id="script-dirty-badge" class="chip hidden" style="margin-left:auto;"><span class="muted">Unsaved changes</span></span>
+          
+          <!-- Action buttons -->
+          <div class="row" style="margin-bottom:16px;">
+            <button id="run-live-btn" class="primary">▶️ Run Live</button>
+            <button id="run-live-edited-btn" class="primary">▶️ Run Edited</button>
+            <button id="stop-live-btn" class="secondary" disabled style="background:#7f1d1d;">⏹️ Stop</button>
+            <button id="clear-terminal-btn" class="secondary"><span style="font-size:16px;">❌</span> Clear Terminal</button>
+            <button id="save-as-version-btn" class="secondary" style="margin-left:auto;">💾 Save Version</button>
+            <button id="restore-version-btn" class="secondary">⏪ Restore</button>
+            <button id="download-zip-btn" class="secondary">📥 Download ZIP</button>
+            <button id="open-delivery-btn" class="secondary">🔗 Open Delivery</button>
           </div>
+          
+          <!-- Editor section -->
           <div class="field">
             <div class="code-header">
-              <span class="filename">script.py</span>
+              <span class="filename">Editor</span>
               <div class="row" style="gap:6px;align-items:center;">
                 <button id="copy-code-btn" class="toolbar-btn" title="Copy code">📋 Copy</button>
                 <label class="wrap-toggle"><input type="checkbox" id="word-wrap-toggle" /> Wrap</label>
-                <span id="script-run-state" class="muted">idle</span>
+                <select id="script-versions-dropdown" class="secondary" style="min-width:150px;"><option value="">Versions...</option></select>
               </div>
             </div>
             <pre id="script-code-block" class="code-block">No script executed yet.</pre>
@@ -250,25 +247,39 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
               <textarea id="script-editor" spellcheck="false" placeholder="Edit Python code here... (Ctrl+Enter to run, Ctrl+S to save)"></textarea>
             </div>
           </div>
-          <div id="script-execution-output" class="hidden">
-            <h3 style="margin-top:16px;">Execution Output</h3>
-            <div id="script-exec-meta" class="meta-grid"></div>
-            <div class="field"><h4>Command</h4><pre id="script-exec-command"></pre></div>
-            <div class="field"><h4>stdout</h4><pre id="script-exec-stdout"></pre></div>
-            <div class="field hidden" id="script-exec-stderr-field"><h4>stderr</h4><pre id="script-exec-stderr"></pre></div>
-            <div class="row" style="margin-top:12px;"><button id="run-script-again-btn" class="secondary">Run again</button></div>
+          
+          <!-- Live Terminal -->
+          <div class="field" style="margin-top:16px;">
+            <h3 style="margin-bottom:8px;">Live Terminal</h3>
+            <div class="code-header" style="background:#1a1a2e;">
+              <span class="filename" style="color:#a0a0a0;">$ python3 -u script.py</span>
+              <span id="live-terminal-status" class="muted" style="font-size:12px;">idle</span>
+            </div>
+            <pre id="live-terminal-output" class="code-block" style="background:#1a1a2e;color:#d4d4d4;min-height:280px;max-height:400px;overflow:auto;border-radius:0 0 10px 10px;border-top:none;"><span class="muted">Run the script to see live output.</span></pre>
+            <div class="row" style="margin-top:8px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;">
+              <span class="muted" style="font-size:12px;">Exit code: <strong id="terminal-exit-code">-</strong></span>
+              <span class="muted" style="font-size:12px;margin-left:16px;">Duration: <strong id="terminal-duration">-</strong></span>
+              <span class="muted" style="font-size:12px;margin-left:16px;">State: <strong id="terminal-state">-</strong></span>
+            </div>
           </div>
           
-          <div id="script-live-terminal-panel" class="panel hidden" style="margin-top:16px;">
-            <h3>Live Terminal</h3>
-            <div class="row" style="margin-bottom:8px;">
-              <button id="run-live-btn" class="primary">Run (Live)</button>
-              <button id="run-live-edited-btn" class="primary">Run Edited (Live)</button>
-              <button id="stop-live-btn" class="secondary" disabled>Stop</button>
-              <span id="live-run-status" class="muted" style="margin-left:auto;">idle</span>
+          <!-- Supporting Files (collapsed) -->
+          <details id="script-supporting-files-panel" class="panel" style="margin-top:16px;">
+            <summary style="cursor:pointer;font-weight:700;margin-bottom:8px;">Supporting Files</summary>
+            <div id="script-files" class="file-list" style="margin-top:12px;"></div>
+          </details>
+          
+          <!-- Debug/API (collapsed) -->
+          <details class="panel" style="margin-top:16px;">
+            <summary style="cursor:pointer;font-weight:700;margin-bottom:8px;">Debug / API</summary>
+            <div class="field">
+              <div class="row">
+                <button id="refresh-script-surface-btn" class="secondary">Refresh Surface</button>
+                <button id="debug-script-json-btn" class="secondary">Debug JSON</button>
+              </div>
+              <pre id="script-debug-json" class="code-block hidden" style="margin-top:12px;max-height:300px;overflow:auto;font-size:11px;"></pre>
             </div>
-            <pre id="live-terminal-output" class="code-block" style="background:#1e1e1e;color:#d4d4d4;min-height:200px;max-height:400px;overflow:auto;">Ready for live execution...</pre>
-          </div>
+          </details>
         </div>
 
         
@@ -467,7 +478,8 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       if (!state.currentScriptProjectArtifactId) {
         $('script-versions-dropdown').innerHTML = '<option value="">Versions...</option>';
         $('version-selector').innerHTML = '<option value="">Select version...</option>';
-        $('current-version-display').textContent = 'v0001';
+        state.currentVersionId = 'v0001';
+        updateScriptStatusChips();
         return;
       }
       try {
@@ -488,9 +500,9 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
           '<option value="' + v.version_id + '">' + v.label + ' (' + v.source_type + ')</option>'
         ).join('');
         
-        // Update current version display
-        $('current-version-display').textContent = currentVersionId;
+        // Update current version chip
         state.currentVersionId = currentVersionId;
+        updateScriptStatusChips();
       } catch (error) {
         console.warn('Failed to load versions:', error);
         $('script-versions-dropdown').innerHTML = '<option value="">Versions (error)</option>';
@@ -747,17 +759,8 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       state.currentScriptProjectArtifactId = surface.project_artifact_id || state.currentScriptProjectArtifactId;
       state.lastScriptResult = { order_id: surface.order_id, project_type: 'script', scenario: surface.script_execution?.scenario, language: surface.script_execution?.language, safety_level: surface.script_execution?.safety_level, artifact_id: surface.script_execution?.artifact_id, artifact_root: surface.script_execution?.artifact_root, files: surface.files, safe_routes: surface.safe_routes, test: surface.test, next_action: surface.next_action, project_artifact_id: surface.project_artifact_id };
       
-      // Update header badges
-      $('script-scenario-badge').textContent = surface.script_execution?.scenario || 'unknown';
-      $('script-test-badge').textContent = 'test: ' + (surface.test?.ok ? 'ok' : 'failed');
-      
-      // Update meta header
-      renderMetaGrid($('script-program-header'), [
-        ['Scenario', surface.script_execution?.scenario || 'pending'],
-        ['Language', surface.script_execution?.language || 'python'],
-        ['Safety level', surface.script_execution?.safety_level || 'bounded_demo'],
-        ['Test status', surface.test?.ok ? 'ok' : 'failed']
-      ]);
+      // Update header chips
+      $('script-scenario-chip').textContent = surface.script_execution?.scenario || 'unknown';
       
       // Load and display script code
       const [scriptText, logText, outputText] = await Promise.all([fetchText(surface.safe_routes.script), fetchText(surface.safe_routes.test_run_log), fetchText(surface.safe_routes.actual_output)]);
@@ -765,6 +768,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       $('script-editor').value = scriptText;
       state.originalScript = scriptText; // Store for reset
       state.scriptDirty = false; // Reset dirty flag
+      state.scriptRunStatus = 'idle';
       $('script-log-preview').textContent = logText;
       $('script-output-preview').textContent = outputText;
       
@@ -772,19 +776,18 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       await loadScriptVersions();
       
       // Reset UI state
-      $('edit-script-btn').classList.remove('hidden');
-      $('save-script-btn').classList.add('hidden');
-      $('reset-script-btn').classList.add('hidden');
-      $('script-dirty-badge').classList.add('hidden');
       $('script-code-block').classList.remove('hidden');
       $('script-editor-wrapper').classList.add('hidden');
+      updateScriptStatusChips();
       
       // Update supporting files
       $('script-files').innerHTML = Object.entries(surface.safe_routes || {}).filter(([key]) => key !== 'script').map(([key, route]) => '<a class="linkish" href="' + route + '" target="_blank" rel="noopener">' + safe(key) + ' → ' + safe(surface.files?.[key]) + '</a>').join('');
       
-      // Reset execution output
-      $('script-execution-output').classList.add('hidden');
-      $('script-run-state').textContent = 'idle';
+      // Reset terminal stats
+      $('terminal-exit-code').textContent = '-';
+      $('terminal-duration').textContent = '-';
+      $('terminal-state').textContent = '-';
+      $('live-terminal-status').textContent = 'idle';
       
       updateHeaderChips(); updateDebugJson(); syncProjectVisibility();
     }
@@ -1056,44 +1059,48 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     $('run-script-btn').addEventListener('click', runScriptOnMainPage);
     $('run-script-again-btn').addEventListener('click', runScriptOnMainPage);
     
+    // Helper: update script status chips
+    function updateScriptStatusChips() {
+      const versionChip = $('current-version-chip-text');
+      const dirtyChip = $('script-dirty-chip');
+      const savedChip = $('script-saved-chip');
+      const statusChip = $('script-run-status-text');
+      if (versionChip) versionChip.textContent = state.currentVersionId || 'v0001';
+      if (dirtyChip) dirtyChip.classList.toggle('hidden', !state.scriptDirty);
+      if (savedChip) savedChip.classList.toggle('hidden', state.scriptDirty);
+      if (statusChip) statusChip.textContent = state.scriptRunStatus || 'idle';
+    }
+    
     // Editable script playground handlers
-    $('edit-script-btn').addEventListener('click', () => {
+    $('edit-script-btn')?.addEventListener('click', () => {
       $('script-code-block').classList.add('hidden');
       $('script-editor-wrapper').classList.remove('hidden');
-      $('edit-script-btn').classList.add('hidden');
-      $('save-script-btn').classList.remove('hidden');
-      $('reset-script-btn').classList.remove('hidden');
-      $('script-dirty-badge').classList.remove('hidden');
-      state.scriptDirty = false;
+      state.scriptDirty = true;
       updateLineNumbers();
+      updateScriptStatusChips();
       $('script-editor').focus();
     });
     
-    $('save-script-btn').addEventListener('click', () => {
+    $('save-script-btn')?.addEventListener('click', () => {
       state.originalScript = $('script-editor').value;
       state.scriptDirty = false;
       $('script-code-block').textContent = state.originalScript;
       $('script-code-block').classList.remove('hidden');
       $('script-editor-wrapper').classList.add('hidden');
-      $('edit-script-btn').classList.remove('hidden');
-      $('save-script-btn').classList.add('hidden');
-      $('reset-script-btn').classList.add('hidden');
-      $('script-dirty-badge').classList.add('hidden');
+      updateScriptStatusChips();
     });
     
-    $('reset-script-btn').addEventListener('click', () => {
+    $('reset-script-btn')?.addEventListener('click', () => {
       $('script-editor').value = state.originalScript || '';
       state.scriptDirty = false;
-      $('script-dirty-badge').classList.add('hidden');
       updateLineNumbers();
+      updateScriptStatusChips();
     });
     
     $('script-editor').addEventListener('input', () => {
       state.scriptDirty = true;
-      if (!$('script-dirty-badge').classList.contains('hidden')) {
-        $('script-dirty-badge').classList.remove('hidden');
-      }
       updateLineNumbers();
+      updateScriptStatusChips();
     });
     
     // Line numbers update
@@ -1189,7 +1196,11 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
 
     function setLiveRunStatus(status) {
       $('live-run-status').textContent = status;
+      $('live-terminal-status').textContent = status;
+      $('script-run-status-text').textContent = status;
       $('stop-live-btn').disabled = status !== 'running';
+      state.scriptRunStatus = status;
+      updateScriptStatusChips();
     }
 
     async function startLiveRun(editedSource = null) {
@@ -1238,6 +1249,13 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
           appendTerminalLine('---', 'event');
           appendTerminalLine('Process exited with code ' + data.exit_code + ' (' + data.duration_ms + 'ms)', 'event');
           setLiveRunStatus(data.status);
+          // Update terminal stats
+          const exitCodeEl = $('terminal-exit-code');
+          const durationEl = $('terminal-duration');
+          const stateEl = $('terminal-state');
+          if (exitCodeEl) exitCodeEl.textContent = data.exit_code ?? '-';
+          if (durationEl) durationEl.textContent = ((data.duration_ms || 0) / 1000).toFixed(2) + 's';
+          if (stateEl) stateEl.textContent = data.status || 'completed';
           eventSource.close();
           liveRunEventSource = null;
         });
@@ -1264,6 +1282,15 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       }
     }
 
+    $('clear-terminal-btn').addEventListener('click', () => {
+      const terminal = $('live-terminal-output');
+      if (terminal) terminal.innerHTML = '<span class="muted">Run the script to see live output.</span>';
+      $('terminal-exit-code').textContent = '-';
+      $('terminal-duration').textContent = '-';
+      $('terminal-state').textContent = '-';
+      $('live-terminal-status').textContent = 'cleared';
+    });
+    
     $('run-live-btn').addEventListener('click', () => startLiveRun(null));
     $('run-live-edited-btn').addEventListener('click', () => {
       const editedSource = $('script-editor-wrapper').classList.contains('hidden') ? undefined : $('script-editor').value;
