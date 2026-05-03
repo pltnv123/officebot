@@ -1084,14 +1084,39 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         const lastOrderId = localStorage.getItem('webstudio.lastOrderId');
         
         if (lastArtifactId && lastProjectType === 'script' && lastOrderId) {
-          // Fetch surface using order ID (not artifact detail)
+          // Fetch surface using order ID (same as Execute Script MVP path)
           const response = await fetch('/api/demo/webstudio-order/script-surface/' + encodeURIComponent(lastOrderId));
           if (response.ok) {
             const surface = await response.json();
-            if (surface.ok && surface.project_artifact_id) {
+            // Normalize artifact ID: project_artifact_id || artifact_id || id
+            const artifactId = surface.project_artifact_id || surface.artifact_id || surface.script_execution?.artifact_id || surface.id || '';
+            if (surface.ok && artifactId) {
+              // Set state BEFORE calling renderScriptSurface
+              state.orderId = lastOrderId;
+              state.currentScriptOrderId = lastOrderId;
+              state.currentScriptProjectArtifactId = artifactId;
+              state.currentOpenFile = 'script.py';
+              state.lastScriptResult = null;
+              state.scriptDirty = false;
+              state.scriptRunStatus = 'idle';
+              $('order-id-input').value = state.orderId || '';
               await renderScriptSurface(surface);
+              await loadArtifactLibrary();
+              updateHeaderChips();
+              updateDebugJson();
+              syncProjectVisibility();
               setStatus('Restored last project');
+            } else {
+              console.warn('Restore: surface not ok or missing artifact id');
+              localStorage.removeItem('webstudio.lastProjectArtifactId');
+              localStorage.removeItem('webstudio.lastProjectType');
+              localStorage.removeItem('webstudio.lastOrderId');
             }
+          } else {
+            console.warn('Restore: surface fetch failed', response.status);
+            localStorage.removeItem('webstudio.lastProjectArtifactId');
+            localStorage.removeItem('webstudio.lastProjectType');
+            localStorage.removeItem('webstudio.lastOrderId');
           }
         }
       } catch (e) {
