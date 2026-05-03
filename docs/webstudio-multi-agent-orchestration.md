@@ -327,6 +327,15 @@ main();
 
 4. **Session Management:** Long-running sessions must be managed manually (list/kill/steer).
 
+## Shared substrate responsibilities
+
+- **Planner** must consult QWD/QMD and docs before inventing architecture.
+- **Backend agent** must verify Supabase schema before durable state changes.
+- **Frontend agent** must use browser proof for UI changes.
+- **QA agent** must include Supabase/QWD/lossless checks when relevant.
+- **Memory agent** must use lossless-claw to avoid stale milestone loops.
+- **Orchestrator** must resolve conflicts between latest user instruction, workspace policy, current code/tests, Supabase, QWD/QMD, lossless memory, and git history.
+
 ## Next Steps
 
 1. **Document routing patterns** in main AGENTS.md
