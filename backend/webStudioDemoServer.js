@@ -73,13 +73,20 @@ async function buildScriptSurface(orderId) {
   const commandMatch = testLogText.match(/^command=(.*)$/m);
   const exitCodeMatch = testLogText.match(/^exit_code=(.*)$/m);
   const okMatch = testLogText.match(/^match_expected=(.*)$/m);
+  
+  // CRITICAL: Normalize artifact_id to project_artifact_id for artifact library compatibility
+  // manifest.artifact_id is ws-script-artifact-* but artifact library uses ws-project-artifact-*
+  const scenario = manifest.scenario || 'default';
+  const projectArtifactId = `ws-project-artifact-script-${orderId}-${scenario.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
+  
   return {
     ok: true,
     surface_kind: 'webstudio_script_surface',
     order_id: orderId,
     project_type: 'script',
+    project_artifact_id: projectArtifactId, // CRITICAL: Add canonical project_artifact_id
     script_execution: {
-      scenario: manifest.scenario,
+      scenario,
       language: manifest.language,
       safety_level: manifest.safety_level,
       artifact_id: manifest.artifact_id,

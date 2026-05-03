@@ -814,8 +814,21 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     async function renderScriptSurface(surface) {
       state.currentProjectType = 'script';
       state.currentScriptOrderId = surface.order_id || state.currentScriptOrderId;
-      // Normalize artifact ID: project_artifact_id || artifact_id || script_execution.artifact_id || id
-      const artifactId = surface.project_artifact_id || surface.artifact_id || surface.script_execution?.artifact_id || surface.id || '';
+      // CRITICAL: Use canonical project_artifact_id from artifact library, not script_execution.artifact_id
+      // script_execution.artifact_id is ws-script-artifact-* but artifact library uses ws-project-artifact-*
+      // Prefer surface.project_artifact_id, then try to find from artifact library via order_id
+      let artifactId = surface.project_artifact_id || '';
+      
+      // Fallback: construct project_artifact_id from order_id and scenario if surface lacks it
+      if (!artifactId && surface.order_id && surface.script_execution?.scenario) {
+        artifactId = 'ws-project-artifact-script-' + surface.order_id + '-' + surface.script_execution.scenario.replace(/[^a-zA-Z0-9_-]/g, '-');
+      }
+      
+      // Last resort: use script_execution.artifact_id (may not work with artifact library routes)
+      if (!artifactId) {
+        artifactId = surface.script_execution?.artifact_id || surface.artifact_id || surface.id || '';
+      }
+      
       state.currentScriptProjectArtifactId = artifactId || state.currentScriptProjectArtifactId;
       state.lastScriptResult = { order_id: surface.order_id, project_type: 'script', scenario: surface.script_execution?.scenario, language: surface.script_execution?.language, safety_level: surface.script_execution?.safety_level, artifact_id: surface.script_execution?.artifact_id, artifact_root: surface.script_execution?.artifact_root, files: surface.files, safe_routes: surface.safe_routes, test: surface.test, next_action: surface.next_action, project_artifact_id: artifactId };
       
@@ -1085,34 +1098,41 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         const lastProjectType = localStorage.getItem('webstudio.lastProjectType');
         const lastOrderId = localStorage.getItem('webstudio.lastOrderId');
         
-        if (lastArtifactId && lastProjectType === 'script' && lastOrderId) {
-          // Use same loadScriptSurface function as Execute Script MVP path
-          const response = await fetch('/api/demo/webstudio-order/script-surface/' + encodeURIComponent(lastOrderId));
-          if (response.ok) {
-            const surface = await response.json();
-            // Normalize artifact ID: project_artifact_id || artifact_id || id
-            const artifactId = surface.project_artifact_id || surface.artifact_id || surface.script_execution?.artifact_id || surface.id || '';
-            if (surface.ok && artifactId) {
-              // Set minimal state before loadScriptSurface
-              state.orderId = lastOrderId;
-              $('order-id-input').value = state.orderId || '';
-              // loadScriptSurface will set:
-              // - state.currentScriptOrderId
-              // - state.currentScriptProjectArtifactId
-              // - state.lastScriptResult
-              // - state.currentOpenFile
-              // - render file list, load versions, update chips, sync visibility
+        // CRITICAL: Normalize artifact ID from ws-script-artifact-* to ws-project-artifact-*
+        let canonicalArtifactId = lastArtifactId;
+        if (canonicalArtifactId && canonicalArtifactId.startsWith('ws-script-artifact-')) {
+          // Normalize: ws-script-artifact-{order_id}-{scenario} -> ws-project-artifact-script-{order_id}-{scenario}
+          const parts = canonicalArtifactId.split('-');
+          if (parts.length >= 4) {
+            const scenario = parts.slice(3).join('-');
+            const orderIdFromArtifact = parts[2];
+            canonicalArtifactId = 'ws-project-artifact-script-' + orderIdFromArtifact + '-' + scenario;
+          }
+        }
+        
+        if (canonicalArtifactId && lastProjectType === 'script' && lastOrderId) {
+          // Fetch artifact detail directly by project_artifact_id to verify it exists
+          const artifactDetail = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(canonicalArtifactId)).then(r => r.json()).catch(() => null);
+          
+          if (artifactDetail && artifactDetail.ok) {
+            // Artifact found in library - use canonical ID
+            state.orderId = lastOrderId;
+            state.currentScriptOrderId = lastOrderId;
+            state.currentScriptProjectArtifactId = canonicalArtifactId;
+            $('order-id-input').value = state.orderId || '';
+            
+            // Fetch surface using order ID to get script content
+            const surfaceResponse = await fetch('/api/demo/webstudio-order/script-surface/' + encodeURIComponent(lastOrderId));
+            if (surfaceResponse.ok) {
+              const surface = await surfaceResponse.json();
+              // Override surface.project_artifact_id with canonical ID
+              surface.project_artifact_id = canonicalArtifactId;
               await loadScriptSurface(lastOrderId);
               await loadArtifactLibrary();
               setStatus('Restored last project');
-            } else {
-              console.warn('Restore: surface not ok or missing artifact id');
-              localStorage.removeItem('webstudio.lastProjectArtifactId');
-              localStorage.removeItem('webstudio.lastProjectType');
-              localStorage.removeItem('webstudio.lastOrderId');
             }
           } else {
-            console.warn('Restore: surface fetch failed', response.status);
+            console.warn('Restore: artifact not found in library', canonicalArtifactId);
             localStorage.removeItem('webstudio.lastProjectArtifactId');
             localStorage.removeItem('webstudio.lastProjectType');
             localStorage.removeItem('webstudio.lastOrderId');
