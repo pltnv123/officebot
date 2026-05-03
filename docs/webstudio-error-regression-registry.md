@@ -126,6 +126,41 @@ This document tracks known error patterns and their prevention measures to avoid
 
 ---
 
+## ERR-019: Delivery page route opens but lacks runnable project workspace
+
+**Symptom:**
+- Open Delivery loads static page without code/run workspace
+- Run history shows "artifactId is not defined" error
+- Run Script button does nothing or fails silently
+- File links may be missing or broken
+
+**Root Cause:**
+1. Delivery page template did not server-render artifactId into client script
+2. Client script referenced `artifactId` variable that was never defined
+3. Run history endpoint called with undefined artifact ID
+
+**Fix:**
+1. Server-render artifactId into page script:
+   ```javascript
+   const artifactId = ${JSON.stringify(artifactId)};
+   ```
+2. Remove reference to undefined `artifactId` in console.log
+3. Ensure run history gracefully handles empty state with "No runs yet"
+
+**Prevention:**
+- Smoke test `webstudio-script-delivery-page-workspace-smoke.js` asserts:
+  - Delivery page opens with HTTP 200
+  - Title "Python script package" visible
+  - File list visible with script.py
+  - script.py preview contains expected content
+  - Run Script works and shows correct output
+  - Run history loads without "artifactId is not defined" error
+  - Download ZIP returns valid PK zipfile
+- Artifact ID must be server-rendered into delivery page
+- Run history must show placeholder text when no runs exist
+
+---
+
 ## Prevention Checklist
 
 Before merging any Script Playground or Live Run changes:
@@ -136,6 +171,7 @@ Before merging any Script Playground or Live Run changes:
 - [ ] Run `webstudio-browser-script-real-click-regression-smoke.js` - no null DOM errors
 - [ ] Run `webstudio-live-script-run-smoke.js` - all checks pass
 - [ ] Run `webstudio-live-script-stdin-smoke.js` - stdin works
+- [ ] Run `webstudio-script-delivery-page-workspace-smoke.js` - delivery page workspace works
 - [ ] Browser console has no "Cannot read properties of null" errors
 - [ ] Run Edited streams output without "Connection lost"
 - [ ] All DOM access uses optional chaining (`?.`)
