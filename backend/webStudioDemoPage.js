@@ -205,7 +205,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
           <div class="preview-head" style="align-items:center;justify-content:space-between;margin-bottom:16px;">
             <div>
               <h2 style="margin-bottom:6px;">Program</h2>
-              <div class="preview-note">Generated runnable Python script for the requested task.</div>
+              <div class="preview-note">Generated runnable Python script package.</div>
             </div>
           </div>
           
@@ -231,20 +231,37 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
             <button id="open-delivery-btn" class="secondary">🔗 Open Delivery</button>
           </div>
           
-          <!-- Editor section -->
-          <div class="field">
-            <div class="code-header">
-              <span class="filename">Editor</span>
-              <div class="row" style="gap:6px;align-items:center;">
-                <button id="copy-code-btn" class="toolbar-btn" title="Copy code">📋 Copy</button>
-                <label class="wrap-toggle"><input type="checkbox" id="word-wrap-toggle" /> Wrap</label>
-                <select id="script-versions-dropdown" class="secondary" style="min-width:150px;"><option value="">Versions...</option></select>
+          <!-- Project Files Workspace -->
+          <div id="script-workspace-panel" class="row" style="gap:16px;align-items:flex-start;">
+            <!-- File List (Left Column) -->
+            <div id="script-file-list-panel" style="flex:0 0 220px;min-width:180px;">
+              <h3 style="margin-bottom:8px;font-size:14px;">Project Files</h3>
+              <div id="script-file-list" style="border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;">
+                <!-- File items injected here -->
               </div>
             </div>
-            <pre id="script-code-block" class="code-block">No script executed yet.</pre>
-            <div id="script-editor-wrapper" class="code-editor-wrapper hidden">
-              <div id="script-line-numbers" class="line-numbers">1</div>
-              <textarea id="script-editor" spellcheck="false" placeholder="Edit Python code here... (Ctrl+Enter to run, Ctrl+S to save)"></textarea>
+            
+            <!-- Editor/Preview (Right Column) -->
+            <div id="script-file-content-panel" style="flex:1;min-width:0;">
+              <div class="field">
+                <div class="code-header">
+                  <span id="script-file-title" class="filename">script.py</span>
+                  <span id="script-file-badge" class="chip" style="font-size:11px;margin-left:8px;">editable</span>
+                  <div class="row" style="gap:6px;align-items:center;margin-left:auto;">
+                    <button id="script-file-copy-btn" class="toolbar-btn" title="Copy code">📋 Copy</button>
+                    <button id="script-file-save-btn" class="secondary hidden">💾 Save File</button>
+                    <button id="script-file-reset-btn" class="secondary hidden">↩️ Reset</button>
+                    <label class="wrap-toggle"><input type="checkbox" id="word-wrap-toggle" /> Wrap</label>
+                    <select id="script-versions-dropdown" class="secondary" style="min-width:150px;"><option value="">Versions...</option></select>
+                  </div>
+                </div>
+                <pre id="script-code-block" class="code-block">No script executed yet.</pre>
+                <div id="script-editor-wrapper" class="code-editor-wrapper hidden">
+                  <div id="script-line-numbers" class="line-numbers">1</div>
+                  <textarea id="script-editor" spellcheck="false" placeholder="Edit Python code here... (Ctrl+Enter to run, Ctrl+S to save)"></textarea>
+                </div>
+                <div id="script-file-preview" class="code-block hidden" style="background:#1a1a2e;color:#d4d4d4;min-height:200px;max-height:500px;overflow:auto;"></div>
+              </div>
             </div>
           </div>
           
@@ -797,6 +814,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       state.originalScript = scriptText; // Store for reset
       state.scriptDirty = false; // Reset dirty flag
       state.scriptRunStatus = 'idle';
+      state.currentOpenFile = 'script.py'; // Default open file
       safeSetText('script-log-preview', logText);
       safeSetText('script-output-preview', outputText);
       
@@ -806,10 +824,11 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       // Reset UI state
       safeClassToggle('script-code-block', 'hidden', false);
       safeClassToggle('script-editor-wrapper', 'hidden', true);
+      safeClassToggle('script-file-preview', 'hidden', true);
       updateScriptStatusChips();
       
-      // Update supporting files
-      safeSetHtml('script-files', Object.entries(surface.safe_routes || {}).filter(([key]) => key !== 'script').map(([key, route]) => '<a class="linkish" href="' + route + '" target="_blank" rel="noopener">' + safe(key) + ' → ' + safe(surface.files?.[key]) + '</a>').join(''));
+      // Render file list
+      renderScriptFileList(surface);
       
       // Reset terminal stats
       safeSetText('terminal-exit-code', '-');
@@ -818,6 +837,99 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       safeSetText('live-terminal-status', 'idle');
       
       updateHeaderChips(); updateDebugJson(); syncProjectVisibility();
+    }
+    
+    function renderScriptFileList(surface) {
+      const fileListEl = $('script-file-list');
+      if (!fileListEl || !surface.files) return;
+      
+      const editableFiles = ['script.py'];
+      // surface.files is { script: 'script.py', readme: 'README.md', ... }
+      // We need the actual filenames (values), not the keys
+      const files = Object.values(surface.files || {}).filter(f => f); // filter out nulls
+      
+      const fileItems = files.map(fileName => {
+        const isEditable = editableFiles.includes(fileName);
+        const isSelected = fileName === state.currentOpenFile;
+        const badge = isEditable ? '<span class="chip" style="font-size:10px;padding:2px 6px;margin-left:6px;">editable</span>' : '<span class="chip" style="font-size:10px;padding:2px 6px;margin-left:6px;background:rgba(156,163,175,0.2);">read-only</span>';
+        const selectedClass = isSelected ? ' style="background:rgba(59,130,246,0.2);border-left:3px solid #3b82f6;"' : '';
+        return '<div class="file-item" data-file="' + safe(fileName) + '" tabindex="0"' + selectedClass + ' role="button" aria-label="Open ' + safe(fileName) + '" style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;display:flex;align-items:center;justify-content:space-between;">' +
+          '<span style="font-family:monospace;font-size:13px;">' + safe(fileName) + '</span>' +
+          badge +
+          '</div>';
+      }).join('');
+      
+      fileListEl.innerHTML = fileItems;
+      
+      // Add click handlers
+      fileListEl.querySelectorAll('.file-item').forEach(item => {
+        item.addEventListener('click', () => openScriptFile(item.dataset.file, surface));
+        item.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openScriptFile(item.dataset.file, surface);
+          }
+        });
+      });
+    }
+    
+    async function openScriptFile(fileName, surface) {
+      state.currentOpenFile = fileName;
+      
+      // Update file list selection
+      document.querySelectorAll('#script-file-list .file-item').forEach(item => {
+        const isSelected = item.dataset.file === fileName;
+        item.style.background = isSelected ? 'rgba(59,130,246,0.2)' : '';
+        item.style.borderLeft = isSelected ? '3px solid #3b82f6' : '';
+      });
+      
+      // Update file title and badge
+      safeSetText('script-file-title', fileName);
+      const isEditable = ['script.py'].includes(fileName);
+      safeSetText('script-file-badge', isEditable ? 'editable' : 'read-only');
+      $('script-file-badge').style.background = isEditable ? '' : 'rgba(156,163,175,0.2)';
+      
+      // Show/hide save/reset buttons based on editability
+      safeClassToggle('script-file-save-btn', 'hidden', !isEditable);
+      safeClassToggle('script-file-reset-btn', 'hidden', !isEditable);
+      
+      // Map filename to safe_routes key
+      // surface.safe_routes has keys: script, readme, sample_input, sample_output, actual_output, test_run_log, manifest
+      // surface.files has values: script.py, README.md, sample_input.csv, etc.
+      let routeKey = null;
+      for (const [key, value] of Object.entries(surface.files || {})) {
+        if (value === fileName) {
+          routeKey = key;
+          break;
+        }
+      }
+      const route = routeKey ? surface.safe_routes[routeKey] : null;
+      
+      try {
+        const content = await fetchText(route);
+        
+        if (isEditable) {
+          // Show editor for editable files
+          safeClassToggle('script-code-block', 'hidden', true);
+          safeClassToggle('script-editor-wrapper', 'hidden', false);
+          safeClassToggle('script-file-preview', 'hidden', true);
+          const editor = $$('script-editor');
+          if (editor) {
+            editor.value = content;
+            if (fileName === 'script.py') state.originalScript = content;
+          }
+        } else {
+          // Show preview for read-only files
+          safeClassToggle('script-code-block', 'hidden', true);
+          safeClassToggle('script-editor-wrapper', 'hidden', true);
+          safeClassToggle('script-file-preview', 'hidden', false);
+          safeSetText('script-file-preview', content);
+        }
+      } catch (error) {
+        console.error('Failed to load file:', fileName, error);
+        safeSetText('script-file-preview', 'Error loading file: ' + error.message);
+        safeClassToggle('script-file-preview', 'hidden', false);
+      }
     }
 
     async function renderTelegramBotSurface(surface) {
@@ -932,26 +1044,43 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     }
     async function createFullMvp() { const payload = await postJson('/api/demo/webstudio-order/full-mvp', {}); const orderId = extractOrderId(payload); if (!orderId) throw new Error('Full MVP response did not include order_id'); state.orderId = orderId; $('order-id-input').value = orderId; await loadLandingSurface(orderId); }
 
-    $('project-type-select').addEventListener('change', () => { state.currentProjectType = $('project-type-select').value || 'unknown'; updateActionButtons(); updateHeaderChips(); syncProjectVisibility(); });
+    $('project-type-select')?.addEventListener('change', () => { state.currentProjectType = $('project-type-select').value || 'unknown'; updateActionButtons(); updateHeaderChips(); syncProjectVisibility(); });
 
-    $('analyze-brief-btn').addEventListener('click', async () => {
+    $('analyze-brief-btn')?.addEventListener('click', async () => {
       try {
         setStatus('analyzing brief…');
         const payload = await postJson('/api/demo/webstudio-order/analyze-brief', { project_type: $('project-type-select').value, brief: $('brief-text').value.trim(), desired_deliverable: $('deliverable-select').value, tech_preference: $('tech-select').value });
-        state.orderId = extractOrderId(payload) || state.orderId; $('order-id-input').value = state.orderId || ''; renderPlan(payload);
-        if (payload.project_type === 'landing_page') await loadLandingSurface(state.orderId); else { state.surface = null; updateDebugJson(); syncProjectVisibility(); }
+        const newOrderId = extractOrderId(payload);
+        if (newOrderId) {
+          state.orderId = newOrderId;
+          state.currentScriptOrderId = newOrderId;
+          state.currentScriptProjectArtifactId = '';
+          state.lastScriptResult = null;
+          state.surface = null;
+        }
+        $('order-id-input').value = state.orderId || '';
+        renderPlan(payload);
+        if (payload.project_type === 'landing_page') await loadLandingSurface(state.orderId);
+        updateDebugJson();
+        syncProjectVisibility();
         setStatus('project plan ready');
       } catch (error) { setStatus(error.message); }
     });
 
-    $('execute-script-btn').addEventListener('click', async () => {
+    $('execute-script-btn')?.addEventListener('click', async () => {
       try {
         setStatus('executing script MVP…');
         const payload = await postJson('/api/demo/webstudio-order/execute-script', { brief: $('brief-text').value.trim(), tech_preference: $('tech-select').value });
         if (!payload.ok || payload.execution_supported === false) throw new Error('Этот тип скрипта пока не входит в безопасные demo-сценарии. Попробуйте простую CLI-задачу: печать текста, цикл по числам, сумма диапазона, CSV summary, text cleaner, JSON extractor.');
-        state.orderId = extractOrderId(payload) || state.orderId;
-        state.currentScriptOrderId = state.orderId;
+        const newOrderId = extractOrderId(payload);
+        if (newOrderId) {
+          state.orderId = newOrderId;
+          state.currentScriptOrderId = newOrderId;
+        }
         state.currentScriptProjectArtifactId = payload.project_artifact_id || '';
+        state.lastScriptResult = null;
+        state.scriptDirty = false;
+        state.scriptRunStatus = 'idle';
         $('order-id-input').value = state.orderId || '';
         await loadScriptSurface(state.orderId);
         await loadArtifactLibrary();
@@ -959,7 +1088,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       } catch (error) { setStatus(error.message); }
     });
 
-    $('execute-telegram-bot-btn').addEventListener('click', async () => {
+    $('execute-telegram-bot-btn')?.addEventListener('click', async () => {
       try {
         setStatus('executing telegram bot MVP…');
         const payload = await postJson('/api/demo/webstudio-order/execute-telegram-bot', { brief: $('brief-text').value.trim(), tech_preference: $('tech-select').value });
@@ -968,9 +1097,9 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       } catch (error) { setStatus(error.message); }
     });
 
-    $('start-mvp-build-btn').addEventListener('click', async () => { try { await createFullMvp(); setStatus('landing MVP build started'); } catch (error) { setStatus(error.message); } });
-    $('create-demo-btn').addEventListener('click', async () => { try { setStatus('creating/loading demo order…'); await createFullMvp(); setStatus('demo order ready'); } catch (error) { setStatus(error.message); } });
-    $('refresh-surface-btn').addEventListener('click', async () => {
+    $('start-mvp-build-btn')?.addEventListener('click', async () => { try { await createFullMvp(); setStatus('landing MVP build started'); } catch (error) { setStatus(error.message); } });
+    $('create-demo-btn')?.addEventListener('click', async () => { try { setStatus('creating/loading demo order…'); await createFullMvp(); setStatus('demo order ready'); } catch (error) { setStatus(error.message); } });
+    $('refresh-surface-btn')?.addEventListener('click', async () => {
       try {
         const orderId = getCurrentOrderId();
         if (state.currentProjectType === 'script') { setStatus('refreshing script surface…'); await loadScriptSurface(orderId); setStatus('script surface refreshed'); return; }
@@ -978,12 +1107,12 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         setStatus('refreshing landing surface…'); await loadLandingSurface(orderId); setStatus('landing surface refreshed');
       } catch (error) { setStatus(error.message); }
     });
-    $('refresh-script-surface-btn').addEventListener('click', async () => { try { const orderId = state.currentScriptOrderId || getCurrentOrderId(); setStatus('refreshing script surface…'); await loadScriptSurface(orderId); setStatus('script surface refreshed'); } catch (error) { setStatus(error.message); } });
-    $('refresh-telegram-bot-surface-btn').addEventListener('click', async () => { try { const orderId = state.currentBotOrderId || getCurrentOrderId(); setStatus('refreshing telegram bot surface…'); await loadTelegramBotSurface(orderId); setStatus('telegram bot surface refreshed'); } catch (error) { setStatus(error.message); } });
-    $('refresh-artifact-library-btn').addEventListener('click', async () => { try { setStatus('refreshing artifact library…'); await loadArtifactLibrary(); setStatus('artifact library refreshed'); } catch (error) { setStatus(error.message); } });
-    $('select-primary-btn').addEventListener('click', async () => { try { const orderId = getCurrentOrderId(); setStatus('selecting Variant B…'); await postJson('/api/demo/webstudio-order/' + encodeURIComponent(orderId) + '/select-primary', {}); await loadLandingSurface(orderId); setStatus('Variant B selected'); } catch (error) { setStatus(error.message); } });
-    $('submit-revision-btn').addEventListener('click', async () => { try { const orderId = getCurrentOrderId(); setStatus('submitting revision…'); await postJson('/api/demo/webstudio-order/' + encodeURIComponent(orderId) + '/revision', { delta_brief: { requested_changes: [$('revision-text').value.trim()], customer_notes: $('revision-text').value.trim() } }); await loadLandingSurface(orderId); setStatus('revision created'); } catch (error) { setStatus(error.message); } });
-    $('execute-revision-btn').addEventListener('click', async () => { try { const orderId = getCurrentOrderId(); setStatus('executing revision…'); await postJson('/api/demo/webstudio-order/' + encodeURIComponent(orderId) + '/execute-revision', {}); await loadLandingSurface(orderId); setStatus('revision executed'); } catch (error) { setStatus(error.message); } });
+    $('refresh-script-surface-btn')?.addEventListener('click', async () => { try { const orderId = state.currentScriptOrderId || getCurrentOrderId(); setStatus('refreshing script surface…'); await loadScriptSurface(orderId); setStatus('script surface refreshed'); } catch (error) { setStatus(error.message); } });
+    $('refresh-telegram-bot-surface-btn')?.addEventListener('click', async () => { try { const orderId = state.currentBotOrderId || getCurrentOrderId(); setStatus('refreshing telegram bot surface…'); await loadTelegramBotSurface(orderId); setStatus('telegram bot surface refreshed'); } catch (error) { setStatus(error.message); } });
+    $('refresh-artifact-library-btn')?.addEventListener('click', async () => { try { setStatus('refreshing artifact library…'); await loadArtifactLibrary(); setStatus('artifact library refreshed'); } catch (error) { setStatus(error.message); } });
+    $('select-primary-btn')?.addEventListener('click', async () => { try { const orderId = getCurrentOrderId(); setStatus('selecting Variant B…'); await postJson('/api/demo/webstudio-order/' + encodeURIComponent(orderId) + '/select-primary', {}); await loadLandingSurface(orderId); setStatus('Variant B selected'); } catch (error) { setStatus(error.message); } });
+    $('submit-revision-btn')?.addEventListener('click', async () => { try { const orderId = getCurrentOrderId(); setStatus('submitting revision…'); await postJson('/api/demo/webstudio-order/' + encodeURIComponent(orderId) + '/revision', { delta_brief: { requested_changes: [$('revision-text').value.trim()], customer_notes: $('revision-text').value.trim() } }); await loadLandingSurface(orderId); setStatus('revision created'); } catch (error) { setStatus(error.message); } });
+    $('execute-revision-btn')?.addEventListener('click', async () => { try { const orderId = getCurrentOrderId(); setStatus('executing revision…'); await postJson('/api/demo/webstudio-order/' + encodeURIComponent(orderId) + '/execute-revision', {}); await loadLandingSurface(orderId); setStatus('revision executed'); } catch (error) { setStatus(error.message); } });
 
     // Script Run functions
 
@@ -1125,7 +1254,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       updateScriptStatusChips();
     });
     
-    $('script-editor').addEventListener('input', () => {
+    $('script-editor')?.addEventListener('input', () => {
       state.scriptDirty = true;
       updateLineNumbers();
       updateScriptStatusChips();
@@ -1142,13 +1271,13 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     }
     
     // Sync scroll between line numbers and editor
-    $('script-editor').addEventListener('scroll', () => {
+    $('script-editor')?.addEventListener('scroll', () => {
       const lineNumbers = $('script-line-numbers');
       if (lineNumbers) lineNumbers.scrollTop = $('script-editor').scrollTop;
     });
     
     // Copy code button
-    $('copy-code-btn').addEventListener('click', async () => {
+    $('copy-code-btn')?.addEventListener('click', async () => {
       const code = $('script-code-block').textContent;
       try {
         await navigator.clipboard.writeText(code);
@@ -1161,8 +1290,57 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       }
     });
     
+    // Script file copy button
+    $('script-file-copy-btn')?.addEventListener('click', async () => {
+      let code = '';
+      if (!$('script-editor-wrapper').classList.contains('hidden')) {
+        code = $$('script-editor').value;
+      } else if (!$('script-file-preview').classList.contains('hidden')) {
+        code = $('script-file-preview').textContent;
+      } else {
+        code = $('script-code-block').textContent;
+      }
+      try {
+        await navigator.clipboard.writeText(code);
+        const btn = $('script-file-copy-btn');
+        const originalText = btn.textContent;
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => { btn.textContent = originalText; }, 1500);
+      } catch (e) {
+        console.warn('Failed to copy file:', e);
+      }
+    });
+    
+    // Script file save button (stub - saves current script.py to state only)
+    const scriptFileSaveBtn = $('script-file-save-btn');
+    if (scriptFileSaveBtn) {
+      scriptFileSaveBtn.addEventListener('click', async () => {
+        const editor = $$('script-editor');
+        if (editor && state.currentOpenFile === 'script.py') {
+          state.originalScript = editor.value;
+          state.scriptDirty = false;
+          updateScriptStatusChips();
+          setStatus('File saved (session only)');
+        }
+      });
+    }
+    
+    // Script file reset button (stub - resets to original)
+    const scriptFileResetBtn = $('script-file-reset-btn');
+    if (scriptFileResetBtn) {
+      scriptFileResetBtn.addEventListener('click', () => {
+        const editor = $$('script-editor');
+        if (editor && state.currentOpenFile === 'script.py' && state.originalScript) {
+          editor.value = state.originalScript;
+          state.scriptDirty = false;
+          updateScriptStatusChips();
+          setStatus('File reset to original');
+        }
+      });
+    }
+    
     // Word wrap toggle
-    $('word-wrap-toggle').addEventListener('change', (e) => {
+    $('word-wrap-toggle')?.addEventListener('change', (e) => {
       const codeBlock = $('script-code-block');
       const editor = $('script-editor');
       if (e.target.checked) {
@@ -1175,7 +1353,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     });
     
     // Keyboard shortcuts: Ctrl+S to save, Ctrl+Enter to run
-    $('script-editor').addEventListener('keydown', (e) => {
+    $('script-editor')?.addEventListener('keydown', (e) => {
       if (e.ctrlKey && e.key === 's') {
         e.preventDefault();
         if (!$('save-script-btn').classList.contains('hidden')) {
@@ -1324,7 +1502,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       }
     }
 
-    $('clear-terminal-btn').addEventListener('click', () => {
+    $('clear-terminal-btn')?.addEventListener('click', () => {
       const terminal = $('live-terminal-output');
       if (terminal) terminal.innerHTML = '<span class="muted">Run the script to see live output.</span>';
       $('terminal-exit-code').textContent = '-';
@@ -1333,10 +1511,10 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       $('live-terminal-status').textContent = 'cleared';
     });
     
-    $('run-live-btn').addEventListener('click', () => startLiveRun(null));
+    $('run-live-btn')?.addEventListener('click', () => startLiveRun(null));
 
     // Send stdin to live run
-    $('script-live-send-input-btn').addEventListener('click', async () => {
+    $('script-live-send-input-btn')?.addEventListener('click', async () => {
       const inputEl = $('script-live-stdin-input');
       if (!inputEl || !liveRunId) return;
       const input = inputEl.value;
@@ -1365,16 +1543,16 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       inputEl.value = '';
     });
     // Enter key sends input
-    $('script-live-stdin-input').addEventListener('keydown', (e) => {
+    $('script-live-stdin-input')?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         $('script-live-send-input-btn').click();
       }
     });
-    $('run-live-edited-btn').addEventListener('click', () => {
+    $('run-live-edited-btn')?.addEventListener('click', () => {
       const editedSource = $('script-editor-wrapper').classList.contains('hidden') ? undefined : $('script-editor').value;
       startLiveRun(editedSource);
     });
-    $('stop-live-btn').addEventListener('click', async () => {
+    $('stop-live-btn')?.addEventListener('click', async () => {
       if (!liveRunId) return;
       try {
         await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentScriptProjectArtifactId) + '/run-live/' + liveRunId + '/stop', { method: 'POST' });
@@ -1474,12 +1652,12 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       }
     }
 
-    $('run-telegram-bot-dryrun-btn').addEventListener('click', () => {
+    $('run-telegram-bot-dryrun-btn')?.addEventListener('click', () => {
       const editedSource = $('telegram-editor').classList.contains('hidden') ? undefined : $('telegram-editor').value;
       runTelegramBotDryRun(editedSource);
     });
 
-    $('telegram-save-version-btn').addEventListener('click', async () => {
+    $('telegram-save-version-btn')?.addEventListener('click', async () => {
       if (!state.currentBotProjectArtifactId) return;
       const editedSource = $('telegram-editor').value;
       try {
@@ -1503,7 +1681,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       }
     });
 
-    $('telegram-restore-version-btn').addEventListener('click', async () => {
+    $('telegram-restore-version-btn')?.addEventListener('click', async () => {
       const versionId = $('telegram-versions-dropdown').value;
       if (!versionId || !state.currentBotProjectArtifactId) return;
       try {
@@ -1526,18 +1704,18 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       }
     });
 
-    $('telegram-reset-btn').addEventListener('click', () => {
+    $('telegram-reset-btn')?.addEventListener('click', () => {
       $('telegram-editor').value = telegramBotOriginalSource || '';
       telegramBotDirty = false;
       $('telegram-dirty-badge').classList.add('hidden');
     });
 
-    $('telegram-editor').addEventListener('input', () => {
+    $('telegram-editor')?.addEventListener('input', () => {
       telegramBotDirty = true;
       $('telegram-dirty-badge').classList.remove('hidden');
     });
 
-    $('telegram-versions-dropdown').addEventListener('change', async (e) => {
+    $('telegram-versions-dropdown')?.addEventListener('change', async (e) => {
       const versionId = e.target.value;
       if (!versionId || !state.currentBotProjectArtifactId) return;
       try {
@@ -1552,12 +1730,12 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       }
     });
 
-    $('telegram-open-delivery-btn').addEventListener('click', () => {
+    $('telegram-open-delivery-btn')?.addEventListener('click', () => {
       if (!state.currentBotProjectArtifactId) return;
       window.open('/webstudio/client-delivery/' + encodeURIComponent(state.currentBotProjectArtifactId), '_blank');
     });
 
-    $('telegram-download-zip-btn').addEventListener('click', async () => {
+    $('telegram-download-zip-btn')?.addEventListener('click', async () => {
       if (!state.currentBotProjectArtifactId) return;
       try {
         const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentBotProjectArtifactId) + '/export-zip');
@@ -1574,7 +1752,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       }
     });
     // Landing panel event listeners
-    $('edit-landing-btn').addEventListener('click', () => {
+    $('edit-landing-btn')?.addEventListener('click', () => {
       $('landing-code-block').classList.add('hidden');
       $('landing-editor').classList.remove('hidden');
       $('edit-landing-btn').classList.add('hidden');
@@ -1584,7 +1762,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       state.landingDirty = false;
     });
     
-    $('save-landing-btn').addEventListener('click', () => {
+    $('save-landing-btn')?.addEventListener('click', () => {
       state.originalLanding = $('landing-editor').value;
       state.landingDirty = false;
       $('landing-code-block').textContent = state.originalLanding;
@@ -1596,20 +1774,20 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       $('landing-dirty-badge').classList.add('hidden');
     });
     
-    $('reset-landing-btn').addEventListener('click', () => {
+    $('reset-landing-btn')?.addEventListener('click', () => {
       $('landing-editor').value = state.originalLanding || '';
       state.landingDirty = false;
       $('landing-dirty-badge').classList.add('hidden');
     });
     
-    $('landing-editor').addEventListener('input', () => {
+    $('landing-editor')?.addEventListener('input', () => {
       state.landingDirty = true;
       if (!$('landing-dirty-badge').classList.contains('hidden')) {
         $('landing-dirty-badge').classList.remove('hidden');
       }
     });
     
-    $('preview-landing-btn').addEventListener('click', async () => {
+    $('preview-landing-btn')?.addEventListener('click', async () => {
       try {
         const editedSource = state.landingDirty ? $('landing-editor').value : null;
         const body = editedSource ? { edited_source: editedSource, save_edited: false } : {};
