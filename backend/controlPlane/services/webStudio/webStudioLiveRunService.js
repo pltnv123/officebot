@@ -89,9 +89,12 @@ function startLiveScriptRun({ artifact, editedSource, saveEdited, artifactRoot }
   const runId = makeRunId();
   const startTime = Date.now();
 
+  // Normalize artifact ID with 3-level fallback to prevent undefined
+  const normalizedArtifactId = String(artifact.project_artifact_id || artifact.artifact_id || artifact.id || '');
+
   const run = {
     runId,
-    artifactId: artifact.artifact_id,
+    artifactId: normalizedArtifactId,
     project_type: artifact.project_type,
     events: [],
     subscribers: new Set(),
@@ -199,8 +202,9 @@ function startLiveScriptRun({ artifact, editedSource, saveEdited, artifactRoot }
   return {
     ok: true,
     run_id: runId,
-    events_url: `/api/demo/webstudio-order/project-artifact/${encodeURIComponent(artifact.artifact_id)}/run-live/${runId}/events`,
-    stop_url: `/api/demo/webstudio-order/project-artifact/${encodeURIComponent(artifact.artifact_id)}/run-live/${runId}/stop`,
+    artifact_id: normalizedArtifactId,
+    events_url: `/api/demo/webstudio-order/project-artifact/${encodeURIComponent(normalizedArtifactId)}/run-live/${runId}/events`,
+    stop_url: `/api/demo/webstudio-order/project-artifact/${encodeURIComponent(normalizedArtifactId)}/run-live/${runId}/stop`,
   };
 }
 
