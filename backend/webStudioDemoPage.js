@@ -824,6 +824,14 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         openDeliveryBtn.title = 'Open delivery page for this artifact';
       }
       
+      // Save to localStorage for refresh persistence
+      try {
+        localStorage.setItem('webstudio.lastProjectArtifactId', state.currentScriptProjectArtifactId);
+        localStorage.setItem('webstudio.lastProjectType', 'script');
+        if (surface.order_id) localStorage.setItem('webstudio.lastOrderId', surface.order_id);
+        localStorage.setItem('webstudio.lastSavedAt', new Date().toISOString());
+      } catch (e) { /* ignore localStorage errors */ }
+      
       // Update header chips
       safeSetText('script-scenario-chip', surface.script_execution?.scenario || 'unknown');
       
@@ -1066,6 +1074,31 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     async function createFullMvp() { const payload = await postJson('/api/demo/webstudio-order/full-mvp', {}); const orderId = extractOrderId(payload); if (!orderId) throw new Error('Full MVP response did not include order_id'); state.orderId = orderId; $('order-id-input').value = orderId; await loadLandingSurface(orderId); }
 
     $('project-type-select')?.addEventListener('change', () => { state.currentProjectType = $('project-type-select').value || 'unknown'; updateActionButtons(); updateHeaderChips(); syncProjectVisibility(); });
+    
+    // Restore last project on page load (after DOM ready)
+    (async function restoreLastProjectOnLoad() {
+      try {
+        await new Promise(resolve => { if (document.readyState === 'complete') resolve(); else window.addEventListener('load', resolve); });
+        const lastArtifactId = localStorage.getItem('webstudio.lastProjectArtifactId');
+        const lastProjectType = localStorage.getItem('webstudio.lastProjectType');
+        const lastOrderId = localStorage.getItem('webstudio.lastOrderId');
+        
+        if (lastArtifactId && lastProjectType === 'script' && lastOrderId) {
+          // Fetch surface using order ID (not artifact detail)
+          const response = await fetch('/api/demo/webstudio-order/script-surface/' + encodeURIComponent(lastOrderId));
+          if (response.ok) {
+            const surface = await response.json();
+            if (surface.ok && surface.project_artifact_id) {
+              await renderScriptSurface(surface);
+              setStatus('Restored last project');
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to restore last project:', e);
+        try { localStorage.removeItem('webstudio.lastProjectArtifactId'); localStorage.removeItem('webstudio.lastProjectType'); localStorage.removeItem('webstudio.lastOrderId'); } catch (e2) {}
+      }
+    })();
 
     $('analyze-brief-btn')?.addEventListener('click', async () => {
       try {
@@ -1085,6 +1118,14 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
             openDeliveryBtn.disabled = true;
             openDeliveryBtn.title = 'Generate a script package first';
           }
+          
+          // Clear localStorage when starting new project
+          try {
+            localStorage.removeItem('webstudio.lastProjectArtifactId');
+            localStorage.removeItem('webstudio.lastProjectType');
+            localStorage.removeItem('webstudio.lastOrderId');
+            localStorage.removeItem('webstudio.lastSavedAt');
+          } catch (e) { /* ignore */ }
         }
         $('order-id-input').value = state.orderId || '';
         renderPlan(payload);
@@ -1113,6 +1154,15 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         await loadScriptSurface(state.orderId);
         await loadArtifactLibrary();
         setStatus('script package ready');
+        
+        // Save to localStorage for refresh persistence
+        try {
+          if (payload.project_artifact_id) {
+            localStorage.setItem('webstudio.lastProjectArtifactId', payload.project_artifact_id);
+            localStorage.setItem('webstudio.lastProjectType', 'script');
+            localStorage.setItem('webstudio.lastSavedAt', new Date().toISOString());
+          }
+        } catch (e) { /* ignore */ }
       } catch (error) { setStatus(error.message); }
     });
 
