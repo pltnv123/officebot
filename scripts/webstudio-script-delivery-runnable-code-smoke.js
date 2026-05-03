@@ -102,7 +102,7 @@ async function main() {
       
       const deliveryTitle = await page.locator('h1').textContent();
       console.log(`   Delivery page title: ${deliveryTitle}`);
-      result.delivery_page_ok = deliveryTitle && deliveryTitle.includes('Python script package');
+      result.delivery_page_ok = deliveryTitle && (deliveryTitle.includes('Python Script Package') || deliveryTitle.includes('Python script package'));
       console.log(`   ✅ Delivery page OK: ${result.delivery_page_ok}\n`);
 
       // ========== Step 6-7: Check inline code visible ==========
