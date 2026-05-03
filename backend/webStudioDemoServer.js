@@ -594,6 +594,36 @@ async function main() {
         return res.status(400).json({ ok: false, error: 'live_run_only_for_script', project_type: artifact.project_type });
       }
       
+      // Safety validation for edited source
+      if (editedSource) {
+        if (typeof editedSource !== 'string') {
+          return res.status(400).json({ ok: false, error: 'edited_source_validation_failed', reason: 'must_be_string' });
+        }
+        // Block unsafe imports and patterns
+        const unsafePatterns = [
+          'import os',
+          'import sys',
+          'import subprocess',
+          'import socket',
+          'import requests',
+          'import urllib',
+          'subprocess.',
+          'os.',
+          'sys.',
+          'socket.',
+          'requests.',
+          'eval(',
+          'exec(',
+          'compile(',
+          '__import__',
+        ];
+        for (const pattern of unsafePatterns) {
+          if (editedSource.includes(pattern)) {
+            return res.status(400).json({ ok: false, error: 'edited_source_validation_failed', reason: 'unsafe_python_source', blocked_pattern: pattern });
+          }
+        }
+      }
+      
       const artifactRoot = path.resolve(String(artifact.artifact_root || ''));
       const result = startLiveScriptRun({ artifact, editedSource, saveEdited, artifactRoot });
       res.status(201).json(result);

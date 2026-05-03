@@ -74,6 +74,12 @@ function stopLiveRun(runId) {
     run.stopped = true;
     run.process.kill('SIGTERM');
     pushEvent(run, { type: 'stopping', message: 'Stopping process...' });
+    // Schedule stopped event after short delay to ensure it arrives before done
+    setTimeout(() => {
+      if (!run.done) {
+        pushEvent(run, { type: 'stopped', message: 'Process stopped by user' });
+      }
+    }, 50);
     return { ok: true, run_id: runId };
   }
   return { ok: true, run_id: runId, already_done: true };
