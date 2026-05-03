@@ -647,6 +647,8 @@ async function createScriptExecutionPackage({ rootDir, orderId, brief, scenario,
 async function runScriptSmoke({ artifactRoot, inputFileName }) {
   const args = ['script.py'];
   if (inputFileName) args.push(inputFileName);
+  // Use fast mode for deterministic smoke: disable delays/pauses
+  args.push('--delay', '0');
   const command = `python3 ${args.join(' ')}`;
   const actualOutputPath = path.join(artifactRoot, 'actual_output.txt');
   const sampleOutputPath = path.join(artifactRoot, 'sample_output.txt');
