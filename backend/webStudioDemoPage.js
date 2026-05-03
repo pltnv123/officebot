@@ -229,7 +229,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
             <button id="save-as-version-btn" class="secondary">💾 Save Version</button>
             <button id="restore-version-btn" class="secondary">⏪ Restore</button>
             <button id="download-zip-btn" class="secondary">📥 Download ZIP</button>
-            <button id="open-delivery-btn" class="secondary">🔗 Open Delivery</button>
+            <button id="open-delivery-btn" class="secondary" disabled title="Generate a script package first">🔗 Open Delivery</button>
           </div>
           
           <!-- Project Files Workspace -->
@@ -817,6 +817,13 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       state.currentScriptProjectArtifactId = surface.project_artifact_id || state.currentScriptProjectArtifactId;
       state.lastScriptResult = { order_id: surface.order_id, project_type: 'script', scenario: surface.script_execution?.scenario, language: surface.script_execution?.language, safety_level: surface.script_execution?.safety_level, artifact_id: surface.script_execution?.artifact_id, artifact_root: surface.script_execution?.artifact_root, files: surface.files, safe_routes: surface.safe_routes, test: surface.test, next_action: surface.next_action, project_artifact_id: surface.project_artifact_id };
       
+      // Enable Open Delivery button now that artifact exists
+      const openDeliveryBtn = $('open-delivery-btn');
+      if (openDeliveryBtn) {
+        openDeliveryBtn.disabled = false;
+        openDeliveryBtn.title = 'Open delivery page for this artifact';
+      }
+      
       // Update header chips
       safeSetText('script-scenario-chip', surface.script_execution?.scenario || 'unknown');
       
@@ -1071,6 +1078,13 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
           state.currentScriptProjectArtifactId = '';
           state.lastScriptResult = null;
           state.surface = null;
+          
+          // Disable Open Delivery button when no artifact
+          const openDeliveryBtn = $('open-delivery-btn');
+          if (openDeliveryBtn) {
+            openDeliveryBtn.disabled = true;
+            openDeliveryBtn.title = 'Generate a script package first';
+          }
         }
         $('order-id-input').value = state.orderId || '';
         renderPlan(payload);
