@@ -470,6 +470,10 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       scriptDirty: false
     };
     const $ = (id) => document.getElementById(id);
+    const $$ = (id) => document.getElementById(id) || null;
+    const safeSetHtml = (id, html) => { const el = $$(id); if (el) el.innerHTML = html == null ? '' : String(html); return !!el; };
+    const safeSetText = (id, text) => { const el = $$(id); if (el) el.textContent = text == null ? '' : String(text); return !!el; };
+    const safeClassToggle = (id, className, force) => { const el = $$(id); if (el) el.classList.toggle(className, force); return !!el; };
     const defaultScriptBrief = ${JSON.stringify(defaultScriptBrief)};
     const defaultTelegramBrief = ${JSON.stringify(defaultBrief)};
 
@@ -482,8 +486,8 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
 
     async function loadScriptVersions() {
       if (!state.currentScriptProjectArtifactId) {
-        $('script-versions-dropdown').innerHTML = '<option value="">Versions...</option>';
-        $('version-selector').innerHTML = '<option value="">Select version...</option>';
+        safeSetHtml('script-versions-dropdown', '<option value="">Versions...</option>');
+        safeSetHtml('version-selector', '<option value="">Select version...</option>');
         state.currentVersionId = 'v0001';
         updateScriptStatusChips();
         return;
@@ -495,24 +499,28 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         const currentVersionId = data.current_version_id || 'v0001';
         
         // Update old dropdown (for backward compatibility)
-        const dropdown = $('script-versions-dropdown');
-        dropdown.innerHTML = '<option value="">Versions...</option>' + versions.map(v => 
-          '<option value="' + v.version_id + '">' + v.label + ' (' + v.version_id + ')</option>'
-        ).join('');
+        const dropdown = $$('script-versions-dropdown');
+        if (dropdown) {
+          dropdown.innerHTML = '<option value="">Versions...</option>' + versions.map(v => 
+            '<option value="' + v.version_id + '">' + v.label + ' (' + v.version_id + ')</option>'
+          ).join('');
+        }
         
         // Update new version selector
-        const versionSelector = $('version-selector');
-        versionSelector.innerHTML = '<option value="">Select version...</option>' + versions.map(v => 
-          '<option value="' + v.version_id + '">' + v.label + ' (' + v.source_type + ')</option>'
-        ).join('');
+        const versionSelector = $$('version-selector');
+        if (versionSelector) {
+          versionSelector.innerHTML = '<option value="">Select version...</option>' + versions.map(v => 
+            '<option value="' + v.version_id + '">' + v.label + ' (' + v.source_type + ')</option>'
+          ).join('');
+        }
         
         // Update current version chip
         state.currentVersionId = currentVersionId;
         updateScriptStatusChips();
       } catch (error) {
         console.warn('Failed to load versions:', error);
-        $('script-versions-dropdown').innerHTML = '<option value="">Versions (error)</option>';
-        $('version-selector').innerHTML = '<option value="">Select version...</option>';
+        safeSetHtml('script-versions-dropdown', '<option value="">Versions (error)</option>');
+        safeSetHtml('version-selector', '<option value="">Select version...</option>');
       }
     }
 
@@ -779,34 +787,35 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       state.lastScriptResult = { order_id: surface.order_id, project_type: 'script', scenario: surface.script_execution?.scenario, language: surface.script_execution?.language, safety_level: surface.script_execution?.safety_level, artifact_id: surface.script_execution?.artifact_id, artifact_root: surface.script_execution?.artifact_root, files: surface.files, safe_routes: surface.safe_routes, test: surface.test, next_action: surface.next_action, project_artifact_id: surface.project_artifact_id };
       
       // Update header chips
-      $('script-scenario-chip').textContent = surface.script_execution?.scenario || 'unknown';
+      safeSetText('script-scenario-chip', surface.script_execution?.scenario || 'unknown');
       
       // Load and display script code
       const [scriptText, logText, outputText] = await Promise.all([fetchText(surface.safe_routes.script), fetchText(surface.safe_routes.test_run_log), fetchText(surface.safe_routes.actual_output)]);
-      $('script-code-block').textContent = scriptText;
-      $('script-editor').value = scriptText;
+      safeSetText('script-code-block', scriptText);
+      const editor = $$('script-editor');
+      if (editor) editor.value = scriptText;
       state.originalScript = scriptText; // Store for reset
       state.scriptDirty = false; // Reset dirty flag
       state.scriptRunStatus = 'idle';
-      $('script-log-preview').textContent = logText;
-      $('script-output-preview').textContent = outputText;
+      safeSetText('script-log-preview', logText);
+      safeSetText('script-output-preview', outputText);
       
       // Load versions
       await loadScriptVersions();
       
       // Reset UI state
-      $('script-code-block').classList.remove('hidden');
-      $('script-editor-wrapper').classList.add('hidden');
+      safeClassToggle('script-code-block', 'hidden', false);
+      safeClassToggle('script-editor-wrapper', 'hidden', true);
       updateScriptStatusChips();
       
       // Update supporting files
-      $('script-files').innerHTML = Object.entries(surface.safe_routes || {}).filter(([key]) => key !== 'script').map(([key, route]) => '<a class="linkish" href="' + route + '" target="_blank" rel="noopener">' + safe(key) + ' → ' + safe(surface.files?.[key]) + '</a>').join('');
+      safeSetHtml('script-files', Object.entries(surface.safe_routes || {}).filter(([key]) => key !== 'script').map(([key, route]) => '<a class="linkish" href="' + route + '" target="_blank" rel="noopener">' + safe(key) + ' → ' + safe(surface.files?.[key]) + '</a>').join(''));
       
       // Reset terminal stats
-      $('terminal-exit-code').textContent = '-';
-      $('terminal-duration').textContent = '-';
-      $('terminal-state').textContent = '-';
-      $('live-terminal-status').textContent = 'idle';
+      safeSetText('terminal-exit-code', '-');
+      safeSetText('terminal-duration', '-');
+      safeSetText('terminal-state', '-');
+      safeSetText('live-terminal-status', 'idle');
       
       updateHeaderChips(); updateDebugJson(); syncProjectVisibility();
     }
@@ -1214,7 +1223,6 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     }
 
     function setLiveRunStatus(status) {
-      $('live-run-status').textContent = status;
       $('live-terminal-status').textContent = status;
       $('script-run-status-text').textContent = status;
       $('stop-live-btn').disabled = status !== 'running';
