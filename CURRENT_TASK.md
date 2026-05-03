@@ -1,10 +1,14 @@
-FUNC-002: улучшить анимации роботов.
+PHASE 2 — Functionality: ЗАВЕРШЕНА ✅
 
-Требования:
-1. IDLE состояние: текущий боб оставить + добавить медленное покачивание головой (rotY ±5° синусоидой, период ~3 сек)
-2. WORKING состояние: боб быстрее (x2) + глаза пульсируют (emission intensity 0.8→1.5, период ~0.5 сек)
-3. Состояния переключаются автоматически: если у агента есть активная задача в /api/state — WORKING, иначе IDLE
-4. Переходы плавные (Lerp, не мгновенные)
-5. Визуальное качество не ухудшать
+Все FUNC задачи реализованы:
+- FUNC-001 [DONE]: Live task cards on board
+- FUNC-002 [DONE]: Robot animations enhanced (commit 2cde123)
+- FUNC-003 [DONE]: Room 2 implementation
+- FUNC-004 [DONE]: NavMesh robot pathfinding (commit a8b08e5)
 
-После деплоя — скриншот в Telegram.
+Next: PHASE 3 — Polish & Ops
+- OPS-001: Healthcheck improvements
+- OPS-002: CI pipeline optimization
+- OPS-003: Performance monitoring
+
+Status: Ready to start PHASE 3

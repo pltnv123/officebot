@@ -29,10 +29,11 @@ All tasks done as of commit d200c44, WASM 2026-03-10 09:18:46 UTC
 - Contains: secondary workspace, 2 agents
 - Orange glow frame matches reference image
 
-### FUNC-004 [TODO] — NavMesh robot pathfinding
-- Agents move to task zone when assigned work
-- Smooth path following, no clipping
-- Return to idle position when task complete
+### FUNC-004 [DONE] — NavMesh robot pathfinding
+- Agents move to task zone when assigned work ✓
+- Smooth path following, no clipping ✓
+- Return to idle position when task complete ✓
+- Commit: a8b08e5 (Mar 10)
 
 ## PHASE 3 — Polish & Ops [LOCKED until Phase 2 done]
 - OPS-001: Healthcheck improvements
