@@ -691,10 +691,24 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       $('variants-panel').classList.toggle('hidden', !isLanding);
       $('primary-preview-panel').classList.toggle('hidden', !isLanding);
       $('revised-panel').classList.toggle('hidden', !isLanding || $('revised-preview-frame').src === 'about:blank');
-      $('script-program-panel').classList.toggle('hidden', !isScript || !state.lastScriptResult);
+      $('script-program-panel').classList.toggle('hidden', !isScript);
       $('script-run-history-panel').classList.toggle('hidden', !isScript || !state.currentScriptProjectArtifactId);
-      $('script-supporting-files-panel').classList.toggle('hidden', !isScript || !state.lastScriptResult);
-      $('script-live-terminal-panel').classList.toggle('hidden', !isScript || !state.lastScriptResult);
+      $('script-supporting-files-panel').classList.toggle('hidden', !isScript);
+      $('script-live-terminal-panel').classList.toggle('hidden', !isScript);
+      
+      // Show editor when script selected but no surface loaded yet
+      if (isScript) {
+        const hasSurface = state.lastScriptResult || state.currentScriptProjectArtifactId;
+        if (!hasSurface) {
+          // No surface yet - show editor for manual code entry
+          $('script-code-block').classList.add('hidden');
+          $('script-editor-wrapper').classList.remove('hidden');
+          if (!$('script-editor').value) {
+            $('script-editor').value = '# Write your Python script here\\n# or click "Execute Script MVP" to generate one\\n\\ndef main():\\n    print("Hello, World!")\\n\\nif __name__ == "__main__":\\n    main()\\n';
+          }
+        }
+      }
+      
       $('telegram-bot-program-panel').classList.toggle('hidden', !isTelegram || !state.lastTelegramBotResult);
       const isLandingResult = state.lastLandingResult?.project_type === 'landing_page';
       $('landing-program-panel').classList.toggle('hidden', !isLandingResult || !state.lastLandingResult);
@@ -705,7 +719,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       $('refresh-telegram-bot-surface-btn').classList.toggle('hidden', !isTelegram);
       $('workflow-collapsed-note').classList.toggle('hidden', !isIdle);
       $('script-hints').classList.toggle('hidden', $('project-type-select').value !== 'script');
-      $('telegram-hints').classList.toggle('hidden', $('project-type-select').value !== 'telegram_bot');
+      $('telegram-hints').classList.toggle('hidden', $('project-type-select')?.value !== 'telegram_bot');
       $('debug-summary').textContent = isScript ? 'Open script debug JSON' : isTelegram ? 'Open telegram bot debug JSON' : 'Open landing debug JSON';
     }
 
