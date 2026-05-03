@@ -605,9 +605,9 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     });
 
     $('restore-version-btn')?.addEventListener('click', async () => {
-      const versionId = $('version-selector').value;
+      const versionId = $('script-versions-dropdown')?.value;
       if (!versionId) {
-        alert('Please select a version first');
+        alert('Please select a version from the dropdown first');
         return;
       }
       try {
@@ -616,18 +616,17 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         });
         const data = await response.json();
         if (data.ok) {
-          $('script-editor').value = data.source;
+          const editor = $$('script-editor');
+          if (editor) {
+            editor.value = data.source;
+          }
           state.scriptDirty = false;
-          $('script-dirty-badge').classList.add('hidden');
-          $('edit-script-btn').classList.remove('hidden');
-          $('save-script-btn').classList.add('hidden');
-          $('reset-script-btn').classList.add('hidden');
-          $('script-code-block').textContent = data.source;
-          $('script-code-block').classList.remove('hidden');
-          $('script-editor-wrapper').classList.add('hidden');
-          $('current-version-display').textContent = versionId;
+          updateScriptStatusChips();
+          safeClassToggle('script-code-block', 'hidden', true);
+          safeClassToggle('script-editor-wrapper', 'hidden', false);
+          safeSetText('current-version-chip-text', versionId);
           state.currentVersionId = versionId;
-          alert('Restored ' + versionId);
+          setStatus('Restored ' + versionId);
           await loadScriptVersions();
         } else {
           alert('Failed to restore version: ' + (data.error || 'unknown'));
@@ -639,7 +638,8 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     });
 
     $('save-as-version-btn')?.addEventListener('click', async () => {
-      const editedSource = $('script-editor').value;
+      const editor = $$('script-editor');
+      const editedSource = editor ? editor.value : '';
       if (!editedSource) {
         alert('Editor is empty');
         return;
@@ -653,16 +653,10 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         const data = await response.json();
         if (data.ok) {
           state.scriptDirty = false;
-          $('script-dirty-badge').classList.add('hidden');
-          $('edit-script-btn').classList.remove('hidden');
-          $('save-script-btn').classList.add('hidden');
-          $('reset-script-btn').classList.add('hidden');
-          $('script-code-block').textContent = editedSource;
-          $('script-code-block').classList.remove('hidden');
-          $('script-editor-wrapper').classList.add('hidden');
-          $('current-version-display').textContent = data.version_id;
+          updateScriptStatusChips();
+          safeSetText('current-version-chip-text', data.version_id);
           state.currentVersionId = data.version_id;
-          alert('Saved as ' + data.version_id);
+          setStatus('Saved as ' + data.version_id);
           await loadScriptVersions();
         } else {
           alert('Failed to save version: ' + (data.error || 'unknown'));
@@ -1582,6 +1576,40 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       }
     });
 
+
+    // Download ZIP button
+    $('download-zip-btn')?.addEventListener('click', async () => {
+      if (!state.currentScriptProjectArtifactId) {
+        setStatus('No artifact loaded');
+        return;
+      }
+      try {
+        const response = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentScriptProjectArtifactId) + '/download');
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err.error || 'Download failed');
+        }
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'script-' + state.currentScriptProjectArtifactId + '.zip';
+        a.click();
+        window.URL.revokeObjectURL(url);
+        setStatus('ZIP download started');
+      } catch (error) {
+        setStatus('ZIP export failed: ' + error.message);
+      }
+    });
+    
+    // Open Delivery button
+    $('open-delivery-btn')?.addEventListener('click', () => {
+      if (!state.currentScriptProjectArtifactId) {
+        setStatus('No artifact loaded');
+        return;
+      }
+      window.open('/webstudio/demo-delivery?artifact=' + encodeURIComponent(state.currentScriptProjectArtifactId), '_blank');
+    });
     // Telegram Bot Program Panel handlers
     let telegramBotOriginalSource = '';
     let telegramBotDirty = false;
