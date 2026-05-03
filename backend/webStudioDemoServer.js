@@ -15,7 +15,7 @@ const { analyzeTelegramBotScenario, createTelegramBotExecutionPackage, runTelegr
 const { registerProjectArtifact, listProjectArtifacts, getProjectArtifact } = require('./controlPlane/services/webStudio/webStudioProjectArtifactLibraryService');
 const { runProjectArtifact, getRunHistory, listVersions, loadVersion, ensureGeneratedVersion, saveNewVersion, restoreVersion, getCurrentVersion } = require('./controlPlane/services/webStudio/webStudioArtifactRunService');
 const { runLandingPreview, listVersions: listLandingVersions, loadVersion: loadLandingVersion, saveNewVersion: saveLandingVersion, restoreVersion: restoreLandingVersion, ensureGeneratedVersion: ensureLandingGeneratedVersion, validateLandingHtml } = require('./controlPlane/services/webStudio/webStudioLandingArtifactService');
-const { subscribeLiveRun, stopLiveRun, startLiveScriptRun } = require('./controlPlane/services/webStudio/webStudioLiveRunService');
+const { subscribeLiveRun, stopLiveRun, startLiveScriptRun, sendInputToLiveRun } = require('./controlPlane/services/webStudio/webStudioLiveRunService');
 const { renderWebStudioDemoPage } = require('./webStudioDemoPage');
 const { renderWebStudioDeliveryPage } = require('./webStudioDeliveryPage');
 const { getPlatformCapabilitiesSurface } = require('./controlPlane/services/webStudio/webStudioPlatformRegistryService');
@@ -643,6 +643,29 @@ async function main() {
     try {
       const runId = String(req.params.runId || '').trim();
       const result = stopLiveRun(runId);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ ok: false, error: String(error.message || error) });
+    }
+  });
+
+  // Send stdin to live run
+  app.post('/api/demo/webstudio-order/project-artifact/:artifactId/run-live/:runId/input', async (req, res) => {
+    try {
+      const artifactId = String(req.params.artifactId || '').trim();
+      const runId = String(req.params.runId || '').trim();
+      const { input } = req.body || {};
+      
+      if (!input || typeof input !== 'string') {
+        return res.status(400).json({ ok: false, error: 'input_required' });
+      }
+      
+      const result = sendInputToLiveRun(runId, input);
+      if (!result.ok) {
+        const statusCode = result.error === 'run_not_found' ? 404 : (result.error === 'run_not_active' ? 400 : 400);
+        return res.status(statusCode).json(result);
+      }
+      
       res.json(result);
     } catch (error) {
       res.status(500).json({ ok: false, error: String(error.message || error) });

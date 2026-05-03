@@ -256,6 +256,12 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
               <span id="live-terminal-status" class="muted" style="font-size:12px;">idle</span>
             </div>
             <pre id="live-terminal-output" class="code-block" style="background:#1a1a2e;color:#d4d4d4;min-height:280px;max-height:400px;overflow:auto;border-radius:0 0 10px 10px;border-top:none;"><span class="muted">Run the script to see live output.</span></pre>
+            
+            <!-- Stdin input row -->
+            <div class="row" style="margin-top:12px;gap:8px;">
+              <input type="text" id="script-live-stdin-input" class="field" style="flex:1;min-width:200px;font-family:monospace;" placeholder="Type input for running script..." disabled />
+              <button id="script-live-send-input-btn" class="primary" disabled>Send</button>
+            </div>
             <div class="row" style="margin-top:8px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;">
               <span class="muted" style="font-size:12px;">Exit code: <strong id="terminal-exit-code">-</strong></span>
               <span class="muted" style="font-size:12px;margin-left:16px;">Duration: <strong id="terminal-duration">-</strong></span>
@@ -1200,6 +1206,15 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       $('script-run-status-text').textContent = status;
       $('stop-live-btn').disabled = status !== 'running';
       state.scriptRunStatus = status;
+      updateTerminalInputState(status);
+    }
+    
+    function updateTerminalInputState(status) {
+      const inputEl = document.getElementById("script-live-stdin-input");
+      const sendBtn = document.getElementById("script-live-send-input-btn");
+      const isRunning = status === "running" || status === "starting...";
+      if (inputEl) inputEl.disabled = !isRunning;
+      if (sendBtn) sendBtn.disabled = !isRunning;
       updateScriptStatusChips();
     }
 
@@ -1244,6 +1259,12 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
           appendTerminalLine(data.chunk, 'stderr');
         });
 
+
+        eventSource.addEventListener('stdin', (e) => {
+          const data = JSON.parse(e.data);
+          // Echo stdin from server (optional, since we already show it client-side)
+          // appendTerminalLine('> ' + data.chunk.trim(), 'stdin');
+        });
         eventSource.addEventListener('done', (e) => {
           const data = JSON.parse(e.data);
           appendTerminalLine('---', 'event');
@@ -1292,6 +1313,42 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     });
     
     $('run-live-btn').addEventListener('click', () => startLiveRun(null));
+
+    // Send stdin to live run
+    $('script-live-send-input-btn').addEventListener('click', async () => {
+      const inputEl = $('script-live-stdin-input');
+      if (!inputEl || !liveRunId) return;
+      const input = inputEl.value;
+      if (!input) return;
+      
+      // Add newline if not present
+      const inputWithNewline = input.endsWith('\\n') ? input : input + '\\n';
+      
+      // Show input in terminal
+      appendTerminalLine('> ' + input, 'stdin');
+      
+      try {
+        const result = await fetch('/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(state.currentScriptProjectArtifactId) + '/run-live/' + liveRunId + '/input', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ input: inputWithNewline }),
+        }).then(r => r.json());
+        
+        if (!result.ok) {
+          appendTerminalLine('Failed to send input: ' + (result.error || 'unknown error'), 'stderr');
+        }
+      } catch (error) {
+        appendTerminalLine('Failed to send input: ' + error.message, 'stderr');
+      }
+      
+      inputEl.value = '';
+    });
+    // Enter key sends input
+    $('script-live-stdin-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        $('script-live-send-input-btn').click();
+      }
+    });
     $('run-live-edited-btn').addEventListener('click', () => {
       const editedSource = $('script-editor-wrapper').classList.contains('hidden') ? undefined : $('script-editor').value;
       startLiveRun(editedSource);

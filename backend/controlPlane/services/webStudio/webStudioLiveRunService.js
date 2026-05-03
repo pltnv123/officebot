@@ -146,7 +146,7 @@ function startLiveScriptRun({ artifact, editedSource, saveEdited, artifactRoot }
   const proc = spawn(command[0], command.slice(1), {
     cwd,
     shell: false,
-    stdio: ['ignore', 'pipe', 'pipe'],
+    stdio: ['pipe', 'pipe', 'pipe'],
   });
 
   run.process = proc;
@@ -208,6 +208,37 @@ function getLiveRun(runId) {
   return liveRuns.get(runId) || null;
 }
 
+function sendInputToLiveRun(runId, input) {
+  const run = liveRuns.get(runId);
+  if (!run) {
+    return { ok: false, error: 'run_not_found' };
+  }
+  if (run.done) {
+    return { ok: false, error: 'run_not_active' };
+  }
+  if (!run.process || !run.process.stdin) {
+    return { ok: false, error: 'process_not_available' };
+  }
+  
+  // Limit input size
+  const maxInputSize = 4096;
+  if (input.length > maxInputSize) {
+    return { ok: false, error: 'input_too_large', max_size: maxInputSize };
+  }
+  
+  // Write to stdin
+  run.process.stdin.write(input);
+  
+  // Emit stdin event
+  pushEvent(run, { type: 'stdin', chunk: input });
+  
+  return {
+    ok: true,
+    run_id: runId,
+    bytes_written: Buffer.byteLength(input, 'utf8'),
+  };
+}
+
 module.exports = {
   liveRuns,
   makeRunId,
@@ -216,4 +247,5 @@ module.exports = {
   stopLiveRun,
   startLiveScriptRun,
   getLiveRun,
+  sendInputToLiveRun,
 };
