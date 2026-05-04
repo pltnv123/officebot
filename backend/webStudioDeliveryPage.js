@@ -215,12 +215,39 @@ function renderWebStudioDeliveryPage({ artifact }) {
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
+    .file-group {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .file-group:last-child {
+      border-bottom: none;
+    }
+    .file-group-header {
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.02);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .file-count {
+      background: rgba(148, 163, 175, 0.2);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+    }
+    .file-group-items {
+      background: rgba(0, 0, 0, 0.15);
+    }
     .file-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      padding: 10px 16px 10px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
       cursor: pointer;
       font-size: 13px;
       font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
@@ -483,15 +510,54 @@ function renderWebStudioDeliveryPage({ artifact }) {
     function renderFileList() {
       const fileListEl = document.getElementById('delivery-file-list');
       if (!fileListEl || !filesMap) return;
+      
       const editableFiles = ['script', 'bot'];
-      const fileItems = Object.entries(filesMap).map(([key, label]) => {
-        const isActive = key === currentFileKey;
-        const isEditable = editableFiles.includes(key);
-        const badge = isEditable ? '<span class="file-badge editable">editable</span>' : '<span class="file-badge">read-only</span>';
-        return '<div class="file-item' + (isActive ? ' active' : '') + '" data-file-key="' + escapeHtml(key) + '">' +
-          '<span>' + escapeHtml(label) + '</span>' + badge + '</div>';
-      }).join('');
-      fileListEl.innerHTML = fileItems;
+      
+      // Group files by category
+      const groups = {
+        'source': { label: 'Source Code', files: [], editable: true },
+        'docs': { label: 'Documentation', files: [], editable: false },
+        'data': { label: 'Data & Samples', files: [], editable: false },
+        'output': { label: 'Execution Output', files: [], editable: false },
+        'config': { label: 'Configuration', files: [], editable: false },
+      };
+      
+      // Categorize files
+      Object.entries(filesMap).forEach(([key, label]) => {
+        const lowerLabel = label.toLowerCase();
+        if (key === 'script' || key === 'bot' || lowerLabel.endsWith('.py')) {
+          groups.source.files.push([key, label]);
+        } else if (lowerLabel.endsWith('.md') || lowerLabel.endsWith('.txt') && !lowerLabel.includes('output') && !lowerLabel.includes('log')) {
+          groups.docs.files.push([key, label]);
+        } else if (lowerLabel.includes('sample') || lowerLabel.endsWith('.csv') || lowerLabel.endsWith('.json')) {
+          groups.data.files.push([key, label]);
+        } else if (lowerLabel.includes('output') || lowerLabel.includes('log')) {
+          groups.output.files.push([key, label]);
+        } else if (lowerLabel.endsWith('.env') || lowerLabel.endsWith('.yaml') || lowerLabel.endsWith('.yml')) {
+          groups.config.files.push([key, label]);
+        } else {
+          groups.docs.files.push([key, label]); // fallback
+        }
+      });
+      
+      // Render grouped tree
+      let html = '';
+      Object.values(groups).forEach(group => {
+        if (group.files.length === 0) return;
+        html += '<div class="file-group">';
+        html += '<div class="file-group-header">' + escapeHtml(group.label) + ' <span class="file-count">' + group.files.length + '</span></div>';
+        html += '<div class="file-group-items">';
+        group.files.forEach(([key, label]) => {
+          const isActive = key === currentFileKey;
+          const isEditable = group.editable && editableFiles.includes(key);
+          const badge = isEditable ? '<span class="file-badge editable">editable</span>' : '<span class="file-badge">read-only</span>';
+          html += '<div class="file-item' + (isActive ? ' active' : '') + '" data-file-key="' + escapeHtml(key) + '">' +
+            '<span>' + escapeHtml(label) + '</span>' + badge + '</div>';
+        });
+        html += '</div></div>';
+      });
+      
+      fileListEl.innerHTML = html;
       fileListEl.querySelectorAll('.file-item').forEach(item => {
         item.addEventListener('click', () => {
           const fileKey = item.dataset.fileKey;
@@ -544,7 +610,13 @@ function renderWebStudioDeliveryPage({ artifact }) {
       const resetBtn = document.getElementById('delivery-reset-btn');
       const editableFiles = ['script', 'bot'];
       
-      if (!editableFiles.includes(currentFileKey)) return;
+      if (!editableFiles.includes(currentFileKey)) {
+        // Show alert for non-editable files
+        if (enable) {
+          alert('Editing is only available for script.py and bot.py files.');
+        }
+        return;
+      }
       
       isEditing = enable;
       
@@ -579,7 +651,10 @@ function renderWebStudioDeliveryPage({ artifact }) {
       const resetBtn = document.getElementById('delivery-reset-btn');
       const editableFiles = ['script', 'bot'];
       
-      if (!editableFiles.includes(currentFileKey)) return;
+      if (!editableFiles.includes(currentFileKey)) {
+        alert('Reset is only available for editable files (script.py, bot.py).');
+        return;
+      }
       
       // Reset to original content
       editedCode = originalFileContent;
