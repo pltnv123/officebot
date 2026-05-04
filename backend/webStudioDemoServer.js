@@ -208,6 +208,75 @@ async function main() {
   });
   app.use(express.json({ limit: '1mb' }));
 
+
+  app.get('/api/state', async (req, res) => {
+    const supabaseUrl = process.env.SUPABASE_URL || '';
+    const anonKey = process.env.SUPABASE_ANON_KEY || '';
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '';
+    const runtimePort = Number(process.env.PORT || PORT);
+    const key = serviceRoleKey || anonKey;
+
+    const state = {
+      ok: true,
+      source: 'supabase_configured_runtime_probe',
+      supabase: {
+        configured: Boolean(supabaseUrl && key),
+        urlPresent: Boolean(supabaseUrl),
+        anonKeyPresent: Boolean(anonKey),
+        serviceRoleKeyPresent: Boolean(serviceRoleKey),
+        restProbeOk: false,
+        probeTable: 'tasks',
+        probeStatus: null,
+      },
+      qwd_qmd: {
+        status: 'available_via_lossless_claw_components_not_proven_standalone',
+      },
+      lossless_claw: {
+        status: 'available_on_disk_per_brain_substrate_policy',
+      },
+      runtime: {
+        server: 'webStudioDemoServer',
+        port: runtimePort,
+      },
+      timestamp: nowIso(),
+    };
+
+    if (!supabaseUrl || !key) {
+      state.ok = false;
+      state.source = 'supabase_env_missing';
+      return res.json(state);
+    }
+
+    try {
+      const endpoint = `${supabaseUrl.replace(/\/$/, '')}/rest/v1/tasks?select=id&limit=1`;
+      const response = await fetch(endpoint, {
+        headers: {
+          apikey: key,
+          Authorization: `Bearer ${key}`,
+        },
+      });
+
+      state.supabase.probeStatus = response.status;
+      state.supabase.restProbeOk = response.ok;
+      state.ok = response.ok;
+      state.source = response.ok
+        ? 'supabase_configured_runtime_probe'
+        : 'supabase_configured_probe_failed';
+
+      if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        state.supabase.error = text.slice(0, 180);
+      }
+
+      return res.json(state);
+    } catch (error) {
+      state.ok = false;
+      state.source = 'supabase_configured_probe_exception';
+      state.supabase.error = String(error?.message || error).slice(0, 180);
+      return res.json(state);
+    }
+  });
+
   app.get('/webstudio/demo', (req, res) => {
     const orderId = String(req.query.orderId || req.query.order_id || '').trim();
     res.type('html').send(renderWebStudioDemoPage({ orderId }));
