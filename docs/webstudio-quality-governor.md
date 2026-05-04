@@ -66,6 +66,27 @@ plan/build → verify → reject/fix → re-verify → reject/fix → final veri
 | **Delivery/workspace** | Static review + task smoke + regression + runtime + **delivery page proof** + artifact flow |
 | **Persistence/state** | Static review + task smoke + regression + **post-refresh proof** + no null/undefined errors |
 | **Orchestration/brain** | Static review + role alignment + no circular dependencies |
+| **Organism memory** | Persistent env + /api/state JSON + Supabase probe + no secrets |
+
+### Organism memory verification
+
+**Required for any stateful/runtime WebStudio task:**
+
+- [ ] Persistent env exists: `~/.openclaw/secrets/webstudio-supabase.env`
+- [ ] Permissions are 600
+- [ ] Env NOT in /tmp
+- [ ] /api/state returns JSON (not HTML, not 404)
+- [ ] `supabase.configured = true`
+- [ ] `supabase.restProbeOk = true`
+- [ ] `supabase.probeStatus = 200`
+- [ ] No secrets leaked in response
+
+**Rejection criteria:**
+- /api/state missing, HTML, or non-JSON → REJECTED
+- supabase.configured != true → REJECTED
+- supabase.restProbeOk != true → REJECTED
+- Env only in /tmp → REJECTED
+- Secrets detected → BLOCKED
 
 ### Browser proof requirements
 

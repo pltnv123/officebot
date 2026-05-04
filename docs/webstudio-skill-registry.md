@@ -1,6 +1,6 @@
 # WebStudio Skill Registry
 
-Last updated: 2026-05-04T16:00:00Z
+Last updated: 2026-05-04T18:54:00Z
 
 ## Installed Skills
 
@@ -9,6 +9,7 @@ Last updated: 2026-05-04T16:00:00Z
 | webstudio-skill-curator | Skill discovery/install | `/home/antonbot/.openclaw/workspace/skills/webstudio-skill-curator/` | ✅ No secrets, no credentials | 2026-05-04 |
 | webstudio-task-contract-enforcer | Task contract enforcement | `/home/antonbot/.openclaw/workspace/skills/webstudio-task-contract-enforcer/` | ✅ No secrets, no credentials | 2026-05-04 |
 | webstudio-brain-substrate-check | Verify Supabase/QWD/lossless/skills | `/home/antonbot/.openclaw/workspace/skills/webstudio-brain-substrate-check/` | ✅ No secrets, no credentials | 2026-05-04 |
+| webstudio-organism-memory-check | Verify organism memory (env, /api/state, Supabase probe) | `/home/antonbot/.openclaw/workspace/office/skills/webstudio-organism-memory-check/` | ✅ No secrets, no credentials | 2026-05-04 |
 
 ## Custom WebStudio Skills
 
@@ -17,6 +18,7 @@ Last updated: 2026-05-04T16:00:00Z
 | webstudio-skill-curator | Discover, inspect, install OpenClaw skills | workspace/skills/webstudio-skill-curator/ | ✅ Active |
 | webstudio-task-contract-enforcer | Enforce task contracts, block premature COMPLETE | workspace/skills/webstudio-task-contract-enforcer/ | ✅ Active |
 | webstudio-brain-substrate-check | Verify Supabase/QWD/lossless/skills before brain/governance tasks | workspace/skills/webstudio-brain-substrate-check/ | ✅ Active |
+| webstudio-organism-memory-check | Verify persistent env, /api/state JSON, Supabase probe, no secrets | office/skills/webstudio-organism-memory-check/ | ✅ Active |
 | webstudio-risk-classifier | Risk classification | workspace/skills/webstudio-risk-classifier/ | ✅ Active |
 | webstudio-quality-gate | Quality gate enforcement | workspace/skills/webstudio-quality-gate/ | ✅ Active |
 | webstudio-smoke-author | Create/maintain smoke tests | workspace/skills/webstudio-smoke-author/ | ✅ Active |

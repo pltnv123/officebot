@@ -11,7 +11,7 @@ The WebStudio "brain" is **not only** markdown files, workspaces, and skills. It
 | 1 | Latest user instruction | Immediate intent, overrides prior state |
 | 2 | Task Contract | Formalizes requirements, acceptance criteria |
 | 3 | Runtime/browser/test evidence | Live proof of behavior |
-| 4 | Supabase | Durable runtime state for workflows/projects/operators |
+| 4 | Supabase + /api/state | Durable runtime state + live health probe |
 | 5 | Git committed code/docs | Source of truth for implementation |
 | 6 | Workspace brain files | SOUL, AGENTS, TOOLS, BOOT, HEARTBEAT, MEMORY |
 | 7 | QWD/QMD | Retrieval knowledge: architecture, decisions, constraints |

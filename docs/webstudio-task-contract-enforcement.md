@@ -138,3 +138,21 @@ Quality Governor:
 - Skill `webstudio-task-contract-enforcer` implements it
 - All specialist AGENTS.md include TASK CONTRACT RULE
 - Task Contracts saved to `docs/acceptance/<task>-contract.md`
+
+## Organism Memory Contract Check
+
+For any stateful/runtime WebStudio task, Task Contract must include organism memory verification:
+
+**Checklist:**
+- [ ] Persistent env file exists: `~/.openclaw/secrets/webstudio-supabase.env`
+- [ ] Permissions are 600
+- [ ] /api/state returns JSON
+- [ ] supabase.configured = true
+- [ ] supabase.restProbeOk = true
+- [ ] No secrets leaked
+
+**Rejection Rules:**
+- Task touches runtime state but organism check skipped → REJECTED
+- /api/state returns HTML or 404 → REJECTED
+- Env file only in /tmp → REJECTED
+- Secrets detected → BLOCKED
