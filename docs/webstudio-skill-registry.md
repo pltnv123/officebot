@@ -1,0 +1,56 @@
+# WebStudio Skill Registry
+
+Last updated: 2026-05-04T16:00:00Z
+
+## Installed Skills
+
+| Skill | Purpose | Location | Security Notes | Last Checked |
+|-------|---------|----------|----------------|--------------|
+| webstudio-skill-curator | Skill discovery/install | `/home/antonbot/.openclaw/workspace/skills/webstudio-skill-curator/` | ✅ No secrets, no credentials | 2026-05-04 |
+| webstudio-task-contract-enforcer | Task contract enforcement | `/home/antonbot/.openclaw/workspace/skills/webstudio-task-contract-enforcer/` | ✅ No secrets, no credentials | 2026-05-04 |
+
+## Custom WebStudio Skills
+
+| Skill | Purpose | Location | Status |
+|-------|---------|----------|--------|
+| webstudio-skill-curator | Discover, inspect, install OpenClaw skills | workspace/skills/webstudio-skill-curator/ | ✅ Active |
+| webstudio-task-contract-enforcer | Enforce task contracts, block premature COMPLETE | workspace/skills/webstudio-task-contract-enforcer/ | ✅ Active |
+
+## ClawHub Skills
+
+| Skill | Purpose | Source | Security Review |
+|-------|---------|--------|-----------------|
+| (none installed) | - | - | - |
+
+## Bundled/OpenClaw Skills Available
+
+Run `openclaw skills list --eligible` to see current list.
+
+## Skill Search Queries Reference
+
+| Task Type | Query |
+|-----------|-------|
+| Browser automation | `browser`, `playwright`, `puppeteer` |
+| GitHub integration | `github`, `git`, `pr`, `issue` |
+| Testing/smoke | `test`, `smoke`, `regression`, `jest` |
+| Deployment/release | `deploy`, `release`, `publish` |
+| Documentation | `docs`, `markdown`, `api` |
+| Security audit | `security`, `audit`, `secret`, `scan` |
+| API integration | `api`, `rest`, `graphql`, `http` |
+| Data processing | `json`, `csv`, `parse`, `transform` |
+
+## Security Policy
+
+- Third-party skills are UNTRUSTED by default
+- Never install without inspecting SKILL.md
+- Secret requirements must be flagged
+- Obfuscated scripts are a red flag (REJECT)
+- Credential access skills require explicit approval (REJECT otherwise)
+- Crypto/wallet skills are REJECTED
+- Quality Governor approval required for risky skills
+
+## Maintenance
+
+- Run `openclaw skills check` after installing/updating skills
+- Update this registry after each skill change
+- Review installed skills quarterly for security updates
