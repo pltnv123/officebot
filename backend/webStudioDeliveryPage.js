@@ -359,6 +359,7 @@ function renderWebStudioDeliveryPage({ artifact }) {
             <div class="toolbar-group">
               <button id="delivery-edit-btn" class="toolbar-btn">✏️ Edit</button>
               <button id="delivery-save-btn" class="toolbar-btn hidden">💾 Save</button>
+              <button id="delivery-reset-btn" class="toolbar-btn hidden">↩️ Reset</button>
               <button id="delivery-copy-code-btn" class="toolbar-btn">📋 Copy</button>
             </div>
           </div>
@@ -427,6 +428,7 @@ function renderWebStudioDeliveryPage({ artifact }) {
     
     let currentFileKey = defaultFileKey || 'script';
     let currentCode = '';
+    let originalFileContent = '';
     let isEditing = false;
     let editedCode = '';
 
@@ -516,6 +518,7 @@ function renderWebStudioDeliveryPage({ artifact }) {
       isEditing = false;
       if (editBtn) editBtn.classList.remove('hidden');
       if (saveBtn) saveBtn.classList.add('hidden');
+      if (resetBtn) resetBtn.classList.add('hidden');
       
       contentEl.innerHTML = '<pre class="muted">Loading...</pre>';
       try {
@@ -523,8 +526,12 @@ function renderWebStudioDeliveryPage({ artifact }) {
         if (!response.ok) throw new Error('HTTP ' + response.status);
         const text = await response.text();
         currentCode = text;
+        originalFileContent = text;
         editedCode = text;
         contentEl.innerHTML = '<pre>' + escapeHtml(text) + '</pre>';
+        // Hide reset button when file is loaded (no edits yet)
+        const resetBtn = document.getElementById('delivery-reset-btn');
+        if (resetBtn) resetBtn.classList.add('hidden');
       } catch (error) {
         contentEl.innerHTML = '<pre class="muted">Error loading file</pre>';
       }
@@ -534,6 +541,7 @@ function renderWebStudioDeliveryPage({ artifact }) {
       const contentEl = document.getElementById('delivery-code-content');
       const editBtn = document.getElementById('delivery-edit-btn');
       const saveBtn = document.getElementById('delivery-save-btn');
+      const resetBtn = document.getElementById('delivery-reset-btn');
       const editableFiles = ['script', 'bot'];
       
       if (!editableFiles.includes(currentFileKey)) return;
@@ -549,10 +557,12 @@ function renderWebStudioDeliveryPage({ artifact }) {
         textarea.focus();
         if (editBtn) editBtn.classList.add('hidden');
         if (saveBtn) saveBtn.classList.remove('hidden');
+        if (resetBtn && editedCode !== originalFileContent) resetBtn.classList.remove('hidden');
       } else {
         contentEl.innerHTML = '<pre>' + escapeHtml(editedCode) + '</pre>';
         if (editBtn) editBtn.classList.remove('hidden');
         if (saveBtn) saveBtn.classList.add('hidden');
+        if (resetBtn && editedCode !== originalFileContent) resetBtn.classList.remove('hidden');
       }
     }
 
@@ -562,6 +572,29 @@ function renderWebStudioDeliveryPage({ artifact }) {
 
     document.getElementById('delivery-save-btn')?.addEventListener('click', () => {
       toggleEditMode(false);
+    });
+
+    document.getElementById('delivery-reset-btn')?.addEventListener('click', () => {
+      const contentEl = document.getElementById('delivery-code-content');
+      const resetBtn = document.getElementById('delivery-reset-btn');
+      const editableFiles = ['script', 'bot'];
+      
+      if (!editableFiles.includes(currentFileKey)) return;
+      
+      // Reset to original content
+      editedCode = originalFileContent;
+      
+      if (isEditing) {
+        // Update textarea value
+        const textarea = contentEl.querySelector('textarea');
+        if (textarea) textarea.value = editedCode;
+      } else {
+        // Update pre display
+        contentEl.innerHTML = '<pre>' + escapeHtml(editedCode) + '</pre>';
+      }
+      
+      // Hide reset button after reset
+      if (resetBtn) resetBtn.classList.add('hidden');
     });
 
     document.getElementById('delivery-copy-code-btn')?.addEventListener('click', async () => {

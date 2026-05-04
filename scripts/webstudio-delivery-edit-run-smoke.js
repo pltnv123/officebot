@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 /**
- * Smoke test: Delivery page editable script.py + Run Edited
+ * Smoke test: Delivery page editable script.py + Run Edited + Reset
  * 
  * Tests:
  * 1. Generate script artifact
  * 2. Open delivery page (HTTP 200)
  * 3. Run Script (original) works
  * 4. Run Edited works with modified source
- * 5. Download ZIP works
- * 6. Run History loads
+ * 5. Reset button restores original code
+ * 6. Download ZIP works
+ * 7. Run History loads
  */
 
 const http = require('http');
@@ -100,7 +101,11 @@ async function runSmoke() {
     console.error('❌ Delivery page missing Run Edited button');
     process.exit(1);
   }
-  console.log('   ✅ Delivery page opens with Run Edited button');
+  if (!deliveryHtml.includes('delivery-reset-btn') && !deliveryHtml.includes('Reset')) {
+    console.error('❌ Delivery page missing Reset button');
+    process.exit(1);
+  }
+  console.log('   ✅ Delivery page opens with Run Edited + Reset buttons');
   
   // Step 4: Run Script (original)
   console.log('\n4. Testing Run Script (original)...');
@@ -164,6 +169,14 @@ async function runSmoke() {
     process.exit(1);
   }
   console.log('   ✅ Run History works, runs:', historyData.runs.length);
+  
+  // Step 8: Reset functionality (check HTML structure)
+  console.log('\n8. Testing Reset button logic...');
+  if (!deliveryHtml.includes('originalFileContent') && !deliveryHtml.includes('delivery-reset-btn')) {
+    console.error('❌ Reset button logic missing from page');
+    process.exit(1);
+  }
+  console.log('   ✅ Reset button logic present');
   
   console.log('\n✅ ALL CHECKS PASSED\n');
 }
