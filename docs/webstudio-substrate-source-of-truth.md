@@ -76,9 +76,38 @@ chmod 700 ~/.openclaw/secrets/
 
 ### Startup
 
+**Primary (systemd):**
+```bash
+systemctl --user restart webstudio-demo.service
+systemctl --user status webstudio-demo.service
+```
+
+**Fallback (manual):**
 ```bash
 bash scripts/start-webstudio-demo-with-organism-env.sh
 ```
+
+## QWD/QMD and lossless-claw Status
+
+### lossless-claw
+
+**Status:** ✅ Operational
+
+- Available on disk: `~/.openclaw/extensions/lossless-claw/`
+- Skill: `lossless-claw` (ready)
+- Memory search: `openclaw memory search "<query>"`
+- Recall tools: `lcm_grep`, `lcm_expand_query`, `/lossless`
+
+### QWD/QMD Standalone
+
+**Status:** ⚠️ Integrated via lossless-claw (no standalone CLI)
+
+- No `openclaw qwd` or `openclaw qmd` commands exist
+- QWD/QMD knowledge is accessed via lossless-claw components
+- Memory search works: `openclaw memory search "WebStudio"` returns results
+
+**Do not claim QWD/QMD fully working as standalone CLI.**
+Report as: "lossless available, QWD/QMD via lossless-claw components".
 
 ## Brain Substrate Components
 

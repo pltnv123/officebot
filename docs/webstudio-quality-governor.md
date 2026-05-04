@@ -81,12 +81,17 @@ plan/build → verify → reject/fix → re-verify → reject/fix → final veri
 - [ ] `supabase.probeStatus = 200`
 - [ ] No secrets leaked in response
 
+**Runtime owner verification:**
+- [ ] Primary: `systemctl --user status webstudio-demo.service` (active)
+- [ ] Fallback: startup script works if systemd unavailable
+
 **Rejection criteria:**
 - /api/state missing, HTML, or non-JSON → REJECTED
 - supabase.configured != true → REJECTED
 - supabase.restProbeOk != true → REJECTED
 - Env only in /tmp → REJECTED
 - Secrets detected → BLOCKED
+- systemd service blocked for permanent runtime milestone → CONDITIONALLY ACCEPTED or REJECTED
 
 ### Browser proof requirements
 

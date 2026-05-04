@@ -37,7 +37,18 @@ SUPABASE_SERVICE_ROLE_KEY=<redacted>
 
 ## Startup Methods
 
-### Method 1: Startup Script (Recommended)
+### Method 1: Systemd User Service (PRIMARY)
+
+```bash
+systemctl --user restart webstudio-demo.service
+systemctl --user status webstudio-demo.service
+```
+
+Service file: `~/.config/systemd/user/webstudio-demo.service`
+
+**This is the primary runtime owner for WebStudio demo.**
+
+### Method 2: Startup Script (Fallback/Manual Recovery)
 
 ```bash
 bash scripts/start-webstudio-demo-with-organism-env.sh
@@ -50,14 +61,7 @@ This script:
 - Writes logs to `/tmp/webstudio-demo/server-8787.log`
 - Does not print secrets
 
-### Method 2: Systemd User Service (Optional)
-
-```bash
-systemctl --user restart webstudio-demo.service
-systemctl --user status webstudio-demo.service
-```
-
-Service file: `~/.config/systemd/user/webstudio-demo.service`
+**Use this for manual recovery when systemd is unavailable.**
 
 ### Method 3: Manual (Fallback)
 
