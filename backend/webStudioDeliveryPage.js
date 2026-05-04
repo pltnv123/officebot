@@ -237,18 +237,36 @@ function renderWebStudioDeliveryPage({ artifact }) {
     .code-filename { font-weight: 600; font-size: 13px; font-family: 'SF Mono', 'Consolas', 'Monaco', monospace; color: #e2e8f0; }
     .code-content {
       flex: 1;
-      padding: 24px;
+      padding: 0;
       font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
       font-size: 14px;
       line-height: 1.8;
       color: #e2e8f0;
       max-height: 600px;
-      overflow: auto;
-      white-space: pre-wrap;
-      word-break: break-word;
-      letter-spacing: 0.2px;
+      overflow: hidden;
+      background: var(--code-bg);
     }
-    .code-content pre { margin: 0; }
+    .code-content textarea {
+      width: 100%;
+      height: 600px;
+      min-height: 400px;
+      padding: 24px;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: vertical;
+      font-family: inherit;
+      font-size: inherit;
+      line-height: inherit;
+      color: inherit;
+      white-space: pre;
+      overflow: auto;
+    }
+    .code-content pre {
+      margin: 0;
+      padding: 24px;
+    }
+    .toolbar-group { display: flex; gap: 8px; }
     .toolbar-btn { padding: 6px 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--panel-border); border-radius: 8px; color: var(--text); font-size: 12px; cursor: pointer; transition: all 0.15s; }
     .toolbar-btn:hover { background: rgba(255, 255, 255, 0.1); }
     .console-panel { background: #0a0f1a; border: 1px solid var(--panel-border); border-radius: 12px; overflow: hidden; box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3); }
@@ -321,6 +339,7 @@ function renderWebStudioDeliveryPage({ artifact }) {
       </div>
       <div class="hero-actions">
         ${canRun ? `<button id="run-btn" class="btn btn-primary">${escapeHtml(runButtonText)}</button>` : ''}
+        ${canRun ? `<button id="run-edited-btn" class="btn btn-secondary">📝 Run Edited</button>` : ''}
         ${downloadUrl ? `<a class="linkish" href="${escapeHtml(downloadUrl)}" style="text-decoration:none;"><button class="btn btn-secondary">📥 Download ZIP</button></a>` : ''}
         <a class="linkish" href="/webstudio/demo" style="text-decoration:none;"><button class="btn btn-secondary">← Back to Demo</button></a>
       </div>
@@ -337,7 +356,11 @@ function renderWebStudioDeliveryPage({ artifact }) {
         <div class="code-panel">
           <div class="code-header">
             <span id="delivery-file-title" class="code-filename">script.py</span>
-            <button id="delivery-copy-code-btn" class="toolbar-btn">📋 Copy</button>
+            <div class="toolbar-group">
+              <button id="delivery-edit-btn" class="toolbar-btn">✏️ Edit</button>
+              <button id="delivery-save-btn" class="toolbar-btn hidden">💾 Save</button>
+              <button id="delivery-copy-code-btn" class="toolbar-btn">📋 Copy</button>
+            </div>
           </div>
           <div id="delivery-code-content" class="code-content"><pre class="muted">Loading code...</pre></div>
         </div>
@@ -400,9 +423,12 @@ function renderWebStudioDeliveryPage({ artifact }) {
     const runHistoryContainer = document.getElementById('run-history-container');
     const runEndpoint = ${JSON.stringify(runEndpoint)};
     const runHistoryEndpoint = ${JSON.stringify(runHistoryEndpoint)};
+    const runEditedEndpoint = ${JSON.stringify(runEndpoint + '?source=edited')};
     
     let currentFileKey = defaultFileKey || 'script';
     let currentCode = '';
+    let isEditing = false;
+    let editedCode = '';
 
     function escapeHtml(value) {
       return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -481,19 +507,62 @@ function renderWebStudioDeliveryPage({ artifact }) {
       const route = safeRoutes[fileKey];
       const titleEl = document.getElementById('delivery-file-title');
       const contentEl = document.getElementById('delivery-code-content');
+      const editBtn = document.getElementById('delivery-edit-btn');
+      const saveBtn = document.getElementById('delivery-save-btn');
       if (!route || !contentEl) return;
       if (titleEl) titleEl.textContent = filesMap[fileKey] || fileKey;
+      
+      // Reset edit mode when switching files
+      isEditing = false;
+      if (editBtn) editBtn.classList.remove('hidden');
+      if (saveBtn) saveBtn.classList.add('hidden');
+      
       contentEl.innerHTML = '<pre class="muted">Loading...</pre>';
       try {
         const response = await fetch(route);
         if (!response.ok) throw new Error('HTTP ' + response.status);
         const text = await response.text();
         currentCode = text;
+        editedCode = text;
         contentEl.innerHTML = '<pre>' + escapeHtml(text) + '</pre>';
       } catch (error) {
         contentEl.innerHTML = '<pre class="muted">Error loading file</pre>';
       }
     }
+
+    function toggleEditMode(enable) {
+      const contentEl = document.getElementById('delivery-code-content');
+      const editBtn = document.getElementById('delivery-edit-btn');
+      const saveBtn = document.getElementById('delivery-save-btn');
+      const editableFiles = ['script', 'bot'];
+      
+      if (!editableFiles.includes(currentFileKey)) return;
+      
+      isEditing = enable;
+      
+      if (enable) {
+        const textarea = document.createElement('textarea');
+        textarea.value = editedCode;
+        textarea.addEventListener('input', () => { editedCode = textarea.value; });
+        contentEl.innerHTML = '';
+        contentEl.appendChild(textarea);
+        textarea.focus();
+        if (editBtn) editBtn.classList.add('hidden');
+        if (saveBtn) saveBtn.classList.remove('hidden');
+      } else {
+        contentEl.innerHTML = '<pre>' + escapeHtml(editedCode) + '</pre>';
+        if (editBtn) editBtn.classList.remove('hidden');
+        if (saveBtn) saveBtn.classList.add('hidden');
+      }
+    }
+
+    document.getElementById('delivery-edit-btn')?.addEventListener('click', () => {
+      toggleEditMode(true);
+    });
+
+    document.getElementById('delivery-save-btn')?.addEventListener('click', () => {
+      toggleEditMode(false);
+    });
 
     document.getElementById('delivery-copy-code-btn')?.addEventListener('click', async () => {
       if (!currentCode) return;
@@ -507,6 +576,7 @@ function renderWebStudioDeliveryPage({ artifact }) {
     });
 
     ${canRun ? `
+    // Run Script (original)
     runBtn?.addEventListener('click', async () => {
       runBtn.disabled = true;
       runBtn.classList.add('running');
@@ -535,6 +605,54 @@ function renderWebStudioDeliveryPage({ artifact }) {
         if (runOutput) { runOutput.textContent = 'Run error: ' + error.message; runOutput.className = 'console-output stderr'; }
         if (runStatus) runStatus.textContent = 'Error';
         runBtn.disabled = false; runBtn.classList.remove('running'); runBtn.textContent = '▶ Run Again';
+        loadRunHistory();
+      }
+    });
+
+    // Run Edited
+    document.getElementById('run-edited-btn')?.addEventListener('click', async () => {
+      const runEditedBtn = document.getElementById('run-edited-btn');
+      const editableFiles = ['script', 'bot'];
+      
+      if (!editableFiles.includes(currentFileKey)) {
+        alert('Editing is only available for script.py and bot.py files.');
+        return;
+      }
+      
+      runEditedBtn.disabled = true;
+      runEditedBtn.textContent = 'Running...';
+      if (runResultPanel) runResultPanel.classList.remove('hidden');
+      if (runPrompt) runPrompt.classList.add('hidden');
+      if (runOutput) { runOutput.textContent = 'Starting execution...'; runOutput.className = 'console-output'; }
+      if (runStatus) runStatus.textContent = 'Running...';
+      
+      try {
+        const response = await fetch(runEditedEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ edited_source: editedCode })
+        });
+        const result = await response.json();
+        if (!result.ok) {
+          if (runOutput) { runOutput.textContent = 'Run failed: ' + (result.error || result.reason || 'Unknown error'); runOutput.className = 'console-output stderr'; }
+          if (runStatus) runStatus.textContent = 'Failed';
+          runEditedBtn.disabled = false;
+          runEditedBtn.textContent = '📝 Run Edited';
+          loadRunHistory(); return;
+        }
+        const durationSec = (result.duration_ms / 1000).toFixed(2);
+        if (runOutput) { runOutput.textContent = result.stdout || '(no output)'; runOutput.className = 'console-output stdout'; }
+        if (runStatus) runStatus.textContent = '✅ Completed';
+        if (runExitCode) runExitCode.textContent = result.exit_code;
+        if (runDuration) runDuration.textContent = durationSec + 's';
+        runEditedBtn.disabled = false;
+        runEditedBtn.textContent = '📝 Run Edited';
+        loadRunHistory();
+      } catch (error) {
+        if (runOutput) { runOutput.textContent = 'Run error: ' + error.message; runOutput.className = 'console-output stderr'; }
+        if (runStatus) runStatus.textContent = 'Error';
+        runEditedBtn.disabled = false;
+        runEditedBtn.textContent = '📝 Run Edited';
         loadRunHistory();
       }
     });` : ''}
