@@ -906,28 +906,40 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       const editableFiles = ['script.py', 'bot.py', 'README.md', 'sample_input.csv', 'sample_input.txt', 'input.csv', 'input.txt'];
       const files = Object.values(surface.files || {}).filter(f => f);
       
-      // Group files by category
+      // Group files by virtual paths
       const groups = {
-        'source': { label: '🐍 Source Code', files: [], editable: true },
-        'docs': { label: '📄 Documentation', files: [], editable: false },
-        'data': { label: '📊 Data & Samples', files: [], editable: false },
-        'output': { label: '📜 Execution Output', files: [], editable: false },
-        'config': { label: '⚙️ Configuration', files: [], editable: false },
+        'src': { label: '/src — Source', files: [], editable: true },
+        'docs': { label: '/docs — Documentation', files: [], editable: false },
+        'input': { label: '/input — Input', files: [], editable: false },
+        'output': { label: '/output — Output', files: [], editable: false },
+        'logs': { label: '/logs — Logs', files: [], editable: false },
+        'meta': { label: '/meta — Metadata', files: [], editable: false },
       };
       
-      // Categorize files
+      // Categorize files by exact virtual path rules
       files.forEach(fileName => {
         const lower = fileName.toLowerCase();
-        if (fileName === 'script.py' || lower.endsWith('.py')) {
-          groups.source.files.push(fileName);
-        } else if (lower.endsWith('.md') || (lower.endsWith('.txt') && !lower.includes('output') && !lower.includes('log'))) {
+        // /src — Source: script.py, bot.py, other .py (read-only unless whitelisted)
+        if (fileName === 'script.py' || fileName === 'bot.py') {
+          groups.src.files.push(fileName);
+        } else if (lower.endsWith('.py')) {
+          groups.src.files.push(fileName); // other .py are read-only
+        // /docs — Documentation: README.md, other .md
+        } else if (lower.endsWith('.md')) {
           groups.docs.files.push(fileName);
-        } else if (lower.includes('sample') || lower.endsWith('.csv') || lower.endsWith('.json')) {
-          groups.data.files.push(fileName);
-        } else if (lower.includes('output') || lower.includes('log')) {
+        // /input — Input: sample_input.*, input.*
+        } else if ((lower.includes('sample_input') || lower.startsWith('input.')) && (lower.endsWith('.csv') || lower.endsWith('.txt'))) {
+          groups.input.files.push(fileName);
+        // /output — Output: actual_output.*, sample_output.*
+        } else if (lower.includes('output') && (lower.endsWith('.txt') || lower.endsWith('.csv'))) {
           groups.output.files.push(fileName);
-        } else if (lower.endsWith('.env') || lower.endsWith('.yaml') || lower.endsWith('.yml')) {
-          groups.config.files.push(fileName);
+        // /logs — Logs: *.log
+        } else if (lower.endsWith('.log')) {
+          groups.logs.files.push(fileName);
+        // /meta — Metadata: manifest.json
+        } else if (lower === 'manifest.json' || lower.endsWith('.json')) {
+          groups.meta.files.push(fileName);
+        // Fallback to docs
         } else {
           groups.docs.files.push(fileName);
         }

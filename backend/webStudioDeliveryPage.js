@@ -527,33 +527,43 @@ function renderWebStudioDeliveryPage({ artifact }) {
       const fileListEl = document.getElementById('delivery-file-list');
       if (!fileListEl || !filesMap) return;
       
-      // Group files by category
+      // Group files by virtual paths
       const groups = {
-        'source': { label: '🐍 Source Code', files: [], editable: true },
-        'docs': { label: '📄 Documentation', files: [], editable: false },
-        'data': { label: '📊 Data & Samples', files: [], editable: false },
-        'output': { label: '📜 Execution Output', files: [], editable: false },
-        'config': { label: '⚙️ Configuration', files: [], editable: false },
+        'src': { label: '/src — Source', files: [], editable: true },
+        'docs': { label: '/docs — Documentation', files: [], editable: false },
+        'input': { label: '/input — Input', files: [], editable: false },
+        'output': { label: '/output — Output', files: [], editable: false },
+        'logs': { label: '/logs — Logs', files: [], editable: false },
+        'meta': { label: '/meta — Metadata', files: [], editable: false },
       };
       
-      // Categorize files
+      // Categorize files by exact virtual path rules
       Object.entries(filesMap).forEach(([key, label]) => {
         const lowerLabel = label.toLowerCase();
         const filename = filesMap[key] || label;
         const isEditable = isSafeEditableArtifactFile(filename);
         
-        if (key === 'script' || key === 'bot' || lowerLabel.endsWith('.py')) {
-          groups.source.files.push([key, label, isEditable]);
-        } else if (lowerLabel.endsWith('.md') || lowerLabel.endsWith('.txt') && !lowerLabel.includes('output') && !lowerLabel.includes('log')) {
+        // /src — Source: script.py, bot.py
+        if (key === 'script' || key === 'bot' || label === 'script.py' || label === 'bot.py') {
+          groups.src.files.push([key, label, isEditable]);
+        // /docs — Documentation: README.md, other .md
+        } else if (lowerLabel.endsWith('.md')) {
           groups.docs.files.push([key, label, isEditable]);
-        } else if (lowerLabel.includes('sample') || lowerLabel.endsWith('.csv') || lowerLabel.endsWith('.json')) {
-          groups.data.files.push([key, label, isEditable]);
-        } else if (lowerLabel.includes('output') || lowerLabel.includes('log')) {
+        // /input — Input: sample_input.*, input.*
+        } else if ((lowerLabel.includes('sample_input') || lowerLabel.startsWith('input.')) && (lowerLabel.endsWith('.csv') || lowerLabel.endsWith('.txt'))) {
+          groups.input.files.push([key, label, isEditable]);
+        // /output — Output: actual_output.*, sample_output.*
+        } else if (lowerLabel.includes('output') && (lowerLabel.endsWith('.txt') || lowerLabel.endsWith('.csv'))) {
           groups.output.files.push([key, label, isEditable]);
-        } else if (lowerLabel.endsWith('.env') || lowerLabel.endsWith('.yaml') || lowerLabel.endsWith('.yml')) {
-          groups.config.files.push([key, label, isEditable]);
+        // /logs — Logs: *.log
+        } else if (lowerLabel.endsWith('.log')) {
+          groups.logs.files.push([key, label, isEditable]);
+        // /meta — Metadata: manifest.json
+        } else if (lowerLabel === 'manifest.json' || lowerLabel.endsWith('.json')) {
+          groups.meta.files.push([key, label, isEditable]);
+        // Fallback to docs
         } else {
-          groups.docs.files.push([key, label, isEditable]); // fallback
+          groups.docs.files.push([key, label, isEditable]);
         }
       });
       
