@@ -888,22 +888,55 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       if (!fileListEl || !surface.files) return;
       
       const editableFiles = ['script.py'];
-      // surface.files is { script: 'script.py', readme: 'README.md', ... }
-      // We need the actual filenames (values), not the keys
-      const files = Object.values(surface.files || {}).filter(f => f); // filter out nulls
+      const files = Object.values(surface.files || {}).filter(f => f);
       
-      const fileItems = files.map(fileName => {
-        const isEditable = editableFiles.includes(fileName);
-        const isSelected = fileName === state.currentOpenFile;
-        const badge = isEditable ? '<span class="chip" style="font-size:10px;padding:2px 6px;margin-left:6px;">editable</span>' : '<span class="chip" style="font-size:10px;padding:2px 6px;margin-left:6px;background:rgba(156,163,175,0.2);">read-only</span>';
-        const selectedClass = isSelected ? ' style="background:rgba(59,130,246,0.2);border-left:3px solid #3b82f6;"' : '';
-        return '<div class="file-item" data-file="' + safe(fileName) + '" tabindex="0"' + selectedClass + ' role="button" aria-label="Open ' + safe(fileName) + '" style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;display:flex;align-items:center;justify-content:space-between;">' +
-          '<span style="font-family:monospace;font-size:13px;">' + safe(fileName) + '</span>' +
-          badge +
-          '</div>';
-      }).join('');
+      // Group files by category
+      const groups = {
+        'source': { label: '🐍 Source', files: [], editable: true },
+        'docs': { label: '📄 Documentation', files: [], editable: false },
+        'data': { label: '📊 Data & Samples', files: [], editable: false },
+        'output': { label: '📜 Execution Output', files: [], editable: false },
+        'config': { label: '⚙️ Configuration', files: [], editable: false },
+      };
       
-      fileListEl.innerHTML = fileItems;
+      // Categorize files
+      files.forEach(fileName => {
+        const lower = fileName.toLowerCase();
+        if (fileName === 'script.py' || lower.endsWith('.py')) {
+          groups.source.files.push(fileName);
+        } else if (lower.endsWith('.md') || (lower.endsWith('.txt') && !lower.includes('output') && !lower.includes('log'))) {
+          groups.docs.files.push(fileName);
+        } else if (lower.includes('sample') || lower.endsWith('.csv') || lower.endsWith('.json')) {
+          groups.data.files.push(fileName);
+        } else if (lower.includes('output') || lower.includes('log')) {
+          groups.output.files.push(fileName);
+        } else if (lower.endsWith('.env') || lower.endsWith('.yaml') || lower.endsWith('.yml')) {
+          groups.config.files.push(fileName);
+        } else {
+          groups.docs.files.push(fileName);
+        }
+      });
+      
+      // Render grouped tree
+      let html = '';
+      Object.values(groups).forEach(group => {
+        if (group.files.length === 0) return;
+        html += '<div style="border-bottom:1px solid rgba(255,255,255,0.03);">';
+        html += '<div style="padding:8px 12px;background:rgba(255,255,255,0.02);font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;justify-content:space-between;">' +
+          group.label + ' <span style="background:rgba(148,163,175,0.2);padding:2px 8px;border-radius:10px;font-size:9px;">' + group.files.length + '</span></div>';
+        html += '<div style="background:rgba(0,0,0,0.15);">';
+        group.files.forEach(fileName => {
+          const isEditable = group.editable && editableFiles.includes(fileName);
+          const isSelected = fileName === state.currentOpenFile;
+          const badge = isEditable ? '<span class="chip" style="font-size:9px;padding:2px 6px;margin-left:6px;background:rgba(59,130,246,0.2);">editable</span>' : '<span class="chip" style="font-size:9px;padding:2px 6px;margin-left:6px;background:rgba(156,163,175,0.2);">read-only</span>';
+          const selectedStyle = isSelected ? 'background:rgba(59,130,246,0.2);border-left:3px solid #3b82f6;' : '';
+          html += '<div class="file-item" data-file="' + safe(fileName) + '" tabindex="0" role="button" aria-label="Open ' + safe(fileName) + '" style="padding:8px 12px 8px 20px;border-bottom:1px solid rgba(255,255,255,0.02);cursor:pointer;display:flex;align-items:center;justify-content:space-between;' + selectedStyle + '">' +
+            '<span style="font-family:monospace;font-size:12px;">' + safe(fileName) + '</span>' + badge + '</div>';
+        });
+        html += '</div></div>';
+      });
+      
+      fileListEl.innerHTML = html;
       
       // Add click handlers
       fileListEl.querySelectorAll('.file-item').forEach(item => {
