@@ -908,7 +908,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       
       // Group files by category
       const groups = {
-        'source': { label: '🐍 Source', files: [], editable: true },
+        'source': { label: '🐍 Source Code', files: [], editable: true },
         'docs': { label: '📄 Documentation', files: [], editable: false },
         'data': { label: '📊 Data & Samples', files: [], editable: false },
         'output': { label: '📜 Execution Output', files: [], editable: false },

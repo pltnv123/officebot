@@ -103,7 +103,7 @@ async function main() {
     const demoRes = await httpGet(`${DEMO_BASE}/webstudio/demo`);
     const demoHtml = demoRes.data;
     
-    const hasSourceGroup = demoHtml.includes('🐍 Source') || demoHtml.includes('Source Code');
+    const hasSourceGroup = demoHtml.includes('🐍 Source Code') || demoHtml.includes('Source Code');
     const hasDocsGroup = demoHtml.includes('📄 Documentation') || demoHtml.includes('Documentation');
     const hasDataGroup = demoHtml.includes('📊 Data') || demoHtml.includes('Data');
     const hasOutputGroup = demoHtml.includes('📜 Execution Output') || demoHtml.includes('Output');
@@ -159,7 +159,7 @@ async function main() {
       const deliveryHtml = deliveryRes.data;
       
       console.log('\n9. Testing grouped file tree on Delivery page...');
-      const dHasSourceGroup = deliveryHtml.includes('🐍 Source') || deliveryHtml.includes('Source Code');
+      const dHasSourceGroup = deliveryHtml.includes('🐍 Source Code') || deliveryHtml.includes('Source Code');
       const dHasDocsGroup = deliveryHtml.includes('📄 Documentation') || deliveryHtml.includes('Documentation');
       const dHasDataGroup = deliveryHtml.includes('📊 Data') || deliveryHtml.includes('Data');
       const dHasOutputGroup = deliveryHtml.includes('📜 Execution Output') || deliveryHtml.includes('Output');
