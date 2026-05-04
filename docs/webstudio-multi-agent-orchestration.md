@@ -10,17 +10,32 @@
 - Role: Orchestrator + full-stack development
 - Capabilities: Backend, Frontend, Script, Telegram Bot, Landing, QA
 
-**Sub-Agent Workspaces (6):**
+**Sub-Agent Workspaces (8):**
 | Workspace | Role | Location |
 |-----------|------|----------|
-| workspace-builder | Deploy & verify | `~/.openclaw/workspace-builder/` |
 | workspace-planner | Task breakdown | `~/.openclaw/workspace-planner/` |
+| workspace-worker | Implementation | `~/.openclaw/workspace-worker/` |
 | workspace-reviewer | Code review | `~/.openclaw/workspace-reviewer/` |
 | workspace-vreviewer | Visual/UX review | `~/.openclaw/workspace-vreviewer/` |
-| workspace-worker | Implementation | `~/.openclaw/workspace-worker/` |
+| workspace-builder | Deploy & verify | `~/.openclaw/workspace-builder/` |
 | workspace-memory | Error handling | `~/.openclaw/workspace-memory/` |
+| workspace-error-guardian | Repeated-bug defense | `~/.openclaw/workspace-error-guardian/` |
+| **workspace-quality-governor** | **Final quality gate** | `~/.openclaw/workspace-quality-governor/` |
 
 All sub-agents updated (OPENCLAW-WORKSPACE-BRAIN-003) to reference WebStudio mission.
+
+## Execution chain
+
+```
+User → Planner/CTO → Builder(s) → Reviewer(s) → Browser Reviewer (if UI) → Error Guardian (if relevant) → Quality Governor (final gate) → completion
+```
+
+**Quality Governor authority:**
+- No milestone is complete until Quality Governor approves
+- Quality Governor can reject builder/reviewer claims
+- Quality Governor demands evidence appropriate to task type
+- Quality Governor runs layered verification (static, smoke, regression, runtime, browser, delivery)
+- Quality Governor outputs hard-gate status: ACCEPTED / CONDITIONALLY ACCEPTED / REJECTED / BLOCKED
 
 ## OpenClaw Sub-Agent Capabilities
 
@@ -89,7 +104,8 @@ User → Main Agent (Orchestrator)
          ├→ workspace-worker (implement)
          ├→ workspace-reviewer (review)
          ├→ workspace-builder (deploy)
-         └→ workspace-vreviewer (visual QA)
+         ├→ workspace-vreviewer (visual QA)
+         └→ workspace-quality-governor (final gate)
 ```
 
 **Example:**
@@ -120,6 +136,8 @@ Main Agent
     ├→ workspace-reviewer (code review)
     ├→ workspace-vreviewer (visual review)
     └→ smoke tests (automated)
+    ↓
+workspace-quality-governor (final verification)
 ```
 
 **Example:**
@@ -140,6 +158,13 @@ await Promise.all([
 
 // Run smoke tests
 await exec("node scripts/webstudio-live-script-stdin-smoke.js");
+
+// Quality Governor final verification
+await sessions_spawn({
+  task: "Verify script input milestone meets acceptance criteria",
+  label: "quality-governor-input",
+  cwd: "/home/antonbot/.openclaw/workspace-quality-governor"
+});
 ```
 
 ### Pattern 3: Background Deployment
@@ -178,6 +203,8 @@ Error detected
 workspace-memory (diagnose + fix)
     ↓
 Main Agent (retry operation)
+    ↓
+workspace-quality-governor (verify fix)
 ```
 
 **Example:**
@@ -240,6 +267,11 @@ Add `~/.openclaw/agents.json`:
         "workspace": "/home/antonbot/.openclaw/workspace-memory",
         "model": "ollama/qwen3.5:cloud",
         "maxTokens": 8000
+      },
+      "quality-governor": {
+        "workspace": "/home/antonbot/.openclaw/workspace-quality-governor",
+        "model": "ollama/qwen3.5:cloud",
+        "maxTokens": 8000
       }
     }
   }
@@ -261,6 +293,7 @@ For multi-agent tasks, use sessions_spawn with appropriate workspace:
 - Visual review → workspace-vreviewer
 - Deployment → workspace-builder
 - Error diagnosis → workspace-memory
+- Quality gate → workspace-quality-governor
 
 Example:
 await sessions_spawn({
@@ -281,6 +314,8 @@ await sessions_spawn({
 4. **Workspace:** Sub-agents inherit parent workspace directory. Override with `cwd` if needed.
 
 5. **Cleanup:** Use `cleanup: "delete"` for one-shot tasks, `cleanup: "keep"` for persistent sessions.
+
+6. **Quality Gate:** Quality Governor cannot be bypassed. All milestones require approval.
 
 ## Testing Multi-Agent Workflows
 
@@ -334,6 +369,7 @@ main();
 - **Frontend agent** must use browser proof for UI changes.
 - **QA agent** must include Supabase/QWD/lossless checks when relevant.
 - **Memory agent** must use lossless-claw to avoid stale milestone loops.
+- **Quality Governor** must verify all acceptance criteria before approving completion.
 - **Orchestrator** must resolve conflicts between latest user instruction, workspace policy, current code/tests, Supabase, QWD/QMD, lossless memory, and git history.
 
 ## Next Steps
@@ -349,4 +385,5 @@ main();
 - OPENCLAW-WORKSPACE-BRAIN-001: Main workspace update
 - OPENCLAW-WORKSPACE-BRAIN-003: Sub-agent workspace alignment
 - docs/webstudio-agent-workflow.md: Agent workflow model
+- docs/webstudio-quality-governor.md: Quality Governor specification
 - https://docs.openclaw.ai/sessions: OpenClaw session management
