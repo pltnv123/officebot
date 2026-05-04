@@ -7,6 +7,20 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+// Safe editable artifact file whitelist
+function isSafeEditableArtifactFile(filename) {
+  const safeEditable = new Set([
+    'script.py',
+    'bot.py',
+    'README.md',
+    'sample_input.csv',
+    'sample_input.txt',
+    'input.csv',
+    'input.txt',
+  ]);
+  return safeEditable.has(filename);
+}
+
 function renderWebStudioDemoPage({ orderId = '' } = {}) {
   const rawOrderId = String(orderId || '');
   const safeOrderId = escapeHtml(rawOrderId);
@@ -490,7 +504,9 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       currentBotOrderId: '',
       currentScriptProjectArtifactId: '',
       originalScript: '',
-      scriptDirty: false
+      scriptDirty: false,
+      // Multi-file session editing: editedFiles[filename] = editedContent
+      editedFiles: {}
     };
     const $ = (id) => document.getElementById(id);
     const $$ = (id) => document.getElementById(id) || null;
@@ -887,7 +903,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       const fileListEl = $('script-file-list');
       if (!fileListEl || !surface.files) return;
       
-      const editableFiles = ['script.py'];
+      const editableFiles = ['script.py', 'bot.py', 'README.md', 'sample_input.csv', 'sample_input.txt', 'input.csv', 'input.txt'];
       const files = Object.values(surface.files || {}).filter(f => f);
       
       // Group files by category
@@ -926,7 +942,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
           group.label + ' <span style="background:rgba(148,163,175,0.2);padding:2px 8px;border-radius:10px;font-size:9px;">' + group.files.length + '</span></div>';
         html += '<div style="background:rgba(0,0,0,0.15);">';
         group.files.forEach(fileName => {
-          const isEditable = group.editable && editableFiles.includes(fileName);
+          const isEditable = isSafeEditableArtifactFile(fileName);
           const isSelected = fileName === state.currentOpenFile;
           const badge = isEditable ? '<span class="chip" style="font-size:9px;padding:2px 6px;margin-left:6px;background:rgba(59,130,246,0.2);">editable</span>' : '<span class="chip" style="font-size:9px;padding:2px 6px;margin-left:6px;background:rgba(156,163,175,0.2);">read-only</span>';
           const selectedStyle = isSelected ? 'background:rgba(59,130,246,0.2);border-left:3px solid #3b82f6;' : '';
@@ -962,7 +978,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       
       // Update file title and badge
       safeSetText('script-file-title', fileName);
-      const isEditable = ['script.py'].includes(fileName);
+      const isEditable = isSafeEditableArtifactFile(fileName);
       safeSetText('script-file-badge', isEditable ? 'editable' : 'read-only');
       $('script-file-badge').style.background = isEditable ? '' : 'rgba(156,163,175,0.2)';
       
@@ -983,7 +999,17 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       const route = routeKey ? surface.safe_routes[routeKey] : null;
       
       try {
-        const content = await fetchText(route);
+        let content;
+        // Check if we have edited content for this file
+        if (isEditable && state.editedFiles[fileName]) {
+          content = state.editedFiles[fileName];
+        } else {
+          content = await fetchText(route);
+          // Store original content for editable files
+          if (isEditable && !state.editedFiles[fileName]) {
+            state.editedFiles[fileName] = content;
+          }
+        }
         
         if (isEditable) {
           // Show editor for editable files
@@ -1466,16 +1492,19 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
       }
     });
     
-    // Script file save button (stub - saves current script.py to state only)
+    // Script file save button (stub - saves current file to session state only)
     const scriptFileSaveBtn = $('script-file-save-btn');
     if (scriptFileSaveBtn) {
       scriptFileSaveBtn.addEventListener('click', async () => {
         const editor = $$('script-editor');
-        if (editor && state.currentOpenFile === 'script.py') {
-          state.originalScript = editor.value;
-          state.scriptDirty = false;
-          updateScriptStatusChips();
-          setStatus('File saved (session only)');
+        if (editor && isSafeEditableArtifactFile(state.currentOpenFile)) {
+          state.editedFiles[state.currentOpenFile] = editor.value;
+          if (state.currentOpenFile === 'script.py') {
+            state.originalScript = editor.value;
+            state.scriptDirty = false;
+            updateScriptStatusChips();
+          }
+          setStatus('File saved (session only): ' + state.currentOpenFile);
         }
       });
     }
@@ -1485,11 +1514,19 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
     if (scriptFileResetBtn) {
       scriptFileResetBtn.addEventListener('click', () => {
         const editor = $$('script-editor');
-        if (editor && state.currentOpenFile === 'script.py' && state.originalScript) {
-          editor.value = state.originalScript;
-          state.scriptDirty = false;
-          updateScriptStatusChips();
-          setStatus('File reset to original');
+        const fileName = state.currentOpenFile;
+        if (editor && isSafeEditableArtifactFile(fileName)) {
+          // Delete edited content and reload original
+          delete state.editedFiles[fileName];
+          if (fileName === 'script.py') {
+            state.scriptDirty = false;
+            updateScriptStatusChips();
+          }
+          // Reload original from server
+          if (state.surface) {
+            openScriptFile(fileName, state.surface);
+          }
+          setStatus('File reset to original: ' + fileName);
         }
       });
     }

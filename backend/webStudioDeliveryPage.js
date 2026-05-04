@@ -7,6 +7,20 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+// Safe editable artifact file whitelist
+function isSafeEditableArtifactFile(filename) {
+  const safeEditable = new Set([
+    'script.py',
+    'bot.py',
+    'README.md',
+    'sample_input.csv',
+    'sample_input.txt',
+    'input.csv',
+    'input.txt',
+  ]);
+  return safeEditable.has(filename);
+}
+
 function renderWebStudioDeliveryPage({ artifact }) {
   if (!artifact) {
     return `<!doctype html>
@@ -458,6 +472,8 @@ function renderWebStudioDeliveryPage({ artifact }) {
     let originalFileContent = '';
     let isEditing = false;
     let editedCode = '';
+    // Multi-file session editing: editedFiles[fileKey] = editedContent
+    let editedFiles = {};
 
     function escapeHtml(value) {
       return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -511,32 +527,33 @@ function renderWebStudioDeliveryPage({ artifact }) {
       const fileListEl = document.getElementById('delivery-file-list');
       if (!fileListEl || !filesMap) return;
       
-      const editableFiles = ['script', 'bot'];
-      
       // Group files by category
       const groups = {
-        'source': { label: 'Source Code', files: [], editable: true },
-        'docs': { label: 'Documentation', files: [], editable: false },
-        'data': { label: 'Data & Samples', files: [], editable: false },
-        'output': { label: 'Execution Output', files: [], editable: false },
-        'config': { label: 'Configuration', files: [], editable: false },
+        'source': { label: '🐍 Source Code', files: [], editable: true },
+        'docs': { label: '📄 Documentation', files: [], editable: false },
+        'data': { label: '📊 Data & Samples', files: [], editable: false },
+        'output': { label: '📜 Execution Output', files: [], editable: false },
+        'config': { label: '⚙️ Configuration', files: [], editable: false },
       };
       
       // Categorize files
       Object.entries(filesMap).forEach(([key, label]) => {
         const lowerLabel = label.toLowerCase();
+        const filename = filesMap[key] || label;
+        const isEditable = isSafeEditableArtifactFile(filename);
+        
         if (key === 'script' || key === 'bot' || lowerLabel.endsWith('.py')) {
-          groups.source.files.push([key, label]);
+          groups.source.files.push([key, label, isEditable]);
         } else if (lowerLabel.endsWith('.md') || lowerLabel.endsWith('.txt') && !lowerLabel.includes('output') && !lowerLabel.includes('log')) {
-          groups.docs.files.push([key, label]);
+          groups.docs.files.push([key, label, isEditable]);
         } else if (lowerLabel.includes('sample') || lowerLabel.endsWith('.csv') || lowerLabel.endsWith('.json')) {
-          groups.data.files.push([key, label]);
+          groups.data.files.push([key, label, isEditable]);
         } else if (lowerLabel.includes('output') || lowerLabel.includes('log')) {
-          groups.output.files.push([key, label]);
+          groups.output.files.push([key, label, isEditable]);
         } else if (lowerLabel.endsWith('.env') || lowerLabel.endsWith('.yaml') || lowerLabel.endsWith('.yml')) {
-          groups.config.files.push([key, label]);
+          groups.config.files.push([key, label, isEditable]);
         } else {
-          groups.docs.files.push([key, label]); // fallback
+          groups.docs.files.push([key, label, isEditable]); // fallback
         }
       });
       
@@ -547,9 +564,8 @@ function renderWebStudioDeliveryPage({ artifact }) {
         html += '<div class="file-group">';
         html += '<div class="file-group-header">' + escapeHtml(group.label) + ' <span class="file-count">' + group.files.length + '</span></div>';
         html += '<div class="file-group-items">';
-        group.files.forEach(([key, label]) => {
+        group.files.forEach(([key, label, isEditable]) => {
           const isActive = key === currentFileKey;
-          const isEditable = group.editable && editableFiles.includes(key);
           const badge = isEditable ? '<span class="file-badge editable">editable</span>' : '<span class="file-badge">read-only</span>';
           html += '<div class="file-item' + (isActive ? ' active' : '') + '" data-file-key="' + escapeHtml(key) + '">' +
             '<span>' + escapeHtml(label) + '</span>' + badge + '</div>';
@@ -577,8 +593,13 @@ function renderWebStudioDeliveryPage({ artifact }) {
       const contentEl = document.getElementById('delivery-code-content');
       const editBtn = document.getElementById('delivery-edit-btn');
       const saveBtn = document.getElementById('delivery-save-btn');
+      const resetBtn = document.getElementById('delivery-reset-btn');
       if (!route || !contentEl) return;
       if (titleEl) titleEl.textContent = filesMap[fileKey] || fileKey;
+      
+      // Get filename from filesMap
+      const filename = filesMap[fileKey] || fileKey;
+      const isEditable = isSafeEditableArtifactFile(filename);
       
       // Reset edit mode when switching files
       isEditing = false;
@@ -588,15 +609,24 @@ function renderWebStudioDeliveryPage({ artifact }) {
       
       contentEl.innerHTML = '<pre class="muted">Loading...</pre>';
       try {
-        const response = await fetch(route);
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        const text = await response.text();
+        let text;
+        // Check if we have edited content for this file
+        if (isEditable && editedFiles[fileKey]) {
+          text = editedFiles[fileKey];
+        } else {
+          const response = await fetch(route);
+          if (!response.ok) throw new Error('HTTP ' + response.status);
+          text = await response.text();
+          // Store original content for editable files
+          if (isEditable && !editedFiles[fileKey]) {
+            editedFiles[fileKey] = text;
+          }
+        }
         currentCode = text;
         originalFileContent = text;
         editedCode = text;
         contentEl.innerHTML = '<pre>' + escapeHtml(text) + '</pre>';
         // Hide reset button when file is loaded (no edits yet)
-        const resetBtn = document.getElementById('delivery-reset-btn');
         if (resetBtn) resetBtn.classList.add('hidden');
       } catch (error) {
         contentEl.innerHTML = '<pre class="muted">Error loading file</pre>';
@@ -608,12 +638,13 @@ function renderWebStudioDeliveryPage({ artifact }) {
       const editBtn = document.getElementById('delivery-edit-btn');
       const saveBtn = document.getElementById('delivery-save-btn');
       const resetBtn = document.getElementById('delivery-reset-btn');
-      const editableFiles = ['script', 'bot'];
+      const filename = filesMap[currentFileKey] || currentFileKey;
+      const isEditable = isSafeEditableArtifactFile(filename);
       
-      if (!editableFiles.includes(currentFileKey)) {
+      if (!isEditable) {
         // Show alert for non-editable files
         if (enable) {
-          alert('Editing is only available for script.py and bot.py files.');
+          alert('Editing is only available for: script.py, bot.py, README.md, sample_input.csv/txt, input.csv/txt');
         }
         return;
       }
@@ -623,7 +654,10 @@ function renderWebStudioDeliveryPage({ artifact }) {
       if (enable) {
         const textarea = document.createElement('textarea');
         textarea.value = editedCode;
-        textarea.addEventListener('input', () => { editedCode = textarea.value; });
+        textarea.addEventListener('input', () => {
+          editedCode = textarea.value;
+          editedFiles[currentFileKey] = editedCode;
+        });
         contentEl.innerHTML = '';
         contentEl.appendChild(textarea);
         textarea.focus();
@@ -649,24 +683,19 @@ function renderWebStudioDeliveryPage({ artifact }) {
     document.getElementById('delivery-reset-btn')?.addEventListener('click', () => {
       const contentEl = document.getElementById('delivery-code-content');
       const resetBtn = document.getElementById('delivery-reset-btn');
-      const editableFiles = ['script', 'bot'];
+      const filename = filesMap[currentFileKey] || currentFileKey;
+      const isEditable = isSafeEditableArtifactFile(filename);
       
-      if (!editableFiles.includes(currentFileKey)) {
-        alert('Reset is only available for editable files (script.py, bot.py).');
+      if (!isEditable) {
+        alert('Reset is only available for editable files (script.py, bot.py, README.md, sample_input.csv/txt, input.csv/txt).');
         return;
       }
       
-      // Reset to original content
-      editedCode = originalFileContent;
+      // Delete edited content and reload original
+      delete editedFiles[currentFileKey];
       
-      if (isEditing) {
-        // Update textarea value
-        const textarea = contentEl.querySelector('textarea');
-        if (textarea) textarea.value = editedCode;
-      } else {
-        // Update pre display
-        contentEl.innerHTML = '<pre>' + escapeHtml(editedCode) + '</pre>';
-      }
+      // Reload from server
+      loadFileContent(currentFileKey);
       
       // Hide reset button after reset
       if (resetBtn) resetBtn.classList.add('hidden');
@@ -720,10 +749,10 @@ function renderWebStudioDeliveryPage({ artifact }) {
     // Run Edited
     document.getElementById('run-edited-btn')?.addEventListener('click', async () => {
       const runEditedBtn = document.getElementById('run-edited-btn');
-      const editableFiles = ['script', 'bot'];
       
-      if (!editableFiles.includes(currentFileKey)) {
-        alert('Editing is only available for script.py and bot.py files.');
+      // Run Edited only works for script.py/bot.py
+      if (currentFileKey !== 'script' && currentFileKey !== 'bot') {
+        alert('Run Edited is only available for script.py and bot.py files.');
         return;
       }
       
