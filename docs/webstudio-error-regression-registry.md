@@ -161,6 +161,78 @@ This document tracks known error patterns and their prevention measures to avoid
 
 ---
 
+## ERR-020: Delivery page visual hierarchy needs premium UX polish
+
+**Symptom**:
+- Delivery page looks like technical debug report, not premium client workspace
+- Hero section lacks clear title/subtitle
+- Code workspace feels cramped
+- Execution console lacks terminal-like styling
+- Run history cards are verbose and hard to scan
+
+**Root Cause**:
+- Initial delivery page focused on functionality over visual hierarchy
+- Missing premium UX patterns (hero section, status chips, terminal styling)
+
+**Fix**:
+- Redesigned delivery page with premium visual hierarchy:
+  - Large hero title (42px) with gradient text
+  - Clear subtitle "Delivered by WebStudio"
+  - Status chips for project type, order ID, status, test status
+  - Larger code workspace (600px max-height, 14px/1.8 monospace)
+  - Terminal-like execution console with colored output
+  - Compact run history cards with duration formatting
+  - Better spacing and backdrop blur effects
+
+**Prevention**:
+- Smoke test `webstudio-delivery-visual-structure-smoke.js` asserts:
+  - Hero visible with title and subtitle
+  - Code workspace visible with inline code
+  - Execution console visible with Run button
+  - Run history visible
+  - Run Script works
+  - Download ZIP works
+  - No console errors
+- Delivery page must be browser-tested, not curl-only
+- Visual QA checklist before marking delivery UX complete
+
+---
+
+## ERR-021: Stale OfficeBot/Unity context in brain files causes mission confusion
+
+**Symptom**:
+- Agent references old OfficeBot/Pixar/Unity mission instead of WebStudio
+- Milestone reports reference stale VIZ-/FUNC- task IDs
+- Agent claims Android/iOS implemented when not tested
+
+**Root Cause**:
+- Legacy brain files contained old OfficeBot/Unity context
+- No explicit WebStudio mission statement in SOUL.md
+- No substrate policy for Supabase/QWD/QMD/lossless-claw
+
+**Fix**:
+- Updated all brain files to WebStudio mission:
+  - SOUL.md: WebStudio autonomous development agent
+  - AGENTS.md: WebStudio operating policy
+  - USER.md: Anton preferences for WebStudio
+  - TOOLS.md: WebStudio tooling and smokes
+  - BOOT.md: WebStudio startup checklist
+  - HEARTBEAT.md: WebStudio runtime discipline
+  - MEMORY.md: Accepted WebStudio state summary
+- Created brain professionalization doc
+- Added stale context grep to validation checklist
+
+**Prevention**:
+- Regular stale context grep:
+  ```bash
+  grep -Rni "OfficeBot\|Pixar\|Unity\|VIZ-\|FUNC" workspace/ workspace-*/
+  ```
+- Allowed only if line explicitly says "old/stale/non-current"
+- MEMORY.md tracks current accepted state
+- Brain backup before major updates
+
+---
+
 ## Prevention Checklist
 
 Before merging any Script Playground or Live Run changes:
