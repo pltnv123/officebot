@@ -479,6 +479,20 @@ function renderWebStudioDeliveryPage({ artifact }) {
       return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
+    // Safe editable artifact file whitelist (MUST match server-side whitelist)
+    function isSafeEditableArtifactFile(filename) {
+      const safeEditable = new Set([
+        'script.py',
+        'bot.py',
+        'README.md',
+        'sample_input.csv',
+        'sample_input.txt',
+        'input.csv',
+        'input.txt',
+      ]);
+      return safeEditable.has(filename);
+    }
+
     function formatDate(iso) {
       if (!iso) return '—';
       const d = new Date(iso);
