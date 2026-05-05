@@ -132,6 +132,16 @@ function createWebStudioProjectRouterService() {
             'What format do you expect on delivery: preview, code, PR, zip, or deployment instructions?',
           ]
         : [],
+      // Router → Delivery Handoff metadata
+      delivery_handoff_available: resolvedProjectType === 'script' || resolvedProjectType === 'telegram_bot' || resolvedProjectType === 'landing_page',
+      delivery_handoff_endpoint: '/api/demo/webstudio-order/router-handoff',
+      expected_delivery_artifacts: resolvedProjectType === 'script'
+        ? ['/src/script.py', '/docs/README.md', '/meta/manifest.json', 'sample input/output']
+        : resolvedProjectType === 'telegram_bot'
+        ? ['/src/bot.py', '/docs/README.md', '/meta/manifest.json', '.env.example']
+        : resolvedProjectType === 'landing_page'
+        ? ['/src/index.html', '/src/styles.css', '/meta/manifest.json']
+        : [],
     };
   }
 

@@ -172,8 +172,15 @@ function renderWebStudioRouterPage({ analysis = null, orderId = null }) {
     <div id="analysis-panel" class="panel hidden">
       <h2 class="panel-title">📊 Результат анализа</h2>
       <div id="analysis-content" class="analysis-result"></div>
+      <div id="handoff-actions" class="hidden" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--panel-border);">
+        <h3 style="font-size: 16px; margin-bottom: 12px; color: var(--text);">🚀 Следующий шаг</h3>
+        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">Артефакт готов к созданию. Нажмите кнопку ниже, чтобы сгенерировать Delivery.</p>
+        <button type="button" class="btn btn-primary" id="create-delivery-btn">✨ Create Delivery Artifact</button>
+        <div id="handoff-status" style="margin-top: 12px; font-size: 14px; color: var(--text-muted);"></div>
+      </div>
       <div style="margin-top: 20px;">
         <a class="nav-link" href="/webstudio/demo">← Вернуться в Demo</a>
+        <a class="nav-link" href="/webstudio/router" style="margin-left: 16px;">↻ Новый анализ</a>
       </div>
     </div>
   </div>
@@ -184,6 +191,13 @@ function renderWebStudioRouterPage({ analysis = null, orderId = null }) {
     const analysisPanel = document.getElementById('analysis-panel');
     const analysisContent = document.getElementById('analysis-content');
     const analyzeBtn = document.getElementById('analyze-btn');
+    const handoffActions = document.getElementById('handoff-actions');
+    const handoffStatus = document.getElementById('handoff-status');
+    const createDeliveryBtn = document.getElementById('create-delivery-btn');
+    
+    let currentOrderId = null;
+    let currentProjectType = null;
+    let currentBrief = null;
 
     function renderBadge(text, type = 'info') {
       const cls = type === 'accent' ? 'badge-accent' : type === 'success' ? 'badge-success' : type === 'warning' ? 'badge-warning' : 'badge-info';
@@ -249,6 +263,14 @@ function renderWebStudioRouterPage({ analysis = null, orderId = null }) {
         html += '</div>';
       }
       
+      // Show handoff availability
+      if (data.delivery_handoff_available) {
+        html += '<div class="result-item">';
+        html += '<div class="result-label">Delivery Handoff</div>';
+        html += '<div class="result-value">' + renderBadge('Available', 'success') + '</div>';
+        html += '</div>';
+      }
+      
       return html;
     }
 
@@ -279,6 +301,19 @@ function renderWebStudioRouterPage({ analysis = null, orderId = null }) {
         
         const data = await response.json();
         analysisContent.innerHTML = renderAnalysis(data);
+        
+        // Store order data for handoff
+        currentOrderId = data.order_id;
+        currentProjectType = data.project_type;
+        currentBrief = data.normalized_brief;
+        
+        // Show handoff button if available
+        if (data.delivery_handoff_available) {
+          handoffActions.classList.remove('hidden');
+        } else {
+          handoffActions.classList.add('hidden');
+        }
+        
         loadingPanel.classList.add('hidden');
         analysisPanel.classList.remove('hidden');
       } catch (error) {
@@ -286,6 +321,57 @@ function renderWebStudioRouterPage({ analysis = null, orderId = null }) {
         loadingPanel.classList.add('hidden');
       } finally {
         analyzeBtn.disabled = false;
+      }
+    });
+    
+    // Create Delivery button handler
+    createDeliveryBtn?.addEventListener('click', async () => {
+      if (!currentOrderId || !currentProjectType) {
+        handoffStatus.textContent = '⚠️ No order data available';
+        handoffStatus.style.color = 'var(--warning)';
+        return;
+      }
+      
+      createDeliveryBtn.disabled = true;
+      createDeliveryBtn.textContent = '⏳ Creating Delivery...';
+      handoffStatus.textContent = 'Creating delivery artifact...';
+      handoffStatus.style.color = 'var(--text-muted)';
+      
+      try {
+        const response = await fetch('/api/demo/webstudio-order/router-handoff', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            order_id: currentOrderId,
+            project_type: currentProjectType,
+            brief: currentBrief,
+          }),
+        });
+        
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err.error || 'HTTP ' + response.status);
+        }
+        
+        const data = await response.json();
+        
+        if (data.ok && data.delivery_url) {
+          handoffStatus.textContent = '✅ Delivery created! Opening...';
+          handoffStatus.style.color = 'var(--success)';
+          createDeliveryBtn.textContent = '✅ Delivery Created';
+          
+          // Open delivery page in new tab after short delay
+          setTimeout(() => {
+            window.open(data.delivery_url, '_blank');
+          }, 800);
+        } else {
+          throw new Error(data.error || 'Handoff failed');
+        }
+      } catch (error) {
+        handoffStatus.textContent = '❌ Error: ' + error.message;
+        handoffStatus.style.color = 'var(--danger)';
+        createDeliveryBtn.disabled = false;
+        createDeliveryBtn.textContent = '✨ Create Delivery Artifact';
       }
     });
   </script>

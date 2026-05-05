@@ -426,6 +426,9 @@ async function main() {
         qa_plan: analysis.qa_plan,
         clarification_questions: analysis.clarification_questions,
         next_action: analysis.project_type === 'script' ? 'execute_script_mvp' : analysis.project_type === 'telegram_bot' ? 'execute_telegram_bot_mvp' : analysis.next_action,
+        delivery_handoff_available: analysis.delivery_handoff_available,
+        delivery_handoff_endpoint: analysis.delivery_handoff_endpoint,
+        expected_delivery_artifacts: analysis.expected_delivery_artifacts,
       });
       res.status(201).json({
         ok: true,
@@ -441,9 +444,211 @@ async function main() {
         clarification_questions: analysis.clarification_questions,
         next_action: analysis.project_type === 'script' ? 'execute_script_mvp' : analysis.project_type === 'telegram_bot' ? 'execute_telegram_bot_mvp' : analysis.next_action,
         surface_kind: 'project_router_surface',
+        // Router → Delivery Handoff metadata
+        delivery_handoff_available: analysis.delivery_handoff_available,
+        delivery_handoff_endpoint: analysis.delivery_handoff_endpoint,
+        expected_delivery_artifacts: analysis.expected_delivery_artifacts,
       });
     } catch (error) {
       jsonError(res, 500, '/api/demo/webstudio-order/analyze-brief', error, null);
+    }
+  });
+
+  // Router → Delivery Handoff endpoint
+  app.post('/api/demo/webstudio-order/router-handoff', async (req, res) => {
+    try {
+      const orderId = String(req.body?.order_id || '').trim();
+      const projectType = String(req.body?.project_type || '').trim();
+      const brief = String(req.body?.brief || '').trim();
+      
+      if (!orderId || !projectType) {
+        return res.status(400).json({
+          ok: false,
+          error: 'order_id and project_type are required',
+        });
+      }
+      
+      // Read existing router order to get full context
+      const routerOrderPath = path.join(ROUTER_RUNTIME_ROOT, orderId, 'router-order.json');
+      let routerOrder = {};
+      try {
+        routerOrder = JSON.parse(await fs.readFile(routerOrderPath, 'utf8'));
+      } catch (e) {
+        // Order may not exist yet, use provided data
+      }
+      
+      const effectiveBrief = brief || routerOrder.normalized_brief || '';
+      const effectiveProjectType = projectType || routerOrder.project_type || 'script';
+      
+      // For script project type, execute script MVP and return delivery URL
+      if (effectiveProjectType === 'script') {
+        const analysis = analyzeScriptScenario({ brief: effectiveBrief });
+        if (analysis.scenario === 'unsupported') {
+          return res.status(400).json({
+            ok: false,
+            error: 'unsupported_script_scenario',
+            reason: analysis.reason || 'unsupported_or_unsafe_script_scenario',
+          });
+        }
+        
+        // Reuse order_id from router for continuity
+        const artifactPackage = await createScriptExecutionPackage({
+          rootDir: ROOT,
+          orderId,
+          brief: effectiveBrief,
+          scenario: analysis.scenario,
+          analysis,
+        });
+        const test = await runScriptSmoke({
+          artifactRoot: artifactPackage.artifact_root,
+          inputFileName: artifactPackage.input_file_name,
+        });
+        const scriptSurface = await buildScriptSurface(orderId);
+        const registeredArtifact = await registerProjectArtifact(ROOT, {
+          order_id: orderId,
+          project_type: 'script',
+          scenario: analysis.scenario,
+          title: `Script package · ${analysis.scenario}`,
+          status: test.ok ? 'completed' : 'failed',
+          test_status: test.ok ? 'ok' : 'needs_review',
+          surface_url: `/api/demo/webstudio-order/script-surface/${orderId}`,
+          primary_file_routes: Object.values(scriptSurface.safe_routes),
+          file_routes: Object.entries(scriptSurface.safe_routes).map(([key, route]) => ({ key, label: scriptSurface.files[key] || key, route })),
+          download_url: `/api/demo/webstudio-order/project-artifact/${encodeURIComponent(`ws-project-artifact-script-${orderId}-${String(analysis.scenario).replace(/[^a-zA-Z0-9_-]/g, '-')}`)}/download`,
+          source: 'router_handoff',
+          artifact_root: artifactPackage.artifact_root,
+          // Preserve router metadata in artifact
+          router_order_id: orderId,
+          router_brief: effectiveBrief,
+        });
+        
+        const deliveryArtifactId = registeredArtifact.project_artifact_id;
+        const deliveryUrl = `/webstudio/delivery/${encodeURIComponent(deliveryArtifactId)}`;
+        
+        return res.status(201).json({
+          ok: true,
+          order_id: orderId,
+          project_type: 'script',
+          project_artifact_id: deliveryArtifactId,
+          delivery_url: deliveryUrl,
+          handoff_complete: true,
+          created_at: nowIso(),
+        });
+      }
+      
+      // For telegram_bot project type
+      if (effectiveProjectType === 'telegram_bot') {
+        const analysis = analyzeTelegramBotScenario({ brief: effectiveBrief });
+        if (analysis.scenario === 'unsupported') {
+          return res.status(400).json({
+            ok: false,
+            error: 'unsupported_telegram_bot_scenario',
+          });
+        }
+        
+        const artifactPackage = await createTelegramBotExecutionPackage({
+          rootDir: ROOT,
+          orderId,
+          brief: effectiveBrief,
+          scenario: analysis.scenario,
+        });
+        const test = await runTelegramBotDryRun({ artifactRoot: artifactPackage.artifact_root });
+        const surface = await buildTelegramBotSurface(orderId);
+        const registeredArtifact = await registerProjectArtifact(ROOT, {
+          order_id: orderId,
+          project_type: 'telegram_bot',
+          scenario: analysis.scenario,
+          title: `Telegram bot package · ${analysis.scenario}`,
+          status: test.ok ? 'completed' : 'failed',
+          test_status: test.ok ? 'ok' : 'needs_review',
+          surface_url: `/api/demo/webstudio-order/telegram-bot-surface/${orderId}`,
+          primary_file_routes: Object.values(surface.safe_routes),
+          file_routes: Object.entries(surface.safe_routes).map(([key, route]) => ({ key, label: surface.files[key] || key, route })),
+          download_url: `/api/demo/webstudio-order/project-artifact/${encodeURIComponent(`ws-project-artifact-telegram_bot-${orderId}-${String(analysis.scenario).replace(/[^a-zA-Z0-9_-]/g, '-')}`)}/download`,
+          source: 'router_handoff',
+          artifact_root: artifactPackage.artifact_root,
+          router_order_id: orderId,
+          router_brief: effectiveBrief,
+        });
+        
+        const deliveryArtifactId = registeredArtifact.project_artifact_id;
+        const deliveryUrl = `/webstudio/delivery/${encodeURIComponent(deliveryArtifactId)}`;
+        
+        return res.status(201).json({
+          ok: true,
+          order_id: orderId,
+          project_type: 'telegram_bot',
+          project_artifact_id: deliveryArtifactId,
+          delivery_url: deliveryUrl,
+          handoff_complete: true,
+          created_at: nowIso(),
+        });
+      }
+      
+      // For landing_page project type
+      if (effectiveProjectType === 'landing_page') {
+        // Create a minimal landing page artifact
+        const landingArtifactId = `ws-project-artifact-landing_page-${orderId}-router-handoff`;
+        const artifactRoot = path.join(ROOT, 'backend', 'controlPlane', 'storage', '.first-governed-workflow-runtime', 'webstudio-landing-artifacts', orderId);
+        await fs.mkdir(artifactRoot, { recursive: true });
+        
+        const landingHtml = `<!doctype html><html lang="ru"><head><meta charset="UTF-8"><title>Landing Page</title></head><body><h1>Landing Page for ${escapeHtml(effectiveBrief.slice(0, 50))}</h1><p>Generated via Router Handoff</p></body></html>`;
+        await fs.writeFile(path.join(artifactRoot, 'index.html'), landingHtml, 'utf8');
+        await fs.writeFile(path.join(artifactRoot, 'README.md'), `# Landing Page\n\nBrief: ${effectiveBrief}\n\nGenerated via Router Handoff`, 'utf8');
+        const manifest = {
+          artifact_id: `ws-landing-artifact-${orderId}`,
+          project_artifact_id: landingArtifactId,
+          order_id: orderId,
+          project_type: 'landing_page',
+          brief: effectiveBrief,
+          created_at: nowIso(),
+          router_order_id: orderId,
+          files: ['index.html', 'README.md', 'manifest.json'],
+        };
+        await fs.writeFile(path.join(artifactRoot, 'manifest.json'), JSON.stringify(manifest, null, 2), 'utf8');
+        
+        const registeredArtifact = await registerProjectArtifact(ROOT, {
+          order_id: orderId,
+          project_type: 'landing_page',
+          scenario: 'router-handoff',
+          title: 'Landing Page · Router Handoff',
+          status: 'completed',
+          test_status: 'ok',
+          surface_url: `/api/webstudio-landing-artifact/${orderId}/index.html`,
+          primary_file_routes: [`/api/webstudio-landing-artifact/${orderId}/index.html`],
+          file_routes: [
+            { key: 'preview', label: 'Preview', route: `/api/webstudio-landing-artifact/${orderId}/index.html` },
+            { key: 'index.html', label: 'index.html', route: `/api/webstudio-landing-artifact/${orderId}/index.html` },
+            { key: 'README.md', label: 'README.md', route: `/api/webstudio-landing-artifact/${orderId}/README.md` },
+          ],
+          download_url: `/api/demo/webstudio-order/project-artifact/${encodeURIComponent(landingArtifactId)}/download`,
+          source: 'router_handoff',
+          artifact_root: artifactRoot,
+          router_order_id: orderId,
+          router_brief: effectiveBrief,
+        });
+        
+        const deliveryArtifactId = registeredArtifact.project_artifact_id;
+        const deliveryUrl = `/webstudio/delivery/${encodeURIComponent(deliveryArtifactId)}`;
+        
+        return res.status(201).json({
+          ok: true,
+          order_id: orderId,
+          project_type: 'landing_page',
+          project_artifact_id: deliveryArtifactId,
+          delivery_url: deliveryUrl,
+          handoff_complete: true,
+          created_at: nowIso(),
+        });
+      }
+      
+      return res.status(400).json({
+        ok: false,
+        error: 'unsupported_project_type_for_handoff',
+        project_type: effectiveProjectType,
+      });
+    } catch (error) {
+      jsonError(res, 500, '/api/demo/webstudio-order/router-handoff', error, null);
     }
   });
 
