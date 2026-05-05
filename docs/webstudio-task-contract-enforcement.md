@@ -156,3 +156,40 @@ For any stateful/runtime WebStudio task, Task Contract must include organism mem
 - /api/state returns HTML or 404 → REJECTED
 - Env file only in /tmp → REJECTED
 - Secrets detected → BLOCKED
+
+## Skill Intelligence Contract Check
+
+For any complex/non-trivial WebStudio task, Task Contract must include Skill Intelligence verification:
+
+**Checklist:**
+- [ ] Skill scan run (`node scripts/webstudio-skill-intelligence-scan.js` or `openclaw skills check`)
+- [ ] Installed skills checked
+- [ ] Eligible skills checked
+- [ ] Missing requirements identified or ruled out
+- [ ] ClawHub searched if capability gap exists
+- [ ] Risky skills require approval (channel/secrets/payment/system)
+- [ ] Skill registry updated
+- [ ] **SKILL INTELLIGENCE CHECK** section in final report
+
+**Rejection Rules:**
+- Complex task but Skill Check skipped → REJECTED
+- Missing skill needed but ignored → REJECTED
+- Risky skill installed without approval → REJECTED
+- Final report lacks SKILL INTELLIGENCE CHECK section → REJECTED
+
+**When Skill Check is mandatory:**
+- browser automation tasks
+- code generation tasks
+- API integration tasks
+- deployment/runtime tasks
+- external service tasks
+- data/document/PDF/spreadsheets tasks
+- messaging channel tasks
+- secrets handling tasks
+- any task that previously failed due to missing tool/skill
+
+**When Skill Check is NOT required:**
+- trivial edits (single-line fix)
+- documentation-only updates
+- pure git operations
+- already-verified organism health checks

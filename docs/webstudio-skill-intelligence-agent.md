@@ -150,5 +150,33 @@ No non-trivial task should report **ACCEPTED** unless:
 - Missing skills were identified or ruled out
 - Required skills were installed or approval requested
 - Decision was recorded in skill registry
+- Final report includes **SKILL INTELLIGENCE CHECK** section
+
+### MANDATORY SKILL CHECK RULE
+
+**Skill Intelligence Check is mandatory before ACCEPTED on any non-trivial WebStudio task.**
+
+**Final report must include:**
+
+```markdown
+SKILL INTELLIGENCE CHECK:
+- skillScanRun: yes/no
+- installedSkillsChecked: <count or list>
+- eligibleSkillsChecked: <count or list>
+- missingRequirements: <count or list>
+- clawhubSearched: yes/no
+- recommendedSkills: <list or none>
+- installedSkills: <list or none>
+- approvalRequired: yes/no
+- registryUpdated: yes/no
+- verdict: PASS / FAIL
+```
+
+**ACCEPTED is forbidden if:**
+- task needed a skill/tool and it was ignored
+- skill scan was skipped on a complex task
+- missing requirements were ignored
+- risky skill was installed without approval
+- final report lacks SKILL INTELLIGENCE CHECK section
 
 See `docs/webstudio-brain-substrate-policy.md` for full substrate requirements.

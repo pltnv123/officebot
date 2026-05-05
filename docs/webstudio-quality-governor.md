@@ -67,6 +67,7 @@ plan/build → verify → reject/fix → re-verify → reject/fix → final veri
 | **Persistence/state** | Static review + task smoke + regression + **post-refresh proof** + no null/undefined errors |
 | **Orchestration/brain** | Static review + role alignment + no circular dependencies |
 | **Organism memory** | Persistent env + /api/state JSON + Supabase probe + no secrets |
+| **Complex/non-trivial task** | **SKILL INTELLIGENCE CHECK** + installed/eligible skills verified + ClawHub search if gap exists |
 
 ### Organism memory verification
 
@@ -85,6 +86,16 @@ plan/build → verify → reject/fix → re-verify → reject/fix → final veri
 - [ ] Primary: `systemctl --user status webstudio-demo.service` (active)
 - [ ] Fallback: startup script works if systemd unavailable
 
+**Skill Intelligence verification (for complex/non-trivial tasks):**
+- [ ] Skill scan run (`node scripts/webstudio-skill-intelligence-scan.js` or `openclaw skills check`)
+- [ ] Installed skills checked
+- [ ] Eligible skills checked
+- [ ] Missing requirements identified or ruled out
+- [ ] ClawHub searched if capability gap exists
+- [ ] Risky skills require approval (channel/secrets/payment/system)
+- [ ] Skill registry updated
+- [ ] **SKILL INTELLIGENCE CHECK** section in final report
+
 **Rejection criteria:**
 - /api/state missing, HTML, or non-JSON → REJECTED
 - supabase.configured != true → REJECTED
@@ -92,6 +103,7 @@ plan/build → verify → reject/fix → re-verify → reject/fix → final veri
 - Env only in /tmp → REJECTED
 - Secrets detected → BLOCKED
 - systemd service blocked for permanent runtime milestone → CONDITIONALLY ACCEPTED or REJECTED
+- **Skill Check skipped on complex task → REJECTED**
 
 ### Browser proof requirements
 
@@ -189,9 +201,28 @@ EVIDENCE:
 - commit hash
 - push status
 
+SKILL INTELLIGENCE CHECK (for complex/non-trivial tasks):
+- skillScanRun: yes/no
+- installedSkillsChecked: <count or list>
+- eligibleSkillsChecked: <count or list>
+- missingRequirements: <count or list>
+- clawhubSearched: yes/no
+- recommendedSkills: <list or none>
+- installedSkills: <list or none>
+- approvalRequired: yes/no
+- registryUpdated: yes/no
+- verdict: PASS / FAIL
+
 REMAINING LIMITATIONS:
 - explicit remaining limitations
 
 NEXT SAFE STEP:
 - next milestone recommendation
 ```
+
+**ACCEPTED is forbidden if:**
+- task needed a skill/tool and it was ignored
+- skill scan was skipped on a complex task
+- missing requirements were ignored
+- risky skill was installed without approval
+- final report lacks SKILL INTELLIGENCE CHECK section (for complex tasks)
