@@ -1,66 +1,100 @@
 # WebStudio Skill Registry
 
-Last updated: 2026-05-04T18:54:00Z
+## Overview
 
-## Installed Skills
+This document tracks OpenClaw skills known to WebStudio, including installed skills, organism-specific skills, install/update history, and missing requirements.
 
-| Skill | Purpose | Location | Security Notes | Last Checked |
-|-------|---------|----------|----------------|--------------|
-| webstudio-skill-curator | Skill discovery/install | `/home/antonbot/.openclaw/workspace/skills/webstudio-skill-curator/` | ✅ No secrets, no credentials | 2026-05-04 |
-| webstudio-task-contract-enforcer | Task contract enforcement | `/home/antonbot/.openclaw/workspace/skills/webstudio-task-contract-enforcer/` | ✅ No secrets, no credentials | 2026-05-04 |
-| webstudio-brain-substrate-check | Verify Supabase/QWD/lossless/skills | `/home/antonbot/.openclaw/workspace/skills/webstudio-brain-substrate-check/` | ✅ No secrets, no credentials | 2026-05-04 |
-| webstudio-organism-memory-check | Verify organism memory (env, /api/state, Supabase probe) | `/home/antonbot/.openclaw/workspace/office/skills/webstudio-organism-memory-check/` | ✅ No secrets, no credentials | 2026-05-04 |
+Last updated: 2026-05-05
 
-## Custom WebStudio Skills
+## Currently Known Local Skills
 
-| Skill | Purpose | Location | Status |
-|-------|---------|----------|--------|
-| webstudio-skill-curator | Discover, inspect, install OpenClaw skills | workspace/skills/webstudio-skill-curator/ | ✅ Active |
-| webstudio-task-contract-enforcer | Enforce task contracts, block premature COMPLETE | workspace/skills/webstudio-task-contract-enforcer/ | ✅ Active |
-| webstudio-brain-substrate-check | Verify Supabase/QWD/lossless/skills before brain/governance tasks | workspace/skills/webstudio-brain-substrate-check/ | ✅ Active |
-| webstudio-organism-memory-check | Verify persistent env, /api/state JSON, Supabase probe, no secrets | office/skills/webstudio-organism-memory-check/ | ✅ Active |
-| webstudio-risk-classifier | Risk classification | workspace/skills/webstudio-risk-classifier/ | ✅ Active |
-| webstudio-quality-gate | Quality gate enforcement | workspace/skills/webstudio-quality-gate/ | ✅ Active |
-| webstudio-smoke-author | Create/maintain smoke tests | workspace/skills/webstudio-smoke-author/ | ✅ Active |
-| webstudio-browser-proof | Browser-based evidence | workspace/skills/webstudio-browser-proof/ | ✅ Active |
-| webstudio-security-review | Security review | workspace/skills/webstudio-security-review/ | ✅ Active |
-| webstudio-release-discipline | Git discipline | workspace/skills/webstudio-release-discipline/ | ✅ Active |
+| Skill | Status | Source | Notes |
+|-------|--------|--------|-------|
+| gh-issues | ✅ Ready | openclaw-bundled | GitHub issues, PRs, reviews |
+| github | ✅ Ready | openclaw-bundled | GitHub CLI (gh) operations |
+| healthcheck | ✅ Ready | openclaw-bundled | Host security audit |
+| lossless-claw | ✅ Ready | openclaw-extra | Session history recall |
+| node-connect | ✅ Ready | openclaw-bundled | OpenClaw node pairing |
+| session-logs | ✅ Ready | openclaw-bundled | Session log analysis |
+| skill-creator | ✅ Ready | openclaw-bundled | Create/edit skills |
+| taskflow | ✅ Ready | openclaw-bundled | Multi-step task coordination |
+| taskflow-inbox-triage | ✅ Ready | openclaw-bundled | Inbox triage pattern |
+| tmux | ✅ Ready | openclaw-bundled | Tmux remote control |
+| video-frames | ✅ Ready | openclaw-bundled | FFmpeg frame extraction |
+| weather | ✅ Ready | openclaw-bundled | Weather forecasts |
 
-## ClawHub Skills
+**Total:** 12 ready/eligible skills
+**Disabled:** 41 skills (not needed for current WebStudio tasks)
+**Missing Requirements:** 0
 
-| Skill | Purpose | Source | Security Review |
-|-------|---------|--------|-----------------|
-| (none installed) | - | - | - |
+## Organism Skills
 
-## Bundled/OpenClaw Skills Available
+These skills are specific to WebStudio organism operation:
 
-Run `openclaw skills list --eligible` to see current list.
+| Skill | Purpose | Location |
+|-------|---------|----------|
+| webstudio-skill-intelligence-check | Check installed/eligible/missing skills before tasks | `workspace/skills/webstudio-skill-intelligence-check/SKILL.md` |
+| webstudio-organism-memory-check | Verify Supabase + /api/state + QMD + lossless | `scripts/webstudio-organism-memory-smoke.js` |
 
-## Skill Search Queries Reference
+## Skill Install/Update History
 
-| Task Type | Query |
-|-----------|-------|
-| Browser automation | `browser`, `playwright`, `puppeteer` |
-| GitHub integration | `github`, `git`, `pr`, `issue` |
-| Testing/smoke | `test`, `smoke`, `regression`, `jest` |
-| Deployment/release | `deploy`, `release`, `publish` |
-| Documentation | `docs`, `markdown`, `api` |
-| Security audit | `security`, `audit`, `secret`, `scan` |
-| API integration | `api`, `rest`, `graphql`, `http` |
-| Data processing | `json`, `csv`, `parse`, `transform` |
+| Date | Skill | Action | Result | Notes |
+|------|-------|--------|--------|-------|
+| 2026-05-05 | (baseline) | Scan | 12 ready | Initial Skill Intelligence scan |
 
-## Security Policy
+## Missing Requirements
 
-- Third-party skills are UNTRUSTED by default
-- Never install without inspecting SKILL.md
-- Secret requirements must be flagged
-- Obfuscated scripts are a red flag (REJECT)
-- Credential access skills require explicit approval (REJECT otherwise)
-- Crypto/wallet skills are REJECTED
-- Quality Governor approval required for risky skills
+| Skill | Missing Requirement | Status |
+|-------|---------------------|--------|
+| (none) | — | All requirements satisfied |
 
-## Maintenance
+## ClawHub Discovery
 
-- Run `openclaw skills check` after installing/updating skills
-- Update this registry after each skill change
-- Review installed skills quarterly for security updates
+ClawHub search is operational. Use for task-specific skill discovery:
+
+```bash
+# Search for skills
+openclaw skills search "<query>" --limit 20
+
+# Inspect before install
+openclaw skills info <slug>
+
+# Install (after security review)
+openclaw skills install <slug>
+```
+
+### Potential Future Skills
+
+| Skill | Use Case | Risk Level | Status |
+|-------|----------|------------|--------|
+| telegram | Telegram bot integration | Medium (channel) | Not installed |
+| slack | Slack integration | Medium (channel) | Not installed |
+| discord | Discord integration | Medium (channel) | Not installed |
+| gog | Google Workspace API | High (secrets) | Not installed |
+| notion | Notion API | Medium (secrets) | Not installed |
+
+## Policy Reference
+
+See `docs/webstudio-skill-intelligence-agent.md` for:
+- Auto-install policy
+- Approval requirements
+- Skill Intelligence agent workflow
+
+## Scan Script
+
+Run manual scan:
+```bash
+node scripts/webstudio-skill-intelligence-scan.js
+```
+
+Report location:
+```
+/tmp/webstudio-demo/skill-intelligence-report.json
+```
+
+## Daily Timer
+
+A systemd timer runs the scan daily:
+```bash
+systemctl --user status webstudio-skill-intelligence.timer
+```

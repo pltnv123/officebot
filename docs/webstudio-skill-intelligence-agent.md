@@ -2,219 +2,153 @@
 
 ## Purpose
 
-WebStudio Skill Intelligence Agent — это специализированный агент для обнаружения, оценки, установки и обслуживания OpenClaw навыков для WebStudio.
+The Skill Intelligence agent is a dedicated infrastructure/knowledge agent for the WebStudio multi-agent system. It owns skill discovery, install/update governance, skill registry maintenance, and multi-agent skill routing.
 
-## Mission
+This agent is **not** a product-coding agent. It does not build features. It ensures other agents have the right skills/tools to execute their tasks.
 
-1. **Skill Discovery** — Поиск релевантных навыков через ClawHub, openclaw skills search, и внешние источники
-2. **Skill Vetting** — Безопасность: проверка SKILL.md на секреты, обфускацию, подозрительные паттерны
-3. **Skill Installation** — Установка после проверки, обновление реестра
-4. **Skill Maintenance** — Регулярная проверка установленных навыков, обновление, аудит
-5. **Skill Recommendations** — Рекомендации навыков по типу задачи (browser, github, testing, deployment, security)
+## Agent Identity
 
-## Available Skill Sources
+| Property | Value |
+|----------|-------|
+| Agent ID | `skill-intelligence` |
+| Workspace | `~/.openclaw/workspace-skill-intelligence/` |
+| Role | Autonomous Skill Curator for WebStudio |
+| Primary Model | ollama/qwen3.5:cloud |
 
-### ClawHub Skills (clawhub.ai)
+## Responsibilities
 
-| Skill | Purpose | Relevance |
-|-------|---------|-----------|
-| `skill-vetter` | Security-first skill vetting | 🔴 HIGH — mandatory before install |
-| `skill-sonar` | Lifecycle guard, route to preflight/runtime | 🟡 MEDIUM |
-| `skill-lookup-tool` | Search/install from prompts.chat registry | 🟡 MEDIUM |
-| `skill-recommender` | Find/filter/cluster similar skills | 🟢 HIGH — discovery |
-| `skill-inventory` | Scan installed skills, generate inventory | 🟢 HIGH — maintenance |
-| `skill-inventory-expert` | Skill inventory & capability assessment | 🟢 HIGH — assessment |
-| `skill-sharpener` | Quality assessment for existing skills | 🟡 MEDIUM — optimization |
-| `l4-skill-forge` | Design L4 production-ready skills | 🟡 MEDIUM — custom skills |
-| `skill-template` | Skill template generator | 🟡 MEDIUM — scaffolding |
-| `clawhub` | Search/install/update/sync/publish skills | 🔴 HIGH — core CLI |
+1. **Skill Discovery**
+   - Scan installed skills before complex tasks
+   - Search ClawHub for missing capabilities
+   - Identify skill gaps in task execution
 
-### OpenClaw Bundled Skills
+2. **Install/Update Governance**
+   - Recommend safe skills for installation
+   - Auto-install low-risk workspace skills when policy allows
+   - Require approval for risky skills
 
-| Skill | Purpose | Relevance |
-|-------|---------|-----------|
-| `gh-issues` | GitHub issues, PRs, CI/logs | 🟢 HIGH — GitHub workflow |
-| `github` | GitHub CLI integration | 🟢 HIGH — GitHub workflow |
-| `healthcheck` | Audit/harden hosts | 🟡 MEDIUM — security |
-| `lossless-claw` | Memory/continuity | 🔴 HIGH — already active |
-| `node-connect` | Android/iOS/macOS node pairing | 🟡 MEDIUM — future mobile |
-| `session-logs` | Search/analyze session logs | 🟢 HIGH — debugging |
-| `skill-creator` | Create/edit/improve skills | 🟢 HIGH — custom skills |
-| `taskflow` | Multi-step detached tasks | 🟡 MEDIUM — orchestration |
-| `tmux` | Remote-control tmux | 🟡 MEDIUM — interactive CLIs |
-| `weather` | Weather forecasts | ⚪ LOW — not relevant |
+3. **Skill Registry Maintenance**
+   - Track installed skills and versions
+   - Record install/update history
+   - Document missing requirements
 
-## Skill Intelligence Workflow
+4. **Multi-Agent Skill Routing**
+   - Inform other agents which skills to use
+   - Prevent unsafe or irrelevant skill installs
+   - Provide skill recommendations on request
 
-```
-User Request (needs skill)
-    ↓
-Skill Intelligence Agent
-    ↓
-1. Search (clawhub, openclaw skills search)
-    ↓
-2. Vet (skill-vetter, security review)
-    ↓
-3. Recommend (skill-recommender, top 3-5)
-    ↓
-4. User Approval (explicit for risky skills)
-    ↓
-5. Install (openclaw skills install)
-    ↓
-6. Verify (openclaw skills check)
-    ↓
-7. Document (update webstudio-skill-registry.md)
-    ↓
-8. Quality Governor (final gate)
-```
+## How It Scans Skills
 
-## Security Policy
-
-**Third-party skills are UNTRUSTED by default**
-
-### Red Flags (REJECT immediately)
-
-- ❌ Secrets/credentials in SKILL.md or scripts
-- ❌ Obfuscated code (base64, minified, eval)
-- ❌ Crypto/wallet operations
-- ❌ Network calls to unknown domains
-- ❌ Shell execution without validation
-- ❌ File system access outside skill directory
-- ❌ No clear purpose/description
-
-### Yellow Flags (require explicit approval)
-
-- ⚠️ External API calls (document endpoints)
-- ⚠️ File writes outside skill directory
-- ⚠️ Environment variable access
-- ⚠️ Sub-agent spawning
-- ⚠️ Cron/scheduling
-
-### Green Flags (safe to install after review)
-
-- ✅ Read-only file operations
-- ✅ Local CLI wrappers (blu, grizzly, remindctl)
-- ✅ Well-documented SKILL.md
-- ✅ No secrets, no credentials
-- ✅ Clear purpose and boundaries
-- ✅ Quality Governor approval
-
-## Skill Search Queries Reference
-
-| Task Type | Query | Priority Skills |
-|-----------|-------|-----------------|
-| Browser automation | `browser`, `playwright`, `puppeteer` | skill-recommender, skill-vetter |
-| GitHub integration | `github`, `git`, `pr`, `issue` | gh-issues, github |
-| Testing/smoke | `test`, `smoke`, `regression`, `jest` | skill-inventory-expert |
-| Deployment/release | `deploy`, `release`, `publish` | clawhub |
-| Documentation | `docs`, `markdown`, `api` | skill-template |
-| Security audit | `security`, `audit`, `secret`, `scan` | skill-vetter, healthcheck |
-| API integration | `api`, `rest`, `graphql`, `http` | skill-lookup-tool |
-| Data processing | `json`, `csv`, `parse`, `transform` | skill-inventory |
-| Skill creation | `skill`, `template`, `forge`, `create` | skill-creator, l4-skill-forge |
-| Skill assessment | `assess`, `evaluate`, `quality` | skill-sharpener, skill-inventory-expert |
-
-## Installed Skills Registry
-
-See `docs/webstudio-skill-registry.md` for current installed skills.
-
-## Maintenance Schedule
-
-| Task | Frequency | Command |
-|------|-----------|---------|
-| Skill inventory | Weekly | `openclaw skills list` |
-| Security check | Weekly | `openclaw skills check` |
-| ClawHub sync | Monthly | `clawhub sync` |
-| Skill updates | Monthly | `openclaw skills update` |
-| Registry update | After each change | Edit `docs/webstudio-skill-registry.md` |
-
-## Quality Governor Integration
-
-Skill Intelligence Agent must report to Quality Governor:
-
-```markdown
-## Skill Intelligence Check
-
-- Skills searched: YES/NO
-- Skills vetted: YES/NO
-- Security review: PASS/FAIL
-- User approval: YES/NO/NOT_REQUIRED
-- Skills installed: COUNT
-- Registry updated: YES/NO
-- openclaw skills check: PASS/FAIL
-
-**Verdict:** PASS / FAIL
-```
-
-## Usage Examples
-
-### Example 1: Find browser automation skill
+The agent runs a daily scan via `scripts/webstudio-skill-intelligence-scan.js`:
 
 ```bash
-# Search
-openclaw skills search "browser playwright" --limit 10
+# Manual run
+node scripts/webstudio-skill-intelligence-scan.js
 
-# Vet top candidate
-openclaw skills info <skill-name>
+# Report location
+/tmp/webstudio-demo/skill-intelligence-report.json
+```
 
-# Install after review
-openclaw skills install <skill-name>
+Scan commands:
+- `openclaw skills list --json`
+- `openclaw skills list --eligible --json`
+- `openclaw skills check --json`
+- `openclaw skills search --limit 20 --json`
 
-# Verify
+## Auto-Install Policy
+
+The agent may auto-install skills **only** when ALL conditions are met:
+
+✅ **Allowed (low-risk):**
+- Skills from OpenClaw/ClawHub native search
+- Match current task need
+- No missing critical requirements
+- No external secrets required
+- No external message/channel access
+- No system service modification
+- No paid third-party account needed
+- No broad filesystem/network powers beyond normal workspace use
+
+❌ **Requires Approval:**
+- Channel skills: telegram, slack, discord, whatsapp
+- Secrets/API-key skills
+- Payment/commercial service skills
+- Destructive/system skills
+- Skills requiring sudo/root/global packages
+- Skills with unknown source or unclear install requirements
+- Plugin installs
+
+## How Other Agents Use It
+
+Before a non-trivial task, any agent should:
+
+1. **Run Skill Check:**
+   ```bash
+   openclaw skills check
+   node scripts/webstudio-skill-intelligence-scan.js
+   ```
+
+2. **Ask Skill Intelligence:**
+   - Is there a missing skill for this task?
+   - Should I install a skill before proceeding?
+   - What skill is recommended for X?
+
+3. **Follow Policy:**
+   - Install safe low-risk skills if needed
+   - Request approval for risky skills
+   - Record decision in skill registry
+
+## Manual Invocation
+
+```bash
+# Full scan
+node scripts/webstudio-skill-intelligence-scan.js
+
+# Check skills status
 openclaw skills check
 
-# Document
-# Update docs/webstudio-skill-registry.md
+# Search ClawHub
+openclaw skills search "github automation" --limit 10
+
+# Install a skill (after inspection)
+openclaw skills info <slug>
+openclaw skills install <slug>
+
+# Update all skills
+openclaw skills update --all
 ```
 
-### Example 2: Assess installed skills
+## Systemd Timer
+
+A daily timer runs the skill scan automatically:
 
 ```bash
-# List all skills
-openclaw skills list
+# Check timer status
+systemctl --user status webstudio-skill-intelligence.timer
 
-# Check health
-openclaw skills check
-
-# Generate inventory
-# Use skill-inventory or skill-inventory-expert
+# Run scan manually
+systemctl --user start webstudio-skill-intelligence.service
 ```
 
-### Example 3: Create custom WebStudio skill
+## Files
 
-```bash
-# Use skill-template
-openclaw skills skill-template --name webstudio-delivery-polish
+| File | Purpose |
+|------|---------|
+| `~/.openclaw/workspace-skill-intelligence/SOUL.md` | Agent persona and rules |
+| `~/.openclaw/workspace-skill-intelligence/AGENTS.md` | Agent duties and acceptance rule |
+| `~/.openclaw/workspace-skill-intelligence/TOOLS.md` | Allowed and forbidden tools |
+| `~/.openclaw/workspace-skill-intelligence/BOOT.md` | Boot checklist |
+| `~/.openclaw/workspace-skill-intelligence/HEARTBEAT.md` | Daily maintenance tasks |
+| `~/.openclaw/workspace-skill-intelligence/MEMORY.md` | Agent memory |
+| `docs/webstudio-skill-registry.md` | Skill registry and history |
+| `scripts/webstudio-skill-intelligence-scan.js` | Scan script |
 
-# Or use skill-creator
-openclaw skills skill-creator create --name webstudio-organism-check
+## Quality Gate
 
-# Forge L4 production skill
-# Use l4-skill-forge
-```
+No non-trivial task should report **ACCEPTED** unless:
+- Skill Check was performed
+- Missing skills were identified or ruled out
+- Required skills were installed or approval requested
+- Decision was recorded in skill registry
 
-## Relation to Other Agents
-
-| Agent | Handoff |
-|-------|---------|
-| Task Contract Enforcer | Declares if skill discovery required |
-| Skill Curator | Executes skill search/install/vet |
-| Security Auditor | Deep security review for risky skills |
-| Quality Governor | Final gate before skill activation |
-| Release Manager | Git discipline for skill registry updates |
-
-## Metrics
-
-| Metric | Target |
-|--------|--------|
-| Skills vetted before install | 100% |
-| Security incidents | 0 |
-| Registry accuracy | 100% |
-| Skill uptime | 99%+ |
-| User satisfaction | 4.5/5+ |
-
----
-
-**Last updated:** 2026-05-05  
-**Owner:** Skill Intelligence Agent  
-**Status:** ACTIVE
+See `docs/webstudio-brain-substrate-policy.md` for full substrate requirements.
