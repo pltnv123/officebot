@@ -107,6 +107,7 @@ function renderWebStudioDemoPage({ orderId = '' } = {}) {
         <h1>WebStudio MVP Demo</h1>
         <div class="subtitle">Автоматизированная веб-студия: intake → router → landing, script или telegram bot package. Каждый тип проекта теперь рендерится как отдельный surface.</div>
         <div id="hero-chips" class="hero-meta"></div>
+        <div style="margin-top:16px;"><a href="/webstudio/router" class="linkish" style="font-size:14px;">🧭 Project Router →</a></div>
       </div>
       <div class="panel summary-card">
         <h2 style="margin-bottom:10px;">Что показывает этот demo</h2>

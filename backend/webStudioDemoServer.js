@@ -18,6 +18,7 @@ const { runLandingPreview, listVersions: listLandingVersions, loadVersion: loadL
 const { subscribeLiveRun, stopLiveRun, startLiveScriptRun, sendInputToLiveRun } = require('./controlPlane/services/webStudio/webStudioLiveRunService');
 const { renderWebStudioDemoPage } = require('./webStudioDemoPage');
 const { renderWebStudioDeliveryPage } = require('./webStudioDeliveryPage');
+const { renderWebStudioRouterPage } = require('./webStudioRouterPage');
 const { getPlatformCapabilitiesSurface } = require('./controlPlane/services/webStudio/webStudioPlatformRegistryService');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -294,6 +295,10 @@ async function main() {
 
   app.get('/webstudio/demo/:orderId', (req, res) => {
     res.type('html').send(renderWebStudioDemoPage({ orderId: String(req.params.orderId || '').trim() }));
+  });
+
+  app.get('/webstudio/router', (req, res) => {
+    res.type('html').send(renderWebStudioRouterPage({}));
   });
 
   app.post('/api/demo/webstudio-order/full-mvp', async (req, res) => {
