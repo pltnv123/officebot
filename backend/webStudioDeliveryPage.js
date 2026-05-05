@@ -627,7 +627,14 @@ function renderWebStudioDeliveryPage({ artifact }) {
       
       // Reset edit mode when switching files
       isEditing = false;
-      if (editBtn) editBtn.classList.remove('hidden');
+      // Hide/show edit button based on file editability
+      if (editBtn) {
+        if (isEditable) {
+          editBtn.classList.remove('hidden');
+        } else {
+          editBtn.classList.add('hidden');
+        }
+      }
       if (saveBtn) saveBtn.classList.add('hidden');
       if (resetBtn) resetBtn.classList.add('hidden');
       
