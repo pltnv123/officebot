@@ -99,6 +99,27 @@ Report branch name and commit hash. Main branch remains untouched.
 
 ## Required Final Checklist
 
+Before reporting COMPLETE:
+
+- [ ] Task Contract created
+- [ ] All contract items DONE
+- [ ] All proofs present (browser, delivery, git, etc.)
+- [ ] Quality Governor verdict = ACCEPTED or CONDITIONALLY ACCEPTED
+- [ ] Commit + push complete (if required)
+- [ ] **Runtime owner proof** (for stateful/runtime tasks):
+  - [ ] `systemctl --user status webstudio-demo.service` active
+  - [ ] Service MainPID exists
+  - [ ] Port 8787 owner PID exists
+  - [ ] Port owner PID equals service MainPID
+  - [ ] Process env contains Supabase vars
+  - [ ] `/api/state` ok=true, supabase.restProbeOk=true
+
+**Runtime Owner Rule:**
+Port 8787 must be owned by webstudio-demo.service.
+Manual/nohup WebStudio demo process is forbidden when systemd service is available.
+Server fails fast if PORT=8787 without Supabase env.
+**ACCEPTED is forbidden if runtime owner proof is missing.**
+
 Every final report must include:
 
 ```markdown

@@ -23,6 +23,19 @@ const { getPlatformCapabilitiesSurface } = require('./controlPlane/services/webS
 
 const ROOT = path.resolve(__dirname, '..');
 const PORT = Number(process.env.PORT || 8787);
+
+// WEBSTUDIO-RUNTIME-OWNER-GUARD: Fail-fast if PORT=8787 without Supabase env
+if (PORT === 8787) {
+  const requiredSupabaseEnv = ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY'];
+  const missing = requiredSupabaseEnv.filter(key => !process.env[key]);
+  if (missing.length > 0) {
+    console.error('WEBSTUDIO_ORGANISM_ENV_MISSING: refusing to listen on 8787 without Supabase env');
+    console.error('Missing env vars:', missing.join(', '));
+    console.error('Hint: Use scripts/start-webstudio-demo-with-organism-env.sh or systemctl --user restart webstudio-demo.service');
+    process.exit(1);
+  }
+}
+
 const SCRIPT_ARTIFACT_ROOT = path.join(ROOT, 'backend', 'controlPlane', 'storage', '.first-governed-workflow-runtime', 'webstudio-script-artifacts');
 const TELEGRAM_BOT_ARTIFACT_ROOT = path.join(ROOT, 'backend', 'controlPlane', 'storage', '.first-governed-workflow-runtime', 'webstudio-telegram-bot-artifacts');
 const LANDING_ARTIFACT_ROOT = path.join(ROOT, 'backend', 'controlPlane', 'storage', '.first-governed-workflow-runtime', 'webstudio-landing-artifacts');

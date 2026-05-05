@@ -48,6 +48,23 @@ Service file: `~/.config/systemd/user/webstudio-demo.service`
 
 **This is the primary runtime owner for WebStudio demo.**
 
+### Runtime Owner Rule
+
+**Port 8787 must be owned by webstudio-demo.service.**
+
+Manual/nohup WebStudio demo process is forbidden when systemd service is available.
+
+The server enforces this with fail-fast:
+- If `PORT=8787` and any Supabase env is missing (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`)
+- Server exits before binding port with error:
+  `WEBSTUDIO_ORGANISM_ENV_MISSING: refusing to listen on 8787 without Supabase env`
+
+The watchdog verifies runtime ownership:
+- Compares service MainPID with port 8787 owner PID
+- If mismatch: kills stale process, restarts service, verifies new owner
+
+**ACCEPTED is forbidden if runtime owner proof is missing.**
+
 ### Method 2: Startup Script (Fallback/Manual Recovery)
 
 ```bash

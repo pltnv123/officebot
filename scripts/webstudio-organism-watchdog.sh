@@ -86,6 +86,55 @@ check_memory() {
   timeout 60 "$OPENCLAW_BIN" memory search "WebStudio Supabase QMD lossless organism" >/tmp/webstudio-demo/watchdog-memory.out 2>&1
 }
 
+# WEBSTUDIO-RUNTIME-OWNER-GUARD: Check that port 8787 is owned by systemd service
+check_runtime_owner() {
+  # Get service MainPID
+  SERVICE_PID=$(systemctl --user show "$WEBSTUDIO_SERVICE" -p MainPID --value 2>/dev/null || echo "")
+  
+  if [ -z "$SERVICE_PID" ] || [ "$SERVICE_PID" = "" ]; then
+    echo "$(ts) SERVICE_PID not found" >> "$LOG"
+    return 1
+  fi
+  
+  # Get port 8787 owner PID
+  PORT_OWNER_PID=$(ss -ltnp 2>/dev/null | grep ':8787' | sed -n 's/.*users:(("node",pid=\([0-9]*\).*/\1/p' | head -1)
+  
+  if [ -z "$PORT_OWNER_PID" ]; then
+    echo "$(ts) Port 8787 owner not found" >> "$LOG"
+    return 1
+  fi
+  
+  # Compare PIDs
+  if [ "$SERVICE_PID" != "$PORT_OWNER_PID" ]; then
+    echo "$(ts) RUNTIME OWNER MISMATCH: service PID=$SERVICE_PID, port owner PID=$PORT_OWNER_PID" >> "$LOG"
+    
+    # Kill stale process
+    echo "$(ts) Killing stale process $PORT_OWNER_PID" >> "$LOG"
+    kill "$PORT_OWNER_PID" 2>/dev/null || true
+    sleep 2
+    
+    # Restart service
+    echo "$(ts) Restarting $WEBSTUDIO_SERVICE" >> "$LOG"
+    systemctl --user restart "$WEBSTUDIO_SERVICE" >> "$LOG" 2>&1 || true
+    sleep 3
+    
+    # Verify new owner
+    NEW_PORT_OWNER=$(ss -ltnp 2>/dev/null | grep ':8787' | sed -n 's/.*users:(("node",pid=\([0-9]*\).*/\1/p' | head -1)
+    NEW_SERVICE_PID=$(systemctl --user show "$WEBSTUDIO_SERVICE" -p MainPID --value 2>/dev/null || echo "")
+    
+    if [ "$NEW_SERVICE_PID" = "$NEW_PORT_OWNER" ]; then
+      echo "$(ts) Runtime owner restored: PID=$NEW_SERVICE_PID" >> "$LOG"
+      return 0
+    else
+      echo "$(ts) Runtime owner still mismatched after restart" >> "$LOG"
+      return 1
+    fi
+  fi
+  
+  echo "$(ts) Runtime owner OK: PID=$SERVICE_PID" >> "$LOG"
+  return 0
+}
+
 echo "$(ts) watchdog start" >> "$LOG"
 
 load_state
@@ -94,13 +143,15 @@ api_ok=false
 smoke_ok=false
 gateway_ok=false
 memory_ok=false
+runtime_owner_ok=false
 
 if retry 2 3 check_api_state; then api_ok=true; fi
 if retry 2 3 check_smoke; then smoke_ok=true; fi
 if retry 3 5 check_gateway; then gateway_ok=true; fi
 if retry 2 5 check_memory; then memory_ok=true; fi
+if retry 2 3 check_runtime_owner; then runtime_owner_ok=true; fi
 
-if [ "$api_ok" = "true" ] && [ "$smoke_ok" = "true" ]; then
+if [ "$api_ok" = "true" ] && [ "$smoke_ok" = "true" ] && [ "$runtime_owner_ok" = "true" ]; then
   web_fail=0
 else
   web_fail=$((web_fail + 1))
@@ -112,7 +163,7 @@ else
   gateway_fail=$((gateway_fail + 1))
 fi
 
-echo "$(ts) api=$api_ok smoke=$smoke_ok gateway=$gateway_ok memory=$memory_ok web_fail=$web_fail gateway_fail=$gateway_fail" >> "$LOG"
+echo "$(ts) api=$api_ok smoke=$smoke_ok gateway=$gateway_ok memory=$memory_ok runtime_owner=$runtime_owner_ok web_fail=$web_fail gateway_fail=$gateway_fail" >> "$LOG"
 
 if [ "$web_fail" -ge "$FAIL_THRESHOLD" ]; then
   echo "$(ts) restarting $WEBSTUDIO_SERVICE after $web_fail consecutive failures" >> "$LOG"

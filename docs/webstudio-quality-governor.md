@@ -84,7 +84,17 @@ plan/build → verify → reject/fix → re-verify → reject/fix → final veri
 
 **Runtime owner verification:**
 - [ ] Primary: `systemctl --user status webstudio-demo.service` (active)
+- [ ] Service MainPID exists
+- [ ] Port 8787 owner PID exists
+- [ ] Port owner PID equals service MainPID
+- [ ] Process env contains SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
 - [ ] Fallback: startup script works if systemd unavailable
+
+**Runtime Owner Rule:**
+Port 8787 must be owned by webstudio-demo.service.
+Manual/nohup WebStudio demo process is forbidden when systemd service is available.
+Server fails fast if PORT=8787 without Supabase env.
+**ACCEPTED is forbidden if runtime owner proof is missing.**
 
 **Skill Intelligence verification (for complex/non-trivial tasks):**
 - [ ] Skill scan run (`node scripts/webstudio-skill-intelligence-scan.js` or `openclaw skills check`)
