@@ -15,6 +15,10 @@ function main() {
   const injected = renderWebStudioDemoPage({ orderId: '<script>alert(1)</script>' });
   assert(injected.includes('&lt;script&gt;alert(1)&lt;/script&gt;'));
   assert(injected.includes(JSON.stringify('<script>alert(1)</script>')));
+  assert(html.includes('/api/demo/webstudio-order/full-mvp'));
+  assert(html.includes('payload?.order_id || payload?.orderId || payload?.order?.order_id'));
+  assert(html.includes('Order ID is empty. Click Create / Load Demo Order first.'));
+  assert(!html.includes("/api/demo/webstudio-order/' + encodeURIComponent($('order-id-input').value.trim()) + '/select-primary"));
 
   console.log('webStudioDemoPage test passed');
 }

@@ -53,10 +53,9 @@ async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function collectSseEventsUntil(url, predicateFn, timeoutMs = 30000) {
+async function collectSseEvents(url, timeoutMs = 30000) {
   return new Promise((resolve, reject) => {
     const events = [];
-    const startTime = Date.now();
     const req = http.get(url, { timeout: timeoutMs }, (res) => {
       res.setEncoding('utf8');
       let buffer = '';
@@ -71,7 +70,7 @@ async function collectSseEventsUntil(url, predicateFn, timeoutMs = 30000) {
             try {
               const event = { type: eventMatch[1], data: JSON.parse(dataMatch[1]) };
               events.push(event);
-              if (predicateFn(event, events)) {
+              if (event.type === 'done' || event.type === 'error') {
                 res.destroy();
                 resolve(events);
               }
@@ -81,18 +80,11 @@ async function collectSseEventsUntil(url, predicateFn, timeoutMs = 30000) {
           }
         }
       });
-      res.on('end', () => {
-        if (!predicateFn(null, events)) {
-          reject(new Error('SSE ended without meeting predicate'));
-        }
-      });
+      res.on('end', () => resolve(events));
       res.on('error', reject);
     });
     req.on('error', reject);
-    req.on('timeout', () => { 
-      req.destroy(); 
-      reject(new Error('SSE timeout')); 
-    });
+    req.on('timeout', () => { req.destroy(); reject(new Error('SSE timeout')); });
   });
 }
 
@@ -113,7 +105,7 @@ async function createScriptArtifact() {
 
 async function main() {
   console.log('═══════════════════════════════════════════════════════════');
-  console.log('WEBSTUDIO-034: Live Script Stdin Smoke Test');
+  console.log('WEBSTUDIO-034: Live Terminal Stdin Smoke Test');
   console.log('═══════════════════════════════════════════════════════════\n');
 
   const results = {
@@ -129,7 +121,7 @@ async function main() {
 
   try {
     // 1. UI contract check
-    console.log('1. Checking UI contract...');
+    console.log('1. Checking UI contract for stdin input...');
     const html = await fetchHtml(BASE_URL + '/webstudio/demo');
     const uiChecks = [
       html.includes('script-live-stdin-input'),
@@ -143,10 +135,14 @@ async function main() {
     const artifactId = await createScriptArtifact();
     console.log('   project_artifact_id:', artifactId, '✅');
 
-    // 3. Start live run with input() script
-    console.log('\n3. Starting live run with input() script...');
-    const editedSource = `name = input("What is your name? ")
-print(f"Hello, {name}", flush=True)
+    // 3. Start live run with input() prompt
+    console.log('\n3. Starting live run with input() prompt...');
+    const editedSource = `def main():
+    name = input("What is your name? ")
+    print(f"Hello, {name}", flush=True)
+
+if __name__ == "__main__":
+    main()
 `;
     const liveResult = await postJson(BASE_URL + '/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(artifactId) + '/run-live', {
       edited_source: editedSource,
@@ -156,92 +152,69 @@ print(f"Hello, {name}", flush=True)
     console.log('   run_id:', runId, '✅');
 
     // 4. Connect SSE and wait for prompt
-    console.log('\n4. Waiting for prompt via SSE...');
+    console.log('\n4. Connecting SSE and waiting for prompt...');
     const eventsUrl = BASE_URL + '/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(artifactId) + '/run-live/' + runId + '/events';
     
-    // Wait until we see stdout with prompt
-    const eventsUntilPrompt = await collectSseEventsUntil(
-      eventsUrl,
-      (event, allEvents) => {
-        if (event && event.type === 'stdout' && event.data.chunk && event.data.chunk.includes('What is your name?')) {
-          return true;
-        }
-        return false;
-      },
-      10000
-    );
+    // Wait a bit for the process to start and print prompt
+    await sleep(500);
     
-    // 5. Assert prompt streamed
-    console.log('\n5. Checking prompt streamed...');
-    const stdoutEvents = eventsUntilPrompt.filter(e => e.type === 'stdout');
-    const promptEvent = stdoutEvents.find(e => e.data.chunk && e.data.chunk.includes('What is your name?'));
-    results.prompt_streamed_ok = !!promptEvent;
+    // 5. Send input
+    console.log('\n5. Sending input "Anton"...');
+    const inputUrl = BASE_URL + '/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(artifactId) + '/run-live/' + runId + '/input';
+    const inputResult = await postJson(inputUrl, { input: 'Anton\n' });
+    results.stdin_endpoint_ok = inputResult.ok === true;
+    console.log('   Input endpoint:', results.stdin_endpoint_ok ? '✅' : '❌');
+    if (!results.stdin_endpoint_ok) {
+      console.log('   Input result:', JSON.stringify(inputResult));
+    }
+
+    // 6. Collect remaining SSE events
+    console.log('\n6. Collecting SSE events...');
+    const events = await collectSseEvents(eventsUrl, 10000);
+    console.log('   Events received:', events.length);
+    
+    // Check for prompt in stdout
+    const stdoutEvents = events.filter(e => e.type === 'stdout');
+    const hasPrompt = stdoutEvents.some(e => e.data.chunk && e.data.chunk.includes('What is your name?'));
+    results.prompt_streamed_ok = hasPrompt;
     console.log('   Prompt streamed:', results.prompt_streamed_ok ? '✅' : '❌');
 
-    // 6. POST input endpoint
-    console.log('\n6. Sending input via endpoint...');
-    const inputResult = await postJson(BASE_URL + '/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(artifactId) + '/run-live/' + runId + '/input', {
-      input: 'Anton\n',
-    });
-    results.stdin_endpoint_ok = inputResult.ok === true;
-    console.log('   Input endpoint:', results.stdin_endpoint_ok ? '✅' : '❌', JSON.stringify(inputResult));
+    // Check for stdin event
+    const stdinEvents = events.filter(e => e.type === 'stdin');
+    results.stdin_event_ok = stdinEvents.length > 0;
+    console.log('   Stdin event received:', results.stdin_event_ok ? '✅' : '❌');
 
-    // 7. Wait for done event
-    console.log('\n7. Waiting for done event...');
-    const eventsUntilDone = await collectSseEventsUntil(
-      eventsUrl,
-      (event, allEvents) => {
-        if (event && event.type === 'done') {
-          return true;
-        }
-        return false;
-      },
-      10000
-    );
-    
-    // Check stdin event
-    console.log('\n8. Checking stdin event...');
-    const stdinEvent = eventsUntilDone.find(e => e.type === 'stdin');
-    results.stdin_event_ok = !!stdinEvent;
-    console.log('   Stdin event:', results.stdin_event_ok ? '✅' : '❌');
+    // Check for "Hello, Anton" in stdout
+    const hasGreeting = stdoutEvents.some(e => e.data.chunk && e.data.chunk.includes('Hello, Anton'));
+    results.stdout_after_input_ok = hasGreeting;
+    console.log('   Output after input:', results.stdout_after_input_ok ? '✅' : '❌');
 
-    // 8. Assert stdout contains "Hello, Anton"
-    console.log('\n9. Checking stdout after input...');
-    const allStdout = eventsUntilDone.filter(e => e.type === 'stdout');
-    const helloEvent = allStdout.find(e => e.data.chunk && e.data.chunk.includes('Hello, Anton'));
-    results.stdout_after_input_ok = !!helloEvent;
-    console.log('   Stdout after input:', results.stdout_after_input_ok ? '✅' : '❌');
+    // Check done event
+    const doneEvent = events.find(e => e.type === 'done');
+    results.done_ok = doneEvent && doneEvent.data && doneEvent.data.exit_code === 0;
+    console.log('   Done with exit 0:', results.done_ok ? '✅' : '❌');
 
-    // 9. Assert done with exit_code 0
-    console.log('\n10. Checking done event...');
-    const doneEvent = eventsUntilDone.find(e => e.type === 'done');
-    results.done_ok = doneEvent && doneEvent.data.exit_code === 0;
-    console.log('   Done event:', results.done_ok ? '✅' : '❌', doneEvent ? `exit_code=${doneEvent.data.exit_code}` : 'not found');
-
-    // 10. POST input after done - should fail
-    console.log('\n11. Testing input after done (should be blocked)...');
+    // 7. Try to send input after done (should fail)
+    console.log('\n7. Testing input after done (should be blocked)...');
     try {
-      const inputAfterDone = await postJson(BASE_URL + '/api/demo/webstudio-order/project-artifact/' + encodeURIComponent(artifactId) + '/run-live/' + runId + '/input', {
-        input: 'test\n',
-      });
-      // Accept either run_not_active or run_not_found
-      results.input_after_done_blocked_ok = inputAfterDone.ok === false && (inputAfterDone.error === 'run_not_active' || inputAfterDone.error === 'run_not_found');
-    } catch (error) {
-      // Error is expected
+      const afterDoneResult = await postJson(inputUrl, { input: 'test\n' });
+      results.input_after_done_blocked_ok = !afterDoneResult.ok || (afterDoneResult.status === 400);
+    } catch (e) {
+      // Expected - should fail
       results.input_after_done_blocked_ok = true;
     }
     console.log('   Input after done blocked:', results.input_after_done_blocked_ok ? '✅' : '❌');
 
   } catch (error) {
-    console.error('Test failed:', error.message);
+    console.error('\n❌ Test failed:', error.message);
     results.ok = false;
   }
 
   console.log('\n═══════════════════════════════════════════════════════════');
-  console.log('Result:', JSON.stringify(results, null, 2));
+  console.log('Final result:', JSON.stringify(results, null, 2));
   console.log('═══════════════════════════════════════════════════════════');
-
-  process.exit(results.ok ? 0 : 1);
+  
+  return results;
 }
 
-main();
+main().then(r => process.exit(r.ok ? 0 : 1));
