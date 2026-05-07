@@ -1,11 +1,18 @@
 name: Unity Generate ALF
 
+permissions:
+  contents: read
+  actions: read
+
 on:
   workflow_dispatch:
 
 jobs:
   generate-alf:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     steps:
       - uses: actions/checkout@v4
 
