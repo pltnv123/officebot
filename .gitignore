@@ -1,5 +1,34 @@
 node_modules/
 
+# Runtime state and local operator artifacts
 engineering_status.json
+state.json
+tasks.json
+.tasks.backup.json
+.runtime_progress.json
+.world.json
+.live_ops.jsonl
+runtime/
+
+# Logs
 logs/
+*.log
 watchdog.log
+
+# Generated build/check artifacts
+Build/
+build/
+dist/
+*.b64
+screenshot_latest.png
+current_scene.png
+viz_fix.png
+
+# Unity local/generated directories
+UnityProject/Library/
+UnityProject/Temp/
+UnityProject/Obj/
+UnityProject/Build/
+UnityProject/Builds/
+UnityProject/Logs/
+UnityProject/UserSettings/
