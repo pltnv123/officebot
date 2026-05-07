@@ -1,5 +1,9 @@
 name: Unity WebGL Build & Deploy
 
+permissions:
+  contents: read
+  actions: write
+
 on:
   workflow_dispatch:
     inputs:
@@ -26,6 +30,9 @@ jobs:
     strategy:
       fail-fast: false
       max-parallel: 1
+    permissions:
+      contents: read
+      actions: write
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GIT_HTTP_LOW_SPEED_LIMIT: 0
@@ -47,6 +54,9 @@ jobs:
 
   generate-models:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -91,6 +101,9 @@ jobs:
     timeout-minutes: 40
     strategy:
       max-parallel: 1
+    permissions:
+      contents: read
+      actions: write
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -125,6 +138,9 @@ jobs:
     timeout-minutes: 15
     strategy:
       max-parallel: 1
+    permissions:
+      contents: read
+      actions: write
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -145,6 +161,9 @@ jobs:
     needs: [build-unity, build-bootstrap]
     if: always() && (needs.build-unity.result == 'success' || needs.build-bootstrap.result == 'success')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -258,6 +277,9 @@ jobs:
   test-backup-rotation:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.test_backup_rotation == 'true' }}
+    permissions:
+      contents: read
+      actions: write
     steps:
       - name: Setup SSH
         run: |
@@ -287,8 +309,7 @@ jobs:
               echo "ERROR: Expected 10 backups, got $REMAINING"
               exit 1
             fi
-          '"
+          '
       - name: Cleanup test directory
         run: |
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "rm -rf ${{ env.TEST_DIR }}"
-
